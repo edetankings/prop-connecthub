@@ -1,7 +1,8 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Shield, Menu, X } from "lucide-react";
+import { Shield, Menu, X, LogOut, LayoutDashboard, ShieldCheck } from "lucide-react";
 import { useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
 
 const navItems = [
   { label: "Properties", path: "/properties" },
@@ -13,6 +14,7 @@ const navItems = [
 const Navbar = () => {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { user, profile, isAdmin, signOut } = useAuth();
 
   return (
     <nav className="sticky top-0 z-50 border-b border-border bg-card/80 backdrop-blur-lg">
@@ -43,12 +45,29 @@ const Navbar = () => {
         </div>
 
         <div className="hidden items-center gap-2 md:flex">
-          <Link to="/login">
-            <Button variant="ghost" size="sm">Log In</Button>
-          </Link>
-          <Link to="/register">
-            <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90">Sign Up</Button>
-          </Link>
+          {user ? (
+            <>
+              {isAdmin && (
+                <Link to="/admin">
+                  <Button variant="ghost" size="sm" className="gap-1"><ShieldCheck className="h-4 w-4" /> Admin</Button>
+                </Link>
+              )}
+              <Link to="/dashboard">
+                <Button variant="ghost" size="sm" className="gap-1"><LayoutDashboard className="h-4 w-4" /> Dashboard</Button>
+              </Link>
+              <span className="text-sm text-muted-foreground">{profile?.full_name || user.email}</span>
+              <Button variant="ghost" size="sm" onClick={signOut}><LogOut className="h-4 w-4" /></Button>
+            </>
+          ) : (
+            <>
+              <Link to="/login">
+                <Button variant="ghost" size="sm">Log In</Button>
+              </Link>
+              <Link to="/register">
+                <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90">Sign Up</Button>
+              </Link>
+            </>
+          )}
         </div>
 
         <button className="md:hidden" onClick={() => setMobileOpen(!mobileOpen)}>
@@ -69,8 +88,17 @@ const Navbar = () => {
             </Link>
           ))}
           <div className="mt-3 flex gap-2">
-            <Link to="/login" className="flex-1"><Button variant="ghost" size="sm" className="w-full">Log In</Button></Link>
-            <Link to="/register" className="flex-1"><Button size="sm" className="w-full bg-primary text-primary-foreground">Sign Up</Button></Link>
+            {user ? (
+              <>
+                <Link to="/dashboard" className="flex-1"><Button variant="ghost" size="sm" className="w-full">Dashboard</Button></Link>
+                <Button variant="ghost" size="sm" onClick={signOut}><LogOut className="h-4 w-4" /></Button>
+              </>
+            ) : (
+              <>
+                <Link to="/login" className="flex-1"><Button variant="ghost" size="sm" className="w-full">Log In</Button></Link>
+                <Link to="/register" className="flex-1"><Button size="sm" className="w-full bg-primary text-primary-foreground">Sign Up</Button></Link>
+              </>
+            )}
           </div>
         </div>
       )}
