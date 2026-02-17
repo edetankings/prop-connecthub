@@ -268,6 +268,7 @@ export type Database = {
         Row: {
           address: string | null
           agent_id: string
+          amenities: string[] | null
           bathrooms: number | null
           bedrooms: number | null
           city: string | null
@@ -277,6 +278,8 @@ export type Database = {
           image_url: string | null
           images: string[] | null
           is_verified: boolean
+          latitude: number | null
+          longitude: number | null
           price: number
           property_type: string
           sqft: number | null
@@ -284,10 +287,12 @@ export type Database = {
           status: Database["public"]["Enums"]["property_status"]
           title: string
           updated_at: string
+          zip_code: string | null
         }
         Insert: {
           address?: string | null
           agent_id: string
+          amenities?: string[] | null
           bathrooms?: number | null
           bedrooms?: number | null
           city?: string | null
@@ -297,6 +302,8 @@ export type Database = {
           image_url?: string | null
           images?: string[] | null
           is_verified?: boolean
+          latitude?: number | null
+          longitude?: number | null
           price?: number
           property_type?: string
           sqft?: number | null
@@ -304,10 +311,12 @@ export type Database = {
           status?: Database["public"]["Enums"]["property_status"]
           title: string
           updated_at?: string
+          zip_code?: string | null
         }
         Update: {
           address?: string | null
           agent_id?: string
+          amenities?: string[] | null
           bathrooms?: number | null
           bedrooms?: number | null
           city?: string | null
@@ -317,6 +326,8 @@ export type Database = {
           image_url?: string | null
           images?: string[] | null
           is_verified?: boolean
+          latitude?: number | null
+          longitude?: number | null
           price?: number
           property_type?: string
           sqft?: number | null
@@ -324,6 +335,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["property_status"]
           title?: string
           updated_at?: string
+          zip_code?: string | null
         }
         Relationships: [
           {
@@ -432,6 +444,56 @@ export type Database = {
           },
         ]
       }
+      transactions: {
+        Row: {
+          amount: number
+          buyer_id: string
+          commission: number
+          created_at: string
+          id: string
+          notes: string | null
+          property_id: string | null
+          seller_id: string
+          status: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          buyer_id: string
+          commission?: number
+          created_at?: string
+          id?: string
+          notes?: string | null
+          property_id?: string | null
+          seller_id: string
+          status?: string
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          buyer_id?: string
+          commission?: number
+          created_at?: string
+          id?: string
+          notes?: string | null
+          property_id?: string | null
+          seller_id?: string
+          status?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           id: string
@@ -488,6 +550,33 @@ export type Database = {
           },
         ]
       }
+      wallets: {
+        Row: {
+          balance: number
+          created_at: string
+          escrow_balance: number
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          balance?: number
+          created_at?: string
+          escrow_balance?: number
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          balance?: number
+          created_at?: string
+          escrow_balance?: number
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -505,7 +594,14 @@ export type Database = {
     Enums: {
       app_role: "admin" | "moderator" | "user"
       profile_type: "buyer" | "agent" | "builder"
-      property_status: "for_sale" | "for_rent" | "sold" | "rented" | "draft"
+      property_status:
+        | "for_sale"
+        | "for_rent"
+        | "sold"
+        | "rented"
+        | "draft"
+        | "available"
+        | "under_verification"
       reservation_status: "pending" | "confirmed" | "rejected" | "cancelled"
       verification_status: "pending" | "approved" | "rejected"
     }
@@ -637,7 +733,15 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "moderator", "user"],
       profile_type: ["buyer", "agent", "builder"],
-      property_status: ["for_sale", "for_rent", "sold", "rented", "draft"],
+      property_status: [
+        "for_sale",
+        "for_rent",
+        "sold",
+        "rented",
+        "draft",
+        "available",
+        "under_verification",
+      ],
       reservation_status: ["pending", "confirmed", "rejected", "cancelled"],
       verification_status: ["pending", "approved", "rejected"],
     },

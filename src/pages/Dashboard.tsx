@@ -71,7 +71,7 @@ const Dashboard = () => (
 
           <div className="flex items-center justify-between">
             <h2 className="font-display text-xl font-bold text-foreground">My Listings</h2>
-            <Button className="bg-secondary text-secondary-foreground hover:bg-secondary/90">+ Add Property</Button>
+            <Link to="/add-property"><Button className="bg-secondary text-secondary-foreground hover:bg-secondary/90">+ Add Property</Button></Link>
           </div>
           <div className="mt-4 grid gap-6 md:grid-cols-2">
             {agentProperties.map((p) => <PropertyCard key={p.id} property={p} />)}
