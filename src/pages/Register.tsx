@@ -1,27 +1,50 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Shield, Eye, EyeOff } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Shield, Eye, EyeOff, CheckCircle, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/hooks/useAuth";
 
+const passwordRules = [
+  { label: "At least 8 characters", test: (p: string) => p.length >= 8 },
+  { label: "Uppercase letter (A-Z)", test: (p: string) => /[A-Z]/.test(p) },
+  { label: "Lowercase letter (a-z)", test: (p: string) => /[a-z]/.test(p) },
+  { label: "Number (0-9)", test: (p: string) => /[0-9]/.test(p) },
+  { label: "Symbol (!@#$%^&*)", test: (p: string) => /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(p) },
+];
+
 const Register = () => {
   const [showPw, setShowPw] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [profileType, setProfileType] = useState("buyer");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const { signUp } = useAuth();
 
+  const allRulesPassed = passwordRules.every((r) => r.test(password));
+  const passwordsMatch = password === confirmPassword && confirmPassword.length > 0;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    if (!allRulesPassed) {
+      setError("Please make sure your password meets all requirements.");
+      return;
+    }
+    if (!passwordsMatch) {
+      setError("Passwords do not match.");
+      return;
+    }
+
     setLoading(true);
     try {
       await signUp(email, password, name, profileType);
@@ -37,8 +60,8 @@ const Register = () => {
     return (
       <div className="flex min-h-screen items-center justify-center bg-muted px-4">
         <div className="w-full max-w-md rounded-xl border border-border bg-card p-8 shadow-elevated text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-success/10">
-            <Shield className="h-8 w-8 text-success" />
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[hsl(var(--success)/0.1)]">
+            <Shield className="h-8 w-8 text-[hsl(var(--success))]" />
           </div>
           <h1 className="font-display text-xl font-bold text-foreground">Check Your Email</h1>
           <p className="mt-2 text-sm text-muted-foreground">
@@ -90,16 +113,69 @@ const Register = () => {
               </SelectContent>
             </Select>
           </div>
+
+          {/* Password */}
           <div>
             <Label htmlFor="password">Password</Label>
             <div className="relative mt-1">
-              <Input id="password" type={showPw ? "text" : "password"} placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
+              <Input
+                id="password"
+                type={showPw ? "text" : "password"}
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
               <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
                 {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
+            {/* Password strength rules */}
+            {password.length > 0 && (
+              <div className="mt-2 space-y-1">
+                {passwordRules.map((rule) => {
+                  const passed = rule.test(password);
+                  return (
+                    <div key={rule.label} className="flex items-center gap-1.5">
+                      {passed
+                        ? <CheckCircle className="h-3.5 w-3.5 text-[hsl(var(--success))]" />
+                        : <XCircle className="h-3.5 w-3.5 text-destructive" />
+                      }
+                      <span className={`text-xs ${passed ? "text-[hsl(var(--success))]" : "text-muted-foreground"}`}>{rule.label}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
-          <Button type="submit" className="w-full" disabled={loading}>
+
+          {/* Confirm Password */}
+          <div>
+            <Label htmlFor="confirmPassword">Confirm Password</Label>
+            <div className="relative mt-1">
+              <Input
+                id="confirmPassword"
+                type={showConfirm ? "text" : "password"}
+                placeholder="••••••••"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+              />
+              <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
+            {confirmPassword.length > 0 && (
+              <div className="mt-1 flex items-center gap-1.5">
+                {passwordsMatch
+                  ? <><CheckCircle className="h-3.5 w-3.5 text-[hsl(var(--success))]" /><span className="text-xs text-[hsl(var(--success))]">Passwords match</span></>
+                  : <><XCircle className="h-3.5 w-3.5 text-destructive" /><span className="text-xs text-destructive">Passwords do not match</span></>
+                }
+              </div>
+            )}
+          </div>
+
+          <Button type="submit" className="w-full" disabled={loading || !allRulesPassed || !passwordsMatch}>
             {loading ? "Creating Account..." : "Create Account"}
           </Button>
         </form>
