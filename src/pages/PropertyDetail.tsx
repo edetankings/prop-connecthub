@@ -3,7 +3,6 @@ import { MapPin, Bed, Bath, Maximize, MessageCircle, CalendarCheck, ShieldCheck,
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import { TrustScoreRing } from "@/components/AgentCard";
 import { properties, agents, formatPrice, getTrustBadge } from "@/lib/mockData";
 
@@ -120,7 +119,7 @@ const PropertyDetail = () => {
           </div>
         </div>
       </div>
-      <Footer />
+      
     </div>
   );
 };

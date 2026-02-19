@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Plus, Building, MessageCircle, Star, Wallet, TrendingUp, ShieldCheck, AlertTriangle, FileText, Settings, LayoutDashboard } from "lucide-react";
+import { Plus, Building, MessageCircle, Star, Wallet, TrendingUp, ShieldCheck, AlertTriangle, FileText, Settings, LayoutDashboard, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { TrustScoreRing } from "@/components/AgentCard";
 import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import { toast } from "sonner";
+
 
 const AgentDashboard = () => {
   const { profile } = useAuth();
@@ -15,6 +16,7 @@ const AgentDashboard = () => {
   const [wallet, setWallet] = useState<{ balance: number; escrow_balance: number } | null>(null);
   const [stats, setStats] = useState({ listings: 0, messages: 0, deals: 0, rating: 0 });
   const [activeTab, setActiveTab] = useState<"dashboard" | "listings" | "messages" | "profile">("dashboard");
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const firstName = profile?.full_name?.split(" ")[0] || "Agent";
 
@@ -40,6 +42,23 @@ const AgentDashboard = () => {
 
     setStats((s) => ({ ...s, deals: profile.completed_transactions || 0 }));
   }, [profile?.id]);
+
+  const deleteProperty = async (id: string, status: string) => {
+    if (status === "sold" || status === "rented") {
+      toast.error("Cannot delete a sold or rented property");
+      return;
+    }
+    if (!confirm("Are you sure you want to delete this property?")) return;
+    setDeletingId(id);
+    const { error } = await supabase.from("properties").delete().eq("id", id);
+    setDeletingId(null);
+    if (error) toast.error("Failed to delete property");
+    else {
+      toast.success("Property deleted");
+      setProperties((prev) => prev.filter((p) => p.id !== id));
+      setStats((s) => ({ ...s, listings: s.listings - 1 }));
+    }
+  };
 
   const statusColors: Record<string, string> = {
     available: "bg-[hsl(var(--success)/0.15)] text-[hsl(var(--success))]",
@@ -164,6 +183,18 @@ const AgentDashboard = () => {
                       </div>
                       <p className="mt-1 text-sm text-secondary font-bold">₦{p.price?.toLocaleString()}</p>
                       <p className="text-xs text-muted-foreground">{p.city}, {p.state}</p>
+                      <div className="mt-3 flex justify-end">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="text-destructive hover:bg-destructive/10 hover:text-destructive text-xs gap-1"
+                          disabled={deletingId === p.id || p.status === "sold" || p.status === "rented"}
+                          onClick={() => deleteProperty(p.id, p.status)}
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                          {deletingId === p.id ? "Deleting…" : "Delete"}
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -188,7 +219,7 @@ const AgentDashboard = () => {
           ))}
         </div>
       </div>
-      <Footer />
+      
     </div>
   );
 };

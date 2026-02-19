@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import PropertyCard from "@/components/PropertyCard";
 import { properties } from "@/lib/mockData";
 
@@ -61,7 +60,7 @@ const Properties = () => {
           </div>
         )}
       </div>
-      <Footer />
+      
     </div>
   );
 };

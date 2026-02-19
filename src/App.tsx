@@ -21,6 +21,7 @@ import AgentDashboard from "./pages/AgentDashboard";
 import BuilderDashboard from "./pages/BuilderDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import AddProperty from "./pages/AddProperty";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -49,6 +50,7 @@ const App = () => (
             <Route path="/dashboard/agent" element={<ProtectedRoute><AgentDashboard /></ProtectedRoute>} />
             <Route path="/dashboard/builder" element={<ProtectedRoute><BuilderDashboard /></ProtectedRoute>} />
             <Route path="/add-property" element={<ProtectedRoute><AddProperty /></ProtectedRoute>} />
+            <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
             <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>

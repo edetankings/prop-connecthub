@@ -1,6 +1,5 @@
 import { Users, ShieldCheck, TrendingUp, DollarSign, AlertTriangle, BarChart3 } from "lucide-react";
 import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import { platformStats, formatPrice } from "@/lib/mockData";
 
 const statCards = [
@@ -65,7 +64,7 @@ const Analytics = () => (
         </div>
       </div>
     </div>
-    <Footer />
+    
   </div>
 );
 

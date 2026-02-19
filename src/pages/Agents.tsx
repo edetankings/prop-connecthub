@@ -1,5 +1,4 @@
 import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import AgentCard from "@/components/AgentCard";
 import { agents } from "@/lib/mockData";
 
@@ -13,7 +12,7 @@ const Agents = () => (
         {agents.map((a) => <AgentCard key={a.id} agent={a} />)}
       </div>
     </div>
-    <Footer />
+    
   </div>
 );
 
