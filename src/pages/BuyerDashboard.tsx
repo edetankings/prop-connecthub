@@ -6,7 +6,6 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 
 const statusColors: Record<string, string> = {
   pending: "bg-[hsl(var(--warning)/0.15)] text-[hsl(var(--warning))]",
@@ -239,7 +238,7 @@ const BuyerDashboard = () => {
           ))}
         </div>
       </div>
-      <Footer />
+      
     </div>
   );
 };

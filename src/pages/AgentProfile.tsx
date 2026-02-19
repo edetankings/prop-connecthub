@@ -3,7 +3,6 @@ import { MapPin, Star, ShieldCheck, ArrowLeft, Building, Handshake, MessageCircl
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import PropertyCard from "@/components/PropertyCard";
 import { TrustScoreRing } from "@/components/AgentCard";
 import { agents, properties, reviews, getTrustBadge } from "@/lib/mockData";
@@ -86,7 +85,7 @@ const AgentProfile = () => {
           </div>
         </div>
       </div>
-      <Footer />
+      
     </div>
   );
 };

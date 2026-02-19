@@ -1,21 +1,38 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Plus, Building2, Wallet, TrendingUp, Star, Megaphone, Settings, LayoutDashboard, MessageCircle } from "lucide-react";
+import { Plus, Building2, Wallet, TrendingUp, Star, Megaphone, Settings, LayoutDashboard, MessageCircle, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { TrustScoreRing } from "@/components/AgentCard";
 import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import { toast } from "sonner";
 
 const BuilderDashboard = () => {
   const { profile } = useAuth();
   const [projects, setProjects] = useState<any[]>([]);
   const [wallet, setWallet] = useState<{ balance: number; escrow_balance: number } | null>(null);
   const [announcements, setAnnouncements] = useState<any[]>([]);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const firstName = profile?.full_name?.split(" ")[0] || "Builder";
+
+  const deleteProject = async (id: string, status: string) => {
+    if (status === "sold" || status === "rented") {
+      toast.error("Cannot delete a sold or rented project");
+      return;
+    }
+    if (!confirm("Are you sure you want to delete this project?")) return;
+    setDeletingId(id);
+    const { error } = await supabase.from("properties").delete().eq("id", id);
+    setDeletingId(null);
+    if (error) toast.error("Failed to delete project");
+    else {
+      toast.success("Project deleted");
+      setProjects((prev) => prev.filter((p) => p.id !== id));
+    }
+  };
 
   useEffect(() => {
     if (!profile?.id) return;
@@ -180,6 +197,18 @@ const BuilderDashboard = () => {
                       </div>
                       <p className="mt-1 text-sm text-secondary font-bold">₦{p.price?.toLocaleString()}</p>
                       <p className="text-xs text-muted-foreground">{p.city}, {p.state}</p>
+                      <div className="mt-3 flex justify-end">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="text-destructive hover:bg-destructive/10 hover:text-destructive text-xs gap-1"
+                          disabled={deletingId === p.id || p.status === "sold" || p.status === "rented"}
+                          onClick={() => deleteProject(p.id, p.status)}
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                          {deletingId === p.id ? "Deleting…" : "Delete"}
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -204,7 +233,7 @@ const BuilderDashboard = () => {
           ))}
         </div>
       </div>
-      <Footer />
+      
     </div>
   );
 };

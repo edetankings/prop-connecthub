@@ -1,7 +1,6 @@
 import { Megaphone, AlertTriangle, Bell } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import { announcements } from "@/lib/mockData";
 
 const iconMap = { update: Megaphone, alert: AlertTriangle, announcement: Bell };
@@ -36,7 +35,7 @@ const Announcements = () => (
         })}
       </div>
     </div>
-    <Footer />
+    
   </div>
 );
 
