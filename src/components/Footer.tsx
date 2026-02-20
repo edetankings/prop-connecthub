@@ -2,7 +2,7 @@ import { Shield } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Footer = () => (
-  <footer className="border-t border-border bg-primary text-primary-foreground">
+  <footer className="border-t border-border bg-primary text-primary-foreground" role="contentinfo">
     <div className="container mx-auto px-4 py-12">
       <div className="grid gap-8 md:grid-cols-4">
         <div>
