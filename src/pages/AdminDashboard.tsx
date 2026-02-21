@@ -13,7 +13,7 @@ import {
 import { toast } from "sonner";
 import { PieChart as RechartsPie, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
-type Tab = "dashboard" | "users" | "moderation" | "disputes" | "audit";
+type Tab = "dashboard" | "users" | "moderation" | "disputes" | "audit" | "kyc_steps";
 
 const AdminDashboard = () => {
   const { user } = useAuth();
@@ -24,19 +24,21 @@ const AdminDashboard = () => {
   const [disputes, setDisputes] = useState<any[]>([]);
   const [auditLogs, setAuditLogs] = useState<any[]>([]);
   const [transactions, setTransactions] = useState<any[]>([]);
+  const [kycSteps, setKycSteps] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => { loadData(); }, []);
 
   const loadData = async () => {
     setLoading(true);
-    const [p, pr, v, d, a, t] = await Promise.all([
+    const [p, pr, v, d, a, t, ks] = await Promise.all([
       supabase.from("profiles").select("*").order("created_at", { ascending: false }),
       supabase.from("properties").select("*, profiles(full_name)").order("created_at", { ascending: false }),
       supabase.from("verification_documents").select("*, profiles!verification_documents_user_id_fkey(full_name)").order("created_at", { ascending: false }),
       supabase.from("disputes").select("*").order("created_at", { ascending: false }),
       supabase.from("audit_logs").select("*").order("created_at", { ascending: false }).limit(50),
       supabase.from("transactions").select("*").order("created_at", { ascending: false }),
+      (supabase as any).from("verification_steps").select("*").order("created_at", { ascending: true }),
     ]);
     setProfiles(p.data || []);
     setProperties(pr.data || []);
@@ -44,6 +46,7 @@ const AdminDashboard = () => {
     setDisputes(d.data || []);
     setAuditLogs(a.data || []);
     setTransactions(t.data || []);
+    setKycSteps(ks.data || []);
     setLoading(false);
   };
 
@@ -87,10 +90,22 @@ const AdminDashboard = () => {
   const pendingKyc = verifications.filter((v) => v.status === "pending").length;
   const openDisputes = disputes.filter((d) => d.status === "open").length;
 
+  const handleKycStepReview = async (stepId: string, status: "approved" | "rejected", reason?: string) => {
+    const updateData: any = { status };
+    if (reason) updateData.rejection_reason = reason;
+    const { error } = await (supabase as any).from("verification_steps").update(updateData).eq("id", stepId);
+    if (error) { toast.error(error.message); return; }
+    toast.success(`Step ${status}`);
+    loadData();
+  };
+
+  const pendingKycSteps = kycSteps.filter((s: any) => s.status === "pending");
+
   const tabs = [
     { id: "dashboard" as Tab, label: "Dashboard", icon: LayoutDashboard },
     { id: "users" as Tab, label: "Users", icon: Users },
-    { id: "moderation" as Tab, label: "Moderation", icon: ShieldCheck },
+    { id: "kyc_steps" as Tab, label: "KYC Steps", icon: ShieldCheck, count: pendingKycSteps.length },
+    { id: "moderation" as Tab, label: "Moderation", icon: FileText },
     { id: "disputes" as Tab, label: "Disputes", icon: Gavel },
     { id: "audit" as Tab, label: "Audit Logs", icon: ScrollText },
   ];
@@ -336,6 +351,76 @@ const AdminDashboard = () => {
                     </div>
                   </div>
                 ))}
+              </div>
+            )}
+
+            {/* KYC STEPS TAB */}
+            {tab === "kyc_steps" && (
+              <div className="space-y-4">
+                <h2 className="font-display text-lg font-semibold text-foreground">Verification Steps Review</h2>
+                {pendingKycSteps.length === 0 && <p className="p-8 text-center text-muted-foreground">No pending KYC steps to review</p>}
+                {kycSteps.filter((s: any) => s.status === "pending").map((step: any) => {
+                  const userProfile = profiles.find((p: any) => p.user_id === step.user_id);
+                  return (
+                    <div key={step.id} className="rounded-xl border border-border bg-card p-4 shadow-card">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1">
+                          <p className="font-semibold text-foreground capitalize">{step.step_name?.replace(/_/g, " ")}</p>
+                          <p className="text-sm text-muted-foreground">User: {userProfile?.full_name || step.user_id?.slice(0, 8)}</p>
+                          {step.document_url && (
+                            <a href={step.document_url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline mt-1 inline-block">
+                              View Document
+                            </a>
+                          )}
+                          {step.metadata && (
+                            <p className="text-xs text-muted-foreground mt-1">
+                              {JSON.stringify(step.metadata)}
+                            </p>
+                          )}
+                          <Badge variant="outline" className="mt-2 text-[hsl(var(--info))]">{step.status}</Badge>
+                        </div>
+                        <div className="flex gap-2 shrink-0">
+                          <Button size="sm" onClick={() => handleKycStepReview(step.id, "approved")} className="bg-[hsl(var(--success))] text-[hsl(var(--success-foreground))] hover:bg-[hsl(var(--success))]/90">
+                            Approve
+                          </Button>
+                          <Button size="sm" variant="destructive" onClick={() => {
+                            const reason = prompt("Rejection reason:");
+                            if (reason) handleKycStepReview(step.id, "rejected", reason);
+                          }}>
+                            Reject
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {/* Show all steps grouped by user */}
+                <h3 className="font-display text-base font-semibold text-foreground mt-6">All Steps by User</h3>
+                {Array.from(new Set(kycSteps.map((s: any) => s.user_id))).map((userId: any) => {
+                  const userProfile = profiles.find((p: any) => p.user_id === userId);
+                  const userSteps = kycSteps.filter((s: any) => s.user_id === userId);
+                  const approved = userSteps.filter((s: any) => s.status === "approved").length;
+                  return (
+                    <div key={userId} className="rounded-xl border border-border bg-card p-4 shadow-card">
+                      <div className="flex items-center justify-between mb-3">
+                        <div>
+                          <p className="font-semibold text-foreground">{userProfile?.full_name || "Unknown"}</p>
+                          <p className="text-xs text-muted-foreground">{approved}/{userSteps.length} steps approved</p>
+                        </div>
+                        <Badge variant="outline" className={approved === userSteps.length ? "text-[hsl(var(--success))]" : ""}>{approved === userSteps.length ? "Verified" : "In Progress"}</Badge>
+                      </div>
+                      <div className="space-y-1">
+                        {userSteps.map((s: any) => (
+                          <div key={s.id} className="flex items-center justify-between text-sm py-1">
+                            <span className="capitalize text-muted-foreground">{s.step_name?.replace(/_/g, " ")}</span>
+                            <Badge variant="outline" className={`text-xs ${s.status === "approved" ? "text-[hsl(var(--success))]" : s.status === "rejected" ? "text-destructive" : s.status === "pending" ? "text-[hsl(var(--info))]" : ""}`}>{s.status}</Badge>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             )}
 
