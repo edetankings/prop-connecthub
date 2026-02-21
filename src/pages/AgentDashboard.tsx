@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Plus, Building, MessageCircle, Star, Wallet, TrendingUp, ShieldCheck, AlertTriangle, FileText, Settings, LayoutDashboard, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +12,7 @@ import { toast } from "sonner";
 
 const AgentDashboard = () => {
   const { profile } = useAuth();
+  const navigate = useNavigate();
   const [properties, setProperties] = useState<any[]>([]);
   const [wallet, setWallet] = useState<{ balance: number; escrow_balance: number } | null>(null);
   const [stats, setStats] = useState({ listings: 0, messages: 0, deals: 0, rating: 0 });
@@ -134,14 +135,14 @@ const AgentDashboard = () => {
                   { icon: LayoutDashboard, label: "Dashboard" },
                   { icon: Building, label: "My Listings", count: stats.listings },
                   { icon: MessageCircle, label: "Messages" },
-                  { icon: ShieldCheck, label: "Verification" },
+                  { icon: ShieldCheck, label: "Verification", onClick: () => navigate("/verification") },
                   { icon: Star, label: "Reviews" },
                   { icon: TrendingUp, label: "Analytics" },
                   { icon: AlertTriangle, label: "Disputes" },
                   { icon: FileText, label: "Code of Conduct" },
-                  { icon: Settings, label: "Settings" },
+                  { icon: Settings, label: "Settings", onClick: () => navigate("/settings") },
                 ].map((item) => (
-                  <button key={item.label} className="flex w-full items-center justify-between rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
+                  <button key={item.label} onClick={item.onClick} className="flex w-full items-center justify-between rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
                     <span className="flex items-center gap-2"><item.icon className="h-4 w-4" />{item.label}</span>
                     {item.count !== undefined && <span className="text-xs">{item.count}</span>}
                   </button>

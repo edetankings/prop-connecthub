@@ -22,6 +22,7 @@ import BuilderDashboard from "./pages/BuilderDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import AddProperty from "./pages/AddProperty";
 import Settings from "./pages/Settings";
+import IdentityVerification from "./pages/IdentityVerification";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -51,6 +52,7 @@ const App = () => (
             <Route path="/dashboard/builder" element={<ProtectedRoute><BuilderDashboard /></ProtectedRoute>} />
             <Route path="/add-property" element={<ProtectedRoute><AddProperty /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+            <Route path="/verification" element={<ProtectedRoute><IdentityVerification /></ProtectedRoute>} />
             <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
