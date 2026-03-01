@@ -49,7 +49,7 @@ const AgentProfile = () => {
           </div>
 
           <div className="mt-6 flex gap-3">
-            <Link to={`/chat/${agent.id}`}>
+            <Link to={`/chat/new?agent=${agent.id}`}>
               <Button className="gap-2 bg-primary text-primary-foreground"><MessageCircle className="h-4 w-4" /> Chat with Agent</Button>
             </Link>
           </div>

@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Shield, Menu, X, LogOut, LayoutDashboard, ShieldCheck, Settings } from "lucide-react";
+import { Shield, Menu, X, LogOut, LayoutDashboard, ShieldCheck, Settings, MessageCircle } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -52,6 +52,9 @@ const Navbar = () => {
                   <Button variant="ghost" size="sm" className="gap-1"><ShieldCheck className="h-4 w-4" /> Admin</Button>
                 </Link>
               )}
+              <Link to="/messages">
+                <Button variant="ghost" size="sm" className="gap-1"><MessageCircle className="h-4 w-4" /> Messages</Button>
+              </Link>
               <Link to="/dashboard">
                 <Button variant="ghost" size="sm" className="gap-1"><LayoutDashboard className="h-4 w-4" /> Dashboard</Button>
               </Link>
