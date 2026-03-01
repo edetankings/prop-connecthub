@@ -48,7 +48,7 @@ const PropertyCard = ({ property }: { property: Property }) => {
           <span className="flex items-center gap-1"><Maximize className="h-4 w-4" /> {property.sqft} sqft</span>
         </div>
         <div className="mt-4 flex gap-2">
-          <Link to={`/chat/${property.agentId}?property=${property.id}`} className="flex-1">
+          <Link to={`/chat/new?agent=${property.agentId}&property=${property.id}`} className="flex-1">
             <Button variant="outline" size="sm" className="w-full gap-1.5 border-primary/20 text-primary hover:bg-primary/5">
               <MessageCircle className="h-4 w-4" /> Chat with Agent
             </Button>

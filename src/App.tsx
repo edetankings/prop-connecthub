@@ -11,6 +11,7 @@ import PropertyDetail from "./pages/PropertyDetail";
 import Agents from "./pages/Agents";
 import AgentProfile from "./pages/AgentProfile";
 import Chat from "./pages/Chat";
+import ChatInbox from "./pages/ChatInbox";
 import Announcements from "./pages/Announcements";
 import Analytics from "./pages/Analytics";
 import Login from "./pages/Login";
@@ -40,7 +41,9 @@ const App = () => (
             <Route path="/property/:id" element={<PropertyDetail />} />
             <Route path="/agents" element={<Agents />} />
             <Route path="/agent/:id" element={<AgentProfile />} />
-            <Route path="/chat/:agentId" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
+            <Route path="/messages" element={<ProtectedRoute><ChatInbox /></ProtectedRoute>} />
+            <Route path="/chat/new" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
+            <Route path="/chat/:threadId" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
             <Route path="/announcements" element={<Announcements />} />
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/login" element={<Login />} />
