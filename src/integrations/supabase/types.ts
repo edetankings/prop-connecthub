@@ -221,6 +221,7 @@ export type Database = {
           created_at: string
           full_name: string
           id: string
+          is_visible: boolean
           kyc_verified: boolean
           location: string | null
           phone: string | null
@@ -237,6 +238,7 @@ export type Database = {
           created_at?: string
           full_name?: string
           id?: string
+          is_visible?: boolean
           kyc_verified?: boolean
           location?: string | null
           phone?: string | null
@@ -253,6 +255,7 @@ export type Database = {
           created_at?: string
           full_name?: string
           id?: string
+          is_visible?: boolean
           kyc_verified?: boolean
           location?: string | null
           phone?: string | null

@@ -44,6 +44,13 @@ const Admin = () => {
     loadData();
   };
 
+  const handleToggleVisibility = async (profileId: string, currentlyVisible: boolean) => {
+    const { error } = await supabase.from("profiles").update({ is_visible: !currentlyVisible } as any).eq("id", profileId);
+    if (error) { toast.error(error.message); return; }
+    toast.success(currentlyVisible ? "Agent hidden from listing" : "Agent now visible on listing");
+    loadData();
+  };
+
   const handleDocumentReview = async (docId: string, status: "approved" | "rejected") => {
     const { error } = await supabase.from("verification_documents").update({ status }).eq("id", docId);
     if (error) { toast.error(error.message); return; }
@@ -96,8 +103,9 @@ const Admin = () => {
                       <th className="px-4 py-3 text-left font-medium text-muted-foreground">Name</th>
                       <th className="px-4 py-3 text-left font-medium text-muted-foreground">Type</th>
                       <th className="px-4 py-3 text-left font-medium text-muted-foreground">Trust Score</th>
-                      <th className="px-4 py-3 text-left font-medium text-muted-foreground">KYC</th>
-                      <th className="px-4 py-3 text-left font-medium text-muted-foreground">Actions</th>
+                       <th className="px-4 py-3 text-left font-medium text-muted-foreground">KYC</th>
+                       <th className="px-4 py-3 text-left font-medium text-muted-foreground">Visible</th>
+                       <th className="px-4 py-3 text-left font-medium text-muted-foreground">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -113,11 +121,23 @@ const Admin = () => {
                             <Badge variant="outline" className="text-warning">Pending</Badge>
                           )}
                         </td>
-                        <td className="px-4 py-3">
-                          {!p.kyc_verified && p.profile_type === "agent" && (
-                            <Button size="sm" variant="outline" onClick={() => handleVerifyKyc(p.id)}>Verify KYC</Button>
-                          )}
-                        </td>
+                         <td className="px-4 py-3">
+                           {p.profile_type === "agent" ? (
+                             <Badge className={p.is_visible ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"}>
+                               {p.is_visible ? "Yes" : "No"}
+                             </Badge>
+                           ) : "—"}
+                         </td>
+                         <td className="px-4 py-3 flex gap-2">
+                           {!p.kyc_verified && p.profile_type === "agent" && (
+                             <Button size="sm" variant="outline" onClick={() => handleVerifyKyc(p.id)}>Verify KYC</Button>
+                           )}
+                           {p.profile_type === "agent" && (
+                             <Button size="sm" variant="outline" onClick={() => handleToggleVisibility(p.id, p.is_visible)}>
+                               {p.is_visible ? "Hide" : "Show"}
+                             </Button>
+                           )}
+                         </td>
                       </tr>
                     ))}
                   </tbody>

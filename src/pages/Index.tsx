@@ -5,9 +5,11 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PropertyCard from "@/components/PropertyCard";
 import AgentCard from "@/components/AgentCard";
-import { properties, agents, platformStats } from "@/lib/mockData";
+import { properties, platformStats } from "@/lib/mockData";
+import type { DBAgent } from "@/pages/Agents";
+import { supabase } from "@/integrations/supabase/client";
 import heroBg from "@/assets/hero-bg.jpg";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const stats = [
   { label: "Total Users", value: platformStats.totalUsers.toLocaleString(), icon: Users },
@@ -62,6 +64,19 @@ const FAQ = ({ q, a }: { q: string; a: string }) => {
 };
 
 const Index = () => {
+  const [agents, setAgents] = useState<DBAgent[]>([]);
+
+  useEffect(() => {
+    supabase
+      .from("profiles")
+      .select("*")
+      .eq("profile_type", "agent")
+      .eq("is_visible", true)
+      .order("trust_score", { ascending: false })
+      .limit(2)
+      .then(({ data }) => setAgents((data as DBAgent[]) || []));
+  }, []);
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
