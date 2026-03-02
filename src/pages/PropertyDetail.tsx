@@ -1,18 +1,32 @@
 import { useParams, Link } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { MapPin, Bed, Bath, Maximize, MessageCircle, CalendarCheck, ShieldCheck, Star, ArrowLeft, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Navbar from "@/components/Navbar";
 import { TrustScoreRing } from "@/components/AgentCard";
-import { properties, agents, formatPrice, getTrustBadge } from "@/lib/mockData";
+import { properties, formatPrice, getTrustBadge } from "@/lib/mockData";
+import { supabase } from "@/integrations/supabase/client";
+import type { DBAgent } from "@/pages/Agents";
 
 const PropertyDetail = () => {
   const { id } = useParams();
   const property = properties.find((p) => p.id === id);
+  const [agent, setAgent] = useState<DBAgent | null>(null);
+
+  useEffect(() => {
+    if (!property) return;
+    supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", property.agentId)
+      .maybeSingle()
+      .then(({ data }) => setAgent(data as DBAgent | null));
+  }, [property]);
+
   if (!property) return <div className="flex min-h-screen items-center justify-center"><p>Property not found</p></div>;
 
-  const agent = agents.find((a) => a.id === property.agentId);
-  const badge = agent ? getTrustBadge(agent.trustScore) : null;
+  const badge = agent ? getTrustBadge(agent.trust_score) : null;
 
   return (
     <div className="min-h-screen bg-background">
@@ -68,7 +82,7 @@ const PropertyDetail = () => {
           <div className="space-y-4">
             <div className="rounded-xl border border-border bg-card p-5 shadow-card">
               <div className="flex gap-3">
-                <Link to={`/chat/${property.agentId}?property=${property.id}`} className="flex-1">
+                <Link to={`/chat/new?agent=${property.agentId}&property=${property.id}`} className="flex-1">
                   <Button className="w-full gap-2 bg-primary text-primary-foreground hover:bg-primary/90">
                     <MessageCircle className="h-4 w-4" /> Chat with Agent
                   </Button>
@@ -82,18 +96,19 @@ const PropertyDetail = () => {
             {agent && (
               <Link to={`/agent/${agent.id}`} className="block rounded-xl border border-border bg-card p-5 shadow-card transition-shadow hover:shadow-elevated">
                 <div className="flex items-center gap-3">
-                  <img src={agent.avatar} alt={agent.name} className="h-12 w-12 rounded-full object-cover ring-2 ring-border" />
+                  <img
+                    src={agent.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(agent.full_name)}&background=random`}
+                    alt={agent.full_name}
+                    className="h-12 w-12 rounded-full object-cover ring-2 ring-border"
+                  />
                   <div className="flex-1">
                     <div className="flex items-center gap-1">
-                      <h3 className="font-display font-semibold text-foreground">{agent.name}</h3>
-                      {agent.verificationLevel !== "unverified" && <ShieldCheck className="h-4 w-4 text-success" />}
+                      <h3 className="font-display font-semibold text-foreground">{agent.full_name}</h3>
+                      {agent.kyc_verified && <ShieldCheck className="h-4 w-4 text-success" />}
                     </div>
-                    <div className="flex items-center gap-1">
-                      <Star className="h-3 w-3 fill-secondary text-secondary" />
-                      <span className="text-sm text-muted-foreground">{agent.rating} ({agent.reviewCount} reviews)</span>
-                    </div>
+                    <span className="text-sm text-muted-foreground">{agent.properties_listed} listings · {agent.completed_transactions} deals</span>
                   </div>
-                  <TrustScoreRing score={agent.trustScore} />
+                  <TrustScoreRing score={agent.trust_score} />
                 </div>
                 {badge && (
                   <Badge variant="outline" className={`mt-3 text-xs ${
@@ -119,7 +134,6 @@ const PropertyDetail = () => {
           </div>
         </div>
       </div>
-      
     </div>
   );
 };
