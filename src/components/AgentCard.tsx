@@ -1,8 +1,10 @@
 import { Link } from "react-router-dom";
-import { ShieldCheck, MapPin } from "lucide-react";
+import { ShieldCheck, MapPin, MessageCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import type { DBAgent } from "@/pages/Agents";
 import { getTrustBadge } from "@/lib/mockData";
+import { useAuth } from "@/hooks/useAuth";
 
 const TrustScoreRing = ({ score }: { score: number }) => {
   const circumference = 2 * Math.PI * 28;
@@ -22,10 +24,12 @@ const TrustScoreRing = ({ score }: { score: number }) => {
 
 const AgentCard = ({ agent }: { agent: DBAgent }) => {
   const badge = getTrustBadge(agent.trust_score);
+  const { user, profile } = useAuth();
+  const showChat = user && profile && profile.id !== agent.id;
 
   return (
-    <Link to={`/agent/${agent.id}`} className="block">
-      <div className="group overflow-hidden rounded-lg border border-border bg-card p-5 shadow-card transition-all duration-300 hover:shadow-elevated hover:-translate-y-1">
+    <div className="group overflow-hidden rounded-lg border border-border bg-card p-5 shadow-card transition-all duration-300 hover:shadow-elevated hover:-translate-y-1">
+      <Link to={`/agent/${agent.id}`} className="block">
         <div className="flex items-start gap-4">
           <img
             src={agent.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(agent.full_name)}&background=random`}
@@ -60,8 +64,17 @@ const AgentCard = ({ agent }: { agent: DBAgent }) => {
           </Badge>
         </div>
         {agent.bio && <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{agent.bio}</p>}
-      </div>
-    </Link>
+      </Link>
+      {showChat && (
+        <div className="mt-3 border-t border-border pt-3">
+          <Link to={`/chat/new?agent=${agent.id}`} onClick={(e) => e.stopPropagation()}>
+            <Button size="sm" className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90">
+              <MessageCircle className="h-4 w-4" /> Chat with Agent
+            </Button>
+          </Link>
+        </div>
+      )}
+    </div>
   );
 };
 
