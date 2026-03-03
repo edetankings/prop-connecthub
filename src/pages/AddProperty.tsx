@@ -91,9 +91,8 @@ const AddProperty = () => {
     setSubmitting(true);
     try {
       const imageUrls = await uploadImages();
-      const finalStatus = status === "for_sale"
-        ? profile.kyc_verified ? "for_sale" : "under_verification"
-        : "draft";
+      // All published properties go to under_verification for admin approval
+      const finalStatus = status === "draft" ? "draft" : "under_verification";
 
       const { error } = await supabase.from("properties").insert({
         title: form.title,
@@ -114,7 +113,7 @@ const AddProperty = () => {
       });
 
       if (error) throw error;
-      toast.success(status === "draft" ? "Draft saved!" : "Property submitted for listing!");
+      toast.success(status === "draft" ? "Draft saved!" : "Property submitted for admin approval!");
       navigate("/dashboard");
     } catch (err: any) {
       toast.error(err.message || "Failed to save property");

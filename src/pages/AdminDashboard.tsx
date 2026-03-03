@@ -64,6 +64,20 @@ const AdminDashboard = () => {
     loadData();
   };
 
+  const handleApproveProperty = async (propertyId: string) => {
+    const { error } = await supabase.from("properties").update({ status: "available", is_verified: true } as any).eq("id", propertyId);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Property approved and now visible publicly!");
+    loadData();
+  };
+
+  const handleRejectProperty = async (propertyId: string) => {
+    const { error } = await supabase.from("properties").update({ status: "draft" } as any).eq("id", propertyId);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Property rejected and moved to draft");
+    loadData();
+  };
+
   const handleDisputeStatus = async (disputeId: string, status: string) => {
     const { error } = await supabase.from("disputes").update({ status }).eq("id", disputeId);
     if (error) { toast.error(error.message); return; }
@@ -88,7 +102,15 @@ const AdminDashboard = () => {
   ];
 
   const pendingKyc = verifications.filter((v) => v.status === "pending").length;
+  const pendingProperties = properties.filter((p) => p.status === "under_verification").length;
   const openDisputes = disputes.filter((d) => d.status === "open").length;
+
+  const handleToggleVisibility = async (profileId: string, currentlyVisible: boolean) => {
+    const { error } = await supabase.from("profiles").update({ is_visible: !currentlyVisible }).eq("id", profileId);
+    if (error) { toast.error(error.message); return; }
+    toast.success(currentlyVisible ? "Agent hidden from listing" : "Agent now visible on listing");
+    loadData();
+  };
 
   const handleKycStepReview = async (stepId: string, status: "approved" | "rejected", reason?: string) => {
     const updateData: any = { status };
@@ -105,7 +127,7 @@ const AdminDashboard = () => {
     { id: "dashboard" as Tab, label: "Dashboard", icon: LayoutDashboard },
     { id: "users" as Tab, label: "Users", icon: Users },
     { id: "kyc_steps" as Tab, label: "KYC Steps", icon: ShieldCheck, count: pendingKycSteps.length },
-    { id: "moderation" as Tab, label: "Moderation", icon: FileText },
+    { id: "moderation" as Tab, label: "Moderation", icon: FileText, count: pendingProperties + pendingKyc },
     { id: "disputes" as Tab, label: "Disputes", icon: Gavel },
     { id: "audit" as Tab, label: "Audit Logs", icon: ScrollText },
   ];
@@ -267,6 +289,7 @@ const AdminDashboard = () => {
                       <th className="px-4 py-3 text-left font-medium text-muted-foreground">Type</th>
                       <th className="px-4 py-3 text-left font-medium text-muted-foreground">Trust</th>
                       <th className="px-4 py-3 text-left font-medium text-muted-foreground">KYC</th>
+                      <th className="px-4 py-3 text-left font-medium text-muted-foreground">Visible</th>
                       <th className="px-4 py-3 text-left font-medium text-muted-foreground">Actions</th>
                     </tr>
                   </thead>
@@ -284,8 +307,20 @@ const AdminDashboard = () => {
                           )}
                         </td>
                         <td className="px-4 py-3">
+                          {p.profile_type === "agent" ? (
+                            <Badge className={p.is_visible ? "bg-success/10 text-success border-0" : "bg-muted text-muted-foreground"}>
+                              {p.is_visible ? "Yes" : "No"}
+                            </Badge>
+                          ) : "—"}
+                        </td>
+                        <td className="px-4 py-3 flex gap-2">
                           {!p.kyc_verified && p.profile_type === "agent" && (
                             <Button size="sm" variant="outline" onClick={() => handleVerifyKyc(p.id)}>Verify</Button>
+                          )}
+                          {p.profile_type === "agent" && (
+                            <Button size="sm" variant="outline" onClick={() => handleToggleVisibility(p.id, p.is_visible)}>
+                              {p.is_visible ? "Hide" : "Show"}
+                            </Button>
                           )}
                         </td>
                       </tr>
@@ -317,15 +352,32 @@ const AdminDashboard = () => {
                   </div>
                 ))}
 
-                <h2 className="font-display text-lg font-semibold text-foreground mt-8">Properties Pending Review</h2>
-                {properties.filter((p) => p.status === "under_verification").length === 0 && <p className="text-muted-foreground text-sm">None pending</p>}
+                <h2 className="font-display text-lg font-semibold text-foreground mt-8">Properties Pending Approval</h2>
+                {properties.filter((p) => p.status === "under_verification").length === 0 && <p className="text-muted-foreground text-sm">No pending properties</p>}
                 {properties.filter((p) => p.status === "under_verification").map((p) => (
-                  <div key={p.id} className="rounded-xl border border-border bg-card p-4 flex items-center justify-between shadow-card">
-                    <div>
-                      <p className="font-medium text-foreground">{p.title}</p>
-                      <p className="text-sm text-muted-foreground">₦{(p.price || 0).toLocaleString()} · {p.profiles?.full_name}</p>
+                  <div key={p.id} className="rounded-xl border border-border bg-card overflow-hidden shadow-card">
+                    <div className="flex flex-col md:flex-row">
+                      {p.image_url && (
+                        <div className="w-full md:w-48 h-36 bg-muted shrink-0">
+                          <img src={p.image_url} alt={p.title} className="h-full w-full object-cover" />
+                        </div>
+                      )}
+                      <div className="p-4 flex-1">
+                        <p className="font-semibold text-foreground text-lg">{p.title}</p>
+                        <p className="text-sm text-secondary font-bold mt-1">₦{(p.price || 0).toLocaleString()}</p>
+                        <p className="text-sm text-muted-foreground">{p.city}, {p.state} · Agent: {p.profiles?.full_name || "—"}</p>
+                        {p.description && <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{p.description}</p>}
+                        <Badge variant="outline" className="mt-2 text-warning">Pending Approval</Badge>
+                      </div>
+                      <div className="flex md:flex-col gap-2 p-4 items-center justify-end">
+                        <Button size="sm" onClick={() => handleApproveProperty(p.id)} className="bg-success text-success-foreground hover:bg-success/90 gap-1">
+                          <CheckCircle className="h-4 w-4" /> Approve
+                        </Button>
+                        <Button size="sm" variant="destructive" onClick={() => handleRejectProperty(p.id)} className="gap-1">
+                          <XCircle className="h-4 w-4" /> Reject
+                        </Button>
+                      </div>
                     </div>
-                    <Badge variant="outline">Under Verification</Badge>
                   </div>
                 ))}
               </div>

@@ -134,7 +134,7 @@ const AgentDashboard = () => {
                 {[
                   { icon: LayoutDashboard, label: "Dashboard" },
                   { icon: Building, label: "My Listings", count: stats.listings },
-                  { icon: MessageCircle, label: "Messages" },
+                  { icon: MessageCircle, label: "Messages", onClick: () => navigate("/messages") },
                   { icon: ShieldCheck, label: "Verification", onClick: () => navigate("/verification") },
                   { icon: Star, label: "Reviews" },
                   { icon: TrendingUp, label: "Analytics" },
@@ -207,13 +207,13 @@ const AgentDashboard = () => {
         {/* Mobile Bottom Nav */}
         <div className="flex justify-center gap-6 pt-6 border-t border-border md:hidden">
           {[
-            { icon: LayoutDashboard, label: "Dashboard" },
+            { icon: LayoutDashboard, label: "Dashboard", to: "/dashboard" },
             { icon: Plus, label: "Add", to: "/add-property" },
-            { icon: Building, label: "Listings" },
-            { icon: MessageCircle, label: "Messages" },
-            { icon: Settings, label: "Profile" },
+            { icon: Building, label: "Listings", to: "/dashboard" },
+            { icon: MessageCircle, label: "Messages", to: "/messages" },
+            { icon: Settings, label: "Profile", to: "/settings" },
           ].map(({ icon: Icon, label, to }) => (
-            <Link key={label} to={to || "#"} className="flex flex-col items-center gap-1 text-muted-foreground hover:text-secondary transition-colors">
+            <Link key={label} to={to} className="flex flex-col items-center gap-1 text-muted-foreground hover:text-secondary transition-colors">
               <Icon className="h-5 w-5" />
               <span className="text-[10px]">{label}</span>
             </Link>
