@@ -3,9 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Search, Shield, TrendingUp, Users, CheckCircle, PlayCircle, ChevronDown, ChevronUp, Building2, FileCheck, MapPin, Lock, BarChart3 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import PropertyCard from "@/components/PropertyCard";
+import DBPropertyCard, { type DBProperty } from "@/components/DBPropertyCard";
 import AgentCard from "@/components/AgentCard";
-import { properties, platformStats } from "@/lib/mockData";
+import { platformStats } from "@/lib/mockData";
 import type { DBAgent } from "@/pages/Agents";
 import { supabase } from "@/integrations/supabase/client";
 import heroBg from "@/assets/hero-bg.jpg";
@@ -65,6 +65,7 @@ const FAQ = ({ q, a }: { q: string; a: string }) => {
 
 const Index = () => {
   const [agents, setAgents] = useState<DBAgent[]>([]);
+  const [featuredProperties, setFeaturedProperties] = useState<DBProperty[]>([]);
 
   useEffect(() => {
     supabase
@@ -75,6 +76,14 @@ const Index = () => {
       .order("trust_score", { ascending: false })
       .limit(2)
       .then(({ data }) => setAgents((data as DBAgent[]) || []));
+
+    supabase
+      .from("properties")
+      .select("*")
+      .in("status", ["available", "for_sale", "for_rent"])
+      .order("created_at", { ascending: false })
+      .limit(3)
+      .then(({ data }) => setFeaturedProperties((data as DBProperty[]) || []));
   }, []);
 
   return (
@@ -187,9 +196,11 @@ const Index = () => {
           </Link>
         </div>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {properties.slice(0, 3).map((p) => (
-            <PropertyCard key={p.id} property={p} />
-          ))}
+          {featuredProperties.length > 0 ? (
+            featuredProperties.map((p) => <DBPropertyCard key={p.id} property={p} />)
+          ) : (
+            <p className="col-span-3 text-center text-muted-foreground py-8">No approved properties yet</p>
+          )}
         </div>
       </section>
 
