@@ -3,7 +3,7 @@ import { useParams, Link, useSearchParams, useNavigate } from "react-router-dom"
 import { ArrowLeft, Send, CheckCheck, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import Navbar from "@/components/Navbar";
+import AuthenticatedLayout from "@/components/AuthenticatedLayout";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -208,30 +208,27 @@ const Chat = () => {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen flex-col bg-background">
-        <Navbar />
-        <div className="flex flex-1 items-center justify-center">
+      <AuthenticatedLayout>
+        <div className="flex flex-1 items-center justify-center min-h-[50vh]">
           <div className="animate-pulse text-muted-foreground">Loading chat...</div>
         </div>
-      </div>
+      </AuthenticatedLayout>
     );
   }
 
   if (!currentThreadId) {
     return (
-      <div className="flex min-h-screen flex-col bg-background">
-        <Navbar />
+      <AuthenticatedLayout>
         <div className="flex flex-1 items-center justify-center text-muted-foreground">
           <p>Chat not found</p>
         </div>
-      </div>
+      </AuthenticatedLayout>
     );
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
-      <Navbar />
-      <div className="flex flex-1 flex-col">
+    <AuthenticatedLayout>
+      <div className="flex flex-1 flex-col min-h-[calc(100vh-3.5rem)]">
         {/* Header */}
         <div className="border-b border-border bg-card px-4 py-3">
           <div className="container mx-auto flex items-center gap-3">
@@ -311,7 +308,7 @@ const Chat = () => {
           </div>
         </div>
       </div>
-    </div>
+    </AuthenticatedLayout>
   );
 };
 

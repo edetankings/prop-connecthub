@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import Navbar from "@/components/Navbar";
+import AuthenticatedLayout from "@/components/AuthenticatedLayout";
 
 const statusColors: Record<string, string> = {
   pending: "bg-[hsl(var(--warning)/0.15)] text-[hsl(var(--warning))]",
@@ -71,8 +71,7 @@ const BuyerDashboard = () => {
   }, [profile?.id]);
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
+    <AuthenticatedLayout>
       <div className="container mx-auto px-4 py-8 max-w-5xl">
 
         {/* Greeting */}
@@ -239,7 +238,7 @@ const BuyerDashboard = () => {
         </div>
       </div>
       
-    </div>
+    </AuthenticatedLayout>
   );
 };
 

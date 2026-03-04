@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { MessageCircle } from "lucide-react";
-import Navbar from "@/components/Navbar";
+import AuthenticatedLayout from "@/components/AuthenticatedLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -106,8 +106,7 @@ const ChatInbox = () => {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
-      <Navbar />
+    <AuthenticatedLayout>
       <div className="container mx-auto max-w-2xl flex-1 px-4 py-6">
         <h1 className="font-display text-2xl font-bold text-foreground mb-6">Messages</h1>
 
@@ -166,7 +165,7 @@ const ChatInbox = () => {
           </div>
         )}
       </div>
-    </div>
+    </AuthenticatedLayout>
   );
 };
 

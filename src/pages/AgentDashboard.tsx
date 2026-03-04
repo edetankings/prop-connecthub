@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { TrustScoreRing } from "@/components/AgentCard";
-import Navbar from "@/components/Navbar";
+import AuthenticatedLayout from "@/components/AuthenticatedLayout";
 import { toast } from "sonner";
 
 
@@ -72,8 +72,7 @@ const AgentDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
+    <AuthenticatedLayout>
       <div className="container mx-auto px-4 py-8 max-w-5xl">
         {/* Greeting + Add Property */}
         <div className="mb-8 flex items-start justify-between gap-4">
@@ -221,7 +220,7 @@ const AgentDashboard = () => {
         </div>
       </div>
       
-    </div>
+    </AuthenticatedLayout>
   );
 };
 
