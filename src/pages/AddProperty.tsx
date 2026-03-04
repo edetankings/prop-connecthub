@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import Navbar from "@/components/Navbar";
+import AuthenticatedLayout from "@/components/AuthenticatedLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -123,8 +123,7 @@ const AddProperty = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
+    <AuthenticatedLayout>
       <div className="container mx-auto max-w-3xl px-4 py-8">
         <h1 className="font-display text-2xl font-bold text-foreground mb-8">Add New Property</h1>
 
@@ -242,12 +241,11 @@ const AddProperty = () => {
             <Save className="h-4 w-4" /> Save as Draft
           </Button>
           <Button className="flex-1 gap-2 bg-secondary text-secondary-foreground hover:bg-secondary/90" onClick={() => handleSubmit("for_sale")} disabled={submitting}>
-            <Send className="h-4 w-4" /> Publish Listing
+           <Send className="h-4 w-4" /> Publish Listing
           </Button>
         </div>
       </div>
-      
-    </div>
+    </AuthenticatedLayout>
   );
 };
 
