@@ -213,6 +213,39 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          is_read: boolean
+          link: string | null
+          message: string
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          link?: string | null
+          message: string
+          title: string
+          type?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          link?: string | null
+          message?: string
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -609,6 +642,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      verification_steps: {
+        Row: {
+          created_at: string
+          document_url: string | null
+          id: string
+          metadata: Json | null
+          rejection_reason: string | null
+          status: string
+          step_name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          document_url?: string | null
+          id?: string
+          metadata?: Json | null
+          rejection_reason?: string | null
+          status?: string
+          step_name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          document_url?: string | null
+          id?: string
+          metadata?: Json | null
+          rejection_reason?: string | null
+          status?: string
+          step_name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       wallets: {
         Row: {

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, Shield } from "lucide-react";
 import AppSidebar from "@/components/AppSidebar";
+import NotificationBell from "@/components/NotificationBell";
 import { useAuth } from "@/hooks/useAuth";
 
 interface AuthenticatedLayoutProps {
@@ -34,6 +35,7 @@ const AuthenticatedLayout = ({ children }: AuthenticatedLayoutProps) => {
           </Link>
         </div>
         <div className="flex items-center gap-2">
+          <NotificationBell />
           <span className="text-sm text-muted-foreground hidden sm:block">
             {profile?.full_name}
           </span>
