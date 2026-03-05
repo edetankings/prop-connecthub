@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   Home, Search, Heart, MessageCircle, Receipt, User, Settings, HelpCircle, LogOut,
   LayoutDashboard, Building, Plus, Wallet, ShieldCheck, Star, X,
-  Users, FileCheck, CheckCircle, TrendingUp, FileText, BarChart3, Cog
+  Users, FileCheck, CheckCircle, TrendingUp, FileText, BarChart3, Cog, AlertTriangle, ScrollText
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -17,7 +17,7 @@ interface AppSidebarProps {
 }
 
 const buyerMenu = [
-  { label: "Home", icon: Home, to: "/dashboard/buyer" },
+  { label: "Dashboard", icon: Home, to: "/dashboard/buyer" },
   { label: "Find Properties", icon: Search, to: "/properties" },
   { label: "Saved Properties", icon: Heart, to: "/properties" },
   { label: "Messages", icon: MessageCircle, to: "/messages", badge: true },
@@ -29,12 +29,13 @@ const buyerMenu = [
 
 const agentMenu = [
   { label: "Dashboard", icon: LayoutDashboard, to: "/dashboard/agent" },
-  { label: "My Properties", icon: Building, to: "/dashboard/agent" },
   { label: "Add Property", icon: Plus, to: "/add-property" },
+  { label: "My Listings", icon: Building, to: "/dashboard/agent" },
   { label: "Messages", icon: MessageCircle, to: "/messages", badge: true },
+  { label: "Verification", icon: ShieldCheck, to: "/verification" },
+  { label: "Reviews", icon: Star, to: "/dashboard/agent" },
+  { label: "Analytics", icon: TrendingUp, to: "/analytics" },
   { label: "Escrow Earnings", icon: Wallet, to: "/dashboard/agent" },
-  { label: "Verification Status", icon: ShieldCheck, to: "/verification" },
-  { label: "Profile", icon: User, to: "/settings" },
   { label: "Settings", icon: Settings, to: "/settings" },
   { label: "Support", icon: HelpCircle, to: "/settings" },
 ];
@@ -46,6 +47,8 @@ const adminMenu = [
   { label: "Pending Properties", icon: FileCheck, to: "/admin", badge: true },
   { label: "Approved Properties", icon: CheckCircle, to: "/properties" },
   { label: "Transactions", icon: TrendingUp, to: "/admin" },
+  { label: "Disputes", icon: AlertTriangle, to: "/admin" },
+  { label: "Audit Logs", icon: ScrollText, to: "/admin" },
   { label: "Reports", icon: BarChart3, to: "/analytics" },
   { label: "Site Settings", icon: Cog, to: "/settings" },
 ];

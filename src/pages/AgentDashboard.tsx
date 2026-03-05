@@ -113,45 +113,8 @@ const AgentDashboard = () => {
           </div>
         </div>
 
-        {/* Profile card + sidebar nav */}
-        <div className="grid gap-6 lg:grid-cols-4">
-          <div className="lg:col-span-1">
-            <div className="rounded-xl border border-border bg-card p-5 shadow-card">
-              <div className="flex flex-col items-center text-center mb-4">
-                <div className="h-16 w-16 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-xl">
-                  {profile?.full_name?.[0] || "A"}
-                </div>
-                <h3 className="mt-3 font-display font-bold text-foreground">{profile?.full_name}</h3>
-                <Badge className={`mt-1 ${profile?.kyc_verified ? "bg-[hsl(var(--success)/0.1)] text-[hsl(var(--success))]" : "bg-[hsl(var(--warning)/0.1)] text-[hsl(var(--warning))]"}`}>
-                  {profile?.kyc_verified ? "Fully Verified" : "Pending KYC"}
-                </Badge>
-                <div className="mt-3">
-                  <TrustScoreRing score={profile?.trust_score ?? 0} />
-                </div>
-              </div>
-              <div className="space-y-1">
-                {[
-                  { icon: LayoutDashboard, label: "Dashboard" },
-                  { icon: Building, label: "My Listings", count: stats.listings },
-                  { icon: MessageCircle, label: "Messages", onClick: () => navigate("/messages") },
-                  { icon: ShieldCheck, label: "Verification", onClick: () => navigate("/verification") },
-                  { icon: Star, label: "Reviews" },
-                  { icon: TrendingUp, label: "Analytics" },
-                  { icon: AlertTriangle, label: "Disputes" },
-                  { icon: FileText, label: "Code of Conduct" },
-                  { icon: Settings, label: "Settings", onClick: () => navigate("/settings") },
-                ].map((item) => (
-                  <button key={item.label} onClick={item.onClick} className="flex w-full items-center justify-between rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
-                    <span className="flex items-center gap-2"><item.icon className="h-4 w-4" />{item.label}</span>
-                    {item.count !== undefined && <span className="text-xs">{item.count}</span>}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Listings */}
-          <div className="lg:col-span-3">
+        {/* Listings */}
+        <div>
             <div className="mb-4 flex items-center justify-between">
               <h2 className="font-display text-xl font-bold text-foreground">My Listings</h2>
               <Link to="/add-property">
@@ -201,23 +164,6 @@ const AgentDashboard = () => {
               </div>
             )}
           </div>
-        </div>
-
-        {/* Mobile Bottom Nav */}
-        <div className="flex justify-center gap-6 pt-6 border-t border-border md:hidden">
-          {[
-            { icon: LayoutDashboard, label: "Dashboard", to: "/dashboard" },
-            { icon: Plus, label: "Add", to: "/add-property" },
-            { icon: Building, label: "Listings", to: "/dashboard" },
-            { icon: MessageCircle, label: "Messages", to: "/messages" },
-            { icon: Settings, label: "Profile", to: "/settings" },
-          ].map(({ icon: Icon, label, to }) => (
-            <Link key={label} to={to} className="flex flex-col items-center gap-1 text-muted-foreground hover:text-secondary transition-colors">
-              <Icon className="h-5 w-5" />
-              <span className="text-[10px]">{label}</span>
-            </Link>
-          ))}
-        </div>
       </div>
       
     </AuthenticatedLayout>

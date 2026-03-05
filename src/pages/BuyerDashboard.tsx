@@ -227,15 +227,6 @@ const BuyerDashboard = () => {
           )}
         </section>
 
-        {/* Bottom Nav hint */}
-        <div className="flex justify-center gap-6 pt-4 border-t border-border md:hidden">
-          {[{ icon: Home, label: "Home" }, { icon: Search, label: "Search", to: "/properties" }, { icon: Heart, label: "Saved" }, { icon: User, label: "Profile" }].map(({ icon: Icon, label, to }) => (
-            <Link key={label} to={to || "#"} className="flex flex-col items-center gap-1 text-muted-foreground hover:text-secondary transition-colors">
-              <Icon className="h-5 w-5" />
-              <span className="text-[10px]">{label}</span>
-            </Link>
-          ))}
-        </div>
       </div>
       
     </AuthenticatedLayout>

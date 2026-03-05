@@ -109,62 +109,9 @@ const BuilderDashboard = () => {
           </div>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-3">
-          {/* Sidebar */}
-          <div className="lg:col-span-1 space-y-4">
-            <div className="rounded-xl border border-border bg-card p-5 shadow-card">
-              <div className="flex flex-col items-center text-center mb-4">
-                <div className="h-16 w-16 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-xl">
-                  {profile?.full_name?.[0] || "B"}
-                </div>
-                <h3 className="mt-3 font-display font-bold text-foreground">{profile?.full_name}</h3>
-                <Badge className={`mt-1 ${profile?.kyc_verified ? "bg-[hsl(var(--success)/0.1)] text-[hsl(var(--success))]" : "bg-[hsl(var(--warning)/0.1)] text-[hsl(var(--warning))]"}`}>
-                  {profile?.kyc_verified ? "Verified Developer" : "Pending KYC"}
-                </Badge>
-                <div className="mt-3"><TrustScoreRing score={profile?.trust_score ?? 0} /></div>
-              </div>
-              <div className="space-y-1">
-                {[
-                  { icon: LayoutDashboard, label: "Dashboard" },
-                  { icon: Building2, label: "My Projects", count: projects.length },
-                  { icon: MessageCircle, label: "Messages" },
-                  { icon: Megaphone, label: "Announcements" },
-                  { icon: Wallet, label: "Wallet" },
-                  { icon: Settings, label: "Settings" },
-                ].map((item) => (
-                  <button key={item.label} className="flex w-full items-center justify-between rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
-                    <span className="flex items-center gap-2"><item.icon className="h-4 w-4" />{item.label}</span>
-                    {item.count !== undefined && <span className="text-xs">{item.count}</span>}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Announcements */}
-            <div className="rounded-xl border border-border bg-card p-4 shadow-card">
-              <h3 className="font-display font-semibold text-foreground mb-3 flex items-center gap-2">
-                <Megaphone className="h-4 w-4 text-secondary" /> Announcements
-              </h3>
-              {announcements.length === 0 ? (
-                <p className="text-xs text-muted-foreground">No announcements yet.</p>
-              ) : (
-                <div className="space-y-2">
-                  {announcements.map((a) => (
-                    <div key={a.id} className="rounded-lg bg-muted p-3">
-                      <p className="text-xs font-semibold text-foreground">{a.title}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{a.content}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-              <Link to="/announcements">
-                <Button variant="ghost" size="sm" className="w-full mt-2 text-secondary text-xs">View All →</Button>
-              </Link>
-            </div>
-          </div>
-
+        <div>
           {/* Projects */}
-          <div className="lg:col-span-2">
+          <div>
             <div className="mb-4 flex items-center justify-between">
               <h2 className="font-display text-xl font-bold text-foreground">My Developments</h2>
               <Link to="/add-property">
@@ -216,21 +163,6 @@ const BuilderDashboard = () => {
           </div>
         </div>
 
-        {/* Mobile Bottom Nav */}
-        <div className="flex justify-center gap-6 pt-6 border-t border-border md:hidden">
-          {[
-            { icon: LayoutDashboard, label: "Dashboard" },
-            { icon: Plus, label: "Add", to: "/add-property" },
-            { icon: Building2, label: "Projects" },
-            { icon: MessageCircle, label: "Messages" },
-            { icon: Settings, label: "Profile" },
-          ].map(({ icon: Icon, label, to }) => (
-            <Link key={label} to={to || "#"} className="flex flex-col items-center gap-1 text-muted-foreground hover:text-secondary transition-colors">
-              <Icon className="h-5 w-5" />
-              <span className="text-[10px]">{label}</span>
-            </Link>
-          ))}
-        </div>
       </div>
     </AuthenticatedLayout>
   );
