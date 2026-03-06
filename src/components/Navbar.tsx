@@ -1,6 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Shield, Menu, X, LogOut, LayoutDashboard, ShieldCheck, Settings, MessageCircle } from "lucide-react";
+import ThemeToggle from "@/components/ThemeToggle";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -47,6 +48,7 @@ const Navbar = () => {
         )}
 
         <div className="hidden items-center gap-2 md:flex">
+          <ThemeToggle />
           {user ? (
             <>
               {isAdmin && (
