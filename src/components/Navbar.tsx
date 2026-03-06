@@ -4,7 +4,7 @@ import { Shield, Menu, X, LogOut, LayoutDashboard, ShieldCheck, Settings, Messag
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 
-const navItems = [
+const publicNavItems = [
   { label: "Properties", path: "/properties" },
   { label: "Agents", path: "/agents" },
   { label: "Announcements", path: "/announcements" },
@@ -28,21 +28,23 @@ const Navbar = () => {
           </span>
         </Link>
 
-        <div className="hidden items-center gap-1 md:flex">
-          {navItems.map((item) => (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={`rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-                location.pathname === item.path
-                  ? "bg-primary/10 text-primary"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
-              }`}
-            >
-              {item.label}
-            </Link>
-          ))}
-        </div>
+        {!user && (
+          <div className="hidden items-center gap-1 md:flex">
+            {publicNavItems.map((item) => (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+                  location.pathname === item.path
+                    ? "bg-primary/10 text-primary"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                }`}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </div>
+        )}
 
         <div className="hidden items-center gap-2 md:flex">
           {user ? (
@@ -83,7 +85,7 @@ const Navbar = () => {
 
       {mobileOpen && (
         <div className="border-t border-border bg-card p-4 md:hidden">
-          {navItems.map((item) => (
+          {!user && publicNavItems.map((item) => (
             <Link
               key={item.path}
               to={item.path}

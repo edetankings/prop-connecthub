@@ -161,7 +161,7 @@ const BuyerDashboard = () => {
                 )[0];
                 const unread = (t.messages || []).filter((m: any) => !m.seen).length;
                 return (
-                  <Link key={t.id} to={`/chat/${t.agent_id}`}>
+                  <Link key={t.id} to={`/chat/${t.id}`}>
                     <div className="flex items-center gap-3 rounded-xl border border-border bg-card p-4 shadow-card hover:bg-muted/50 transition-colors cursor-pointer">
                       <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-sm">
                         {t.agent?.full_name?.[0] || "A"}
