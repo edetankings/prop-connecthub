@@ -66,15 +66,44 @@ const AdminDashboard = () => {
   };
 
   const handleApproveProperty = async (propertyId: string) => {
+    const prop = properties.find((p) => p.id === propertyId);
     const { error } = await supabase.from("properties").update({ status: "available", is_verified: true } as any).eq("id", propertyId);
     if (error) { toast.error(error.message); return; }
+    // Notify agent
+    if (prop) {
+      const agentProfile = profiles.find((p: any) => p.id === prop.agent_id);
+      if (agentProfile) {
+        await (supabase as any).from("notifications").insert({
+          user_id: agentProfile.user_id,
+          title: "Property Approved ✅",
+          message: `Your property "${prop.title}" has been approved and is now live.`,
+          type: "success",
+          link: `/property/${propertyId}`,
+        });
+      }
+    }
     toast.success("Property approved!");
     loadData();
   };
 
   const handleRejectProperty = async (propertyId: string) => {
+    const prop = properties.find((p) => p.id === propertyId);
+    const reason = prompt("Enter decline reason (optional):");
     const { error } = await supabase.from("properties").update({ status: "draft" } as any).eq("id", propertyId);
     if (error) { toast.error(error.message); return; }
+    // Notify agent
+    if (prop) {
+      const agentProfile = profiles.find((p: any) => p.id === prop.agent_id);
+      if (agentProfile) {
+        await (supabase as any).from("notifications").insert({
+          user_id: agentProfile.user_id,
+          title: "Property Declined",
+          message: `Your property "${prop.title}" was declined. ${reason ? `Reason: ${reason}. ` : ""}Please review and re-upload.`,
+          type: "error",
+          link: "/add-property",
+        });
+      }
+    }
     toast.success("Property rejected");
     loadData();
   };
@@ -554,6 +583,9 @@ const AdminDashboard = () => {
                             ) : "—"}
                           </td>
                           <td className="px-4 py-3 flex gap-2">
+                            <Button size="sm" variant="outline" className="gap-1" onClick={() => { setTab("verification"); setSelectedUserId(p.user_id); }}>
+                              <Eye className="h-3.5 w-3.5" /> View
+                            </Button>
                             {!p.kyc_verified && p.profile_type === "agent" && (
                               <Button size="sm" variant="outline" onClick={() => handleVerifyKyc(p.id)}>Verify</Button>
                             )}

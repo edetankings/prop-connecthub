@@ -19,12 +19,9 @@ interface AppSidebarProps {
 const buyerMenu = [
   { label: "Dashboard", icon: Home, to: "/dashboard/buyer" },
   { label: "Find Properties", icon: Search, to: "/properties" },
-  { label: "Saved Properties", icon: Heart, to: "/properties" },
   { label: "Messages", icon: MessageCircle, to: "/messages", badge: true },
-  { label: "My Transactions", icon: Receipt, to: "/dashboard/buyer" },
-  { label: "Profile", icon: User, to: "/settings" },
+  { label: "Verification", icon: ShieldCheck, to: "/verification" },
   { label: "Settings", icon: Settings, to: "/settings" },
-  { label: "Help Center", icon: HelpCircle, to: "/settings" },
 ];
 
 const agentMenu = [
@@ -33,24 +30,16 @@ const agentMenu = [
   { label: "My Listings", icon: Building, to: "/dashboard/agent" },
   { label: "Messages", icon: MessageCircle, to: "/messages", badge: true },
   { label: "Verification", icon: ShieldCheck, to: "/verification" },
-  { label: "Reviews", icon: Star, to: "/dashboard/agent" },
-  { label: "Analytics", icon: TrendingUp, to: "/analytics" },
-  { label: "Escrow Earnings", icon: Wallet, to: "/dashboard/agent" },
   { label: "Settings", icon: Settings, to: "/settings" },
-  { label: "Support", icon: HelpCircle, to: "/settings" },
 ];
 
 const adminMenu = [
   { label: "Dashboard", icon: LayoutDashboard, to: "/admin" },
   { label: "All Users", icon: Users, to: "/admin" },
-  { label: "Verify Agents", icon: ShieldCheck, to: "/admin" },
+  { label: "Verification Requests", icon: ShieldCheck, to: "/admin" },
   { label: "Pending Properties", icon: FileCheck, to: "/admin", badge: true },
-  { label: "Approved Properties", icon: CheckCircle, to: "/properties" },
-  { label: "Transactions", icon: TrendingUp, to: "/admin" },
-  { label: "Disputes", icon: AlertTriangle, to: "/admin" },
-  { label: "Audit Logs", icon: ScrollText, to: "/admin" },
-  { label: "Reports", icon: BarChart3, to: "/analytics" },
-  { label: "Site Settings", icon: Cog, to: "/settings" },
+  { label: "Messages", icon: MessageCircle, to: "/messages", badge: true },
+  { label: "Settings", icon: Cog, to: "/settings" },
 ];
 
 const AppSidebar = ({ open, onClose }: AppSidebarProps) => {
