@@ -180,6 +180,25 @@ const AdminDashboard = () => {
     loadData();
   };
 
+  const handleDeleteUser = async (profileUserId: string, profileName: string) => {
+    const confirmed = window.confirm(`Are you sure you want to permanently delete the account for "${profileName}"? This action cannot be undone.`);
+    if (!confirmed) return;
+    const doubleConfirm = window.confirm(`FINAL WARNING: All data for "${profileName}" will be permanently deleted. Continue?`);
+    if (!doubleConfirm) return;
+
+    try {
+      const { data, error } = await supabase.functions.invoke("admin-delete-user", {
+        body: { user_id: profileUserId },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      toast.success(`Account for "${profileName}" has been deleted.`);
+      loadData();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to delete account");
+    }
+  };
+
   // Stats
   const verifiedAgents = profiles.filter((p) => p.kyc_verified).length;
   const completedTx = transactions.filter((t) => t.status === "completed").length;
