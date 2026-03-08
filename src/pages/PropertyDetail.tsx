@@ -100,7 +100,7 @@ const PropertyDetail = () => {
     const propAgentId = dbProperty?.agent_id || mockProperty?.agentId;
     if (!propId || !propAgentId) return;
 
-    if (!form.buyer_name || !form.buyer_phone || !form.buyer_email || !form.viewing_date) {
+    if (!form.buyer_name || !form.viewing_date) {
       toast.error("Please fill in all required fields");
       return;
     }
@@ -110,12 +110,30 @@ const PropertyDetail = () => {
       buyer_id: profile.id,
       agent_id: propAgentId,
       buyer_name: form.buyer_name,
-      buyer_phone: form.buyer_phone,
-      buyer_email: form.buyer_email,
       message: form.message || null,
       viewing_date: form.viewing_date,
       notes: form.message || null,
     });
+
+    // Auto-create a chat thread between buyer and agent for this property
+    if (!error) {
+      // Check if a thread already exists
+      const { data: existingThread } = await supabase
+        .from("chat_threads")
+        .select("id")
+        .eq("buyer_id", profile.id)
+        .eq("agent_id", propAgentId)
+        .eq("property_id", propId)
+        .maybeSingle();
+
+      if (!existingThread) {
+        await supabase.from("chat_threads").insert({
+          buyer_id: profile.id,
+          agent_id: propAgentId,
+          property_id: propId,
+        });
+      }
+    }
     setSubmitting(false);
 
     if (error) {
