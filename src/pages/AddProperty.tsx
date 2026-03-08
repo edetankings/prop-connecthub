@@ -67,11 +67,18 @@ const AddProperty = () => {
     });
   };
 
+  const isKycVerified = profile?.kyc_verified ?? false;
+
   const validate = () => {
     if (!form.title.trim()) { toast.error("Title is required"); return false; }
     if (!form.price || Number(form.price) <= 0) { toast.error("Valid price is required"); return false; }
     if (!form.property_type) { toast.error("Category is required"); return false; }
     if (!form.description.trim()) { toast.error("Description is required"); return false; }
+    if (!form.city.trim()) { toast.error("City is required"); return false; }
+    if (!form.state.trim()) { toast.error("State is required"); return false; }
+    if (images.length === 0) { toast.error("At least one image is required"); return false; }
+    if (form.title.length > 150) { toast.error("Title too long (max 150 chars)"); return false; }
+    if (form.description.length > 5000) { toast.error("Description too long (max 5000 chars)"); return false; }
     return true;
   };
 
