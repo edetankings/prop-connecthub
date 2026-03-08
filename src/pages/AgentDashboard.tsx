@@ -174,14 +174,12 @@ const AgentDashboard = () => {
                       </div>
                       <div className="mt-2 grid grid-cols-2 gap-x-6 gap-y-1 text-sm">
                         <p className="text-muted-foreground">Buyer: <span className="text-foreground font-medium">{r.buyer_name || "—"}</span></p>
-                        <p className="text-muted-foreground">Phone: <span className="text-foreground font-medium">{r.buyer_phone || "—"}</span></p>
                         <p className="text-muted-foreground">Viewing: <span className="text-foreground font-medium">{r.viewing_date ? new Date(r.viewing_date).toLocaleDateString() : "—"}</span></p>
-                        <p className="text-muted-foreground">Email: <span className="text-foreground font-medium">{r.buyer_email || "—"}</span></p>
                       </div>
                       {r.message && <p className="mt-2 text-sm text-muted-foreground italic">"{r.message}"</p>}
                     </div>
                     {r.status === "pending" && (
-                      <div className="flex gap-2 shrink-0">
+                      <div className="flex gap-2 shrink-0 flex-wrap">
                         <Button
                           size="sm"
                           disabled={updatingResId === r.id}
@@ -201,6 +199,34 @@ const AgentDashboard = () => {
                         </Button>
                       </div>
                     )}
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="gap-1 shrink-0"
+                      onClick={async () => {
+                        // Find or create chat thread for this reservation
+                        const { data: thread } = await supabase
+                          .from("chat_threads")
+                          .select("id")
+                          .eq("buyer_id", r.buyer_id)
+                          .eq("agent_id", profile!.id)
+                          .eq("property_id", r.property_id)
+                          .maybeSingle();
+                        if (thread) {
+                          navigate(`/chat/${thread.id}`);
+                        } else {
+                          const { data: newThread } = await supabase
+                            .from("chat_threads")
+                            .insert({ buyer_id: r.buyer_id, agent_id: profile!.id, property_id: r.property_id })
+                            .select("id")
+                            .single();
+                          if (newThread) navigate(`/chat/${newThread.id}`);
+                          else toast.error("Failed to start chat");
+                        }
+                      }}
+                    >
+                      <MessageCircle className="h-4 w-4" /> Chat
+                    </Button>
                   </div>
                 </div>
               ))}
