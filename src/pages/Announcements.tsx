@@ -14,7 +14,7 @@ const colorMap: Record<string, string> = { update: "bg-primary/10 text-primary",
 
 const Announcements = () => {
   const [announcements, setAnnouncements] = useState<any[]>([]);
-  const [latestProperties, setLatestProperties] = useState<DBProperty[]>([]);
+  const [latestProperties, setLatestProperties] = useState<PropertyWithDate[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
