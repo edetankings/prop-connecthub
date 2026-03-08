@@ -878,6 +878,87 @@ const AdminDashboard = () => {
                 )}
               </div>
             )}
+
+            {/* SUPPORT MESSAGES TAB */}
+            {tab === "support" && (
+              <div className="space-y-4">
+                <h2 className="font-display text-xl font-bold text-foreground">Support Messages</h2>
+                {supportTickets.length === 0 ? (
+                  <p className="text-muted-foreground text-sm py-8 text-center">No support messages yet.</p>
+                ) : (
+                  <div className="space-y-3">
+                    {supportTickets.map((ticket: any) => (
+                      <Card key={ticket.id} className={`border-border/50 ${ticket.status === "open" ? "bg-card" : "bg-muted/30"}`}>
+                        <CardContent className="p-4">
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                {ticket.status === "open" ? (
+                                  <Mail className="h-4 w-4 text-destructive shrink-0" />
+                                ) : (
+                                  <MailOpen className="h-4 w-4 text-muted-foreground shrink-0" />
+                                )}
+                                <p className="font-medium text-foreground text-sm truncate">{ticket.subject}</p>
+                                <Badge variant={ticket.status === "open" ? "destructive" : "secondary"} className="text-[10px] shrink-0">
+                                  {ticket.status === "open" ? "Unread" : "Read"}
+                                </Badge>
+                              </div>
+                              <p className="text-xs text-muted-foreground mb-2">
+                                From: <strong>{ticket.name || "Unknown"}</strong> ({ticket.email || "No email"}) • {new Date(ticket.created_at).toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                              </p>
+                              <p className="text-sm text-foreground whitespace-pre-wrap">{ticket.message}</p>
+                            </div>
+                            <div className="flex flex-col gap-1.5 shrink-0">
+                              {ticket.status === "open" && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="text-xs gap-1"
+                                  onClick={async () => {
+                                    await (supabase as any).from("support_tickets").update({ status: "read" }).eq("id", ticket.id);
+                                    toast.success("Marked as read");
+                                    loadData();
+                                  }}
+                                >
+                                  <MailOpen className="h-3 w-3" /> Mark Read
+                                </Button>
+                              )}
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="text-xs gap-1"
+                                onClick={() => {
+                                  if (ticket.email) {
+                                    window.open(`mailto:${ticket.email}?subject=Re: ${encodeURIComponent(ticket.subject)}`, "_blank");
+                                  } else {
+                                    toast.error("No email address available");
+                                  }
+                                }}
+                              >
+                                <Mail className="h-3 w-3" /> Reply
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                className="text-xs gap-1"
+                                onClick={async () => {
+                                  if (!window.confirm("Delete this support message?")) return;
+                                  await (supabase as any).from("support_tickets").delete().eq("id", ticket.id);
+                                  toast.success("Message deleted");
+                                  loadData();
+                                }}
+                              >
+                                <Trash2 className="h-3 w-3" /> Delete
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </>
         )}
       </div>
