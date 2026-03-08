@@ -77,11 +77,10 @@ const PropertyDetail = () => {
       .select("*")
       .eq("id", id)
       .maybeSingle()
-      .then(({ data }) => {
-        setDbProperty(data as DBPropertyDetail | null);
+      .then(({ data, error }) => {
+        if (!error) setDbProperty(data as DBPropertyDetail | null);
         setLoading(false);
-      })
-      .catch(() => setLoading(false));
+      });
   }, [id]);
 
   // Fetch agent profile
