@@ -69,6 +69,12 @@ const AdminDashboard = () => {
       .order("created_at", { ascending: false });
     setSupportTickets(ticketsData || []);
 
+    const { data: annData } = await (supabase as any)
+      .from("announcements")
+      .select("*, profiles!announcements_author_id_fkey(full_name)")
+      .order("created_at", { ascending: false });
+    setDbAnnouncements(annData || []);
+
     setLoading(false);
   };
 
