@@ -377,14 +377,6 @@ const PropertyDetail = () => {
               <Input id="r-name" value={form.buyer_name} onChange={(e) => setForm({ ...form, buyer_name: e.target.value })} placeholder="Your full name" />
             </div>
             <div>
-              <Label htmlFor="r-phone">Phone Number *</Label>
-              <Input id="r-phone" value={form.buyer_phone} onChange={(e) => setForm({ ...form, buyer_phone: e.target.value })} placeholder="+234..." />
-            </div>
-            <div>
-              <Label htmlFor="r-email">Email *</Label>
-              <Input id="r-email" type="email" value={form.buyer_email} onChange={(e) => setForm({ ...form, buyer_email: e.target.value })} placeholder="you@email.com" />
-            </div>
-            <div>
               <Label htmlFor="r-date">Preferred Viewing Date *</Label>
               <Input id="r-date" type="date" value={form.viewing_date} onChange={(e) => setForm({ ...form, viewing_date: e.target.value })} />
             </div>
@@ -392,6 +384,7 @@ const PropertyDetail = () => {
               <Label htmlFor="r-msg">Message to Agent</Label>
               <Textarea id="r-msg" value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} placeholder="Any special requests or questions..." rows={3} />
             </div>
+            <p className="text-xs text-muted-foreground">A chat thread will be created automatically so you can communicate directly with the agent.</p>
             <div className="flex gap-3 pt-2">
               <Button variant="outline" className="flex-1" onClick={() => setShowReserveModal(false)}>Cancel</Button>
               <Button className="flex-1 bg-secondary text-secondary-foreground hover:bg-secondary/90" onClick={handleReserve} disabled={submitting}>
