@@ -49,31 +49,38 @@ const Announcements = () => {
           </div>
         ) : (
           <>
-            {/* Newly Listed Properties */}
+            {/* Newly Listed Properties - Text only */}
             {latestProperties.length > 0 && (
               <section className="mt-8">
                 <h2 className="font-display text-xl font-bold text-foreground mb-4">🏠 Newly Listed Properties</h2>
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                <div className="space-y-3">
                   {latestProperties.map((p) => (
-                    <Link key={p.id} to={`/property/${p.id}`} className="group rounded-xl border border-border bg-card overflow-hidden shadow-card hover:shadow-elevated transition-all hover:-translate-y-1">
-                      <div className="h-40 bg-muted overflow-hidden">
-                        {p.image_url ? (
-                          <img src={p.image_url} alt={p.title} className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                        ) : (
-                          <div className="h-full w-full flex items-center justify-center text-muted-foreground">No image</div>
-                        )}
+                    <div key={p.id} className="rounded-xl border border-border bg-card p-5 shadow-card">
+                      <div className="flex items-start gap-3">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-secondary/10 text-secondary">
+                          <MapPin className="h-5 w-5" />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="font-display font-semibold text-foreground">
+                            New property listed: {p.title}
+                          </h3>
+                          <p className="mt-1 text-sm text-muted-foreground">
+                            Located at {p.address || p.city}{p.city && p.state ? `, ${p.state}` : p.state || ""}
+                            {p.bedrooms ? ` · ${p.bedrooms} bed` : ""}{p.bathrooms ? ` · ${p.bathrooms} bath` : ""}
+                            {p.property_type ? ` · ${p.property_type.charAt(0).toUpperCase() + p.property_type.slice(1)}` : ""}
+                          </p>
+                          <p className="mt-1 font-display font-bold text-secondary">₦{p.price?.toLocaleString()}</p>
+                          <p className="mt-1 text-xs text-muted-foreground">
+                            {new Date(p.created_at).toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" })}
+                          </p>
+                          <Link to={`/property/${p.id}`}>
+                            <Button size="sm" variant="link" className="h-auto p-0 mt-2 text-secondary">
+                              View full details →
+                            </Button>
+                          </Link>
+                        </div>
                       </div>
-                      <div className="p-4">
-                        <h3 className="font-display font-semibold text-foreground truncate">{p.title}</h3>
-                        <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
-                          <MapPin className="h-3 w-3" /> {p.city}{p.state ? `, ${p.state}` : ""}
-                        </p>
-                        <p className="mt-2 font-display font-bold text-secondary">₦{p.price?.toLocaleString()}</p>
-                        <Button size="sm" className="mt-3 w-full bg-secondary text-secondary-foreground hover:bg-secondary/90">
-                          View Property
-                        </Button>
-                      </div>
-                    </Link>
+                    </div>
                   ))}
                 </div>
               </section>
