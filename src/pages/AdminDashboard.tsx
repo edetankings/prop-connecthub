@@ -612,18 +612,28 @@ const AdminDashboard = () => {
                               </Badge>
                             ) : "—"}
                           </td>
-                          <td className="px-4 py-3 flex gap-2">
-                            <Button size="sm" variant="outline" className="gap-1" onClick={() => { setTab("verification"); setSelectedUserId(p.user_id); }}>
-                              <Eye className="h-3.5 w-3.5" /> View
-                            </Button>
-                            {!p.kyc_verified && p.profile_type === "agent" && (
-                              <Button size="sm" variant="outline" onClick={() => handleVerifyKyc(p.id)}>Verify</Button>
-                            )}
-                            {p.profile_type === "agent" && (
-                              <Button size="sm" variant="outline" onClick={() => handleToggleVisibility(p.id, p.is_visible)}>
-                                {p.is_visible ? "Hide" : "Show"}
+                          <td className="px-4 py-3">
+                            <div className="flex gap-2 flex-wrap">
+                              <Button size="sm" variant="outline" className="gap-1" onClick={() => { setTab("verification"); setSelectedUserId(p.user_id); }}>
+                                <Eye className="h-3.5 w-3.5" /> View
                               </Button>
-                            )}
+                              {!p.kyc_verified && p.profile_type === "agent" && (
+                                <Button size="sm" variant="outline" onClick={() => handleVerifyKyc(p.id)}>Verify</Button>
+                              )}
+                              {p.profile_type === "agent" && (
+                                <Button size="sm" variant="outline" onClick={() => handleToggleVisibility(p.id, p.is_visible)}>
+                                  {p.is_visible ? "Hide" : "Show"}
+                                </Button>
+                              )}
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                className="gap-1"
+                                onClick={() => handleDeleteUser(p.user_id, p.full_name || "Unknown")}
+                              >
+                                <Trash2 className="h-3.5 w-3.5" /> Delete
+                              </Button>
+                            </div>
                           </td>
                         </tr>
                       ))}
