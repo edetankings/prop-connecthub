@@ -139,7 +139,19 @@ const AddProperty = () => {
   return (
     <AuthenticatedLayout>
       <div className="container mx-auto max-w-3xl px-4 py-8">
-        <h1 className="font-display text-2xl font-bold text-foreground mb-8">Add New Property</h1>
+        <h1 className="font-display text-2xl font-bold text-foreground mb-4">Add New Property</h1>
+
+        {/* KYC Warning */}
+        {!isKycVerified && (
+          <div className="mb-6 rounded-xl border-2 border-[hsl(var(--warning))]/30 bg-[hsl(var(--warning))]/5 p-4 flex gap-3">
+            <AlertTriangle className="h-5 w-5 text-[hsl(var(--warning))] shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-semibold text-foreground">Identity verification required</p>
+              <p className="text-xs text-muted-foreground mt-1">Complete your KYC verification to build buyer trust and unlock escrow payouts.</p>
+              <Button variant="outline" size="sm" className="mt-2" onClick={() => navigate("/verification")}>Complete Verification</Button>
+            </div>
+          </div>
+        )}
 
         {/* Upload Section */}
         <section className="mb-8">
