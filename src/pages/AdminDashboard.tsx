@@ -27,6 +27,7 @@ const AdminDashboard = () => {
   const [kycSteps, setKycSteps] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [allReservations, setAllReservations] = useState<any[]>([]);
 
   useEffect(() => { loadData(); }, []);
 
