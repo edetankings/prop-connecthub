@@ -126,7 +126,7 @@ const Settings = () => {
     setSaving(true);
     const { error } = await supabase
       .from("support_tickets")
-      .insert({ user_id: user.id, subject, message });
+      .insert({ user_id: user.id, name: supportName, email: supportEmail, subject, message } as any);
     setSaving(false);
     if (error) toast.error("Failed to submit ticket");
     else {
