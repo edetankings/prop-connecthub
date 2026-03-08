@@ -211,12 +211,26 @@ const Settings = () => {
             <div className="rounded-xl border border-border bg-card p-5 shadow-card text-center mb-4">
               <div className="relative inline-block">
                 <div className="h-20 w-20 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-2xl mx-auto overflow-hidden">
-                  {profile?.avatar_url
-                    ? <img src={profile.avatar_url} alt="Avatar" className="h-full w-full object-cover" />
-                    : (profile?.full_name?.[0] || user?.email?.[0] || "U").toUpperCase()
-                  }
+                  {uploadingAvatar ? (
+                    <div className="animate-spin h-6 w-6 border-2 border-primary-foreground border-t-transparent rounded-full" />
+                  ) : profile?.avatar_url ? (
+                    <img src={profile.avatar_url} alt="Avatar" className="h-full w-full object-cover" />
+                  ) : (
+                    (profile?.full_name?.[0] || user?.email?.[0] || "U").toUpperCase()
+                  )}
                 </div>
-                <button className="absolute bottom-0 right-0 h-7 w-7 rounded-full bg-secondary flex items-center justify-center shadow-md">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/jpg"
+                  className="hidden"
+                  onChange={handleAvatarUpload}
+                />
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploadingAvatar}
+                  className="absolute bottom-0 right-0 h-7 w-7 rounded-full bg-secondary flex items-center justify-center shadow-md hover:bg-secondary/80 transition-colors"
+                >
                   <Camera className="h-3.5 w-3.5 text-secondary-foreground" />
                 </button>
               </div>
