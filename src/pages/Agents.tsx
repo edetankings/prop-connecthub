@@ -23,14 +23,33 @@ const Agents = () => {
 
   useEffect(() => {
     const fetchAgents = async () => {
-      const { data } = await supabase
+      const { data: agentProfiles } = await supabase
         .from("profiles")
         .select("*")
         .eq("profile_type", "agent")
         .eq("is_visible", true)
         .order("trust_score", { ascending: false });
 
-      setAgents((data as DBAgent[]) || []);
+      if (agentProfiles && agentProfiles.length > 0) {
+        // Get real property counts per agent
+        const agentIds = agentProfiles.map((a) => a.id);
+        const { data: props } = await supabase
+          .from("properties")
+          .select("agent_id")
+          .in("agent_id", agentIds);
+
+        const countMap: Record<string, number> = {};
+        props?.forEach((p) => { countMap[p.agent_id] = (countMap[p.agent_id] || 0) + 1; });
+
+        setAgents(
+          agentProfiles.map((a) => ({
+            ...(a as DBAgent),
+            properties_listed: countMap[a.id] || 0,
+          }))
+        );
+      } else {
+        setAgents([]);
+      }
       setLoading(false);
     };
     fetchAgents();
