@@ -87,6 +87,23 @@ const Index = () => {
       .order("created_at", { ascending: false })
       .limit(3)
       .then(({ data }) => setFeaturedProperties((data as DBProperty[]) || []));
+
+    // Fetch latest newly listed properties
+    supabase
+      .from("properties")
+      .select("*")
+      .in("status", ["available", "for_sale", "for_rent"])
+      .order("created_at", { ascending: false })
+      .limit(6)
+      .then(({ data }) => setLatestProperties((data as DBProperty[]) || []));
+
+    // Fetch custom announcements from DB
+    (supabase as any)
+      .from("announcements")
+      .select("*, profiles!announcements_author_id_fkey(full_name)")
+      .order("created_at", { ascending: false })
+      .limit(5)
+      .then(({ data }: any) => setAnnouncements(data || []));
   }, []);
 
   return (
