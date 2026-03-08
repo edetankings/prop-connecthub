@@ -375,14 +375,24 @@ const Settings = () => {
                   {ticketSent ? (
                     <div className="rounded-xl border border-[hsl(var(--success)/0.3)] bg-[hsl(var(--success)/0.05)] p-6 text-center">
                       <CheckCircle className="mx-auto mb-3 h-10 w-10 text-[hsl(var(--success))]" />
-                      <p className="font-medium text-foreground">Ticket submitted!</p>
+                      <p className="font-medium text-foreground">Message sent!</p>
                       <p className="text-sm text-muted-foreground mt-1">We'll get back to you within 24 hours.</p>
-                      <Button variant="ghost" size="sm" className="mt-4" onClick={() => setTicketSent(false)}>Submit another</Button>
+                      <Button variant="ghost" size="sm" className="mt-4" onClick={() => setTicketSent(false)}>Send another</Button>
                     </div>
                   ) : (
                     <div>
-                      <h3 className="font-display font-semibold text-foreground mb-3">Submit a Support Ticket</h3>
+                      <h3 className="font-display font-semibold text-foreground mb-3">Send a Support Message</h3>
                       <div className="space-y-3">
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          <div>
+                            <Label>Name</Label>
+                            <Input value={supportName} onChange={e => setSupportName(e.target.value)} className="mt-1" placeholder="Your full name" />
+                          </div>
+                          <div>
+                            <Label>Email</Label>
+                            <Input value={supportEmail} onChange={e => setSupportEmail(e.target.value)} className="mt-1" placeholder="you@example.com" type="email" />
+                          </div>
+                        </div>
                         <div>
                           <Label>Subject</Label>
                           <Input value={subject} onChange={e => setSubject(e.target.value)} className="mt-1" placeholder="Brief description of your issue" />
@@ -391,13 +401,21 @@ const Settings = () => {
                           <Label>Message</Label>
                           <Textarea value={message} onChange={e => setMessage(e.target.value)} className="mt-1 resize-none" rows={4} placeholder="Describe your problem in detail…" />
                         </div>
-                        <Button
-                          className="bg-secondary text-secondary-foreground hover:bg-secondary/90"
-                          onClick={submitTicket}
-                          disabled={saving || !subject.trim() || !message.trim()}
-                        >
-                          {saving ? "Submitting…" : "Submit Ticket"}
-                        </Button>
+                        <div className="flex gap-3">
+                          <Button
+                            variant="outline"
+                            onClick={() => { setSubject(""); setMessage(""); }}
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            className="bg-secondary text-secondary-foreground hover:bg-secondary/90"
+                            onClick={submitTicket}
+                            disabled={saving || !subject.trim() || !message.trim() || !supportName.trim() || !supportEmail.trim()}
+                          >
+                            {saving ? "Sending…" : "Send Message"}
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   )}
