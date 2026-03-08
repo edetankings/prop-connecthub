@@ -9,7 +9,7 @@ import {
   Users, Building, ShieldCheck, AlertTriangle, TrendingUp,
   CheckCircle, XCircle, FileText, LayoutDashboard, Gavel, ScrollText,
   DollarSign, Wallet, PieChart, Activity, ArrowUpRight, Eye, ExternalLink,
-  CalendarCheck, Trash2
+  CalendarCheck, Trash2, MessageSquare, Mail, MailOpen
 } from "lucide-react";
 import { toast } from "sonner";
 import { PieChart as RechartsPie, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
