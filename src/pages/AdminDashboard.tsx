@@ -255,6 +255,7 @@ const AdminDashboard = () => {
     { id: "audit" as Tab, label: "Audit Logs", icon: ScrollText },
     { id: "reservations" as Tab, label: "Reservations", icon: CalendarCheck, count: allReservations.filter((r: any) => r.status === "pending").length },
     { id: "support" as Tab, label: "Support Messages", icon: MessageSquare, count: supportTickets.filter((t: any) => t.status === "open").length },
+    { id: "announcements" as Tab, label: "Announcements", icon: Megaphone, count: dbAnnouncements.length },
   ];
 
   // Selected user details for verification review
