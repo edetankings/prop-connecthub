@@ -176,6 +176,14 @@ const AdminDashboard = () => {
       }
     }
 
+    // If rejected, ensure profile is not marked as verified
+    if (status === "rejected") {
+      const userProfile = profiles.find((p: any) => p.user_id === stepUserId);
+      if (userProfile && userProfile.kyc_verified) {
+        await supabase.from("profiles").update({ kyc_verified: false }).eq("id", userProfile.id);
+      }
+    }
+
     toast.success(`Step ${status}`);
     loadData();
   };
