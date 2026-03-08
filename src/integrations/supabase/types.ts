@@ -21,6 +21,7 @@ export type Database = {
           created_at: string
           id: string
           title: string
+          type: string
         }
         Insert: {
           author_id: string
@@ -28,6 +29,7 @@ export type Database = {
           created_at?: string
           id?: string
           title: string
+          type?: string
         }
         Update: {
           author_id?: string
@@ -35,6 +37,7 @@ export type Database = {
           created_at?: string
           id?: string
           title?: string
+          type?: string
         }
         Relationships: [
           {
