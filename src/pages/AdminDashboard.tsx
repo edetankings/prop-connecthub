@@ -180,6 +180,25 @@ const AdminDashboard = () => {
     loadData();
   };
 
+  const handleDeleteUser = async (profileUserId: string, profileName: string) => {
+    const confirmed = window.confirm(`Are you sure you want to permanently delete the account for "${profileName}"? This action cannot be undone.`);
+    if (!confirmed) return;
+    const doubleConfirm = window.confirm(`FINAL WARNING: All data for "${profileName}" will be permanently deleted. Continue?`);
+    if (!doubleConfirm) return;
+
+    try {
+      const { data, error } = await supabase.functions.invoke("admin-delete-user", {
+        body: { user_id: profileUserId },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      toast.success(`Account for "${profileName}" has been deleted.`);
+      loadData();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to delete account");
+    }
+  };
+
   // Stats
   const verifiedAgents = profiles.filter((p) => p.kyc_verified).length;
   const completedTx = transactions.filter((t) => t.status === "completed").length;
@@ -593,18 +612,28 @@ const AdminDashboard = () => {
                               </Badge>
                             ) : "—"}
                           </td>
-                          <td className="px-4 py-3 flex gap-2">
-                            <Button size="sm" variant="outline" className="gap-1" onClick={() => { setTab("verification"); setSelectedUserId(p.user_id); }}>
-                              <Eye className="h-3.5 w-3.5" /> View
-                            </Button>
-                            {!p.kyc_verified && p.profile_type === "agent" && (
-                              <Button size="sm" variant="outline" onClick={() => handleVerifyKyc(p.id)}>Verify</Button>
-                            )}
-                            {p.profile_type === "agent" && (
-                              <Button size="sm" variant="outline" onClick={() => handleToggleVisibility(p.id, p.is_visible)}>
-                                {p.is_visible ? "Hide" : "Show"}
+                          <td className="px-4 py-3">
+                            <div className="flex gap-2 flex-wrap">
+                              <Button size="sm" variant="outline" className="gap-1" onClick={() => { setTab("verification"); setSelectedUserId(p.user_id); }}>
+                                <Eye className="h-3.5 w-3.5" /> View
                               </Button>
-                            )}
+                              {!p.kyc_verified && p.profile_type === "agent" && (
+                                <Button size="sm" variant="outline" onClick={() => handleVerifyKyc(p.id)}>Verify</Button>
+                              )}
+                              {p.profile_type === "agent" && (
+                                <Button size="sm" variant="outline" onClick={() => handleToggleVisibility(p.id, p.is_visible)}>
+                                  {p.is_visible ? "Hide" : "Show"}
+                                </Button>
+                              )}
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                className="gap-1"
+                                onClick={() => handleDeleteUser(p.user_id, p.full_name || "Unknown")}
+                              >
+                                <Trash2 className="h-3.5 w-3.5" /> Delete
+                              </Button>
+                            </div>
                           </td>
                         </tr>
                       ))}

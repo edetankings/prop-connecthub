@@ -105,11 +105,9 @@ export function useVerificationSteps() {
   const totalSteps = STEP_ORDER.length;
   const progressPercent = totalSteps > 0 ? Math.round((completedCount / totalSteps) * 100) : 0;
 
-  const isStepUnlocked = (name: StepName): boolean => {
-    const idx = STEP_ORDER.indexOf(name);
-    if (idx === 0) return true;
-    const prevStep = getStepByName(STEP_ORDER[idx - 1]);
-    return prevStep?.status === "approved";
+  const isStepUnlocked = (_name: StepName): boolean => {
+    // All steps are unlocked — users can submit all verification details at once
+    return true;
   };
 
   const nextIncompleteStep = (): StepName | null => {
