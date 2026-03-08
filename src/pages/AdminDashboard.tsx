@@ -49,6 +49,14 @@ const AdminDashboard = () => {
     setAuditLogs(a.data || []);
     setTransactions(t.data || []);
     setKycSteps(ks.data || []);
+
+    // Fetch all reservations for admin
+    const { data: resData } = await (supabase as any)
+      .from("reservations")
+      .select("*, properties(title, city, state)")
+      .order("created_at", { ascending: false });
+    setAllReservations(resData || []);
+
     setLoading(false);
   };
 
