@@ -59,6 +59,12 @@ const AdminDashboard = () => {
       .order("created_at", { ascending: false });
     setAllReservations(resData || []);
 
+    const { data: ticketsData } = await (supabase as any)
+      .from("support_tickets")
+      .select("*")
+      .order("created_at", { ascending: false });
+    setSupportTickets(ticketsData || []);
+
     setLoading(false);
   };
 
