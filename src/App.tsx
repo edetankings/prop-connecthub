@@ -38,6 +38,7 @@ const App = () => (
         <Sonner />
       <BrowserRouter>
         <AuthProvider>
+          <WelcomeModal />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/properties" element={<Properties />} />
