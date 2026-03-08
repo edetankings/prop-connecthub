@@ -199,6 +199,34 @@ const AgentDashboard = () => {
                         </Button>
                       </div>
                     )}
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="gap-1 shrink-0"
+                      onClick={async () => {
+                        // Find or create chat thread for this reservation
+                        const { data: thread } = await supabase
+                          .from("chat_threads")
+                          .select("id")
+                          .eq("buyer_id", r.buyer_id)
+                          .eq("agent_id", profile!.id)
+                          .eq("property_id", r.property_id)
+                          .maybeSingle();
+                        if (thread) {
+                          navigate(`/chat/${thread.id}`);
+                        } else {
+                          const { data: newThread } = await supabase
+                            .from("chat_threads")
+                            .insert({ buyer_id: r.buyer_id, agent_id: profile!.id, property_id: r.property_id })
+                            .select("id")
+                            .single();
+                          if (newThread) navigate(`/chat/${newThread.id}`);
+                          else toast.error("Failed to start chat");
+                        }
+                      }}
+                    >
+                      <MessageCircle className="h-4 w-4" /> Chat
+                    </Button>
                   </div>
                 </div>
               ))}
