@@ -1,12 +1,13 @@
 import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { MapPin, Bed, Bath, Maximize, MessageCircle, CalendarCheck, ShieldCheck, Star, ArrowLeft, CheckCircle } from "lucide-react";
+import { MapPin, Bed, Bath, Maximize, MessageCircle, CalendarCheck, ShieldCheck, ArrowLeft, CheckCircle, Bookmark } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Skeleton } from "@/components/ui/skeleton";
 import Navbar from "@/components/Navbar";
 import { TrustScoreRing } from "@/components/AgentCard";
 import { properties, formatPrice, getTrustBadge } from "@/lib/mockData";
@@ -15,10 +16,33 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import type { DBAgent } from "@/pages/Agents";
 
+interface DBPropertyDetail {
+  id: string;
+  title: string;
+  price: number;
+  property_type: string;
+  status: string;
+  image_url: string | null;
+  images: string[] | null;
+  city: string | null;
+  state: string | null;
+  address: string | null;
+  bedrooms: number | null;
+  bathrooms: number | null;
+  sqft: number | null;
+  agent_id: string;
+  description: string | null;
+  is_verified: boolean;
+  amenities: string[] | null;
+}
+
 const PropertyDetail = () => {
   const { id } = useParams();
-  const property = properties.find((p) => p.id === id);
   const { user, profile } = useAuth();
+
+  // DB property state
+  const [dbProperty, setDbProperty] = useState<DBPropertyDetail | null>(null);
+  const [loading, setLoading] = useState(true);
   const [agent, setAgent] = useState<DBAgent | null>(null);
   const [showReserveModal, setShowReserveModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -29,6 +53,9 @@ const PropertyDetail = () => {
     viewing_date: "",
     message: "",
   });
+
+  // Try mock data as fallback
+  const mockProperty = properties.find((p) => p.id === id);
 
   useEffect(() => {
     if (profile) {
@@ -41,37 +68,59 @@ const PropertyDetail = () => {
     }
   }, [profile, user]);
 
+  // Fetch property from DB
   useEffect(() => {
-    if (!property) return;
+    if (!id) return;
+    setLoading(true);
+    supabase
+      .from("properties")
+      .select("*")
+      .eq("id", id)
+      .maybeSingle()
+      .then(({ data }) => {
+        setDbProperty(data as DBPropertyDetail | null);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, [id]);
+
+  // Fetch agent profile
+  const agentId = dbProperty?.agent_id || mockProperty?.agentId;
+  useEffect(() => {
+    if (!agentId) return;
     supabase
       .from("profiles")
       .select("*")
-      .eq("id", property.agentId)
+      .eq("id", agentId)
       .maybeSingle()
       .then(({ data }) => setAgent(data as DBAgent | null));
-  }, [property]);
+  }, [agentId]);
 
   const handleReserve = async () => {
-    if (!user || !profile || !property) {
+    if (!user || !profile) {
       toast.error("Please log in to reserve a property");
       return;
     }
+    const propId = dbProperty?.id || mockProperty?.id;
+    const propAgentId = dbProperty?.agent_id || mockProperty?.agentId;
+    if (!propId || !propAgentId) return;
+
     if (!form.buyer_name || !form.buyer_phone || !form.buyer_email || !form.viewing_date) {
       toast.error("Please fill in all required fields");
       return;
     }
     setSubmitting(true);
     const { error } = await supabase.from("reservations").insert({
-      property_id: property.id,
+      property_id: propId,
       buyer_id: profile.id,
-      agent_id: property.agentId,
+      agent_id: propAgentId,
       buyer_name: form.buyer_name,
       buyer_phone: form.buyer_phone,
       buyer_email: form.buyer_email,
       message: form.message || null,
       viewing_date: form.viewing_date,
       notes: form.message || null,
-    } as any);
+    });
     setSubmitting(false);
 
     if (error) {
@@ -82,20 +131,84 @@ const PropertyDetail = () => {
 
     // Notify agent
     if (agent) {
-      await (supabase as any).from("notifications").insert({
-        user_id: agent.user_id || property.agentId,
+      const title = dbProperty?.title || mockProperty?.title || "a property";
+      await supabase.from("notifications").insert({
+        user_id: agent.user_id,
         title: "New Reservation Request 🏠",
-        message: `${form.buyer_name} has requested to reserve "${property.title}" for ${form.viewing_date}.`,
+        message: `${form.buyer_name} has requested to reserve "${title}" for ${form.viewing_date}.`,
         type: "info",
-        link: "/agent-dashboard",
-      });
+        link: "/dashboard/agent",
+      } as any);
     }
 
     toast.success("Reservation submitted successfully!");
     setShowReserveModal(false);
   };
 
-  if (!property) return <div className="flex min-h-screen items-center justify-center"><p>Property not found</p></div>;
+  const handleSave = () => {
+    toast.success("Property saved to your favorites!");
+  };
+
+  // Loading state
+  if (loading && !mockProperty) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="container mx-auto px-4 py-6">
+          <Skeleton className="mb-4 h-6 w-40" />
+          <div className="grid gap-8 lg:grid-cols-3">
+            <div className="lg:col-span-2">
+              <Skeleton className="h-72 w-full rounded-xl md:h-96" />
+              <Skeleton className="mt-6 h-8 w-3/4" />
+              <Skeleton className="mt-2 h-5 w-1/2" />
+            </div>
+            <div><Skeleton className="h-64 w-full rounded-xl" /></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Not found
+  if (!loading && !dbProperty && !mockProperty) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-background">
+        <Navbar />
+        <div className="mt-20 text-center">
+          <h1 className="font-display text-2xl font-bold text-foreground">Property not found.</h1>
+          <p className="mt-2 text-muted-foreground">This listing may have been removed or doesn't exist.</p>
+          <Link to="/properties">
+            <Button className="mt-4 bg-primary text-primary-foreground hover:bg-primary/90">Browse Properties</Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // Normalize data — prefer DB, fallback to mock
+  const title = dbProperty?.title || mockProperty?.title || "";
+  const price = dbProperty?.price || mockProperty?.price || 0;
+  const location = dbProperty
+    ? [dbProperty.address, dbProperty.city, dbProperty.state].filter(Boolean).join(", ") || "Nigeria"
+    : mockProperty?.location || "";
+  const description = dbProperty?.description || mockProperty?.description || "No description available.";
+  const bedrooms = dbProperty?.bedrooms ?? mockProperty?.bedrooms ?? 0;
+  const bathrooms = dbProperty?.bathrooms ?? mockProperty?.bathrooms ?? 0;
+  const sqft = dbProperty?.sqft ?? mockProperty?.sqft ?? 0;
+  const isSale = dbProperty
+    ? (dbProperty.status === "for_sale" || dbProperty.status === "available")
+    : mockProperty?.type === "sale";
+  const isVerified = dbProperty?.is_verified ?? false;
+  const features = dbProperty?.amenities ?? mockProperty?.features ?? [];
+  const propertyId = dbProperty?.id || mockProperty?.id || "";
+  const propertyAgentId = dbProperty?.agent_id || mockProperty?.agentId || "";
+
+  // Images
+  const allImages: string[] = [];
+  if (dbProperty?.image_url) allImages.push(dbProperty.image_url);
+  if (dbProperty?.images?.length) allImages.push(...dbProperty.images.filter((img) => img !== dbProperty.image_url));
+  if (!allImages.length && mockProperty?.image) allImages.push(mockProperty.image);
+  if (!allImages.length) allImages.push("/placeholder.svg");
 
   const badge = agent ? getTrustBadge(agent.trust_score) : null;
 
@@ -108,44 +221,66 @@ const PropertyDetail = () => {
         </Link>
 
         <div className="grid gap-8 lg:grid-cols-3">
+          {/* Main Content */}
           <div className="lg:col-span-2">
+            {/* Image Gallery */}
             <div className="overflow-hidden rounded-xl">
-              <img src={property.image} alt={property.title} className="h-72 w-full object-cover md:h-96" />
+              <img src={allImages[0]} alt={title} className="h-72 w-full object-cover md:h-96" />
             </div>
+            {allImages.length > 1 && (
+              <div className="mt-3 flex gap-2 overflow-x-auto">
+                {allImages.slice(1, 5).map((img, i) => (
+                  <img key={i} src={img} alt={`${title} ${i + 2}`} className="h-20 w-28 flex-shrink-0 rounded-lg object-cover ring-1 ring-border" />
+                ))}
+              </div>
+            )}
 
             <div className="mt-6">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <h1 className="font-display text-2xl font-bold text-foreground md:text-3xl">{property.title}</h1>
-                  <p className="mt-1 flex items-center gap-1 text-muted-foreground"><MapPin className="h-4 w-4" />{property.location}</p>
+                  <div className="flex items-center gap-2">
+                    <h1 className="font-display text-2xl font-bold text-foreground md:text-3xl">{title}</h1>
+                    {isVerified && <Badge className="bg-success/90 text-success-foreground">Verified</Badge>}
+                  </div>
+                  <p className="mt-1 flex items-center gap-1 text-muted-foreground"><MapPin className="h-4 w-4" />{location}</p>
                 </div>
                 <div className="text-right">
-                  <p className="font-display text-2xl font-bold text-secondary md:text-3xl">{formatPrice(property.price)}</p>
-                  {property.type === "rent" && <span className="text-sm text-muted-foreground">per year</span>}
+                  <p className="font-display text-2xl font-bold text-secondary md:text-3xl">
+                    {dbProperty ? `₦${price.toLocaleString()}` : formatPrice(price)}
+                  </p>
+                  {!isSale && <span className="text-sm text-muted-foreground">per year</span>}
                 </div>
               </div>
 
+              <div className="mt-3 flex gap-2">
+                <Badge className={isSale ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"}>
+                  {isSale ? "For Sale" : "For Rent"}
+                </Badge>
+              </div>
+
               <div className="mt-4 flex gap-4 text-muted-foreground">
-                {property.bedrooms > 0 && <span className="flex items-center gap-1"><Bed className="h-5 w-5" /> {property.bedrooms} Beds</span>}
-                <span className="flex items-center gap-1"><Bath className="h-5 w-5" /> {property.bathrooms} Baths</span>
-                <span className="flex items-center gap-1"><Maximize className="h-5 w-5" /> {property.sqft} sqft</span>
+                {bedrooms > 0 && <span className="flex items-center gap-1"><Bed className="h-5 w-5" /> {bedrooms} Beds</span>}
+                {bathrooms > 0 && <span className="flex items-center gap-1"><Bath className="h-5 w-5" /> {bathrooms} Baths</span>}
+                {sqft > 0 && <span className="flex items-center gap-1"><Maximize className="h-5 w-5" /> {sqft} sqft</span>}
               </div>
 
               <div className="mt-6">
                 <h2 className="font-display text-lg font-semibold text-foreground">Description</h2>
-                <p className="mt-2 leading-relaxed text-muted-foreground">{property.description}</p>
+                <p className="mt-2 leading-relaxed text-muted-foreground">{description}</p>
               </div>
 
-              <div className="mt-6">
-                <h2 className="font-display text-lg font-semibold text-foreground">Features</h2>
-                <div className="mt-3 grid grid-cols-2 gap-2">
-                  {property.features.map((f) => (
-                    <span key={f} className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <CheckCircle className="h-4 w-4 text-success" /> {f}
-                    </span>
-                  ))}
+              {features.length > 0 && (
+                <div className="mt-6">
+                  <h2 className="font-display text-lg font-semibold text-foreground">Features</h2>
+                  <div className="mt-3 grid grid-cols-2 gap-2">
+                    {features.map((f) => (
+                      <span key={f} className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <CheckCircle className="h-4 w-4 text-success" /> {f}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
 
@@ -153,9 +288,9 @@ const PropertyDetail = () => {
           <div className="space-y-4">
             <div className="rounded-xl border border-border bg-card p-5 shadow-card">
               <div className="flex gap-3">
-                <Link to={`/chat/new?agent=${property.agentId}&property=${property.id}`} className="flex-1">
+                <Link to={`/chat/new?agent=${propertyAgentId}&property=${propertyId}`} className="flex-1">
                   <Button className="w-full gap-2 bg-primary text-primary-foreground hover:bg-primary/90">
-                    <MessageCircle className="h-4 w-4" /> Chat with Agent
+                    <MessageCircle className="h-4 w-4" /> Message Agent
                   </Button>
                 </Link>
               </div>
@@ -164,6 +299,13 @@ const PropertyDetail = () => {
                 className="mt-3 w-full gap-2 bg-secondary text-secondary-foreground hover:bg-secondary/90 text-base py-6 rounded-xl font-semibold"
               >
                 <CalendarCheck className="h-5 w-5" /> Reserve Property
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handleSave}
+                className="mt-3 w-full gap-2"
+              >
+                <Bookmark className="h-4 w-4" /> Save Property
               </Button>
             </div>
 
@@ -214,7 +356,7 @@ const PropertyDetail = () => {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="font-display text-xl">Reserve Property</DialogTitle>
-            <p className="text-sm text-muted-foreground mt-1">{property.title}</p>
+            <p className="text-sm text-muted-foreground mt-1">{title}</p>
           </DialogHeader>
           <div className="space-y-4 mt-2">
             <div>
