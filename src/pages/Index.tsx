@@ -67,6 +67,8 @@ const FAQ = ({ q, a }: { q: string; a: string }) => {
 const Index = () => {
   const [agents, setAgents] = useState<DBAgent[]>([]);
   const [featuredProperties, setFeaturedProperties] = useState<DBProperty[]>([]);
+  const [latestProperties, setLatestProperties] = useState<DBProperty[]>([]);
+  const [announcements, setAnnouncements] = useState<any[]>([]);
 
   useEffect(() => {
     supabase
