@@ -334,19 +334,46 @@ const PropertyDetail = () => {
           {/* Sidebar */}
           <div className="space-y-4">
             <div className="rounded-xl border border-border bg-card p-5 shadow-card">
-              <div className="flex gap-3">
-                <Link to={`/chat/new?agent=${propertyAgentId}&property=${propertyId}`} className="flex-1">
-                  <Button className="w-full gap-2 bg-primary text-primary-foreground hover:bg-primary/90">
-                    <MessageCircle className="h-4 w-4" /> Message Agent
+              {!isOwner && (
+                <div className="flex gap-3">
+                  {user ? (
+                    <Link to={`/chat/new?agent=${propertyAgentId}&property=${propertyId}`} className="flex-1">
+                      <Button className="w-full gap-2 bg-primary text-primary-foreground hover:bg-primary/90">
+                        <MessageCircle className="h-4 w-4" /> Message Agent
+                      </Button>
+                    </Link>
+                  ) : (
+                    <Link to="/login" className="flex-1">
+                      <Button className="w-full gap-2 bg-primary text-primary-foreground hover:bg-primary/90">
+                        <MessageCircle className="h-4 w-4" /> Log in to Message
+                      </Button>
+                    </Link>
+                  )}
+                </div>
+              )}
+              {isOwner && (
+                <p className="text-xs text-muted-foreground text-center py-2">This is your listing</p>
+              )}
+              {!isOwner && (
+                alreadyReserved ? (
+                  <div className="mt-3 w-full text-center py-4 rounded-xl bg-[hsl(var(--success))]/10 text-[hsl(var(--success))] font-semibold text-sm flex items-center justify-center gap-2">
+                    <CheckCircle className="h-4 w-4" /> Reservation Submitted
+                  </div>
+                ) : user ? (
+                  <Button
+                    onClick={() => setShowReserveModal(true)}
+                    className="mt-3 w-full gap-2 bg-secondary text-secondary-foreground hover:bg-secondary/90 text-base py-6 rounded-xl font-semibold"
+                  >
+                    <CalendarCheck className="h-5 w-5" /> Reserve Property
                   </Button>
-                </Link>
-              </div>
-              <Button
-                onClick={() => setShowReserveModal(true)}
-                className="mt-3 w-full gap-2 bg-secondary text-secondary-foreground hover:bg-secondary/90 text-base py-6 rounded-xl font-semibold"
-              >
-                <CalendarCheck className="h-5 w-5" /> Reserve Property
-              </Button>
+                ) : (
+                  <Link to="/login" className="block mt-3">
+                    <Button className="w-full gap-2 bg-secondary text-secondary-foreground hover:bg-secondary/90 text-base py-6 rounded-xl font-semibold">
+                      <CalendarCheck className="h-5 w-5" /> Log in to Reserve
+                    </Button>
+                  </Link>
+                )
+              )}
               <Button
                 variant="outline"
                 onClick={handleSave}

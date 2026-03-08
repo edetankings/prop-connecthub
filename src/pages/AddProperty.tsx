@@ -97,6 +97,7 @@ const AddProperty = () => {
 
   const handleSubmit = async (status: "draft" | "for_sale") => {
     if (status === "for_sale" && !validate()) return;
+    if (status === "draft" && !form.title.trim()) { toast.error("Title is required even for drafts"); return; }
     if (!profile) { toast.error("Please log in first"); return; }
 
     setSubmitting(true);

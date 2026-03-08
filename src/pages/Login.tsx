@@ -117,8 +117,8 @@ const Login = () => {
               </button>
             </div>
           </div>
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Logging in..." : "Log In"}
+          <Button type="submit" className="w-full" disabled={loading || isLocked}>
+            {isLocked ? `Locked (${countdown}s)` : loading ? "Logging in..." : "Log In"}
           </Button>
         </form>
         <p className="mt-4 text-center text-sm text-muted-foreground">
