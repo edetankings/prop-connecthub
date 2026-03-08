@@ -32,7 +32,7 @@ const Announcements = () => {
           .limit(6),
       ]);
       setAnnouncements(annRes.data || []);
-      setLatestProperties((propRes.data as DBProperty[]) || []);
+      setLatestProperties((propRes.data as PropertyWithDate[]) || []);
       setLoading(false);
     };
     load();
