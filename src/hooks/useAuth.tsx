@@ -17,6 +17,7 @@ interface Profile {
   kyc_verified: boolean;
   properties_listed: number;
   completed_transactions: number;
+  welcome_seen: boolean;
 }
 
 interface AuthContextType {

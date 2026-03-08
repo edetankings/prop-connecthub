@@ -26,6 +26,7 @@ import AddProperty from "./pages/AddProperty";
 import Settings from "./pages/Settings";
 import IdentityVerification from "./pages/IdentityVerification";
 import NotFound from "./pages/NotFound";
+import WelcomeModal from "./components/WelcomeModal";
 
 const queryClient = new QueryClient();
 
