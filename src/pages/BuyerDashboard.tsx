@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Bell, Heart, MessageCircle, Home, Search, User, BookmarkCheck, MapPin, Bed, Bath } from "lucide-react";
+import { Bell, Heart, MessageCircle, Home, Search, User, BookmarkCheck, MapPin, Bed, Bath, CalendarCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,8 +15,8 @@ const statusColors: Record<string, string> = {
 };
 
 const statusLabels: Record<string, string> = {
-  pending: "AWAITING APPROVAL",
-  confirmed: "IN ESCROW",
+  pending: "PENDING",
+  confirmed: "CONFIRMED",
   rejected: "REJECTED",
   cancelled: "CANCELLED",
 };
@@ -34,13 +34,12 @@ const BuyerDashboard = () => {
     if (!profile?.id) return;
 
     // Fetch reservations with property info
-    supabase
+    (supabase as any)
       .from("reservations")
       .select("*, properties(title, city, state, price, image_url)")
       .eq("buyer_id", profile.id)
       .order("created_at", { ascending: false })
-      .limit(5)
-      .then(({ data }) => {
+      .then(({ data }: any) => {
         setReservations(data || []);
         setStats((s) => ({ ...s, reservations: data?.length || 0 }));
       });
@@ -93,7 +92,7 @@ const BuyerDashboard = () => {
           <div className="rounded-xl border border-border bg-card p-4 shadow-card text-center">
             <BookmarkCheck className="mx-auto mb-1 h-5 w-5 text-secondary" />
             <p className="font-display text-2xl font-bold text-foreground">{stats.reservations}</p>
-            <p className="text-xs text-muted-foreground">Active Reservations</p>
+            <p className="text-xs text-muted-foreground">Reservations</p>
           </div>
           <div className="rounded-xl border border-border bg-card p-4 shadow-card text-center">
             <Heart className="mx-auto mb-1 h-5 w-5 text-secondary" />
@@ -107,12 +106,12 @@ const BuyerDashboard = () => {
           </div>
         </div>
 
-        {/* Active Reservations */}
+        {/* My Reservations */}
         <section className="mb-8">
-          <h2 className="font-display text-xl font-bold text-foreground mb-4">Active Reservations</h2>
+          <h2 className="font-display text-xl font-bold text-foreground mb-4">My Reservations</h2>
           {reservations.length === 0 ? (
             <div className="rounded-xl border border-border bg-card p-8 text-center text-muted-foreground shadow-card">
-              No active reservations yet.{" "}
+              No reservations yet.{" "}
               <Link to="/properties" className="text-secondary hover:underline font-medium">Browse properties →</Link>
             </div>
           ) : (
@@ -129,15 +128,21 @@ const BuyerDashboard = () => {
                     <p className="text-sm text-muted-foreground flex items-center gap-1">
                       <MapPin className="h-3 w-3" />{r.properties?.city}, {r.properties?.state}
                     </p>
-                    <p className="text-sm font-semibold text-secondary mt-0.5">
-                      ₦{r.properties?.price?.toLocaleString()}
-                    </p>
+                    <div className="flex items-center gap-3 mt-1">
+                      <p className="text-sm font-semibold text-secondary">
+                        ₦{r.properties?.price?.toLocaleString()}
+                      </p>
+                      {r.viewing_date && (
+                        <p className="text-xs text-muted-foreground flex items-center gap-1">
+                          <CalendarCheck className="h-3 w-3" /> {new Date(r.viewing_date).toLocaleDateString()}
+                        </p>
+                      )}
+                    </div>
                   </div>
                   <div className="text-right">
                     <Badge className={`text-xs ${statusColors[r.status] || "bg-muted text-muted-foreground"}`}>
                       {statusLabels[r.status] || r.status}
                     </Badge>
-                    <Button size="sm" variant="ghost" className="mt-2 text-xs text-secondary">Track</Button>
                   </div>
                 </div>
               ))}
@@ -228,7 +233,6 @@ const BuyerDashboard = () => {
         </section>
 
       </div>
-      
     </AuthenticatedLayout>
   );
 };
