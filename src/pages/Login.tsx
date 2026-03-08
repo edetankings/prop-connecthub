@@ -22,7 +22,7 @@ const Login = () => {
   const navigate = useNavigate();
 
   // Countdown timer for lockout
-  useState(() => {
+  useEffect(() => {
     const interval = setInterval(() => {
       if (lockedUntil) {
         const remaining = Math.ceil((lockedUntil - Date.now()) / 1000);
@@ -37,7 +37,7 @@ const Login = () => {
       }
     }, 1000);
     return () => clearInterval(interval);
-  });
+  }, [lockedUntil]);
 
   const isLocked = lockedUntil !== null && Date.now() < lockedUntil;
 
