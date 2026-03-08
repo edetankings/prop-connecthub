@@ -6,24 +6,79 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
 
+const MAX_ATTEMPTS = 5;
+const LOCKOUT_SECONDS = 60;
+
 const Login = () => {
   const [showPw, setShowPw] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [attempts, setAttempts] = useState(0);
+  const [lockedUntil, setLockedUntil] = useState<number | null>(null);
+  const [countdown, setCountdown] = useState(0);
   const { signIn } = useAuth();
   const navigate = useNavigate();
+
+  // Countdown timer for lockout
+  useState(() => {
+    const interval = setInterval(() => {
+      if (lockedUntil) {
+        const remaining = Math.ceil((lockedUntil - Date.now()) / 1000);
+        if (remaining <= 0) {
+          setLockedUntil(null);
+          setAttempts(0);
+          setCountdown(0);
+          setError("");
+        } else {
+          setCountdown(remaining);
+        }
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  });
+
+  const isLocked = lockedUntil !== null && Date.now() < lockedUntil;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    if (isLocked) {
+      setError(`Too many failed attempts. Try again in ${countdown} seconds.`);
+      return;
+    }
+
+    if (!email.trim() || !password.trim()) {
+      setError("Please enter both email and password.");
+      return;
+    }
+
     setLoading(true);
     try {
       await signIn(email, password);
+      setAttempts(0);
       navigate("/dashboard");
     } catch (err: any) {
-      setError(err.message || "Login failed");
+      const newAttempts = attempts + 1;
+      setAttempts(newAttempts);
+
+      if (newAttempts >= MAX_ATTEMPTS) {
+        const lockTime = Date.now() + LOCKOUT_SECONDS * 1000;
+        setLockedUntil(lockTime);
+        setCountdown(LOCKOUT_SECONDS);
+        setError(`Too many failed attempts. Account locked for ${LOCKOUT_SECONDS} seconds.`);
+      } else {
+        const msg = err.message?.toLowerCase() || "";
+        if (msg.includes("email not confirmed")) {
+          setError("Please verify your email before logging in. Check your inbox.");
+        } else if (msg.includes("invalid login")) {
+          setError(`Invalid email or password. ${MAX_ATTEMPTS - newAttempts} attempts remaining.`);
+        } else {
+          setError(err.message || "Login failed");
+        }
+      }
     } finally {
       setLoading(false);
     }
