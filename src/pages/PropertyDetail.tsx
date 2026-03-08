@@ -48,8 +48,6 @@ const PropertyDetail = () => {
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
     buyer_name: "",
-    buyer_phone: "",
-    buyer_email: "",
     viewing_date: "",
     message: "",
   });
