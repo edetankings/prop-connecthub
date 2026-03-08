@@ -209,6 +209,7 @@ const AdminDashboard = () => {
     { id: "moderation" as Tab, label: "Properties", icon: FileText, count: pendingProperties },
     { id: "disputes" as Tab, label: "Disputes", icon: Gavel, count: openDisputes },
     { id: "audit" as Tab, label: "Audit Logs", icon: ScrollText },
+    { id: "reservations" as Tab, label: "Reservations", icon: CalendarCheck, count: allReservations.filter((r: any) => r.status === "pending").length },
   ];
 
   // Selected user details for verification review
