@@ -188,6 +188,7 @@ const PropertyDetail = () => {
     }
 
     toast.success("Reservation submitted successfully!");
+    setAlreadyReserved(true);
     setShowReserveModal(false);
   };
 
