@@ -30,6 +30,7 @@ const AddProperty = () => {
     title: "",
     price: "",
     property_type: "",
+    listing_type: "for_sale" as "for_sale" | "for_rent",
     description: "",
     address: "",
     city: "",
@@ -37,6 +38,9 @@ const AddProperty = () => {
     zip_code: "",
     latitude: "",
     longitude: "",
+    bedrooms: "",
+    bathrooms: "",
+    sqft: "",
     amenities: [] as string[],
   });
 
