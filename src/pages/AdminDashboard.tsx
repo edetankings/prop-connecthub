@@ -236,6 +236,7 @@ const AdminDashboard = () => {
     { id: "disputes" as Tab, label: "Disputes", icon: Gavel, count: openDisputes },
     { id: "audit" as Tab, label: "Audit Logs", icon: ScrollText },
     { id: "reservations" as Tab, label: "Reservations", icon: CalendarCheck, count: allReservations.filter((r: any) => r.status === "pending").length },
+    { id: "support" as Tab, label: "Support Messages", icon: MessageSquare, count: supportTickets.filter((t: any) => t.status === "open").length },
   ];
 
   // Selected user details for verification review
