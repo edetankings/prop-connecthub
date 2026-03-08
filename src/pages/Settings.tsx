@@ -42,6 +42,8 @@ const Settings = () => {
   const [prefsLoaded, setPrefsLoaded] = useState(false);
 
   // Support state
+  const [supportName, setSupportName] = useState(profile?.full_name || "");
+  const [supportEmail, setSupportEmail] = useState(user?.email || "");
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [ticketSent, setTicketSent] = useState(false);
