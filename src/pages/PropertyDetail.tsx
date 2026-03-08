@@ -60,11 +60,9 @@ const PropertyDetail = () => {
       setForm((f) => ({
         ...f,
         buyer_name: profile.full_name || f.buyer_name,
-        buyer_phone: profile.phone || f.buyer_phone,
-        buyer_email: user?.email || f.buyer_email,
       }));
     }
-  }, [profile, user]);
+  }, [profile]);
 
   // Fetch property from DB
   useEffect(() => {
