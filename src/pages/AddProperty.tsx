@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Upload, X, ImageIcon, MapPin, Sparkles, Save, Send } from "lucide-react";
+import { Upload, X, ImageIcon, MapPin, Sparkles, Save, Send, AlertTriangle } from "lucide-react";
 
 const AMENITIES = ["Free WiFi", "Swimming Pool", "Gym", "Parking", "Security", "Garden"];
 const CATEGORIES = [
@@ -30,6 +30,7 @@ const AddProperty = () => {
     title: "",
     price: "",
     property_type: "",
+    listing_type: "for_sale" as "for_sale" | "for_rent",
     description: "",
     address: "",
     city: "",
@@ -37,6 +38,9 @@ const AddProperty = () => {
     zip_code: "",
     latitude: "",
     longitude: "",
+    bedrooms: "",
+    bathrooms: "",
+    sqft: "",
     amenities: [] as string[],
   });
 
@@ -63,11 +67,18 @@ const AddProperty = () => {
     });
   };
 
+  const isKycVerified = profile?.kyc_verified ?? false;
+
   const validate = () => {
     if (!form.title.trim()) { toast.error("Title is required"); return false; }
     if (!form.price || Number(form.price) <= 0) { toast.error("Valid price is required"); return false; }
     if (!form.property_type) { toast.error("Category is required"); return false; }
     if (!form.description.trim()) { toast.error("Description is required"); return false; }
+    if (!form.city.trim()) { toast.error("City is required"); return false; }
+    if (!form.state.trim()) { toast.error("State is required"); return false; }
+    if (images.length === 0) { toast.error("At least one image is required"); return false; }
+    if (form.title.length > 150) { toast.error("Title too long (max 150 chars)"); return false; }
+    if (form.description.length > 5000) { toast.error("Description too long (max 5000 chars)"); return false; }
     return true;
   };
 
@@ -86,6 +97,7 @@ const AddProperty = () => {
 
   const handleSubmit = async (status: "draft" | "for_sale") => {
     if (status === "for_sale" && !validate()) return;
+    if (status === "draft" && !form.title.trim()) { toast.error("Title is required even for drafts"); return; }
     if (!profile) { toast.error("Please log in first"); return; }
 
     setSubmitting(true);
@@ -95,21 +107,24 @@ const AddProperty = () => {
       const finalStatus = status === "draft" ? "draft" : "under_verification";
 
       const { error } = await supabase.from("properties").insert({
-        title: form.title,
+        title: form.title.trim(),
         price: Number(form.price) || 0,
         property_type: form.property_type || "house",
-        description: form.description,
-        address: form.address,
-        city: form.city,
-        state: form.state,
-        zip_code: form.zip_code,
+        description: form.description.trim(),
+        address: form.address.trim(),
+        city: form.city.trim(),
+        state: form.state.trim(),
+        zip_code: form.zip_code.trim(),
         latitude: form.latitude ? parseFloat(form.latitude) : null,
         longitude: form.longitude ? parseFloat(form.longitude) : null,
+        bedrooms: form.bedrooms ? parseInt(form.bedrooms) : null,
+        bathrooms: form.bathrooms ? parseInt(form.bathrooms) : null,
+        sqft: form.sqft ? parseInt(form.sqft) : null,
         amenities: form.amenities,
         images: imageUrls,
         image_url: imageUrls[0] || null,
         agent_id: profile.id,
-        status: finalStatus as any,
+        status: (status === "draft" ? "draft" : "under_verification") as any,
       });
 
       if (error) throw error;
@@ -125,7 +140,19 @@ const AddProperty = () => {
   return (
     <AuthenticatedLayout>
       <div className="container mx-auto max-w-3xl px-4 py-8">
-        <h1 className="font-display text-2xl font-bold text-foreground mb-8">Add New Property</h1>
+        <h1 className="font-display text-2xl font-bold text-foreground mb-4">Add New Property</h1>
+
+        {/* KYC Warning */}
+        {!isKycVerified && (
+          <div className="mb-6 rounded-xl border-2 border-[hsl(var(--warning))]/30 bg-[hsl(var(--warning))]/5 p-4 flex gap-3">
+            <AlertTriangle className="h-5 w-5 text-[hsl(var(--warning))] shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-semibold text-foreground">Identity verification required</p>
+              <p className="text-xs text-muted-foreground mt-1">Complete your KYC verification to build buyer trust and unlock escrow payouts.</p>
+              <Button variant="outline" size="sm" className="mt-2" onClick={() => navigate("/verification")}>Complete Verification</Button>
+            </div>
+          </div>
+        )}
 
         {/* Upload Section */}
         <section className="mb-8">
@@ -176,7 +203,7 @@ const AddProperty = () => {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="text-sm font-medium text-foreground mb-1 block">Price (₦) *</label>
-                <Input type="number" placeholder="0" value={form.price} onChange={(e) => updateField("price", e.target.value)} />
+                <Input type="number" placeholder="0" min="0" value={form.price} onChange={(e) => updateField("price", e.target.value)} />
               </div>
               <div>
                 <label className="text-sm font-medium text-foreground mb-1 block">Category *</label>
@@ -186,6 +213,32 @@ const AddProperty = () => {
                     {CATEGORIES.map((c) => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
                   </SelectContent>
                 </Select>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium text-foreground mb-1 block">Listing Type *</label>
+                <Select value={form.listing_type} onValueChange={(v) => setForm(f => ({ ...f, listing_type: v as any }))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="for_sale">For Sale</SelectItem>
+                    <SelectItem value="for_rent">For Rent</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground mb-1 block">Sq Ft</label>
+                <Input type="number" placeholder="0" min="0" value={form.sqft} onChange={(e) => updateField("sqft", e.target.value)} />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium text-foreground mb-1 block">Bedrooms</label>
+                <Input type="number" placeholder="0" min="0" value={form.bedrooms} onChange={(e) => updateField("bedrooms", e.target.value)} />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground mb-1 block">Bathrooms</label>
+                <Input type="number" placeholder="0" min="0" value={form.bathrooms} onChange={(e) => updateField("bathrooms", e.target.value)} />
               </div>
             </div>
             <div>

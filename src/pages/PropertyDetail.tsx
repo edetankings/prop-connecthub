@@ -91,17 +91,50 @@ const PropertyDetail = () => {
       .then(({ data }) => setAgent(data as DBAgent | null));
   }, [agentId]);
 
+  const [alreadyReserved, setAlreadyReserved] = useState(false);
+
+  // Check for existing reservation by this user
+  useEffect(() => {
+    if (!profile?.id || !id) return;
+    (supabase as any)
+      .from("reservations")
+      .select("id")
+      .eq("buyer_id", profile.id)
+      .eq("property_id", id)
+      .in("status", ["pending", "confirmed"])
+      .maybeSingle()
+      .then(({ data }: any) => setAlreadyReserved(!!data));
+  }, [profile?.id, id]);
+
+  const isOwner = profile?.id === (dbProperty?.agent_id || mockProperty?.agentId);
+
   const handleReserve = async () => {
     if (!user || !profile) {
       toast.error("Please log in to reserve a property");
+      return;
+    }
+    if (isOwner) {
+      toast.error("You cannot reserve your own property");
       return;
     }
     const propId = dbProperty?.id || mockProperty?.id;
     const propAgentId = dbProperty?.agent_id || mockProperty?.agentId;
     if (!propId || !propAgentId) return;
 
-    if (!form.buyer_name || !form.viewing_date) {
-      toast.error("Please fill in all required fields");
+    if (!form.buyer_name.trim()) {
+      toast.error("Full name is required");
+      return;
+    }
+    if (!form.viewing_date) {
+      toast.error("Viewing date is required");
+      return;
+    }
+    // Validate future date
+    const selectedDate = new Date(form.viewing_date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (selectedDate < today) {
+      toast.error("Viewing date must be today or in the future");
       return;
     }
     setSubmitting(true);
@@ -155,6 +188,7 @@ const PropertyDetail = () => {
     }
 
     toast.success("Reservation submitted successfully!");
+    setAlreadyReserved(true);
     setShowReserveModal(false);
   };
 
@@ -300,19 +334,46 @@ const PropertyDetail = () => {
           {/* Sidebar */}
           <div className="space-y-4">
             <div className="rounded-xl border border-border bg-card p-5 shadow-card">
-              <div className="flex gap-3">
-                <Link to={`/chat/new?agent=${propertyAgentId}&property=${propertyId}`} className="flex-1">
-                  <Button className="w-full gap-2 bg-primary text-primary-foreground hover:bg-primary/90">
-                    <MessageCircle className="h-4 w-4" /> Message Agent
+              {!isOwner && (
+                <div className="flex gap-3">
+                  {user ? (
+                    <Link to={`/chat/new?agent=${propertyAgentId}&property=${propertyId}`} className="flex-1">
+                      <Button className="w-full gap-2 bg-primary text-primary-foreground hover:bg-primary/90">
+                        <MessageCircle className="h-4 w-4" /> Message Agent
+                      </Button>
+                    </Link>
+                  ) : (
+                    <Link to="/login" className="flex-1">
+                      <Button className="w-full gap-2 bg-primary text-primary-foreground hover:bg-primary/90">
+                        <MessageCircle className="h-4 w-4" /> Log in to Message
+                      </Button>
+                    </Link>
+                  )}
+                </div>
+              )}
+              {isOwner && (
+                <p className="text-xs text-muted-foreground text-center py-2">This is your listing</p>
+              )}
+              {!isOwner && (
+                alreadyReserved ? (
+                  <div className="mt-3 w-full text-center py-4 rounded-xl bg-[hsl(var(--success))]/10 text-[hsl(var(--success))] font-semibold text-sm flex items-center justify-center gap-2">
+                    <CheckCircle className="h-4 w-4" /> Reservation Submitted
+                  </div>
+                ) : user ? (
+                  <Button
+                    onClick={() => setShowReserveModal(true)}
+                    className="mt-3 w-full gap-2 bg-secondary text-secondary-foreground hover:bg-secondary/90 text-base py-6 rounded-xl font-semibold"
+                  >
+                    <CalendarCheck className="h-5 w-5" /> Reserve Property
                   </Button>
-                </Link>
-              </div>
-              <Button
-                onClick={() => setShowReserveModal(true)}
-                className="mt-3 w-full gap-2 bg-secondary text-secondary-foreground hover:bg-secondary/90 text-base py-6 rounded-xl font-semibold"
-              >
-                <CalendarCheck className="h-5 w-5" /> Reserve Property
-              </Button>
+                ) : (
+                  <Link to="/login" className="block mt-3">
+                    <Button className="w-full gap-2 bg-secondary text-secondary-foreground hover:bg-secondary/90 text-base py-6 rounded-xl font-semibold">
+                      <CalendarCheck className="h-5 w-5" /> Log in to Reserve
+                    </Button>
+                  </Link>
+                )
+              )}
               <Button
                 variant="outline"
                 onClick={handleSave}
