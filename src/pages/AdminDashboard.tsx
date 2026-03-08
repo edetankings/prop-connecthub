@@ -8,12 +8,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Users, Building, ShieldCheck, AlertTriangle, TrendingUp,
   CheckCircle, XCircle, FileText, LayoutDashboard, Gavel, ScrollText,
-  DollarSign, Wallet, PieChart, Activity, ArrowUpRight, Eye, ExternalLink
+  DollarSign, Wallet, PieChart, Activity, ArrowUpRight, Eye, ExternalLink,
+  CalendarCheck, Trash2
 } from "lucide-react";
 import { toast } from "sonner";
 import { PieChart as RechartsPie, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
-type Tab = "dashboard" | "users" | "moderation" | "disputes" | "audit" | "verification";
+type Tab = "dashboard" | "users" | "moderation" | "disputes" | "audit" | "verification" | "reservations";
 
 const AdminDashboard = () => {
   const { user } = useAuth();
@@ -27,6 +28,7 @@ const AdminDashboard = () => {
   const [kycSteps, setKycSteps] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [allReservations, setAllReservations] = useState<any[]>([]);
 
   useEffect(() => { loadData(); }, []);
 
@@ -48,6 +50,14 @@ const AdminDashboard = () => {
     setAuditLogs(a.data || []);
     setTransactions(t.data || []);
     setKycSteps(ks.data || []);
+
+    // Fetch all reservations for admin
+    const { data: resData } = await (supabase as any)
+      .from("reservations")
+      .select("*, properties(title, city, state)")
+      .order("created_at", { ascending: false });
+    setAllReservations(resData || []);
+
     setLoading(false);
   };
 
@@ -199,6 +209,7 @@ const AdminDashboard = () => {
     { id: "moderation" as Tab, label: "Properties", icon: FileText, count: pendingProperties },
     { id: "disputes" as Tab, label: "Disputes", icon: Gavel, count: openDisputes },
     { id: "audit" as Tab, label: "Audit Logs", icon: ScrollText },
+    { id: "reservations" as Tab, label: "Reservations", icon: CalendarCheck, count: allReservations.filter((r: any) => r.status === "pending").length },
   ];
 
   // Selected user details for verification review
@@ -710,6 +721,124 @@ const AdminDashboard = () => {
                   </table>
                 </div>
                 {auditLogs.length === 0 && <p className="p-8 text-center text-muted-foreground">No audit logs</p>}
+              </div>
+            )}
+
+            {/* RESERVATIONS TAB */}
+            {tab === "reservations" && (
+              <div className="space-y-4">
+                <h2 className="font-display text-lg font-semibold text-foreground">Reservation Management</h2>
+                {allReservations.length === 0 ? (
+                  <p className="p-8 text-center text-muted-foreground">No reservations</p>
+                ) : (
+                  <div className="rounded-xl border border-border bg-card overflow-hidden shadow-card">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead className="bg-muted/60">
+                          <tr>
+                            <th className="px-4 py-3 text-left font-medium text-muted-foreground">Property</th>
+                            <th className="px-4 py-3 text-left font-medium text-muted-foreground">Buyer</th>
+                            <th className="px-4 py-3 text-left font-medium text-muted-foreground">Agent</th>
+                            <th className="px-4 py-3 text-left font-medium text-muted-foreground">Viewing Date</th>
+                            <th className="px-4 py-3 text-left font-medium text-muted-foreground">Status</th>
+                            <th className="px-4 py-3 text-left font-medium text-muted-foreground">Created</th>
+                            <th className="px-4 py-3 text-left font-medium text-muted-foreground">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {allReservations.map((r: any) => {
+                            const buyerProfile = profiles.find((p: any) => p.id === r.buyer_id);
+                            const agentProfile = profiles.find((p: any) => p.id === r.agent_id);
+                            const resColors: Record<string, string> = {
+                              pending: "bg-[hsl(var(--warning)/0.15)] text-[hsl(var(--warning))]",
+                              confirmed: "bg-[hsl(var(--success)/0.15)] text-[hsl(var(--success))]",
+                              rejected: "bg-destructive/10 text-destructive",
+                              cancelled: "bg-muted text-muted-foreground",
+                            };
+                            return (
+                              <tr key={r.id} className="border-t border-border hover:bg-muted/20 transition-colors">
+                                <td className="px-4 py-3 font-medium text-foreground">{r.properties?.title || "—"}</td>
+                                <td className="px-4 py-3 text-foreground">{r.buyer_name || buyerProfile?.full_name || "—"}</td>
+                                <td className="px-4 py-3 text-foreground">{agentProfile?.full_name || "—"}</td>
+                                <td className="px-4 py-3 text-muted-foreground">{r.viewing_date ? new Date(r.viewing_date).toLocaleDateString() : "—"}</td>
+                                <td className="px-4 py-3">
+                                  <Badge className={`text-xs ${resColors[r.status] || "bg-muted text-muted-foreground"}`}>
+                                    {r.status?.toUpperCase()}
+                                  </Badge>
+                                </td>
+                                <td className="px-4 py-3 text-xs text-muted-foreground">{new Date(r.created_at).toLocaleDateString()}</td>
+                                <td className="px-4 py-3">
+                                  <div className="flex gap-1">
+                                    {r.status === "pending" && (
+                                      <>
+                                        <Button
+                                          size="sm"
+                                          className="bg-[hsl(var(--success))] text-[hsl(var(--success-foreground))] hover:bg-[hsl(var(--success))]/90 gap-1 text-xs"
+                                          onClick={async () => {
+                                            await (supabase as any).from("reservations").update({ status: "confirmed" }).eq("id", r.id);
+                                            const bp = profiles.find((p: any) => p.id === r.buyer_id);
+                                            if (bp) {
+                                              await (supabase as any).from("notifications").insert({
+                                                user_id: bp.user_id,
+                                                title: "Reservation Approved ✅",
+                                                message: `Your reservation for "${r.properties?.title}" has been approved.`,
+                                                type: "success",
+                                                link: "/buyer-dashboard",
+                                              });
+                                            }
+                                            toast.success("Reservation approved");
+                                            loadData();
+                                          }}
+                                        >
+                                          <CheckCircle className="h-3.5 w-3.5" /> Approve
+                                        </Button>
+                                        <Button
+                                          size="sm"
+                                          variant="destructive"
+                                          className="gap-1 text-xs"
+                                          onClick={async () => {
+                                            await (supabase as any).from("reservations").update({ status: "rejected" }).eq("id", r.id);
+                                            const bp = profiles.find((p: any) => p.id === r.buyer_id);
+                                            if (bp) {
+                                              await (supabase as any).from("notifications").insert({
+                                                user_id: bp.user_id,
+                                                title: "Reservation Rejected",
+                                                message: `Your reservation for "${r.properties?.title}" was rejected.`,
+                                                type: "error",
+                                                link: "/buyer-dashboard",
+                                              });
+                                            }
+                                            toast.success("Reservation rejected");
+                                            loadData();
+                                          }}
+                                        >
+                                          <XCircle className="h-3.5 w-3.5" /> Reject
+                                        </Button>
+                                      </>
+                                    )}
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      className="text-destructive hover:bg-destructive/10 text-xs gap-1"
+                                      onClick={async () => {
+                                        if (!confirm("Delete this reservation?")) return;
+                                        await (supabase as any).from("reservations").delete().eq("id", r.id);
+                                        toast.success("Reservation deleted");
+                                        loadData();
+                                      }}
+                                    >
+                                      <Trash2 className="h-3.5 w-3.5" /> Delete
+                                    </Button>
+                                  </div>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </>

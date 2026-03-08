@@ -437,33 +437,58 @@ export type Database = {
       }
       reservations: {
         Row: {
+          agent_id: string | null
+          buyer_email: string | null
           buyer_id: string
+          buyer_name: string | null
+          buyer_phone: string | null
           created_at: string
           id: string
+          message: string | null
           notes: string | null
           property_id: string
           status: Database["public"]["Enums"]["reservation_status"]
           updated_at: string
+          viewing_date: string | null
         }
         Insert: {
+          agent_id?: string | null
+          buyer_email?: string | null
           buyer_id: string
+          buyer_name?: string | null
+          buyer_phone?: string | null
           created_at?: string
           id?: string
+          message?: string | null
           notes?: string | null
           property_id: string
           status?: Database["public"]["Enums"]["reservation_status"]
           updated_at?: string
+          viewing_date?: string | null
         }
         Update: {
+          agent_id?: string | null
+          buyer_email?: string | null
           buyer_id?: string
+          buyer_name?: string | null
+          buyer_phone?: string | null
           created_at?: string
           id?: string
+          message?: string | null
           notes?: string | null
           property_id?: string
           status?: Database["public"]["Enums"]["reservation_status"]
           updated_at?: string
+          viewing_date?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "reservations_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "reservations_buyer_id_fkey"
             columns: ["buyer_id"]

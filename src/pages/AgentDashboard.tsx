@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Plus, Building, MessageCircle, Star, Wallet, TrendingUp, ShieldCheck, AlertTriangle, FileText, Settings, LayoutDashboard, Trash2 } from "lucide-react";
+import { Plus, Building, MessageCircle, Star, Wallet, TrendingUp, ShieldCheck, AlertTriangle, FileText, Settings, LayoutDashboard, Trash2, CalendarCheck, CheckCircle, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,15 +9,15 @@ import { TrustScoreRing } from "@/components/AgentCard";
 import AuthenticatedLayout from "@/components/AuthenticatedLayout";
 import { toast } from "sonner";
 
-
 const AgentDashboard = () => {
   const { profile } = useAuth();
   const navigate = useNavigate();
   const [properties, setProperties] = useState<any[]>([]);
   const [wallet, setWallet] = useState<{ balance: number; escrow_balance: number } | null>(null);
   const [stats, setStats] = useState({ listings: 0, messages: 0, deals: 0, rating: 0 });
-  const [activeTab, setActiveTab] = useState<"dashboard" | "listings" | "messages" | "profile">("dashboard");
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [reservations, setReservations] = useState<any[]>([]);
+  const [updatingResId, setUpdatingResId] = useState<string | null>(null);
 
   const firstName = profile?.full_name?.split(" ")[0] || "Agent";
 
@@ -41,6 +41,14 @@ const AgentDashboard = () => {
       .maybeSingle()
       .then(({ data }) => setWallet(data));
 
+    // Fetch reservations for this agent
+    (supabase as any)
+      .from("reservations")
+      .select("*, properties(title, image_url, city, state, price)")
+      .eq("agent_id", profile.id)
+      .order("created_at", { ascending: false })
+      .then(({ data }: any) => setReservations(data || []));
+
     setStats((s) => ({ ...s, deals: profile.completed_transactions || 0 }));
   }, [profile?.id]);
 
@@ -61,6 +69,33 @@ const AgentDashboard = () => {
     }
   };
 
+  const handleReservation = async (resId: string, status: "confirmed" | "rejected", buyerId: string, propertyTitle: string) => {
+    setUpdatingResId(resId);
+    const { error } = await (supabase as any).from("reservations").update({ status }).eq("id", resId);
+    setUpdatingResId(null);
+    if (error) { toast.error("Failed to update reservation"); return; }
+
+    // Find buyer's user_id from profiles
+    const { data: buyerProfile } = await supabase.from("profiles").select("user_id").eq("id", buyerId).maybeSingle();
+
+    if (buyerProfile) {
+      const title = status === "confirmed" ? "Reservation Accepted ✅" : "Reservation Declined";
+      const message = status === "confirmed"
+        ? `Your reservation request for "${propertyTitle}" has been accepted by the agent.`
+        : `Your reservation request for "${propertyTitle}" was declined by the agent.`;
+      await (supabase as any).from("notifications").insert({
+        user_id: buyerProfile.user_id,
+        title,
+        message,
+        type: status === "confirmed" ? "success" : "error",
+        link: "/buyer-dashboard",
+      });
+    }
+
+    toast.success(status === "confirmed" ? "Reservation accepted" : "Reservation declined");
+    setReservations((prev) => prev.map((r) => r.id === resId ? { ...r, status } : r));
+  };
+
   const statusColors: Record<string, string> = {
     available: "bg-[hsl(var(--success)/0.15)] text-[hsl(var(--success))]",
     for_sale: "bg-[hsl(var(--info)/0.15)] text-[hsl(var(--info))]",
@@ -69,6 +104,13 @@ const AgentDashboard = () => {
     under_verification: "bg-[hsl(var(--warning)/0.15)] text-[hsl(var(--warning))]",
     sold: "bg-muted text-muted-foreground",
     rented: "bg-muted text-muted-foreground",
+  };
+
+  const resStatusColors: Record<string, string> = {
+    pending: "bg-[hsl(var(--warning)/0.15)] text-[hsl(var(--warning))]",
+    confirmed: "bg-[hsl(var(--success)/0.15)] text-[hsl(var(--success))]",
+    rejected: "bg-destructive/10 text-destructive",
+    cancelled: "bg-muted text-muted-foreground",
   };
 
   return (
@@ -105,67 +147,119 @@ const AgentDashboard = () => {
             <p className="text-xs text-muted-foreground">Trust Score</p>
           </div>
           <div className="rounded-xl border border-border bg-card p-4 shadow-card">
-            <Wallet className="mb-1 h-5 w-5 text-secondary" />
-            <p className="font-display text-2xl font-bold text-foreground">
-              ₦{((wallet?.balance ?? 0) / 100).toLocaleString()}
-            </p>
-            <p className="text-xs text-muted-foreground">Wallet Balance</p>
+            <CalendarCheck className="mb-1 h-5 w-5 text-secondary" />
+            <p className="font-display text-2xl font-bold text-foreground">{reservations.length}</p>
+            <p className="text-xs text-muted-foreground">Reservations</p>
           </div>
         </div>
 
-        {/* Listings */}
-        <div>
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="font-display text-xl font-bold text-foreground">My Listings</h2>
-              <Link to="/add-property">
-                <Button size="sm" className="bg-secondary text-secondary-foreground hover:bg-secondary/90">+ Add Property</Button>
-              </Link>
+        {/* Reservations */}
+        <section className="mb-8">
+          <h2 className="font-display text-xl font-bold text-foreground mb-4">Reservations</h2>
+          {reservations.length === 0 ? (
+            <div className="rounded-xl border border-border bg-card p-8 text-center text-muted-foreground shadow-card">
+              No reservation requests yet.
             </div>
-            {properties.length === 0 ? (
-              <div className="rounded-xl border border-border bg-card p-12 text-center shadow-card">
-                <Building className="mx-auto mb-3 h-12 w-12 text-muted-foreground/40" />
-                <p className="font-medium text-foreground">No listings yet</p>
-                <p className="text-sm text-muted-foreground mb-4">Start adding properties to build your portfolio</p>
-                <Link to="/add-property">
-                  <Button className="bg-secondary text-secondary-foreground hover:bg-secondary/90">+ Add First Property</Button>
-                </Link>
-              </div>
-            ) : (
-              <div className="grid gap-4 md:grid-cols-2">
-                {properties.map((p) => (
-                  <div key={p.id} className="rounded-xl border border-border bg-card overflow-hidden shadow-card">
-                    <div className="h-36 bg-muted">
-                      {p.image_url && <img src={p.image_url} alt={p.title} className="h-full w-full object-cover" />}
-                    </div>
-                    <div className="p-4">
-                      <div className="flex items-start justify-between gap-2">
-                        <p className="font-semibold text-foreground truncate">{p.title}</p>
-                        <Badge className={`text-xs shrink-0 ${statusColors[p.status] || "bg-muted text-muted-foreground"}`}>
-                          {p.status?.replace(/_/g, " ").toUpperCase()}
+          ) : (
+            <div className="space-y-3">
+              {reservations.map((r) => (
+                <div key={r.id} className="rounded-xl border border-border bg-card p-4 shadow-card">
+                  <div className="flex flex-col md:flex-row md:items-center gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="font-semibold text-foreground">{r.properties?.title || "Property"}</p>
+                        <Badge className={`text-xs ${resStatusColors[r.status] || "bg-muted text-muted-foreground"}`}>
+                          {r.status?.toUpperCase()}
                         </Badge>
                       </div>
-                      <p className="mt-1 text-sm text-secondary font-bold">₦{p.price?.toLocaleString()}</p>
-                      <p className="text-xs text-muted-foreground">{p.city}, {p.state}</p>
-                      <div className="mt-3 flex justify-end">
+                      <div className="mt-2 grid grid-cols-2 gap-x-6 gap-y-1 text-sm">
+                        <p className="text-muted-foreground">Buyer: <span className="text-foreground font-medium">{r.buyer_name || "—"}</span></p>
+                        <p className="text-muted-foreground">Phone: <span className="text-foreground font-medium">{r.buyer_phone || "—"}</span></p>
+                        <p className="text-muted-foreground">Viewing: <span className="text-foreground font-medium">{r.viewing_date ? new Date(r.viewing_date).toLocaleDateString() : "—"}</span></p>
+                        <p className="text-muted-foreground">Email: <span className="text-foreground font-medium">{r.buyer_email || "—"}</span></p>
+                      </div>
+                      {r.message && <p className="mt-2 text-sm text-muted-foreground italic">"{r.message}"</p>}
+                    </div>
+                    {r.status === "pending" && (
+                      <div className="flex gap-2 shrink-0">
                         <Button
                           size="sm"
-                          variant="ghost"
-                          className="text-destructive hover:bg-destructive/10 hover:text-destructive text-xs gap-1"
-                          disabled={deletingId === p.id || p.status === "sold" || p.status === "rented"}
-                          onClick={() => deleteProperty(p.id, p.status)}
+                          disabled={updatingResId === r.id}
+                          onClick={() => handleReservation(r.id, "confirmed", r.buyer_id, r.properties?.title)}
+                          className="bg-[hsl(var(--success))] text-[hsl(var(--success-foreground))] hover:bg-[hsl(var(--success))]/90 gap-1"
                         >
-                          <Trash2 className="h-3.5 w-3.5" />
-                          {deletingId === p.id ? "Deleting…" : "Delete"}
+                          <CheckCircle className="h-4 w-4" /> Accept
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          disabled={updatingResId === r.id}
+                          onClick={() => handleReservation(r.id, "rejected", r.buyer_id, r.properties?.title)}
+                          className="gap-1"
+                        >
+                          <XCircle className="h-4 w-4" /> Decline
                         </Button>
                       </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* Listings */}
+        <div>
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="font-display text-xl font-bold text-foreground">My Listings</h2>
+            <Link to="/add-property">
+              <Button size="sm" className="bg-secondary text-secondary-foreground hover:bg-secondary/90">+ Add Property</Button>
+            </Link>
+          </div>
+          {properties.length === 0 ? (
+            <div className="rounded-xl border border-border bg-card p-12 text-center shadow-card">
+              <Building className="mx-auto mb-3 h-12 w-12 text-muted-foreground/40" />
+              <p className="font-medium text-foreground">No listings yet</p>
+              <p className="text-sm text-muted-foreground mb-4">Start adding properties to build your portfolio</p>
+              <Link to="/add-property">
+                <Button className="bg-secondary text-secondary-foreground hover:bg-secondary/90">+ Add First Property</Button>
+              </Link>
+            </div>
+          ) : (
+            <div className="grid gap-4 md:grid-cols-2">
+              {properties.map((p) => (
+                <div key={p.id} className="rounded-xl border border-border bg-card overflow-hidden shadow-card">
+                  <div className="h-36 bg-muted">
+                    {p.image_url && <img src={p.image_url} alt={p.title} className="h-full w-full object-cover" />}
+                  </div>
+                  <div className="p-4">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="font-semibold text-foreground truncate">{p.title}</p>
+                      <Badge className={`text-xs shrink-0 ${statusColors[p.status] || "bg-muted text-muted-foreground"}`}>
+                        {p.status?.replace(/_/g, " ").toUpperCase()}
+                      </Badge>
+                    </div>
+                    <p className="mt-1 text-sm text-secondary font-bold">₦{p.price?.toLocaleString()}</p>
+                    <p className="text-xs text-muted-foreground">{p.city}, {p.state}</p>
+                    <div className="mt-3 flex justify-end">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="text-destructive hover:bg-destructive/10 hover:text-destructive text-xs gap-1"
+                        disabled={deletingId === p.id || p.status === "sold" || p.status === "rented"}
+                        onClick={() => deleteProperty(p.id, p.status)}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                        {deletingId === p.id ? "Deleting…" : "Delete"}
+                      </Button>
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
-      
     </AuthenticatedLayout>
   );
 };
