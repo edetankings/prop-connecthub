@@ -202,7 +202,7 @@ const AddProperty = () => {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="text-sm font-medium text-foreground mb-1 block">Price (₦) *</label>
-                <Input type="number" placeholder="0" value={form.price} onChange={(e) => updateField("price", e.target.value)} />
+                <Input type="number" placeholder="0" min="0" value={form.price} onChange={(e) => updateField("price", e.target.value)} />
               </div>
               <div>
                 <label className="text-sm font-medium text-foreground mb-1 block">Category *</label>
@@ -212,6 +212,32 @@ const AddProperty = () => {
                     {CATEGORIES.map((c) => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
                   </SelectContent>
                 </Select>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium text-foreground mb-1 block">Listing Type *</label>
+                <Select value={form.listing_type} onValueChange={(v) => setForm(f => ({ ...f, listing_type: v as any }))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="for_sale">For Sale</SelectItem>
+                    <SelectItem value="for_rent">For Rent</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground mb-1 block">Sq Ft</label>
+                <Input type="number" placeholder="0" min="0" value={form.sqft} onChange={(e) => updateField("sqft", e.target.value)} />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium text-foreground mb-1 block">Bedrooms</label>
+                <Input type="number" placeholder="0" min="0" value={form.bedrooms} onChange={(e) => updateField("bedrooms", e.target.value)} />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground mb-1 block">Bathrooms</label>
+                <Input type="number" placeholder="0" min="0" value={form.bathrooms} onChange={(e) => updateField("bathrooms", e.target.value)} />
               </div>
             </div>
             <div>
