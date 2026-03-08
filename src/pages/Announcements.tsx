@@ -7,6 +7,8 @@ import Navbar from "@/components/Navbar";
 import { supabase } from "@/integrations/supabase/client";
 import type { DBProperty } from "@/components/DBPropertyCard";
 
+type PropertyWithDate = DBProperty & { created_at: string };
+
 const iconMap: Record<string, any> = { update: Megaphone, alert: AlertTriangle, announcement: Bell, promotion: Megaphone };
 const colorMap: Record<string, string> = { update: "bg-primary/10 text-primary", alert: "bg-destructive/10 text-destructive", announcement: "bg-secondary/10 text-secondary", promotion: "bg-secondary/10 text-secondary" };
 
