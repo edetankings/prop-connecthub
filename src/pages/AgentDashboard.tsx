@@ -174,9 +174,7 @@ const AgentDashboard = () => {
                       </div>
                       <div className="mt-2 grid grid-cols-2 gap-x-6 gap-y-1 text-sm">
                         <p className="text-muted-foreground">Buyer: <span className="text-foreground font-medium">{r.buyer_name || "—"}</span></p>
-                        <p className="text-muted-foreground">Phone: <span className="text-foreground font-medium">{r.buyer_phone || "—"}</span></p>
                         <p className="text-muted-foreground">Viewing: <span className="text-foreground font-medium">{r.viewing_date ? new Date(r.viewing_date).toLocaleDateString() : "—"}</span></p>
-                        <p className="text-muted-foreground">Email: <span className="text-foreground font-medium">{r.buyer_email || "—"}</span></p>
                       </div>
                       {r.message && <p className="mt-2 text-sm text-muted-foreground italic">"{r.message}"</p>}
                     </div>
