@@ -91,17 +91,50 @@ const PropertyDetail = () => {
       .then(({ data }) => setAgent(data as DBAgent | null));
   }, [agentId]);
 
+  const [alreadyReserved, setAlreadyReserved] = useState(false);
+
+  // Check for existing reservation by this user
+  useEffect(() => {
+    if (!profile?.id || !id) return;
+    (supabase as any)
+      .from("reservations")
+      .select("id")
+      .eq("buyer_id", profile.id)
+      .eq("property_id", id)
+      .in("status", ["pending", "confirmed"])
+      .maybeSingle()
+      .then(({ data }: any) => setAlreadyReserved(!!data));
+  }, [profile?.id, id]);
+
+  const isOwner = profile?.id === (dbProperty?.agent_id || mockProperty?.agentId);
+
   const handleReserve = async () => {
     if (!user || !profile) {
       toast.error("Please log in to reserve a property");
+      return;
+    }
+    if (isOwner) {
+      toast.error("You cannot reserve your own property");
       return;
     }
     const propId = dbProperty?.id || mockProperty?.id;
     const propAgentId = dbProperty?.agent_id || mockProperty?.agentId;
     if (!propId || !propAgentId) return;
 
-    if (!form.buyer_name || !form.viewing_date) {
-      toast.error("Please fill in all required fields");
+    if (!form.buyer_name.trim()) {
+      toast.error("Full name is required");
+      return;
+    }
+    if (!form.viewing_date) {
+      toast.error("Viewing date is required");
+      return;
+    }
+    // Validate future date
+    const selectedDate = new Date(form.viewing_date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (selectedDate < today) {
+      toast.error("Viewing date must be today or in the future");
       return;
     }
     setSubmitting(true);
