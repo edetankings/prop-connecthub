@@ -98,8 +98,7 @@ export const formatPrice = (price: number): string => {
 export const getTrustBadge = (score: number) => {
   if (score >= 80) return { label: "Trusted Agent", color: "trust-high" as const };
   if (score >= 50) return { label: "Verified Agent", color: "trust-medium" as const };
-  if (score >= 25) return { label: "New Agent", color: "trust-low" as const };
-  return { label: "Restricted", color: "trust-low" as const };
+  return { label: "New Agent", color: "trust-low" as const };
 };
 
 export const platformStats = {
