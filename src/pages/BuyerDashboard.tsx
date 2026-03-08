@@ -23,6 +23,7 @@ const statusLabels: Record<string, string> = {
 
 const BuyerDashboard = () => {
   const { profile, user } = useAuth();
+  const navigate = useNavigate();
   const [reservations, setReservations] = useState<any[]>([]);
   const [threads, setThreads] = useState<any[]>([]);
   const [recommended, setRecommended] = useState<any[]>([]);
