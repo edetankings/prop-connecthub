@@ -22,6 +22,8 @@ const Settings = () => {
   const navigate = useNavigate();
   const [section, setSection] = useState<Section>("profile");
   const [saving, setSaving] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Profile edit state
   const [fullName, setFullName] = useState(profile?.full_name || "");
