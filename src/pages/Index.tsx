@@ -237,29 +237,28 @@ const Index = () => {
             </Link>
           </div>
 
-          {/* New Properties */}
+          {/* New Properties as Text */}
           {latestProperties.length > 0 && (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mb-8">
+            <div className="space-y-3 mb-8">
               {latestProperties.slice(0, 3).map((p) => (
-                <Link key={p.id} to={`/property/${p.id}`} className="group rounded-xl border border-border bg-card overflow-hidden shadow-card hover:shadow-elevated transition-all hover:-translate-y-1">
-                  <div className="h-40 bg-muted overflow-hidden">
-                    {p.image_url ? (
-                      <img src={p.image_url} alt={p.title} className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                    ) : (
-                      <div className="h-full w-full flex items-center justify-center text-muted-foreground">No image</div>
-                    )}
+                <div key={p.id} className="rounded-xl border border-border bg-card p-4 shadow-card flex items-start gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-secondary/10 text-secondary">
+                    <Building2 className="h-5 w-5" />
                   </div>
-                  <div className="p-4">
-                    <h3 className="font-display font-semibold text-foreground truncate">{p.title}</h3>
-                    <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-display font-semibold text-foreground truncate">{p.title}</h3>
+                      <Badge variant="outline" className="text-[10px] shrink-0">New Listing</Badge>
+                    </div>
+                    <p className="mt-1 text-sm text-muted-foreground flex items-center gap-1">
                       <MapPin className="h-3 w-3" /> {p.city}{p.state ? `, ${p.state}` : ""}
                     </p>
-                    <p className="mt-2 font-display font-bold text-secondary">₦{p.price?.toLocaleString()}</p>
-                    <Button size="sm" className="mt-3 w-full bg-secondary text-secondary-foreground hover:bg-secondary/90">
-                      View Property
-                    </Button>
+                    <p className="mt-1 font-display font-bold text-secondary">₦{p.price?.toLocaleString()}</p>
+                    <Link to={`/property/${p.id}`}>
+                      <Button size="sm" variant="link" className="h-auto p-0 mt-1 text-secondary">View Property →</Button>
+                    </Link>
                   </div>
-                </Link>
+                </div>
               ))}
             </div>
           )}
