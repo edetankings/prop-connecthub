@@ -76,7 +76,13 @@ const AgentProfile = () => {
             <div className="flex-1">
               <div className="flex flex-wrap items-center gap-2">
                 <h1 className="font-display text-2xl font-bold text-foreground">{agent.full_name}</h1>
-                {agent.kyc_verified && <ShieldCheck className="h-5 w-5 text-success" />}
+                {agent.kyc_verified ? (
+                  <Badge className="bg-[hsl(var(--success)/0.1)] text-[hsl(var(--success))] text-xs gap-1">
+                    <ShieldCheck className="h-3.5 w-3.5" /> Verified
+                  </Badge>
+                ) : (
+                  <Badge variant="outline" className="text-xs text-muted-foreground">Pending Verification</Badge>
+                )}
                 <Badge variant="outline" className={`text-xs ${
                   badge.color === "trust-high" ? "border-success/30 text-success" :
                   badge.color === "trust-medium" ? "border-warning/30 text-warning" :
