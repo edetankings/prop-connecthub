@@ -30,6 +30,10 @@ const AdminDashboard = () => {
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [allReservations, setAllReservations] = useState<any[]>([]);
   const [supportTickets, setSupportTickets] = useState<any[]>([]);
+  const [dbAnnouncements, setDbAnnouncements] = useState<any[]>([]);
+  const [annForm, setAnnForm] = useState({ title: "", content: "", type: "update" });
+  const [editingAnnId, setEditingAnnId] = useState<string | null>(null);
+  const [showAnnForm, setShowAnnForm] = useState(false);
 
   useEffect(() => { loadData(); }, []);
 
