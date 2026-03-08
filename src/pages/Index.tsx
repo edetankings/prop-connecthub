@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Search, Shield, TrendingUp, Users, CheckCircle, PlayCircle, ChevronDown, ChevronUp, Building2, FileCheck, MapPin, Lock, BarChart3 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Search, Shield, TrendingUp, Users, CheckCircle, PlayCircle, ChevronDown, ChevronUp, Building2, FileCheck, MapPin, Lock, BarChart3, Megaphone, Bell, AlertTriangle } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import DBPropertyCard, { type DBProperty } from "@/components/DBPropertyCard";
