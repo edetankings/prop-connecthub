@@ -179,7 +179,7 @@ const AgentDashboard = () => {
                       {r.message && <p className="mt-2 text-sm text-muted-foreground italic">"{r.message}"</p>}
                     </div>
                     {r.status === "pending" && (
-                      <div className="flex gap-2 shrink-0">
+                      <div className="flex gap-2 shrink-0 flex-wrap">
                         <Button
                           size="sm"
                           disabled={updatingResId === r.id}
