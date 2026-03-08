@@ -106,21 +106,24 @@ const AddProperty = () => {
       const finalStatus = status === "draft" ? "draft" : "under_verification";
 
       const { error } = await supabase.from("properties").insert({
-        title: form.title,
+        title: form.title.trim(),
         price: Number(form.price) || 0,
         property_type: form.property_type || "house",
-        description: form.description,
-        address: form.address,
-        city: form.city,
-        state: form.state,
-        zip_code: form.zip_code,
+        description: form.description.trim(),
+        address: form.address.trim(),
+        city: form.city.trim(),
+        state: form.state.trim(),
+        zip_code: form.zip_code.trim(),
         latitude: form.latitude ? parseFloat(form.latitude) : null,
         longitude: form.longitude ? parseFloat(form.longitude) : null,
+        bedrooms: form.bedrooms ? parseInt(form.bedrooms) : null,
+        bathrooms: form.bathrooms ? parseInt(form.bathrooms) : null,
+        sqft: form.sqft ? parseInt(form.sqft) : null,
         amenities: form.amenities,
         images: imageUrls,
         image_url: imageUrls[0] || null,
         agent_id: profile.id,
-        status: finalStatus as any,
+        status: (status === "draft" ? "draft" : "under_verification") as any,
       });
 
       if (error) throw error;
