@@ -263,6 +263,7 @@ export type Database = {
           trust_score: number
           updated_at: string
           user_id: string
+          welcome_seen: boolean
         }
         Insert: {
           avatar_url?: string | null
@@ -280,6 +281,7 @@ export type Database = {
           trust_score?: number
           updated_at?: string
           user_id: string
+          welcome_seen?: boolean
         }
         Update: {
           avatar_url?: string | null
@@ -297,6 +299,7 @@ export type Database = {
           trust_score?: number
           updated_at?: string
           user_id?: string
+          welcome_seen?: boolean
         }
         Relationships: []
       }
