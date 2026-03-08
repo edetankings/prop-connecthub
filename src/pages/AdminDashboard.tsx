@@ -9,12 +9,12 @@ import {
   Users, Building, ShieldCheck, AlertTriangle, TrendingUp,
   CheckCircle, XCircle, FileText, LayoutDashboard, Gavel, ScrollText,
   DollarSign, Wallet, PieChart, Activity, ArrowUpRight, Eye, ExternalLink,
-  CalendarCheck, Trash2, MessageSquare, Mail, MailOpen
+  CalendarCheck, Trash2, MessageSquare, Mail, MailOpen, Megaphone, Edit3, Plus
 } from "lucide-react";
 import { toast } from "sonner";
 import { PieChart as RechartsPie, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
-type Tab = "dashboard" | "users" | "moderation" | "disputes" | "audit" | "verification" | "reservations" | "support";
+type Tab = "dashboard" | "users" | "moderation" | "disputes" | "audit" | "verification" | "reservations" | "support" | "announcements";
 
 const AdminDashboard = () => {
   const { user } = useAuth();
@@ -30,6 +30,10 @@ const AdminDashboard = () => {
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [allReservations, setAllReservations] = useState<any[]>([]);
   const [supportTickets, setSupportTickets] = useState<any[]>([]);
+  const [dbAnnouncements, setDbAnnouncements] = useState<any[]>([]);
+  const [annForm, setAnnForm] = useState({ title: "", content: "", type: "update" });
+  const [editingAnnId, setEditingAnnId] = useState<string | null>(null);
+  const [showAnnForm, setShowAnnForm] = useState(false);
 
   useEffect(() => { loadData(); }, []);
 
@@ -64,6 +68,12 @@ const AdminDashboard = () => {
       .select("*")
       .order("created_at", { ascending: false });
     setSupportTickets(ticketsData || []);
+
+    const { data: annData } = await (supabase as any)
+      .from("announcements")
+      .select("*, profiles!announcements_author_id_fkey(full_name)")
+      .order("created_at", { ascending: false });
+    setDbAnnouncements(annData || []);
 
     setLoading(false);
   };
@@ -245,6 +255,7 @@ const AdminDashboard = () => {
     { id: "audit" as Tab, label: "Audit Logs", icon: ScrollText },
     { id: "reservations" as Tab, label: "Reservations", icon: CalendarCheck, count: allReservations.filter((r: any) => r.status === "pending").length },
     { id: "support" as Tab, label: "Support Messages", icon: MessageSquare, count: supportTickets.filter((t: any) => t.status === "open").length },
+    { id: "announcements" as Tab, label: "Announcements", icon: Megaphone, count: dbAnnouncements.length },
   ];
 
   // Selected user details for verification review
@@ -953,6 +964,130 @@ const AdminDashboard = () => {
                                   if (!window.confirm("Delete this support message?")) return;
                                   await (supabase as any).from("support_tickets").delete().eq("id", ticket.id);
                                   toast.success("Message deleted");
+                                  loadData();
+                                }}
+                              >
+                                <Trash2 className="h-3 w-3" /> Delete
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ANNOUNCEMENTS TAB */}
+            {tab === "announcements" && (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="font-display text-xl font-bold text-foreground">Manage Announcements</h2>
+                  <Button
+                    size="sm"
+                    className="gap-1 bg-secondary text-secondary-foreground hover:bg-secondary/90"
+                    onClick={() => { setShowAnnForm(true); setEditingAnnId(null); setAnnForm({ title: "", content: "", type: "update" }); }}
+                  >
+                    <Plus className="h-4 w-4" /> New Announcement
+                  </Button>
+                </div>
+
+                {showAnnForm && (
+                  <Card className="border-border">
+                    <CardContent className="p-4 space-y-3">
+                      <h3 className="font-semibold text-foreground">{editingAnnId ? "Edit Announcement" : "Create Announcement"}</h3>
+                      <div>
+                        <label className="text-sm font-medium text-foreground">Title</label>
+                        <input className="mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={annForm.title} onChange={(e) => setAnnForm({ ...annForm, title: e.target.value })} placeholder="Announcement title" />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-foreground">Type</label>
+                        <select className="mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={annForm.type} onChange={(e) => setAnnForm({ ...annForm, type: e.target.value })}>
+                          <option value="update">Platform Update</option>
+                          <option value="announcement">Announcement</option>
+                          <option value="alert">Maintenance Notice</option>
+                          <option value="promotion">Property Promotion</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-foreground">Content</label>
+                        <textarea className="mt-1 flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm resize-none" rows={4} value={annForm.content} onChange={(e) => setAnnForm({ ...annForm, content: e.target.value })} placeholder="Write announcement content..." />
+                      </div>
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm" onClick={() => { setShowAnnForm(false); setEditingAnnId(null); }}>Cancel</Button>
+                        <Button
+                          size="sm"
+                          className="bg-secondary text-secondary-foreground hover:bg-secondary/90"
+                          disabled={!annForm.title.trim() || !annForm.content.trim()}
+                          onClick={async () => {
+                            if (!user) return;
+                            // Get admin's profile id
+                            const { data: adminProfile } = await supabase.from("profiles").select("id").eq("user_id", user.id).maybeSingle();
+                            if (!adminProfile) { toast.error("Profile not found"); return; }
+
+                            if (editingAnnId) {
+                              const { error } = await (supabase as any).from("announcements").update({ title: annForm.title, content: annForm.content, type: annForm.type }).eq("id", editingAnnId);
+                              if (error) toast.error(error.message);
+                              else toast.success("Announcement updated");
+                            } else {
+                              const { error } = await (supabase as any).from("announcements").insert({ title: annForm.title, content: annForm.content, type: annForm.type, author_id: adminProfile.id });
+                              if (error) toast.error(error.message);
+                              else toast.success("Announcement created");
+                            }
+                            setShowAnnForm(false);
+                            setEditingAnnId(null);
+                            loadData();
+                          }}
+                        >
+                          {editingAnnId ? "Save Changes" : "Publish"}
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {dbAnnouncements.length === 0 ? (
+                  <p className="text-muted-foreground text-sm py-8 text-center">No announcements yet.</p>
+                ) : (
+                  <div className="space-y-3">
+                    {dbAnnouncements.map((a: any) => (
+                      <Card key={a.id} className="border-border/50">
+                        <CardContent className="p-4">
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <Megaphone className="h-4 w-4 text-secondary shrink-0" />
+                                <p className="font-medium text-foreground text-sm truncate">{a.title}</p>
+                                <Badge variant="outline" className="text-[10px] capitalize shrink-0">{a.type}</Badge>
+                              </div>
+                              <p className="text-sm text-muted-foreground line-clamp-2">{a.content}</p>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                {a.profiles?.full_name ? `By ${a.profiles.full_name} · ` : ""}
+                                {new Date(a.created_at).toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" })}
+                              </p>
+                            </div>
+                            <div className="flex gap-1.5 shrink-0">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="text-xs gap-1"
+                                onClick={() => {
+                                  setAnnForm({ title: a.title, content: a.content, type: a.type || "update" });
+                                  setEditingAnnId(a.id);
+                                  setShowAnnForm(true);
+                                }}
+                              >
+                                <Edit3 className="h-3 w-3" /> Edit
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                className="text-xs gap-1"
+                                onClick={async () => {
+                                  if (!window.confirm("Delete this announcement?")) return;
+                                  await (supabase as any).from("announcements").delete().eq("id", a.id);
+                                  toast.success("Announcement deleted");
                                   loadData();
                                 }}
                               >

@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Search, Shield, TrendingUp, Users, CheckCircle, PlayCircle, ChevronDown, ChevronUp, Building2, FileCheck, MapPin, Lock, BarChart3 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Search, Shield, TrendingUp, Users, CheckCircle, PlayCircle, ChevronDown, ChevronUp, Building2, FileCheck, MapPin, Lock, BarChart3, Megaphone, Bell, AlertTriangle } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import DBPropertyCard, { type DBProperty } from "@/components/DBPropertyCard";
@@ -66,6 +67,8 @@ const FAQ = ({ q, a }: { q: string; a: string }) => {
 const Index = () => {
   const [agents, setAgents] = useState<DBAgent[]>([]);
   const [featuredProperties, setFeaturedProperties] = useState<DBProperty[]>([]);
+  const [latestProperties, setLatestProperties] = useState<DBProperty[]>([]);
+  const [announcements, setAnnouncements] = useState<any[]>([]);
 
   useEffect(() => {
     supabase
@@ -84,6 +87,23 @@ const Index = () => {
       .order("created_at", { ascending: false })
       .limit(3)
       .then(({ data }) => setFeaturedProperties((data as DBProperty[]) || []));
+
+    // Fetch latest newly listed properties
+    supabase
+      .from("properties")
+      .select("*")
+      .in("status", ["available", "for_sale", "for_rent"])
+      .order("created_at", { ascending: false })
+      .limit(6)
+      .then(({ data }) => setLatestProperties((data as DBProperty[]) || []));
+
+    // Fetch custom announcements from DB
+    (supabase as any)
+      .from("announcements")
+      .select("*, profiles!announcements_author_id_fkey(full_name)")
+      .order("created_at", { ascending: false })
+      .limit(5)
+      .then(({ data }: any) => setAnnouncements(data || []));
   }, []);
 
   return (
@@ -200,6 +220,81 @@ const Index = () => {
             featuredProperties.map((p) => <DBPropertyCard key={p.id} property={p} />)
           ) : (
             <p className="col-span-3 text-center text-muted-foreground py-8">No approved properties yet</p>
+          )}
+        </div>
+      </section>
+
+      {/* Latest Property Announcements */}
+      <section className="bg-muted/50 py-16">
+        <div className="container mx-auto px-4">
+          <div className="mb-8 flex items-end justify-between">
+            <div>
+              <h2 className="font-display text-3xl font-bold text-foreground">Latest Property Announcements</h2>
+              <p className="mt-1 text-muted-foreground">Newly listed properties & platform updates</p>
+            </div>
+            <Link to="/announcements">
+              <Button variant="ghost" className="text-secondary hover:text-secondary/80">View All →</Button>
+            </Link>
+          </div>
+
+          {/* New Properties */}
+          {latestProperties.length > 0 && (
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mb-8">
+              {latestProperties.slice(0, 3).map((p) => (
+                <Link key={p.id} to={`/property/${p.id}`} className="group rounded-xl border border-border bg-card overflow-hidden shadow-card hover:shadow-elevated transition-all hover:-translate-y-1">
+                  <div className="h-40 bg-muted overflow-hidden">
+                    {p.image_url ? (
+                      <img src={p.image_url} alt={p.title} className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                    ) : (
+                      <div className="h-full w-full flex items-center justify-center text-muted-foreground">No image</div>
+                    )}
+                  </div>
+                  <div className="p-4">
+                    <h3 className="font-display font-semibold text-foreground truncate">{p.title}</h3>
+                    <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
+                      <MapPin className="h-3 w-3" /> {p.city}{p.state ? `, ${p.state}` : ""}
+                    </p>
+                    <p className="mt-2 font-display font-bold text-secondary">₦{p.price?.toLocaleString()}</p>
+                    <Button size="sm" className="mt-3 w-full bg-secondary text-secondary-foreground hover:bg-secondary/90">
+                      View Property
+                    </Button>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+
+          {/* Custom Announcements */}
+          {announcements.length > 0 && (
+            <div className="space-y-3">
+              {announcements.slice(0, 3).map((a: any) => {
+                const iconMap: Record<string, any> = { update: Megaphone, alert: AlertTriangle, announcement: Bell, promotion: Megaphone };
+                const colorMap: Record<string, string> = { update: "bg-primary/10 text-primary", alert: "bg-destructive/10 text-destructive", announcement: "bg-secondary/10 text-secondary", promotion: "bg-secondary/10 text-secondary" };
+                const Icon = iconMap[a.type] || Bell;
+                const colorClass = colorMap[a.type] || "bg-muted text-muted-foreground";
+                return (
+                  <div key={a.id} className="rounded-xl border border-border bg-card p-4 shadow-card flex items-start gap-3">
+                    <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${colorClass}`}>
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-display font-semibold text-foreground truncate">{a.title}</h3>
+                        <Badge variant="outline" className="text-[10px] capitalize shrink-0">{a.type}</Badge>
+                      </div>
+                      <p className="mt-1 text-sm text-muted-foreground line-clamp-2">{a.content}</p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {a.profiles?.full_name ? `By ${a.profiles.full_name} · ` : ""}{new Date(a.created_at).toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" })}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {latestProperties.length === 0 && announcements.length === 0 && (
+            <p className="text-center text-muted-foreground py-8">No announcements yet</p>
           )}
         </div>
       </section>
