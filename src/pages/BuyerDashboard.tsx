@@ -140,10 +140,35 @@ const BuyerDashboard = () => {
                       )}
                     </div>
                   </div>
-                  <div className="text-right">
+                  <div className="flex flex-col items-end gap-2">
                     <Badge className={`text-xs ${statusColors[r.status] || "bg-muted text-muted-foreground"}`}>
                       {statusLabels[r.status] || r.status}
                     </Badge>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="gap-1 text-xs"
+                      onClick={async () => {
+                        const { data: thread } = await supabase
+                          .from("chat_threads")
+                          .select("id")
+                          .eq("buyer_id", profile!.id)
+                          .eq("property_id", r.property_id)
+                          .maybeSingle();
+                        if (thread) {
+                          navigate(`/chat/${thread.id}`);
+                        } else {
+                          const { data: newThread } = await supabase
+                            .from("chat_threads")
+                            .insert({ buyer_id: profile!.id, agent_id: r.agent_id, property_id: r.property_id })
+                            .select("id")
+                            .single();
+                          if (newThread) navigate(`/chat/${newThread.id}`);
+                        }
+                      }}
+                    >
+                      <MessageCircle className="h-3 w-3" /> Chat
+                    </Button>
                   </div>
                 </div>
               ))}
