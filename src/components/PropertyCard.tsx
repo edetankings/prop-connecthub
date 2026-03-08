@@ -54,8 +54,8 @@ const PropertyCard = ({ property }: { property: Property }) => {
             </Button>
           </Link>
           <Link to={`/property/${property.id}`} className="flex-1">
-            <Button size="sm" className="w-full gap-1.5 bg-secondary text-secondary-foreground hover:bg-secondary/90">
-              <CalendarCheck className="h-4 w-4" /> Reserve
+            <Button size="sm" className="w-full gap-1.5 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-200 hover:scale-[1.02]">
+              <CalendarCheck className="h-4 w-4" /> View Property
             </Button>
           </Link>
         </div>
