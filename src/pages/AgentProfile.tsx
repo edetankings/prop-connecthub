@@ -1,6 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { MapPin, ShieldCheck, ArrowLeft, Building, Handshake, MessageCircle, Star } from "lucide-react";
+import { MapPin, ArrowLeft, Building, Handshake, MessageCircle, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Navbar from "@/components/Navbar";
@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { getTrustBadge } from "@/lib/mockData";
 import type { DBAgent } from "@/pages/Agents";
+import VerifiedBadge from "@/components/VerifiedBadge";
 
 const AgentProfile = () => {
   const { id } = useParams();
@@ -77,9 +78,7 @@ const AgentProfile = () => {
               <div className="flex flex-wrap items-center gap-2">
                 <h1 className="font-display text-2xl font-bold text-foreground">{agent.full_name}</h1>
                 {agent.kyc_verified ? (
-                  <Badge className="bg-[hsl(var(--success)/0.1)] text-[hsl(var(--success))] text-xs gap-1">
-                    <ShieldCheck className="h-3.5 w-3.5" /> Verified
-                  </Badge>
+                  <VerifiedBadge />
                 ) : (
                   <Badge variant="outline" className="text-xs text-muted-foreground">Pending Verification</Badge>
                 )}

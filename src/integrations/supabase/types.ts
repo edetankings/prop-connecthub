@@ -174,6 +174,72 @@ export type Database = {
           },
         ]
       }
+      kyc_verifications: {
+        Row: {
+          account_number: string | null
+          bank_name: string | null
+          created_at: string
+          government_id_type: string | null
+          government_id_url: string | null
+          id: string
+          kyc_status: string
+          nin_bvn_type: string | null
+          nin_or_bvn: string | null
+          phone_verified: boolean | null
+          proof_of_address_url: string | null
+          rejection_reason: string | null
+          residential_address: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          selfie_url: string | null
+          submitted_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_number?: string | null
+          bank_name?: string | null
+          created_at?: string
+          government_id_type?: string | null
+          government_id_url?: string | null
+          id?: string
+          kyc_status?: string
+          nin_bvn_type?: string | null
+          nin_or_bvn?: string | null
+          phone_verified?: boolean | null
+          proof_of_address_url?: string | null
+          rejection_reason?: string | null
+          residential_address?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          selfie_url?: string | null
+          submitted_at?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_number?: string | null
+          bank_name?: string | null
+          created_at?: string
+          government_id_type?: string | null
+          government_id_url?: string | null
+          id?: string
+          kyc_status?: string
+          nin_bvn_type?: string | null
+          nin_or_bvn?: string | null
+          phone_verified?: boolean | null
+          proof_of_address_url?: string | null
+          rejection_reason?: string | null
+          residential_address?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          selfie_url?: string | null
+          submitted_at?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           content: string

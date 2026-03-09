@@ -1,10 +1,11 @@
 import { Link } from "react-router-dom";
-import { ShieldCheck, MapPin, MessageCircle } from "lucide-react";
+import { MapPin, MessageCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { DBAgent } from "@/pages/Agents";
 import { getTrustBadge } from "@/lib/mockData";
 import { useAuth } from "@/hooks/useAuth";
+import VerifiedBadge from "@/components/VerifiedBadge";
 
 const TrustScoreRing = ({ score }: { score: number }) => {
   const circumference = 2 * Math.PI * 28;
@@ -40,9 +41,7 @@ const AgentCard = ({ agent }: { agent: DBAgent }) => {
             <div className="flex items-center gap-2">
               <h3 className="font-display font-semibold text-foreground">{agent.full_name}</h3>
               {agent.kyc_verified ? (
-                <Badge className="bg-[hsl(var(--success)/0.1)] text-[hsl(var(--success))] text-[10px] gap-1 px-1.5">
-                  <ShieldCheck className="h-3 w-3" /> Verified
-                </Badge>
+                <VerifiedBadge size="sm" />
               ) : (
                 <Badge variant="outline" className="text-[10px] text-muted-foreground px-1.5">Pending</Badge>
               )}

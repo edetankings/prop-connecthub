@@ -1,6 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { MapPin, Bed, Bath, Maximize, MessageCircle, CalendarCheck, ShieldCheck, ArrowLeft, CheckCircle, Bookmark } from "lucide-react";
+import { MapPin, Bed, Bath, Maximize, MessageCircle, CalendarCheck, ArrowLeft, CheckCircle, Bookmark, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -15,6 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import type { DBAgent } from "@/pages/Agents";
+import VerifiedBadge from "@/components/VerifiedBadge";
 
 interface DBPropertyDetail {
   id: string;
@@ -395,9 +396,7 @@ const PropertyDetail = () => {
                     <div className="flex items-center gap-1">
                       <h3 className="font-display font-semibold text-foreground">{agent.full_name}</h3>
                       {agent.kyc_verified ? (
-                        <Badge className="bg-[hsl(var(--success)/0.1)] text-[hsl(var(--success))] text-[10px] gap-0.5 px-1.5">
-                          <ShieldCheck className="h-3 w-3" /> Verified
-                        </Badge>
+                        <VerifiedBadge size="sm" />
                       ) : (
                         <Badge variant="outline" className="text-[10px] text-muted-foreground px-1.5">Pending</Badge>
                       )}

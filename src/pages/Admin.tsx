@@ -7,16 +7,19 @@ import { Button } from "@/components/ui/button";
 import { Users, Building, ShieldCheck, AlertTriangle, FileText, TrendingUp, CheckCircle, XCircle, Eye, EyeOff } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
+import AdminKYCReview from "@/components/admin/AdminKYCReview";
+import VerifiedBadge from "@/components/VerifiedBadge";
 
-type Tab = "users" | "properties" | "verifications" | "disputes" | "analytics";
+type Tab = "users" | "properties" | "kyc-requests" | "verifications" | "disputes" | "analytics";
 
 const Admin = () => {
   const { user } = useAuth();
-  const [tab, setTab] = useState<Tab>("users");
+  const [tab, setTab] = useState<Tab>("kyc-requests");
   const [profiles, setProfiles] = useState<any[]>([]);
   const [properties, setProperties] = useState<any[]>([]);
   const [verifications, setVerifications] = useState<any[]>([]);
   const [disputes, setDisputes] = useState<any[]>([]);
+  const [kycPendingCount, setKycPendingCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -25,16 +28,18 @@ const Admin = () => {
 
   const loadData = async () => {
     setLoading(true);
-    const [p, pr, v, d] = await Promise.all([
+    const [p, pr, v, d, kyc] = await Promise.all([
       supabase.from("profiles").select("*").order("created_at", { ascending: false }),
       supabase.from("properties").select("*, profiles(full_name)").order("created_at", { ascending: false }),
       supabase.from("verification_documents").select("*, profiles!verification_documents_user_id_fkey(full_name)").order("created_at", { ascending: false }),
       supabase.from("disputes").select("*").order("created_at", { ascending: false }),
+      (supabase as any).from("kyc_verifications").select("id").eq("kyc_status", "pending"),
     ]);
     setProfiles(p.data || []);
     setProperties(pr.data || []);
     setVerifications(v.data || []);
     setDisputes(d.data || []);
+    setKycPendingCount(kyc.data?.length || 0);
     setLoading(false);
   };
 
@@ -80,9 +85,10 @@ const Admin = () => {
   };
 
   const tabs = [
+    { id: "kyc-requests" as Tab, label: "KYC Requests", icon: ShieldCheck, count: kycPendingCount },
     { id: "users" as Tab, label: "Users", icon: Users, count: profiles.length },
     { id: "properties" as Tab, label: "Properties", icon: Building, count: properties.length },
-    { id: "verifications" as Tab, label: "Verifications", icon: ShieldCheck, count: verifications.filter(v => v.status === "pending").length },
+    { id: "verifications" as Tab, label: "Documents", icon: FileText, count: verifications.filter(v => v.status === "pending").length },
     { id: "disputes" as Tab, label: "Disputes", icon: AlertTriangle, count: disputes.filter(d => d.status === "open").length },
     { id: "analytics" as Tab, label: "Analytics", icon: TrendingUp },
   ];
@@ -98,17 +104,25 @@ const Admin = () => {
             <Button key={t.id} variant={tab === t.id ? "default" : "outline"} size="sm" onClick={() => setTab(t.id)} className="gap-2">
               <t.icon className="h-4 w-4" />
               {t.label}
-              {t.count !== undefined && <Badge variant="secondary" className="ml-1 text-xs">{t.count}</Badge>}
+              {t.count !== undefined && t.count > 0 && (
+                <Badge variant={t.id === "kyc-requests" && tab !== t.id ? "destructive" : "secondary"} className="ml-1 text-xs">
+                  {t.count}
+                </Badge>
+              )}
             </Button>
           ))}
         </div>
 
-        {loading ? (
+        {loading && tab !== "kyc-requests" ? (
           <div className="flex justify-center py-12">
             <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
           </div>
         ) : (
           <>
+            {tab === "kyc-requests" && (
+              <AdminKYCReview />
+            )}
+
             {tab === "users" && (
               <div className="rounded-xl border border-border bg-card overflow-hidden">
                 <table className="w-full text-sm">
@@ -125,19 +139,24 @@ const Admin = () => {
                   <tbody>
                     {profiles.map((p) => (
                       <tr key={p.id} className="border-t border-border">
-                        <td className="px-4 py-3 font-medium text-foreground">{p.full_name || "—"}</td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium text-foreground">{p.full_name || "—"}</span>
+                            {p.kyc_verified && <VerifiedBadge size="sm" showLabel={false} />}
+                          </div>
+                        </td>
                         <td className="px-4 py-3"><Badge variant="outline">{p.profile_type}</Badge></td>
                         <td className="px-4 py-3 text-foreground">{p.trust_score}/100</td>
                         <td className="px-4 py-3">
                           {p.kyc_verified ? (
-                            <Badge className="bg-success/10 text-success">Verified</Badge>
+                            <VerifiedBadge size="sm" />
                           ) : (
                             <Badge variant="outline" className="text-warning">Pending</Badge>
                           )}
                         </td>
                          <td className="px-4 py-3">
                            {p.profile_type === "agent" ? (
-                             <Badge className={p.is_visible ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"}>
+                             <Badge className={p.is_visible ? "bg-[hsl(var(--success))]/10 text-[hsl(var(--success))]" : "bg-muted text-muted-foreground"}>
                                {p.is_visible ? "Yes" : "No"}
                              </Badge>
                            ) : "—"}
@@ -148,7 +167,7 @@ const Admin = () => {
                             )}
                             {p.profile_type === "agent" && (
                               <div className="flex items-center gap-2">
-                                {p.is_visible ? <Eye className="h-4 w-4 text-success" /> : <EyeOff className="h-4 w-4 text-muted-foreground" />}
+                                {p.is_visible ? <Eye className="h-4 w-4 text-[hsl(var(--success))]" /> : <EyeOff className="h-4 w-4 text-muted-foreground" />}
                                 <Switch
                                   checked={p.is_visible}
                                   onCheckedChange={() => handleToggleVisibility(p.id, p.is_visible)}
@@ -184,7 +203,7 @@ const Admin = () => {
                         <td className="px-4 py-3 text-foreground">₦{(p.price || 0).toLocaleString()}</td>
                         <td className="px-4 py-3"><Badge variant="outline">{p.status}</Badge></td>
                         <td className="px-4 py-3">
-                          {p.is_verified ? <CheckCircle className="h-4 w-4 text-success" /> : <XCircle className="h-4 w-4 text-muted-foreground" />}
+                          {p.is_verified ? <CheckCircle className="h-4 w-4 text-[hsl(var(--success))]" /> : <XCircle className="h-4 w-4 text-muted-foreground" />}
                         </td>
                       </tr>
                     ))}
@@ -206,7 +225,7 @@ const Admin = () => {
                     </div>
                     {v.status === "pending" && (
                       <div className="flex gap-2">
-                        <Button size="sm" onClick={() => handleDocumentReview(v.id, "approved")} className="bg-success text-white hover:bg-success/90">Approve</Button>
+                        <Button size="sm" onClick={() => handleDocumentReview(v.id, "approved")} className="bg-[hsl(var(--success))] text-white hover:bg-[hsl(var(--success))]/90">Approve</Button>
                         <Button size="sm" variant="destructive" onClick={() => handleDocumentReview(v.id, "rejected")}>Reject</Button>
                       </div>
                     )}
