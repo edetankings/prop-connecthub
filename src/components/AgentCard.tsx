@@ -61,11 +61,7 @@ const AgentCard = ({ agent }: { agent: DBAgent }) => {
           <TrustScoreRing score={agent.trust_score} />
         </div>
         <div className="mt-3 flex items-center gap-2">
-          <Badge variant="outline" className={`text-xs ${
-            badge.color === "trust-high" ? "border-success/30 text-success" :
-            badge.color === "trust-medium" ? "border-warning/30 text-warning" :
-            "border-destructive/30 text-destructive"
-          }`}>
+          <Badge variant="outline" className="text-xs border-primary/30 text-primary">
             {badge.label}
           </Badge>
         </div>
