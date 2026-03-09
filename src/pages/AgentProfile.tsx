@@ -1,6 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { MapPin, ShieldCheck, ArrowLeft, Building, Handshake, MessageCircle, Star } from "lucide-react";
+import { MapPin, ArrowLeft, Building, Handshake, MessageCircle, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Navbar from "@/components/Navbar";
@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { getTrustBadge } from "@/lib/mockData";
 import type { DBAgent } from "@/pages/Agents";
+import VerifiedBadge from "@/components/VerifiedBadge";
 
 const AgentProfile = () => {
   const { id } = useParams();
