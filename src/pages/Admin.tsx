@@ -4,7 +4,8 @@ import { useAuth } from "@/hooks/useAuth";
 import Navbar from "@/components/Navbar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Users, Building, ShieldCheck, AlertTriangle, FileText, TrendingUp, CheckCircle, XCircle } from "lucide-react";
+import { Users, Building, ShieldCheck, AlertTriangle, FileText, TrendingUp, CheckCircle, XCircle, Eye, EyeOff } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 
 type Tab = "users" | "properties" | "verifications" | "disputes" | "analytics";
@@ -141,16 +142,20 @@ const Admin = () => {
                              </Badge>
                            ) : "—"}
                          </td>
-                         <td className="px-4 py-3 flex gap-2">
+                          <td className="px-4 py-3 flex gap-2 items-center">
                            {!p.kyc_verified && p.profile_type === "agent" && (
-                             <Button size="sm" variant="outline" onClick={() => handleVerifyKyc(p.id)}>Verify KYC</Button>
-                           )}
-                           {p.profile_type === "agent" && (
-                             <Button size="sm" variant="outline" onClick={() => handleToggleVisibility(p.id, p.is_visible)}>
-                               {p.is_visible ? "Hide" : "Show"}
-                             </Button>
-                           )}
-                         </td>
+                              <Button size="sm" variant="outline" onClick={() => handleVerifyKyc(p.id)}>Verify KYC</Button>
+                            )}
+                            {p.profile_type === "agent" && (
+                              <div className="flex items-center gap-2">
+                                {p.is_visible ? <Eye className="h-4 w-4 text-success" /> : <EyeOff className="h-4 w-4 text-muted-foreground" />}
+                                <Switch
+                                  checked={p.is_visible}
+                                  onCheckedChange={() => handleToggleVisibility(p.id, p.is_visible)}
+                                />
+                              </div>
+                            )}
+                          </td>
                       </tr>
                     ))}
                   </tbody>

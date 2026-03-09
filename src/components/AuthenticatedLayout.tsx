@@ -5,6 +5,7 @@ import AppSidebar from "@/components/AppSidebar";
 import NotificationBell from "@/components/NotificationBell";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useAuth } from "@/hooks/useAuth";
+import VerificationBanner from "@/components/VerificationBanner";
 
 interface AuthenticatedLayoutProps {
   children: React.ReactNode;
@@ -46,6 +47,9 @@ const AuthenticatedLayout = ({ children }: AuthenticatedLayoutProps) => {
 
       {/* Sidebar */}
       <AppSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+
+      {/* Verification Banner */}
+      <VerificationBanner />
 
       {/* Page Content — no footer */}
       <main>{children}</main>
