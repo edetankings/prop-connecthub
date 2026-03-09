@@ -396,9 +396,7 @@ const PropertyDetail = () => {
                     <div className="flex items-center gap-1">
                       <h3 className="font-display font-semibold text-foreground">{agent.full_name}</h3>
                       {agent.kyc_verified ? (
-                        <Badge className="bg-[hsl(var(--success)/0.1)] text-[hsl(var(--success))] text-[10px] gap-0.5 px-1.5">
-                          <ShieldCheck className="h-3 w-3" /> Verified
-                        </Badge>
+                        <VerifiedBadge size="sm" />
                       ) : (
                         <Badge variant="outline" className="text-[10px] text-muted-foreground px-1.5">Pending</Badge>
                       )}
