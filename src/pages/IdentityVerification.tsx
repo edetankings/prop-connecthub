@@ -82,6 +82,31 @@ const IdentityVerification = () => {
   const userId = user?.id;
   const userCode = userId ? `PC-${userId.slice(0, 5).toUpperCase()}` : "PC-00000";
 
+  useEffect(() => {
+    setPhoneNumber(profile?.phone || "");
+  }, [profile?.phone]);
+
+  useEffect(() => {
+    const id = window.setInterval(() => setNowMs(Date.now()), 250);
+    return () => window.clearInterval(id);
+  }, []);
+
+  const otpSecondsLeft = useMemo(() => {
+    if (!otpExpiresAt) return 0;
+    return Math.max(0, Math.ceil((otpExpiresAt - nowMs) / 1000));
+  }, [otpExpiresAt, nowMs]);
+
+  const resendSecondsLeft = useMemo(() => {
+    if (!otpResendAvailableAt) return 0;
+    return Math.max(0, Math.ceil((otpResendAvailableAt - nowMs) / 1000));
+  }, [otpResendAvailableAt, nowMs]);
+
+  const formatCountdown = (seconds: number) => {
+    const mm = Math.floor(seconds / 60);
+    const ss = seconds % 60;
+    return `${mm}:${String(ss).padStart(2, "0")}`;
+  };
+
   const statusBadge = () => {
     const s = overallStatus();
     if (s === "verified") return <Badge className="bg-[hsl(var(--success))]/15 text-[hsl(var(--success))] border-0 gap-1"><CheckCircle className="h-3 w-3" /> Verified</Badge>;
