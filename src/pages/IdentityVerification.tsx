@@ -157,17 +157,58 @@ const IdentityVerification = () => {
     setUploading(false);
   };
 
-  const handlePhoneOtp = async () => {
+  const sendPhoneOtp = async () => {
     if (!userId) return;
-    await updateStep("phone_otp", { status: "pending" });
-    await (supabase as any).from("notifications").insert({
-      user_id: userId,
-      title: "Phone Verification Submitted",
-      message: "Your phone verification is pending admin review.",
-      type: "info",
-      link: "/verification",
-    });
-    toast.info("Phone verification submitted for admin review.");
+    if (!phoneNumber.trim()) {
+      toast.error("Please enter your phone number");
+      return;
+    }
+
+    setOtpSending(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("send-phone-otp", {
+        body: { phone: phoneNumber },
+      });
+
+      if (error) throw error;
+      if ((data as any)?.error) throw new Error((data as any).error);
+
+      await updateStep("phone_otp", { status: "pending" });
+      setOtpExpiresAt(Date.now() + 5 * 60 * 1000);
+      setOtpResendAvailableAt(Date.now() + 30 * 1000);
+      toast.success("OTP sent to your phone");
+    } catch (e: any) {
+      toast.error(e.message || "Failed to send OTP");
+    } finally {
+      setOtpSending(false);
+    }
+  };
+
+  const verifyPhoneOtp = async () => {
+    if (!userId) return;
+    if (!otpCode || otpCode.length < 4) {
+      toast.error("Enter the OTP code");
+      return;
+    }
+
+    setOtpVerifying(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("verify-phone-otp", {
+        body: { phone: phoneNumber, code: otpCode },
+      });
+      if (error) throw error;
+      if ((data as any)?.error) throw new Error((data as any).error);
+
+      await updateStep("phone_otp", { status: "approved" });
+      setOtpCode("");
+      setOtpExpiresAt(null);
+      setOtpResendAvailableAt(null);
+      toast.success("Phone number verified");
+    } catch (e: any) {
+      toast.error(e.message || "Invalid OTP");
+    } finally {
+      setOtpVerifying(false);
+    }
   };
 
   const handleEmailAuth = async () => {
