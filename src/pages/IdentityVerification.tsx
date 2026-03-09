@@ -360,7 +360,15 @@ const IdentityVerification = () => {
                 {/* Pending notice */}
                 {status === "pending" && !isExpanded && (
                   <div className="mx-4 mb-3 p-2 rounded-lg bg-[hsl(var(--info))]/5 border border-[hsl(var(--info))]/20">
-                    <p className="text-xs text-[hsl(var(--info))] flex items-center gap-1"><Clock className="h-3 w-3" /> Submitted – awaiting admin review</p>
+                    {stepName === "phone_otp" ? (
+                      <p className="text-xs text-[hsl(var(--info))] flex items-center gap-1">
+                        <Clock className="h-3 w-3" /> OTP sent – awaiting confirmation
+                      </p>
+                    ) : (
+                      <p className="text-xs text-[hsl(var(--info))] flex items-center gap-1">
+                        <Clock className="h-3 w-3" /> Submitted – awaiting admin review
+                      </p>
+                    )}
                   </div>
                 )}
 
