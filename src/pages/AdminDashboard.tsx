@@ -188,20 +188,20 @@ const AdminDashboard = () => {
         .select("*")
         .eq("user_id", stepUserId);
       
-      if (allSteps && allSteps.every((s: any) => s.status === "approved")) {
-        // Mark profile as fully verified
-        const userProfile = profiles.find((p: any) => p.user_id === stepUserId);
-        if (userProfile) {
-          await supabase.from("profiles").update({ kyc_verified: true, trust_score: 85 }).eq("id", userProfile.id);
-        }
-        await (supabase as any).from("notifications").insert({
-          user_id: stepUserId,
-          title: "Account Fully Verified! ✅",
-          message: "Congratulations! Your account verification has been approved. You now have full access to all platform features.",
-          type: "success",
-          link: "/verification",
-        });
-      }
+       if (allSteps && allSteps.every((s: any) => s.status === "approved")) {
+         // Mark profile as fully verified
+         const userProfile = profiles.find((p: any) => p.user_id === stepUserId);
+         if (userProfile) {
+           await supabase.from("profiles").update({ kyc_verified: true, trust_score: 80 }).eq("id", userProfile.id);
+         }
+         await (supabase as any).from("notifications").insert({
+           user_id: stepUserId,
+           title: "Account Fully Verified! ✅",
+           message: "Congratulations! Your account verification has been approved. You now have full access to all platform features.",
+           type: "success",
+           link: "/verification",
+         });
+       }
     }
 
     // If rejected, ensure profile is not marked as verified
