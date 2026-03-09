@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   User, Lock, Bell, Shield, HelpCircle, MessageSquare, AlertOctagon,
-  LogOut, ChevronRight, Camera, CheckCircle, Edit3, Save, X
+  LogOut, ChevronRight, Camera, CheckCircle, Edit3, Save, X, Trash2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

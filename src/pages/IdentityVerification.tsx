@@ -1,11 +1,28 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Phone, Mail, FileText, Camera, CreditCard, Building2, CheckCircle, Clock, XCircle, Lock, AlertTriangle, ChevronRight, Upload, Info } from "lucide-react";
+import {
+  ArrowLeft,
+  Phone,
+  Mail,
+  FileText,
+  Camera,
+  CreditCard,
+  Building2,
+  CheckCircle,
+  Clock,
+  XCircle,
+  Lock,
+  AlertTriangle,
+  ChevronRight,
+  Upload,
+  Info,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/useAuth";

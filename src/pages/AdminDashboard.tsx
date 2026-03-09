@@ -86,8 +86,26 @@ const AdminDashboard = () => {
   };
 
   const handleDocumentReview = async (docId: string, status: "approved" | "rejected") => {
-    const { error } = await supabase.from("verification_documents").update({ status }).eq("id", docId);
-    if (error) { toast.error(error.message); return; }
+    const { data: doc, error } = await supabase
+      .from("verification_documents")
+      .update({ status })
+      .eq("id", docId)
+      .select("*")
+      .maybeSingle();
+
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+
+    if (status === "approved" && doc?.user_id) {
+      const { error: profErr } = await supabase
+        .from("profiles")
+        .update({ kyc_verified: true, trust_score: 80 })
+        .eq("user_id", doc.user_id);
+      if (profErr) toast.error("Document approved, but failed to update KYC status");
+    }
+
     toast.success(`Document ${status}`);
     loadData();
   };

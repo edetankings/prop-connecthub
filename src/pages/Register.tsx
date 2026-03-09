@@ -47,7 +47,7 @@ const Register = () => {
 
     setLoading(true);
     try {
-      await signUp(email, password, name, profileType);
+      await signUp(email, password, name, profileType, phone);
       setSuccess(true);
     } catch (err: any) {
       setError(err.message || "Registration failed");
