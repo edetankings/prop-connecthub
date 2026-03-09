@@ -15,9 +15,11 @@ const iconMap: Record<string, any> = { update: Megaphone, alert: AlertTriangle, 
 const colorMap: Record<string, string> = { update: "bg-primary/10 text-primary", alert: "bg-destructive/10 text-destructive", announcement: "bg-secondary/10 text-secondary", promotion: "bg-secondary/10 text-secondary" };
 
 const Announcements = () => {
+  const { isAdmin } = useAuth();
   const [announcements, setAnnouncements] = useState<any[]>([]);
   const [latestProperties, setLatestProperties] = useState<PropertyWithDate[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deleting, setDeleting] = useState<string | null>(null);
 
   useEffect(() => {
     const load = async () => {
