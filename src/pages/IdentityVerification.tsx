@@ -68,6 +68,17 @@ const IdentityVerification = () => {
   const [accountNumber, setAccountNumber] = useState("");
   const [address, setAddress] = useState("");
 
+  // Phone OTP state
+  const [phoneNumber, setPhoneNumber] = useState(profile?.phone || "");
+  const [otpCode, setOtpCode] = useState("");
+  const [otpSending, setOtpSending] = useState(false);
+  const [otpVerifying, setOtpVerifying] = useState(false);
+  const [otpExpiresAt, setOtpExpiresAt] = useState<number | null>(null);
+  const [otpResendAvailableAt, setOtpResendAvailableAt] = useState<number | null>(null);
+
+  // Ticker for countdowns
+  const [nowMs, setNowMs] = useState(() => Date.now());
+
   const userId = user?.id;
   const userCode = userId ? `PC-${userId.slice(0, 5).toUpperCase()}` : "PC-00000";
 
