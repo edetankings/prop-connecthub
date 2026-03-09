@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { TrustScoreRing } from "@/components/AgentCard";
 import AuthenticatedLayout from "@/components/AuthenticatedLayout";
 import { toast } from "sonner";
+import VerifiedBadge from "@/components/VerifiedBadge";
 
 const AgentDashboard = () => {
   const { profile } = useAuth();
