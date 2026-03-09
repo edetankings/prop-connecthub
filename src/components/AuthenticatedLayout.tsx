@@ -47,6 +47,9 @@ const AuthenticatedLayout = ({ children }: AuthenticatedLayoutProps) => {
       {/* Sidebar */}
       <AppSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
+      {/* Verification Banner */}
+      <VerificationBanner />
+
       {/* Page Content — no footer */}
       <main>{children}</main>
     </div>
