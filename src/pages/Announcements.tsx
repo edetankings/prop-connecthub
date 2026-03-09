@@ -21,26 +21,52 @@ const Announcements = () => {
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
 
+  const loadData = async () => {
+    const [annRes, propRes] = await Promise.all([
+      (supabase as any)
+        .from("announcements")
+        .select("*, profiles!announcements_author_id_fkey(full_name)")
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("properties")
+        .select("*")
+        .in("status", ["available", "for_sale", "for_rent"])
+        .order("created_at", { ascending: false })
+        .limit(6),
+    ]);
+    setAnnouncements(annRes.data || []);
+    setLatestProperties((propRes.data as PropertyWithDate[]) || []);
+    setLoading(false);
+  };
+
   useEffect(() => {
-    const load = async () => {
-      const [annRes, propRes] = await Promise.all([
-        (supabase as any)
-          .from("announcements")
-          .select("*, profiles!announcements_author_id_fkey(full_name)")
-          .order("created_at", { ascending: false }),
-        supabase
-          .from("properties")
-          .select("*")
-          .in("status", ["available", "for_sale", "for_rent"])
-          .order("created_at", { ascending: false })
-          .limit(6),
-      ]);
-      setAnnouncements(annRes.data || []);
-      setLatestProperties((propRes.data as PropertyWithDate[]) || []);
-      setLoading(false);
-    };
-    load();
+    loadData();
   }, []);
+
+  const handleDeleteAnnouncement = async (announcementId: string) => {
+    if (!isAdmin) {
+      toast.error("Only administrators can delete announcements");
+      return;
+    }
+
+    try {
+      setDeleting(announcementId);
+      const { error } = await supabase
+        .from("announcements")
+        .delete()
+        .eq("id", announcementId);
+
+      if (error) throw error;
+
+      toast.success("Announcement deleted successfully");
+      await loadData(); // Reload data
+    } catch (error) {
+      console.error("Error deleting announcement:", error);
+      toast.error("Failed to delete announcement");
+    } finally {
+      setDeleting(null);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
