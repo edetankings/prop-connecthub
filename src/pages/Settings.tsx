@@ -276,6 +276,19 @@ const Settings = () => {
                   <CheckCircle className="h-3 w-3 mr-1" /> Verified
                 </Badge>
               )}
+
+              {profile?.avatar_url && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="mt-3 w-full gap-2"
+                  onClick={handleAvatarRemove}
+                  disabled={uploadingAvatar}
+                >
+                  <Trash2 className="h-4 w-4" /> Remove profile picture
+                </Button>
+              )}
+
               <p className="text-xs text-muted-foreground mt-2">
                 Member since {user ? new Date(user.created_at ?? Date.now()).toLocaleDateString("en-NG", { month: "long", year: "numeric" }) : "—"}
               </p>

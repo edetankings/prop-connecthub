@@ -100,7 +100,7 @@ const Register = () => {
           </div>
           <div>
             <Label htmlFor="phone">Phone Number</Label>
-            <Input id="phone" type="tel" placeholder="+234 800 000 0000" className="mt-1" value={phone} onChange={(e) => setPhone(e.target.value)} />
+            <Input id="phone" type="tel" placeholder="+234 800 000 0000" className="mt-1" value={phone} onChange={(e) => setPhone(e.target.value)} required />
           </div>
           <div>
             <Label>Account Type</Label>

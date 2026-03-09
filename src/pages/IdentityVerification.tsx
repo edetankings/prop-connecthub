@@ -385,11 +385,58 @@ const IdentityVerification = () => {
                   <div className="border-t border-border p-4 space-y-4">
                     {/* Phone OTP */}
                     {stepName === "phone_otp" && (
-                      <div>
-                        <p className="text-sm text-muted-foreground mb-3">We'll send your phone verification request to admin for approval.</p>
-                        <Button onClick={handlePhoneOtp} disabled={status === "pending"} className="w-full">
-                          {status === "pending" ? "Pending Review..." : status === "rejected" ? "Re-submit Phone Verification" : "Submit Phone Verification"}
+                      <div className="space-y-3">
+                        <div>
+                          <Label className="text-sm">Phone Number</Label>
+                          <Input
+                            className="mt-1"
+                            placeholder="+234..."
+                            value={phoneNumber}
+                            onChange={(e) => setPhoneNumber(e.target.value)}
+                          />
+                        </div>
+
+                        <Button
+                          onClick={sendPhoneOtp}
+                          disabled={otpSending || resendSecondsLeft > 0}
+                          className="w-full"
+                          variant={status === "pending" ? "outline" : "default"}
+                        >
+                          {otpSending
+                            ? "Sending OTP…"
+                            : resendSecondsLeft > 0
+                              ? `Resend available in ${resendSecondsLeft}s`
+                              : status === "pending"
+                                ? "Resend OTP"
+                                : "Send OTP"}
                         </Button>
+
+                        {otpExpiresAt && (
+                          <div className="rounded-xl border border-border bg-muted/30 p-4 space-y-3">
+                            <div className="flex items-center justify-between">
+                              <p className="text-sm font-medium text-foreground">Enter OTP</p>
+                              <p className="text-xs text-muted-foreground">Expires in {formatCountdown(otpSecondsLeft)}</p>
+                            </div>
+
+                            <div className="flex justify-center">
+                              <InputOTP maxLength={6} value={otpCode} onChange={setOtpCode}>
+                                <InputOTPGroup>
+                                  {Array.from({ length: 6 }).map((_, i) => (
+                                    <InputOTPSlot key={i} index={i} />
+                                  ))}
+                                </InputOTPGroup>
+                              </InputOTP>
+                            </div>
+
+                            <Button onClick={verifyPhoneOtp} disabled={otpVerifying || otpSecondsLeft === 0} className="w-full">
+                              {otpVerifying ? "Verifying…" : "Verify OTP"}
+                            </Button>
+
+                            {otpSecondsLeft === 0 && (
+                              <p className="text-xs text-destructive">OTP expired — please resend.</p>
+                            )}
+                          </div>
+                        )}
                       </div>
                     )}
 

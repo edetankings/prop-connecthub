@@ -1104,7 +1104,11 @@ const AdminDashboard = () => {
                                 className="text-xs gap-1"
                                 onClick={async () => {
                                   if (!window.confirm("Delete this announcement?")) return;
-                                  await (supabase as any).from("announcements").delete().eq("id", a.id);
+                                  const { error } = await (supabase as any).from("announcements").delete().eq("id", a.id);
+                                  if (error) {
+                                    toast.error(error.message);
+                                    return;
+                                  }
                                   toast.success("Announcement deleted");
                                   loadData();
                                 }}
