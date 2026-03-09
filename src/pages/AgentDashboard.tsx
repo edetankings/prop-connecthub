@@ -118,14 +118,19 @@ const AgentDashboard = () => {
     <AuthenticatedLayout>
       <div className="container mx-auto px-4 py-8 max-w-5xl">
         {/* KYC Verification Banner */}
-        {!profile?.kyc_verified && (
+        {profile?.kyc_verified ? (
+          <div className="mb-6 rounded-xl border-2 border-[hsl(var(--success))]/30 bg-[hsl(var(--success))]/5 p-4 flex items-center gap-3">
+            <VerifiedBadge size="md" />
+            <p className="text-sm text-foreground">Your account is verified. You have full access to all platform features.</p>
+          </div>
+        ) : (
           <div className="mb-6 rounded-xl border-2 border-[hsl(var(--warning))]/30 bg-[hsl(var(--warning))]/5 p-4 flex items-start gap-3">
-            <ShieldCheck className="h-5 w-5 text-[hsl(var(--warning))] shrink-0 mt-0.5" />
+            <AlertTriangle className="h-5 w-5 text-[hsl(var(--warning))] shrink-0 mt-0.5" />
             <div className="flex-1">
               <p className="text-sm font-semibold text-foreground">Complete your identity verification</p>
               <p className="text-xs text-muted-foreground mt-1">Verify your identity to build trust, publish listings faster, and receive escrow payouts.</p>
             </div>
-            <Link to="/verification">
+            <Link to="/identity-verification">
               <Button size="sm" variant="outline" className="shrink-0">Verify Now</Button>
             </Link>
           </div>
