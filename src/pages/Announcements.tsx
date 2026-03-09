@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
-import { Megaphone, AlertTriangle, Bell, MapPin } from "lucide-react";
+import { Megaphone, AlertTriangle, Bell, MapPin, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 import type { DBProperty } from "@/components/DBPropertyCard";
 
 type PropertyWithDate = DBProperty & { created_at: string };
