@@ -177,6 +177,7 @@ const Settings = () => {
     }
   };
 
+  const savePreferences = async (key: string, value: boolean) => {
     if (!user) return;
     const updates: Record<string, boolean> = {
       push_enabled: pushEnabled,
