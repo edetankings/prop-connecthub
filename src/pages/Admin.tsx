@@ -4,7 +4,8 @@ import { useAuth } from "@/hooks/useAuth";
 import Navbar from "@/components/Navbar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Users, Building, ShieldCheck, AlertTriangle, FileText, TrendingUp, CheckCircle, XCircle } from "lucide-react";
+import { Users, Building, ShieldCheck, AlertTriangle, FileText, TrendingUp, CheckCircle, XCircle, Eye, EyeOff } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 
 type Tab = "users" | "properties" | "verifications" | "disputes" | "analytics";
