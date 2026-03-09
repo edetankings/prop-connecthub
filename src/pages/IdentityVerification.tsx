@@ -16,6 +16,7 @@ import {
   ChevronRight,
   Upload,
   Info,
+  ShieldCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -25,11 +26,15 @@ import { Label } from "@/components/ui/label";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/useAuth";
 import { useVerificationSteps, StepName } from "@/hooks/useVerificationSteps";
+import { useKYCVerification } from "@/hooks/useKYCVerification";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import AuthenticatedLayout from "@/components/AuthenticatedLayout";
+import KYCSubmissionForm from "@/components/KYCSubmissionForm";
+import VerifiedBadge from "@/components/VerifiedBadge";
 
 const STEP_ICONS: Record<StepName, React.ElementType> = {
   phone_otp: Phone,
@@ -57,6 +62,7 @@ const IdentityVerification = () => {
     isStepUnlocked, nextIncompleteStep, getStepByName, updateStep,
     overallStatus, STEP_ORDER, STEP_LABELS,
   } = useVerificationSteps();
+  const { kycData, kycStatus, isVerified } = useKYCVerification();
 
   const [expandedStep, setExpandedStep] = useState<StepName | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -108,9 +114,18 @@ const IdentityVerification = () => {
   };
 
   const statusBadge = () => {
+    if (isVerified || profile?.kyc_verified) {
+      return <VerifiedBadge />;
+    }
+    if (kycStatus === "pending") {
+      return <Badge className="bg-[hsl(var(--info))]/15 text-[hsl(var(--info))] border-0 gap-1"><Clock className="h-3 w-3" /> Pending Review</Badge>;
+    }
+    if (kycStatus === "rejected") {
+      return <Badge className="bg-destructive/15 text-destructive border-0 gap-1"><XCircle className="h-3 w-3" /> Rejected</Badge>;
+    }
     const s = overallStatus();
     if (s === "verified") return <Badge className="bg-[hsl(var(--success))]/15 text-[hsl(var(--success))] border-0 gap-1"><CheckCircle className="h-3 w-3" /> Verified</Badge>;
-    if (s === "pending") return <Badge className="bg-[hsl(var(--info))]/15 text-[hsl(var(--info))] border-0 gap-1"><Clock className="h-3 w-3" /> Pending Review</Badge>;
+    if (s === "pending") return <Badge className="bg-[hsl(var(--info))]/15 text-[hsl(var(--info))] border-0 gap-1"><Clock className="h-3 w-3" /> In Progress</Badge>;
     return <Badge className="bg-[hsl(var(--warning))]/15 text-[hsl(var(--warning))] border-0 gap-1"><AlertTriangle className="h-3 w-3" /> Unverified</Badge>;
   };
 
@@ -285,7 +300,10 @@ const IdentityVerification = () => {
               {profile?.full_name?.[0]?.toUpperCase() || "U"}
             </div>
             <div className="flex-1 min-w-0">
-              <h1 className="font-display text-xl font-bold text-foreground truncate">{profile?.full_name || "User"}</h1>
+              <div className="flex items-center gap-2">
+                <h1 className="font-display text-xl font-bold text-foreground truncate">{profile?.full_name || "User"}</h1>
+                {(isVerified || profile?.kyc_verified) && <VerifiedBadge size="sm" showLabel={false} />}
+              </div>
               <div className="flex items-center gap-2 mt-1 flex-wrap">
                 {statusBadge()}
                 <Badge variant="outline" className="text-xs">{profile?.profile_type?.toUpperCase()}</Badge>
@@ -295,22 +313,8 @@ const IdentityVerification = () => {
           </div>
         </div>
 
-        {/* Progress Bar */}
-        <div className="rounded-xl border border-border bg-card p-5 shadow-card mb-6">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-sm font-semibold text-foreground">
-              Verification Progress – {completedCount} of {totalSteps} steps
-            </p>
-            <span className="text-sm font-bold text-primary">{progressPercent}%</span>
-          </div>
-          <Progress value={progressPercent} className="h-3 mb-2" />
-          <p className="text-xs text-muted-foreground">
-            {progressPercent === 100 ? "All steps completed! 🎉" : `${progressPercent}% complete. Continue to unlock all features.`}
-          </p>
-        </div>
-
         {/* Agent/Builder Notice */}
-        {(profile?.profile_type === "agent" || profile?.profile_type === "builder") && (
+        {(profile?.profile_type === "agent" || profile?.profile_type === "builder") && !isVerified && !profile?.kyc_verified && (
           <div className="rounded-xl border-2 border-primary/30 bg-primary/5 p-4 mb-6 flex gap-3">
             <Info className="h-5 w-5 text-primary shrink-0 mt-0.5" />
             <p className="text-sm text-foreground">
@@ -319,287 +323,323 @@ const IdentityVerification = () => {
           </div>
         )}
 
-        {/* Verification Steps */}
-        <div className="space-y-3 mb-8">
-          {STEP_ORDER.map((stepName) => {
-            const step = getStepByName(stepName);
-            const unlocked = isStepUnlocked(stepName);
-            const status = step?.status || "not_started";
-            const Icon = STEP_ICONS[stepName];
-            const isExpanded = expandedStep === stepName;
+        {/* Tabs for different verification modes */}
+        <Tabs defaultValue="full-kyc" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="full-kyc" className="gap-2">
+              <ShieldCheck className="h-4 w-4" />
+              Full KYC Submission
+            </TabsTrigger>
+            <TabsTrigger value="step-by-step" className="gap-2">
+              <FileText className="h-4 w-4" />
+              Step-by-Step
+            </TabsTrigger>
+          </TabsList>
 
-            return (
-              <div key={stepName} className={`rounded-xl border bg-card shadow-card overflow-hidden transition-all ${
-                !unlocked ? "border-border/50 opacity-60" : status === "approved" ? "border-[hsl(var(--success))]/30" : status === "rejected" ? "border-destructive/30" : status === "pending" ? "border-[hsl(var(--info))]/30" : "border-border"
-              }`}>
-                {/* Step Header */}
-                <button
-                  disabled={!unlocked}
-                  onClick={() => setExpandedStep(isExpanded ? null : stepName)}
-                  className="w-full flex items-center gap-3 p-4 text-left hover:bg-muted/30 transition-colors disabled:cursor-not-allowed"
-                >
-                  <div className={`h-10 w-10 rounded-xl flex items-center justify-center shrink-0 ${
-                    status === "approved" ? "bg-[hsl(var(--success))]/10" : status === "pending" ? "bg-[hsl(var(--info))]/10" : status === "rejected" ? "bg-destructive/10" : "bg-muted"
+          {/* Full KYC Submission Tab */}
+          <TabsContent value="full-kyc">
+            <KYCSubmissionForm />
+          </TabsContent>
+
+          {/* Step by Step Tab */}
+          <TabsContent value="step-by-step" className="space-y-6">
+            {/* Progress Bar */}
+            <div className="rounded-xl border border-border bg-card p-5 shadow-card">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-sm font-semibold text-foreground">
+                  Verification Progress – {completedCount} of {totalSteps} steps
+                </p>
+                <span className="text-sm font-bold text-primary">{progressPercent}%</span>
+              </div>
+              <Progress value={progressPercent} className="h-3 mb-2" />
+              <p className="text-xs text-muted-foreground">
+                {progressPercent === 100 ? "All steps completed! 🎉" : `${progressPercent}% complete. Continue to unlock all features.`}
+              </p>
+            </div>
+
+            {/* Verification Steps */}
+            <div className="space-y-3">
+              {STEP_ORDER.map((stepName) => {
+                const step = getStepByName(stepName);
+                const unlocked = isStepUnlocked(stepName);
+                const status = step?.status || "not_started";
+                const Icon = STEP_ICONS[stepName];
+                const isExpanded = expandedStep === stepName;
+
+                return (
+                  <div key={stepName} className={`rounded-xl border bg-card shadow-card overflow-hidden transition-all ${
+                    !unlocked ? "border-border/50 opacity-60" : status === "approved" ? "border-[hsl(var(--success))]/30" : status === "rejected" ? "border-destructive/30" : status === "pending" ? "border-[hsl(var(--info))]/30" : "border-border"
                   }`}>
-                    <Icon className={`h-5 w-5 ${
-                      status === "approved" ? "text-[hsl(var(--success))]" : status === "pending" ? "text-[hsl(var(--info))]" : status === "rejected" ? "text-destructive" : "text-muted-foreground"
-                    }`} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-sm text-foreground">{STEP_LABELS[stepName]}</p>
-                    <p className="text-xs text-muted-foreground">{STEP_DESCRIPTIONS[stepName]}</p>
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    {stepStatusIcon(status, unlocked)}
-                    {unlocked && status !== "approved" && (
-                      <ChevronRight className={`h-4 w-4 text-muted-foreground transition-transform ${isExpanded ? "rotate-90" : ""}`} />
+                    {/* Step Header */}
+                    <button
+                      disabled={!unlocked}
+                      onClick={() => setExpandedStep(isExpanded ? null : stepName)}
+                      className="w-full flex items-center gap-3 p-4 text-left hover:bg-muted/30 transition-colors disabled:cursor-not-allowed"
+                    >
+                      <div className={`h-10 w-10 rounded-xl flex items-center justify-center shrink-0 ${
+                        status === "approved" ? "bg-[hsl(var(--success))]/10" : status === "pending" ? "bg-[hsl(var(--info))]/10" : status === "rejected" ? "bg-destructive/10" : "bg-muted"
+                      }`}>
+                        <Icon className={`h-5 w-5 ${
+                          status === "approved" ? "text-[hsl(var(--success))]" : status === "pending" ? "text-[hsl(var(--info))]" : status === "rejected" ? "text-destructive" : "text-muted-foreground"
+                        }`} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-sm text-foreground">{STEP_LABELS[stepName]}</p>
+                        <p className="text-xs text-muted-foreground">{STEP_DESCRIPTIONS[stepName]}</p>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        {stepStatusIcon(status, unlocked)}
+                        {unlocked && status !== "approved" && (
+                          <ChevronRight className={`h-4 w-4 text-muted-foreground transition-transform ${isExpanded ? "rotate-90" : ""}`} />
+                        )}
+                      </div>
+                    </button>
+
+                    {/* Pending notice */}
+                    {status === "pending" && !isExpanded && (
+                      <div className="mx-4 mb-3 p-2 rounded-lg bg-[hsl(var(--info))]/5 border border-[hsl(var(--info))]/20">
+                        {stepName === "phone_otp" ? (
+                          <p className="text-xs text-[hsl(var(--info))] flex items-center gap-1">
+                            <Clock className="h-3 w-3" /> OTP sent – awaiting confirmation
+                          </p>
+                        ) : (
+                          <p className="text-xs text-[hsl(var(--info))] flex items-center gap-1">
+                            <Clock className="h-3 w-3" /> Submitted – awaiting admin review
+                          </p>
+                        )}
+                      </div>
                     )}
-                  </div>
-                </button>
 
-                {/* Pending notice */}
-                {status === "pending" && !isExpanded && (
-                  <div className="mx-4 mb-3 p-2 rounded-lg bg-[hsl(var(--info))]/5 border border-[hsl(var(--info))]/20">
-                    {stepName === "phone_otp" ? (
-                      <p className="text-xs text-[hsl(var(--info))] flex items-center gap-1">
-                        <Clock className="h-3 w-3" /> OTP sent – awaiting confirmation
-                      </p>
-                    ) : (
-                      <p className="text-xs text-[hsl(var(--info))] flex items-center gap-1">
-                        <Clock className="h-3 w-3" /> Submitted – awaiting admin review
-                      </p>
+                    {/* Rejection reason */}
+                    {step?.rejection_reason && status === "rejected" && (
+                      <div className="mx-4 mb-3 p-3 rounded-lg bg-destructive/5 border border-destructive/20">
+                        <p className="text-xs text-destructive"><span className="font-semibold">Declined:</span> {step.rejection_reason}</p>
+                        <p className="text-xs text-muted-foreground mt-1">Please re-submit the correct documents.</p>
+                      </div>
                     )}
-                  </div>
-                )}
 
-                {/* Rejection reason */}
-                {step?.rejection_reason && status === "rejected" && (
-                  <div className="mx-4 mb-3 p-3 rounded-lg bg-destructive/5 border border-destructive/20">
-                    <p className="text-xs text-destructive"><span className="font-semibold">Declined:</span> {step.rejection_reason}</p>
-                    <p className="text-xs text-muted-foreground mt-1">Please re-submit the correct documents.</p>
-                  </div>
-                )}
-
-                {/* Expanded Step Content */}
-                {isExpanded && unlocked && status !== "approved" && (
-                  <div className="border-t border-border p-4 space-y-4">
-                    {/* Phone OTP */}
-                    {stepName === "phone_otp" && (
-                      <div className="space-y-3">
-                        <div>
-                          <Label className="text-sm">Phone Number</Label>
-                          <Input
-                            className="mt-1"
-                            placeholder="+234..."
-                            value={phoneNumber}
-                            onChange={(e) => setPhoneNumber(e.target.value)}
-                          />
-                        </div>
-
-                        <Button
-                          onClick={sendPhoneOtp}
-                          disabled={otpSending || resendSecondsLeft > 0}
-                          className="w-full"
-                          variant={status === "pending" ? "outline" : "default"}
-                        >
-                          {otpSending
-                            ? "Sending OTP…"
-                            : resendSecondsLeft > 0
-                              ? `Resend available in ${resendSecondsLeft}s`
-                              : status === "pending"
-                                ? "Resend OTP"
-                                : "Send OTP"}
-                        </Button>
-
-                        {otpExpiresAt && (
-                          <div className="rounded-xl border border-border bg-muted/30 p-4 space-y-3">
-                            <div className="flex items-center justify-between">
-                              <p className="text-sm font-medium text-foreground">Enter OTP</p>
-                              <p className="text-xs text-muted-foreground">Expires in {formatCountdown(otpSecondsLeft)}</p>
+                    {/* Expanded Step Content */}
+                    {isExpanded && unlocked && status !== "approved" && (
+                      <div className="border-t border-border p-4 space-y-4">
+                        {/* Phone OTP */}
+                        {stepName === "phone_otp" && (
+                          <div className="space-y-3">
+                            <div>
+                              <Label className="text-sm">Phone Number</Label>
+                              <Input
+                                className="mt-1"
+                                placeholder="+234..."
+                                value={phoneNumber}
+                                onChange={(e) => setPhoneNumber(e.target.value)}
+                              />
                             </div>
 
-                            <div className="flex justify-center">
-                              <InputOTP maxLength={6} value={otpCode} onChange={setOtpCode}>
-                                <InputOTPGroup>
-                                  {Array.from({ length: 6 }).map((_, i) => (
-                                    <InputOTPSlot key={i} index={i} />
-                                  ))}
-                                </InputOTPGroup>
-                              </InputOTP>
-                            </div>
-
-                            <Button onClick={verifyPhoneOtp} disabled={otpVerifying || otpSecondsLeft === 0} className="w-full">
-                              {otpVerifying ? "Verifying…" : "Verify OTP"}
+                            <Button
+                              onClick={sendPhoneOtp}
+                              disabled={otpSending || resendSecondsLeft > 0}
+                              className="w-full"
+                              variant={status === "pending" ? "outline" : "default"}
+                            >
+                              {otpSending
+                                ? "Sending OTP…"
+                                : resendSecondsLeft > 0
+                                  ? `Resend available in ${resendSecondsLeft}s`
+                                  : status === "pending"
+                                    ? "Resend OTP"
+                                    : "Send OTP"}
                             </Button>
 
-                            {otpSecondsLeft === 0 && (
-                              <p className="text-xs text-destructive">OTP expired — please resend.</p>
+                            {otpExpiresAt && (
+                              <div className="rounded-xl border border-border bg-muted/30 p-4 space-y-3">
+                                <div className="flex items-center justify-between">
+                                  <p className="text-sm font-medium text-foreground">Enter OTP</p>
+                                  <p className="text-xs text-muted-foreground">Expires in {formatCountdown(otpSecondsLeft)}</p>
+                                </div>
+
+                                <div className="flex justify-center">
+                                  <InputOTP maxLength={6} value={otpCode} onChange={setOtpCode}>
+                                    <InputOTPGroup>
+                                      {Array.from({ length: 6 }).map((_, i) => (
+                                        <InputOTPSlot key={i} index={i} />
+                                      ))}
+                                    </InputOTPGroup>
+                                  </InputOTP>
+                                </div>
+
+                                <Button onClick={verifyPhoneOtp} disabled={otpVerifying || otpSecondsLeft === 0} className="w-full">
+                                  {otpVerifying ? "Verifying…" : "Verify OTP"}
+                                </Button>
+
+                                {otpSecondsLeft === 0 && (
+                                  <p className="text-xs text-destructive">OTP expired — please resend.</p>
+                                )}
+                              </div>
                             )}
                           </div>
                         )}
-                      </div>
-                    )}
 
-                    {/* Email Auth */}
-                    {stepName === "email_auth" && (
-                      <div>
-                        <p className="text-sm text-muted-foreground mb-3">Your email: <span className="font-medium text-foreground">{user?.email}</span></p>
-                        <Button onClick={handleEmailAuth} disabled={status === "pending"} className="w-full">
-                          {user?.email_confirmed_at ? "Confirm Email Verified" : status === "pending" ? "Pending..." : "Verify Email"}
-                        </Button>
-                      </div>
-                    )}
-
-                    {/* ID Document Upload */}
-                    {stepName === "id_document" && (
-                      <div className="space-y-3">
-                        <div>
-                          <Label className="text-sm">Document Type</Label>
-                          <Select value={idType} onValueChange={setIdType}>
-                            <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="nin">NIN Slip</SelectItem>
-                              <SelectItem value="passport">International Passport</SelectItem>
-                              <SelectItem value="drivers_license">Driver License</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div>
-                          <Label className="text-sm">Upload Document</Label>
-                          <label className="mt-1 border-2 border-dashed border-border rounded-xl p-6 text-center hover:border-primary/50 transition-colors cursor-pointer block">
-                            <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-                            <p className="text-sm text-muted-foreground mb-1">Click to upload your {idType === "nin" ? "NIN Slip" : idType === "passport" ? "Passport" : "Driver License"}</p>
-                            <p className="text-xs text-muted-foreground">Accepted: JPG, PNG, PDF (max 10MB)</p>
-                            <input
-                              type="file"
-                              accept="image/*,.pdf"
-                              className="hidden"
-                              onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                if (file) handleFileUpload("id_document", file);
-                              }}
-                              disabled={uploading}
-                            />
-                          </label>
-                        </div>
-                        {step?.document_url && (
-                          <div className="p-2 rounded-lg bg-muted/50">
-                            <a href={step.document_url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline">View uploaded document</a>
+                        {/* Email Auth */}
+                        {stepName === "email_auth" && (
+                          <div>
+                            <p className="text-sm text-muted-foreground mb-3">Your email: <span className="font-medium text-foreground">{user?.email}</span></p>
+                            <Button onClick={handleEmailAuth} disabled={status === "pending"} className="w-full">
+                              {user?.email_confirmed_at ? "Confirm Email Verified" : status === "pending" ? "Pending..." : "Verify Email"}
+                            </Button>
                           </div>
                         )}
-                        {status === "pending" && (
-                          <p className="text-xs text-[hsl(var(--info))] flex items-center gap-1"><Clock className="h-3 w-3" /> Document submitted – under admin review</p>
-                        )}
-                      </div>
-                    )}
 
-                    {/* Live Selfie */}
-                    {stepName === "selfie" && (
-                      <div className="space-y-3">
-                        <p className="text-sm text-muted-foreground">Upload a clear selfie photo for identity matching.</p>
-                        <label className="mt-1 border-2 border-dashed border-border rounded-xl p-6 text-center hover:border-primary/50 transition-colors cursor-pointer block">
-                          <Camera className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-                          <p className="text-sm text-muted-foreground mb-1">Click to upload selfie photo</p>
-                          <p className="text-xs text-muted-foreground">Accepted: JPG, PNG (max 10MB)</p>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            className="hidden"
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) handleFileUpload("selfie", file);
-                            }}
-                            disabled={uploading}
-                          />
-                        </label>
-                        {step?.document_url && (
-                          <div className="p-2 rounded-lg bg-muted/50">
-                            <a href={step.document_url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline">View uploaded selfie</a>
+                        {/* ID Document Upload */}
+                        {stepName === "id_document" && (
+                          <div className="space-y-3">
+                            <div>
+                              <Label className="text-sm">Document Type</Label>
+                              <Select value={idType} onValueChange={setIdType}>
+                                <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="nin">NIN Slip</SelectItem>
+                                  <SelectItem value="passport">International Passport</SelectItem>
+                                  <SelectItem value="drivers_license">Driver License</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div>
+                              <Label className="text-sm">Upload Document</Label>
+                              <label className="mt-1 border-2 border-dashed border-border rounded-xl p-6 text-center hover:border-primary/50 transition-colors cursor-pointer block">
+                                <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                                <p className="text-sm text-muted-foreground mb-1">Click to upload your {idType === "nin" ? "NIN Slip" : idType === "passport" ? "Passport" : "Driver License"}</p>
+                                <p className="text-xs text-muted-foreground">Accepted: JPG, PNG, PDF (max 10MB)</p>
+                                <input
+                                  type="file"
+                                  accept="image/*,.pdf"
+                                  className="hidden"
+                                  onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file) handleFileUpload("id_document", file);
+                                  }}
+                                  disabled={uploading}
+                                />
+                              </label>
+                            </div>
+                            {step?.document_url && (
+                              <div className="p-2 rounded-lg bg-muted/50">
+                                <a href={step.document_url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline">View uploaded document</a>
+                              </div>
+                            )}
+                            {status === "pending" && (
+                              <p className="text-xs text-[hsl(var(--info))] flex items-center gap-1"><Clock className="h-3 w-3" /> Document submitted – under admin review</p>
+                            )}
                           </div>
                         )}
-                        {status === "pending" && (
-                          <p className="text-xs text-[hsl(var(--info))] flex items-center gap-1"><Clock className="h-3 w-3" /> Selfie submitted – under admin review</p>
+
+                        {/* Live Selfie */}
+                        {stepName === "selfie" && (
+                          <div className="space-y-3">
+                            <p className="text-sm text-muted-foreground">Upload a clear selfie photo for identity matching.</p>
+                            <label className="mt-1 border-2 border-dashed border-border rounded-xl p-6 text-center hover:border-primary/50 transition-colors cursor-pointer block">
+                              <Camera className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                              <p className="text-sm text-muted-foreground mb-1">Click to upload selfie photo</p>
+                              <p className="text-xs text-muted-foreground">Accepted: JPG, PNG (max 10MB)</p>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) handleFileUpload("selfie", file);
+                                }}
+                                disabled={uploading}
+                              />
+                            </label>
+                            {step?.document_url && (
+                              <div className="p-2 rounded-lg bg-muted/50">
+                                <a href={step.document_url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline">View uploaded selfie</a>
+                              </div>
+                            )}
+                            {status === "pending" && (
+                              <p className="text-xs text-[hsl(var(--info))] flex items-center gap-1"><Clock className="h-3 w-3" /> Selfie submitted – under admin review</p>
+                            )}
+                          </div>
                         )}
-                      </div>
-                    )}
 
-                    {/* NIN/BVN */}
-                    {stepName === "nin_bvn" && (
-                      <div className="space-y-3">
-                        <div>
-                          <Label className="text-sm">NIN or BVN Number</Label>
-                          <Input
-                            className="mt-1"
-                            placeholder="Enter your 11-digit NIN or BVN"
-                            value={ninBvnValue}
-                            onChange={(e) => setNinBvnValue(e.target.value)}
-                            maxLength={11}
-                          />
-                        </div>
-                        <Button onClick={handleNinBvnSubmit} disabled={status === "pending"} className="w-full">
-                          {status === "pending" ? "Under Admin Review" : status === "rejected" ? "Re-submit NIN/BVN" : "Submit for Validation"}
-                        </Button>
-                      </div>
-                    )}
+                        {/* NIN/BVN */}
+                        {stepName === "nin_bvn" && (
+                          <div className="space-y-3">
+                            <div>
+                              <Label className="text-sm">NIN or BVN Number</Label>
+                              <Input
+                                className="mt-1"
+                                placeholder="Enter your 11-digit NIN or BVN"
+                                value={ninBvnValue}
+                                onChange={(e) => setNinBvnValue(e.target.value)}
+                                maxLength={11}
+                              />
+                            </div>
+                            <Button onClick={handleNinBvnSubmit} disabled={status === "pending"} className="w-full">
+                              {status === "pending" ? "Under Admin Review" : status === "rejected" ? "Re-submit NIN/BVN" : "Submit for Validation"}
+                            </Button>
+                          </div>
+                        )}
 
-                    {/* Bank & Address */}
-                    {stepName === "bank_address" && (
-                      <div className="space-y-3">
-                        <div>
-                          <Label className="text-sm">Bank Name</Label>
-                          <Input className="mt-1" placeholder="e.g. First Bank, GTBank" value={bankName} onChange={(e) => setBankName(e.target.value)} />
-                        </div>
-                        <div>
-                          <Label className="text-sm">Account Number</Label>
-                          <Input className="mt-1" placeholder="10-digit account number" value={accountNumber} onChange={(e) => setAccountNumber(e.target.value)} maxLength={10} />
-                        </div>
-                        <div>
-                          <Label className="text-sm">Residential Address</Label>
-                          <Textarea className="mt-1" placeholder="Enter your full residential address" value={address} onChange={(e) => setAddress(e.target.value)} />
-                        </div>
-                        <div>
-                          <Label className="text-sm">Utility Bill (Optional proof of address)</Label>
-                          <label className="mt-1 border-2 border-dashed border-border rounded-xl p-4 text-center hover:border-primary/50 transition-colors cursor-pointer block">
-                            <Upload className="h-6 w-6 mx-auto text-muted-foreground mb-1" />
-                            <p className="text-xs text-muted-foreground">Upload utility bill</p>
-                            <input
-                              type="file"
-                              accept="image/*,.pdf"
-                              className="hidden"
-                              onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                if (file) handleFileUpload("bank_address", file);
-                              }}
-                              disabled={uploading}
-                            />
-                          </label>
-                        </div>
-                        <Button onClick={handleBankSubmit} disabled={status === "pending"} className="w-full">
-                          {status === "pending" ? "Under Admin Review" : status === "rejected" ? "Re-submit Details" : "Submit Bank & Address"}
-                        </Button>
+                        {/* Bank & Address */}
+                        {stepName === "bank_address" && (
+                          <div className="space-y-3">
+                            <div>
+                              <Label className="text-sm">Bank Name</Label>
+                              <Input className="mt-1" placeholder="e.g. First Bank, GTBank" value={bankName} onChange={(e) => setBankName(e.target.value)} />
+                            </div>
+                            <div>
+                              <Label className="text-sm">Account Number</Label>
+                              <Input className="mt-1" placeholder="10-digit account number" value={accountNumber} onChange={(e) => setAccountNumber(e.target.value)} maxLength={10} />
+                            </div>
+                            <div>
+                              <Label className="text-sm">Residential Address</Label>
+                              <Textarea className="mt-1" placeholder="Enter your full residential address" value={address} onChange={(e) => setAddress(e.target.value)} />
+                            </div>
+                            <div>
+                              <Label className="text-sm">Utility Bill (Optional proof of address)</Label>
+                              <label className="mt-1 border-2 border-dashed border-border rounded-xl p-4 text-center hover:border-primary/50 transition-colors cursor-pointer block">
+                                <Upload className="h-6 w-6 mx-auto text-muted-foreground mb-1" />
+                                <p className="text-xs text-muted-foreground">Upload utility bill</p>
+                                <input
+                                  type="file"
+                                  accept="image/*,.pdf"
+                                  className="hidden"
+                                  onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file) handleFileUpload("bank_address", file);
+                                  }}
+                                  disabled={uploading}
+                                />
+                              </label>
+                            </div>
+                            <Button onClick={handleBankSubmit} disabled={status === "pending"} className="w-full">
+                              {status === "pending" ? "Under Admin Review" : status === "rejected" ? "Re-submit Details" : "Submit Bank & Address"}
+                            </Button>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
-                )}
+                );
+              })}
+            </div>
+
+            {/* Continue Button */}
+            {progressPercent < 100 && (
+              <Button onClick={handleContinue} className="w-full h-12 font-semibold text-base rounded-xl shadow-elevated">
+                Continue Verification
+              </Button>
+            )}
+
+            {progressPercent === 100 && (
+              <div className="rounded-xl border-2 border-[hsl(var(--success))]/30 bg-[hsl(var(--success))]/5 p-6 text-center">
+                <CheckCircle className="h-10 w-10 mx-auto text-[hsl(var(--success))] mb-2" />
+                <h3 className="font-display text-lg font-bold text-foreground">All Steps Completed!</h3>
+                <p className="text-sm text-muted-foreground mt-1">Your documents are being reviewed. You'll be notified once verified.</p>
               </div>
-            );
-          })}
-        </div>
-
-        {/* Continue Button */}
-        {progressPercent < 100 && (
-          <Button onClick={handleContinue} className="w-full h-12 font-semibold text-base rounded-xl shadow-elevated">
-            Continue Verification
-          </Button>
-        )}
-
-        {progressPercent === 100 && (
-          <div className="rounded-xl border-2 border-[hsl(var(--success))]/30 bg-[hsl(var(--success))]/5 p-6 text-center">
-            <CheckCircle className="h-10 w-10 mx-auto text-[hsl(var(--success))] mb-2" />
-            <h3 className="font-display text-lg font-bold text-foreground">Fully Verified!</h3>
-            <p className="text-sm text-muted-foreground mt-1">Your identity has been verified. You now have full access to all platform features.</p>
-          </div>
-        )}
+            )}
+          </TabsContent>
+        </Tabs>
       </div>
     </AuthenticatedLayout>
   );
