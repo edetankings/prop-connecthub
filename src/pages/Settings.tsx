@@ -141,7 +141,42 @@ const Settings = () => {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  const savePreferences = async (key: string, value: boolean) => {
+  const handleAvatarRemove = async () => {
+    if (!user) return;
+    if (!profile?.avatar_url) return;
+
+    setUploadingAvatar(true);
+    try {
+      const urlNoQuery = profile.avatar_url.split("?")[0];
+      const marker = "/storage/v1/object/public/avatars/";
+      const idx = urlNoQuery.indexOf(marker);
+      const filePath = idx >= 0 ? decodeURIComponent(urlNoQuery.slice(idx + marker.length)) : null;
+
+      if (filePath) {
+        const { error: removeErr } = await supabase.storage.from("avatars").remove([filePath]);
+        if (removeErr) {
+          // Best-effort: still clear the profile even if storage delete fails
+          console.warn("Failed to remove avatar from storage:", removeErr);
+        }
+      }
+
+      const { error: updateError } = await supabase
+        .from("profiles")
+        .update({ avatar_url: null })
+        .eq("user_id", user.id);
+
+      if (updateError) {
+        toast.error("Failed to remove profile picture");
+        return;
+      }
+
+      toast.success("Profile picture removed");
+      await refreshProfile();
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
     if (!user) return;
     const updates: Record<string, boolean> = {
       push_enabled: pushEnabled,
