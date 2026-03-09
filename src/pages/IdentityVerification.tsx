@@ -1,11 +1,28 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Phone, Mail, FileText, Camera, CreditCard, Building2, CheckCircle, Clock, XCircle, Lock, AlertTriangle, ChevronRight, Upload, Info } from "lucide-react";
+import {
+  ArrowLeft,
+  Phone,
+  Mail,
+  FileText,
+  Camera,
+  CreditCard,
+  Building2,
+  CheckCircle,
+  Clock,
+  XCircle,
+  Lock,
+  AlertTriangle,
+  ChevronRight,
+  Upload,
+  Info,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/useAuth";
@@ -51,8 +68,44 @@ const IdentityVerification = () => {
   const [accountNumber, setAccountNumber] = useState("");
   const [address, setAddress] = useState("");
 
+  // Phone OTP state
+  const [phoneNumber, setPhoneNumber] = useState(profile?.phone || "");
+  const [otpCode, setOtpCode] = useState("");
+  const [otpSending, setOtpSending] = useState(false);
+  const [otpVerifying, setOtpVerifying] = useState(false);
+  const [otpExpiresAt, setOtpExpiresAt] = useState<number | null>(null);
+  const [otpResendAvailableAt, setOtpResendAvailableAt] = useState<number | null>(null);
+
+  // Ticker for countdowns
+  const [nowMs, setNowMs] = useState(() => Date.now());
+
   const userId = user?.id;
   const userCode = userId ? `PC-${userId.slice(0, 5).toUpperCase()}` : "PC-00000";
+
+  useEffect(() => {
+    setPhoneNumber(profile?.phone || "");
+  }, [profile?.phone]);
+
+  useEffect(() => {
+    const id = window.setInterval(() => setNowMs(Date.now()), 250);
+    return () => window.clearInterval(id);
+  }, []);
+
+  const otpSecondsLeft = useMemo(() => {
+    if (!otpExpiresAt) return 0;
+    return Math.max(0, Math.ceil((otpExpiresAt - nowMs) / 1000));
+  }, [otpExpiresAt, nowMs]);
+
+  const resendSecondsLeft = useMemo(() => {
+    if (!otpResendAvailableAt) return 0;
+    return Math.max(0, Math.ceil((otpResendAvailableAt - nowMs) / 1000));
+  }, [otpResendAvailableAt, nowMs]);
+
+  const formatCountdown = (seconds: number) => {
+    const mm = Math.floor(seconds / 60);
+    const ss = seconds % 60;
+    return `${mm}:${String(ss).padStart(2, "0")}`;
+  };
 
   const statusBadge = () => {
     const s = overallStatus();
@@ -104,17 +157,58 @@ const IdentityVerification = () => {
     setUploading(false);
   };
 
-  const handlePhoneOtp = async () => {
+  const sendPhoneOtp = async () => {
     if (!userId) return;
-    await updateStep("phone_otp", { status: "pending" });
-    await (supabase as any).from("notifications").insert({
-      user_id: userId,
-      title: "Phone Verification Submitted",
-      message: "Your phone verification is pending admin review.",
-      type: "info",
-      link: "/verification",
-    });
-    toast.info("Phone verification submitted for admin review.");
+    if (!phoneNumber.trim()) {
+      toast.error("Please enter your phone number");
+      return;
+    }
+
+    setOtpSending(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("send-phone-otp", {
+        body: { phone: phoneNumber },
+      });
+
+      if (error) throw error;
+      if ((data as any)?.error) throw new Error((data as any).error);
+
+      await updateStep("phone_otp", { status: "pending" });
+      setOtpExpiresAt(Date.now() + 5 * 60 * 1000);
+      setOtpResendAvailableAt(Date.now() + 30 * 1000);
+      toast.success("OTP sent to your phone");
+    } catch (e: any) {
+      toast.error(e.message || "Failed to send OTP");
+    } finally {
+      setOtpSending(false);
+    }
+  };
+
+  const verifyPhoneOtp = async () => {
+    if (!userId) return;
+    if (!otpCode || otpCode.length < 4) {
+      toast.error("Enter the OTP code");
+      return;
+    }
+
+    setOtpVerifying(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("verify-phone-otp", {
+        body: { phone: phoneNumber, code: otpCode },
+      });
+      if (error) throw error;
+      if ((data as any)?.error) throw new Error((data as any).error);
+
+      await updateStep("phone_otp", { status: "approved" });
+      setOtpCode("");
+      setOtpExpiresAt(null);
+      setOtpResendAvailableAt(null);
+      toast.success("Phone number verified");
+    } catch (e: any) {
+      toast.error(e.message || "Invalid OTP");
+    } finally {
+      setOtpVerifying(false);
+    }
   };
 
   const handleEmailAuth = async () => {
@@ -266,7 +360,15 @@ const IdentityVerification = () => {
                 {/* Pending notice */}
                 {status === "pending" && !isExpanded && (
                   <div className="mx-4 mb-3 p-2 rounded-lg bg-[hsl(var(--info))]/5 border border-[hsl(var(--info))]/20">
-                    <p className="text-xs text-[hsl(var(--info))] flex items-center gap-1"><Clock className="h-3 w-3" /> Submitted – awaiting admin review</p>
+                    {stepName === "phone_otp" ? (
+                      <p className="text-xs text-[hsl(var(--info))] flex items-center gap-1">
+                        <Clock className="h-3 w-3" /> OTP sent – awaiting confirmation
+                      </p>
+                    ) : (
+                      <p className="text-xs text-[hsl(var(--info))] flex items-center gap-1">
+                        <Clock className="h-3 w-3" /> Submitted – awaiting admin review
+                      </p>
+                    )}
                   </div>
                 )}
 
@@ -283,11 +385,58 @@ const IdentityVerification = () => {
                   <div className="border-t border-border p-4 space-y-4">
                     {/* Phone OTP */}
                     {stepName === "phone_otp" && (
-                      <div>
-                        <p className="text-sm text-muted-foreground mb-3">We'll send your phone verification request to admin for approval.</p>
-                        <Button onClick={handlePhoneOtp} disabled={status === "pending"} className="w-full">
-                          {status === "pending" ? "Pending Review..." : status === "rejected" ? "Re-submit Phone Verification" : "Submit Phone Verification"}
+                      <div className="space-y-3">
+                        <div>
+                          <Label className="text-sm">Phone Number</Label>
+                          <Input
+                            className="mt-1"
+                            placeholder="+234..."
+                            value={phoneNumber}
+                            onChange={(e) => setPhoneNumber(e.target.value)}
+                          />
+                        </div>
+
+                        <Button
+                          onClick={sendPhoneOtp}
+                          disabled={otpSending || resendSecondsLeft > 0}
+                          className="w-full"
+                          variant={status === "pending" ? "outline" : "default"}
+                        >
+                          {otpSending
+                            ? "Sending OTP…"
+                            : resendSecondsLeft > 0
+                              ? `Resend available in ${resendSecondsLeft}s`
+                              : status === "pending"
+                                ? "Resend OTP"
+                                : "Send OTP"}
                         </Button>
+
+                        {otpExpiresAt && (
+                          <div className="rounded-xl border border-border bg-muted/30 p-4 space-y-3">
+                            <div className="flex items-center justify-between">
+                              <p className="text-sm font-medium text-foreground">Enter OTP</p>
+                              <p className="text-xs text-muted-foreground">Expires in {formatCountdown(otpSecondsLeft)}</p>
+                            </div>
+
+                            <div className="flex justify-center">
+                              <InputOTP maxLength={6} value={otpCode} onChange={setOtpCode}>
+                                <InputOTPGroup>
+                                  {Array.from({ length: 6 }).map((_, i) => (
+                                    <InputOTPSlot key={i} index={i} />
+                                  ))}
+                                </InputOTPGroup>
+                              </InputOTP>
+                            </div>
+
+                            <Button onClick={verifyPhoneOtp} disabled={otpVerifying || otpSecondsLeft === 0} className="w-full">
+                              {otpVerifying ? "Verifying…" : "Verify OTP"}
+                            </Button>
+
+                            {otpSecondsLeft === 0 && (
+                              <p className="text-xs text-destructive">OTP expired — please resend.</p>
+                            )}
+                          </div>
+                        )}
                       </div>
                     )}
 

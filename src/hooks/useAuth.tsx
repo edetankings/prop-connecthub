@@ -10,6 +10,8 @@ interface Profile {
   full_name: string;
   profile_type: "buyer" | "agent" | "builder";
   phone: string | null;
+  phone_verified?: boolean;
+  phone_verified_at?: string | null;
   avatar_url: string | null;
   bio: string | null;
   location: string | null;
@@ -26,7 +28,7 @@ interface AuthContextType {
   profile: Profile | null;
   isAdmin: boolean;
   loading: boolean;
-  signUp: (email: string, password: string, fullName: string, profileType: string) => Promise<void>;
+  signUp: (email: string, password: string, fullName: string, profileType: string, phone: string) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
@@ -100,12 +102,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (email: string, password: string, fullName: string, profileType: string) => {
+  const signUp = async (email: string, password: string, fullName: string, profileType: string, phone: string) => {
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: { full_name: fullName, profile_type: profileType },
+        data: { full_name: fullName, profile_type: profileType, phone },
         emailRedirectTo: window.location.origin,
       },
     });

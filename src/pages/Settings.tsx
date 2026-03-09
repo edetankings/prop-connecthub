@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   User, Lock, Bell, Shield, HelpCircle, MessageSquare, AlertOctagon,
-  LogOut, ChevronRight, Camera, CheckCircle, Edit3, Save, X
+  LogOut, ChevronRight, Camera, CheckCircle, Edit3, Save, X, Trash2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -141,6 +141,42 @@ const Settings = () => {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
+  const handleAvatarRemove = async () => {
+    if (!user) return;
+    if (!profile?.avatar_url) return;
+
+    setUploadingAvatar(true);
+    try {
+      const urlNoQuery = profile.avatar_url.split("?")[0];
+      const marker = "/storage/v1/object/public/avatars/";
+      const idx = urlNoQuery.indexOf(marker);
+      const filePath = idx >= 0 ? decodeURIComponent(urlNoQuery.slice(idx + marker.length)) : null;
+
+      if (filePath) {
+        const { error: removeErr } = await supabase.storage.from("avatars").remove([filePath]);
+        if (removeErr) {
+          // Best-effort: still clear the profile even if storage delete fails
+          console.warn("Failed to remove avatar from storage:", removeErr);
+        }
+      }
+
+      const { error: updateError } = await supabase
+        .from("profiles")
+        .update({ avatar_url: null })
+        .eq("user_id", user.id);
+
+      if (updateError) {
+        toast.error("Failed to remove profile picture");
+        return;
+      }
+
+      toast.success("Profile picture removed");
+      await refreshProfile();
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
   const savePreferences = async (key: string, value: boolean) => {
     if (!user) return;
     const updates: Record<string, boolean> = {
@@ -241,6 +277,19 @@ const Settings = () => {
                   <CheckCircle className="h-3 w-3 mr-1" /> Verified
                 </Badge>
               )}
+
+              {profile?.avatar_url && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="mt-3 w-full gap-2"
+                  onClick={handleAvatarRemove}
+                  disabled={uploadingAvatar}
+                >
+                  <Trash2 className="h-4 w-4" /> Remove profile picture
+                </Button>
+              )}
+
               <p className="text-xs text-muted-foreground mt-2">
                 Member since {user ? new Date(user.created_at ?? Date.now()).toLocaleDateString("en-NG", { month: "long", year: "numeric" }) : "—"}
               </p>

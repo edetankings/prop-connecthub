@@ -249,6 +249,45 @@ export type Database = {
         }
         Relationships: []
       }
+      phone_otp_challenges: {
+        Row: {
+          attempts: number
+          created_at: string
+          expires_at: string
+          id: string
+          last_sent_at: string
+          max_attempts: number
+          otp_hash: string
+          phone: string
+          purpose: string
+          user_id: string | null
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          expires_at: string
+          id?: string
+          last_sent_at?: string
+          max_attempts?: number
+          otp_hash: string
+          phone: string
+          purpose?: string
+          user_id?: string | null
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          expires_at?: string
+          id?: string
+          last_sent_at?: string
+          max_attempts?: number
+          otp_hash?: string
+          phone?: string
+          purpose?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -261,6 +300,8 @@ export type Database = {
           kyc_verified: boolean
           location: string | null
           phone: string | null
+          phone_verified: boolean
+          phone_verified_at: string | null
           profile_type: Database["public"]["Enums"]["profile_type"]
           properties_listed: number
           trust_score: number
@@ -279,6 +320,8 @@ export type Database = {
           kyc_verified?: boolean
           location?: string | null
           phone?: string | null
+          phone_verified?: boolean
+          phone_verified_at?: string | null
           profile_type?: Database["public"]["Enums"]["profile_type"]
           properties_listed?: number
           trust_score?: number
@@ -297,6 +340,8 @@ export type Database = {
           kyc_verified?: boolean
           location?: string | null
           phone?: string | null
+          phone_verified?: boolean
+          phone_verified_at?: string | null
           profile_type?: Database["public"]["Enums"]["profile_type"]
           properties_listed?: number
           trust_score?: number

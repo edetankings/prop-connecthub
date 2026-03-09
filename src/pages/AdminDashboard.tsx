@@ -86,8 +86,26 @@ const AdminDashboard = () => {
   };
 
   const handleDocumentReview = async (docId: string, status: "approved" | "rejected") => {
-    const { error } = await supabase.from("verification_documents").update({ status }).eq("id", docId);
-    if (error) { toast.error(error.message); return; }
+    const { data: doc, error } = await supabase
+      .from("verification_documents")
+      .update({ status })
+      .eq("id", docId)
+      .select("*")
+      .maybeSingle();
+
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+
+    if (status === "approved" && doc?.user_id) {
+      const { error: profErr } = await supabase
+        .from("profiles")
+        .update({ kyc_verified: true, trust_score: 80 })
+        .eq("user_id", doc.user_id);
+      if (profErr) toast.error("Document approved, but failed to update KYC status");
+    }
+
     toast.success(`Document ${status}`);
     loadData();
   };
@@ -170,20 +188,20 @@ const AdminDashboard = () => {
         .select("*")
         .eq("user_id", stepUserId);
       
-      if (allSteps && allSteps.every((s: any) => s.status === "approved")) {
-        // Mark profile as fully verified
-        const userProfile = profiles.find((p: any) => p.user_id === stepUserId);
-        if (userProfile) {
-          await supabase.from("profiles").update({ kyc_verified: true, trust_score: 85 }).eq("id", userProfile.id);
-        }
-        await (supabase as any).from("notifications").insert({
-          user_id: stepUserId,
-          title: "Account Fully Verified! ✅",
-          message: "Congratulations! Your account verification has been approved. You now have full access to all platform features.",
-          type: "success",
-          link: "/verification",
-        });
-      }
+       if (allSteps && allSteps.every((s: any) => s.status === "approved")) {
+         // Mark profile as fully verified
+         const userProfile = profiles.find((p: any) => p.user_id === stepUserId);
+         if (userProfile) {
+           await supabase.from("profiles").update({ kyc_verified: true, trust_score: 80 }).eq("id", userProfile.id);
+         }
+         await (supabase as any).from("notifications").insert({
+           user_id: stepUserId,
+           title: "Account Fully Verified! ✅",
+           message: "Congratulations! Your account verification has been approved. You now have full access to all platform features.",
+           type: "success",
+           link: "/verification",
+         });
+       }
     }
 
     // If rejected, ensure profile is not marked as verified
@@ -1086,7 +1104,11 @@ const AdminDashboard = () => {
                                 className="text-xs gap-1"
                                 onClick={async () => {
                                   if (!window.confirm("Delete this announcement?")) return;
-                                  await (supabase as any).from("announcements").delete().eq("id", a.id);
+                                  const { error } = await (supabase as any).from("announcements").delete().eq("id", a.id);
+                                  if (error) {
+                                    toast.error(error.message);
+                                    return;
+                                  }
                                   toast.success("Announcement deleted");
                                   loadData();
                                 }}

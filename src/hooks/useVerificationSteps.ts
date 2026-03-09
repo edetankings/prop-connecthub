@@ -28,7 +28,7 @@ const STEP_LABELS: Record<StepName, string> = {
 };
 
 export function useVerificationSteps() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [steps, setSteps] = useState<VerificationStep[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -54,7 +54,7 @@ export function useVerificationSteps() {
         step_name,
         status: "not_started",
       }));
-      if (user.phone) inserts[0].status = "approved";
+      if (profile?.phone_verified) inserts[0].status = "approved";
       if (user.email_confirmed_at) inserts[1].status = "approved";
 
       const { data: created, error: insertErr } = await (supabase as any)
@@ -69,14 +69,22 @@ export function useVerificationSteps() {
       const phoneStep = data.find((s: any) => s.step_name === "phone_otp");
       const emailStep = data.find((s: any) => s.step_name === "email_auth");
 
-      if (phoneStep && phoneStep.status === "not_started" && user.phone) {
+      if (phoneStep && phoneStep.status === "not_started" && profile?.phone_verified) {
         updates.push(
-          (supabase as any).from("verification_steps").update({ status: "approved" }).eq("id", phoneStep.id).then(() => {})
+          (supabase as any)
+            .from("verification_steps")
+            .update({ status: "approved" })
+            .eq("id", phoneStep.id)
+            .then(() => {}),
         );
       }
       if (emailStep && emailStep.status === "not_started" && user.email_confirmed_at) {
         updates.push(
-          (supabase as any).from("verification_steps").update({ status: "approved" }).eq("id", emailStep.id).then(() => {})
+          (supabase as any)
+            .from("verification_steps")
+            .update({ status: "approved" })
+            .eq("id", emailStep.id)
+            .then(() => {}),
         );
       }
 
@@ -93,7 +101,7 @@ export function useVerificationSteps() {
       }
     }
     setLoading(false);
-  }, [user]);
+  }, [user, profile?.phone_verified]);
 
   useEffect(() => {
     fetchSteps();
