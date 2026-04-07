@@ -22,11 +22,11 @@ const Earnings = () => {
   const loadData = async () => {
     setLoading(true);
     const [earningsRes, referralsRes] = await Promise.all([
-      supabase.from("earnings" as any).select("*").eq("user_id", user!.id).order("created_at", { ascending: false }),
-      supabase.from("profiles").select("id").eq("referred_by" as any, profile!.id),
+      (supabase as any).from("earnings").select("*").eq("user_id", user!.id).order("created_at", { ascending: false }),
+      (supabase as any).from("profiles").select("id").eq("referred_by", profile!.id),
     ]);
-    setEarnings((earningsRes.data as any[]) || []);
-    setReferralCount((referralsRes.data as any[])?.length || 0);
+    setEarnings(earningsRes.data || []);
+    setReferralCount(referralsRes.data?.length || 0);
     setLoading(false);
   };
 
@@ -34,7 +34,7 @@ const Earnings = () => {
   const rentRewards = earnings.filter(e => e.type === "rent_reward").reduce((s, e) => s + (e.amount || 0), 0);
   const saleRewards = earnings.filter(e => e.type === "sale_reward").reduce((s, e) => s + (e.amount || 0), 0);
 
-  const referralLink = profile?.referral_code
+  const referralLink = (profile as any)?.referral_code
     ? `${window.location.origin}/register?ref=${(profile as any).referral_code}`
     : null;
 

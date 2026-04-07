@@ -16,6 +16,8 @@ const passwordRules = [
 ];
 
 const Register = () => {
+  const [searchParams] = useSearchParams();
+  const refCode = searchParams.get("ref") || "";
   const [showPw, setShowPw] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [name, setName] = useState("");
