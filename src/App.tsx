@@ -27,6 +27,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import AddProperty from "./pages/AddProperty";
 import Settings from "./pages/Settings";
 import IdentityVerification from "./pages/IdentityVerification";
+import Earnings from "./pages/Earnings";
 import NotFound from "./pages/NotFound";
 import WelcomeModal from "./components/WelcomeModal";
 
@@ -64,6 +65,7 @@ const App = () => (
             <Route path="/add-property" element={<ProtectedRoute><AddProperty /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
             <Route path="/verification" element={<ProtectedRoute><IdentityVerification /></ProtectedRoute>} />
+            <Route path="/earnings" element={<ProtectedRoute><Earnings /></ProtectedRoute>} />
             <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>

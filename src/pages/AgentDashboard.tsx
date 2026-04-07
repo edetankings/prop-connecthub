@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Plus, Building, MessageCircle, Star, Wallet, TrendingUp, ShieldCheck, AlertTriangle, FileText, Settings, LayoutDashboard, Trash2, CalendarCheck, CheckCircle, XCircle } from "lucide-react";
+import { Plus, Building, MessageCircle, Star, Wallet, TrendingUp, ShieldCheck, AlertTriangle, FileText, Settings, LayoutDashboard, Trash2, CalendarCheck, CheckCircle, XCircle, DollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
@@ -142,11 +142,18 @@ const AgentDashboard = () => {
             <h1 className="font-display text-3xl font-bold text-foreground">Hello, {firstName}! 🏗️</h1>
             <p className="mt-1 text-muted-foreground">Manage your listings and grow your business</p>
           </div>
-          <Link to="/add-property">
-            <Button className="gap-2 bg-secondary text-secondary-foreground hover:bg-secondary/90 shrink-0">
-              <Plus className="h-4 w-4" /> Add Property
-            </Button>
-          </Link>
+          <div className="flex gap-2">
+            <Link to="/add-property">
+              <Button className="gap-2 bg-secondary text-secondary-foreground hover:bg-secondary/90 shrink-0">
+                <Plus className="h-4 w-4" /> Add Property
+              </Button>
+            </Link>
+            <Link to="/earnings">
+              <Button variant="outline" className="gap-2 shrink-0">
+                <DollarSign className="h-4 w-4" /> Earnings
+              </Button>
+            </Link>
+          </div>
         </div>
 
         {/* Stats */}
