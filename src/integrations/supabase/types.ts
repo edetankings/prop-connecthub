@@ -174,6 +174,44 @@ export type Database = {
           },
         ]
       }
+      earnings: {
+        Row: {
+          amount: number
+          created_at: string
+          description: string | null
+          id: string
+          transaction_id: string | null
+          type: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          transaction_id?: string | null
+          type: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          transaction_id?: string | null
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "earnings_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       kyc_verifications: {
         Row: {
           account_number: string | null
@@ -370,6 +408,8 @@ export type Database = {
           phone_verified_at: string | null
           profile_type: Database["public"]["Enums"]["profile_type"]
           properties_listed: number
+          referral_code: string | null
+          referred_by: string | null
           trust_score: number
           updated_at: string
           user_id: string
@@ -390,6 +430,8 @@ export type Database = {
           phone_verified_at?: string | null
           profile_type?: Database["public"]["Enums"]["profile_type"]
           properties_listed?: number
+          referral_code?: string | null
+          referred_by?: string | null
           trust_score?: number
           updated_at?: string
           user_id: string
@@ -410,12 +452,22 @@ export type Database = {
           phone_verified_at?: string | null
           profile_type?: Database["public"]["Enums"]["profile_type"]
           properties_listed?: number
+          referral_code?: string | null
+          referred_by?: string | null
           trust_score?: number
           updated_at?: string
           user_id?: string
           welcome_seen?: boolean
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_referred_by_fkey"
+            columns: ["referred_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       properties: {
         Row: {
@@ -859,6 +911,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_referral_code: { Args: never; Returns: string }
       get_my_profile_id: { Args: never; Returns: string }
       has_role: {
         Args: {
