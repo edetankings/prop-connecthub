@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { Shield, Eye, EyeOff, CheckCircle, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,6 +16,8 @@ const passwordRules = [
 ];
 
 const Register = () => {
+  const [searchParams] = useSearchParams();
+  const refCode = searchParams.get("ref") || "";
   const [showPw, setShowPw] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [name, setName] = useState("");
@@ -47,7 +49,7 @@ const Register = () => {
 
     setLoading(true);
     try {
-      await signUp(email, password, name, profileType, phone);
+      await signUp(email, password, name, profileType, phone, refCode || undefined);
       setSuccess(true);
     } catch (err: any) {
       setError(err.message || "Registration failed");

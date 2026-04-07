@@ -28,7 +28,7 @@ interface AuthContextType {
   profile: Profile | null;
   isAdmin: boolean;
   loading: boolean;
-  signUp: (email: string, password: string, fullName: string, profileType: string, phone: string) => Promise<void>;
+  signUp: (email: string, password: string, fullName: string, profileType: string, phone: string, referralCode?: string) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
@@ -102,16 +102,36 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (email: string, password: string, fullName: string, profileType: string, phone: string) => {
-    const { error } = await supabase.auth.signUp({
+  const signUp = async (email: string, password: string, fullName: string, profileType: string, phone: string, referralCode?: string) => {
+    const { error, data } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: { full_name: fullName, profile_type: profileType, phone },
+        data: { full_name: fullName, profile_type: profileType, phone, referral_code: referralCode },
         emailRedirectTo: window.location.origin,
       },
     });
     if (error) throw error;
+
+    // If referral code provided, link the referred_by after profile is created
+    if (referralCode && data.user) {
+      // Find the referrer profile by referral_code
+      const { data: referrer } = await (supabase as any)
+        .from("profiles")
+        .select("id")
+        .eq("referral_code", referralCode)
+        .maybeSingle();
+      if (referrer) {
+        // Wait briefly for the trigger to create the profile, then update
+        setTimeout(async () => {
+          await (supabase as any)
+            .from("profiles")
+            .update({ referred_by: referrer.id })
+            .eq("user_id", data.user!.id);
+        }, 2000);
+      }
+    }
+
     toast.success("Check your email to verify your account!");
   };
 

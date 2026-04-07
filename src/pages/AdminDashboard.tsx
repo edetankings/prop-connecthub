@@ -14,7 +14,7 @@ import {
 import { toast } from "sonner";
 import { PieChart as RechartsPie, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
-type Tab = "dashboard" | "users" | "moderation" | "disputes" | "audit" | "verification" | "reservations" | "support" | "announcements";
+type Tab = "dashboard" | "users" | "moderation" | "disputes" | "audit" | "verification" | "reservations" | "support" | "announcements" | "earnings";
 
 const AdminDashboard = () => {
   const { user } = useAuth();
@@ -33,6 +33,7 @@ const AdminDashboard = () => {
   const [dbAnnouncements, setDbAnnouncements] = useState<any[]>([]);
   const [annForm, setAnnForm] = useState({ title: "", content: "", type: "update" });
   const [editingAnnId, setEditingAnnId] = useState<string | null>(null);
+  const [allEarnings, setAllEarnings] = useState<any[]>([]);
   const [showAnnForm, setShowAnnForm] = useState(false);
 
   useEffect(() => { loadData(); }, []);
@@ -74,6 +75,12 @@ const AdminDashboard = () => {
       .select("*, profiles!announcements_author_id_fkey(full_name)")
       .order("created_at", { ascending: false });
     setDbAnnouncements(annData || []);
+
+    const { data: earningsData } = await (supabase as any)
+      .from("earnings")
+      .select("*")
+      .order("created_at", { ascending: false });
+    setAllEarnings(earningsData || []);
 
     setLoading(false);
   };
@@ -274,6 +281,7 @@ const AdminDashboard = () => {
     { id: "reservations" as Tab, label: "Reservations", icon: CalendarCheck, count: allReservations.filter((r: any) => r.status === "pending").length },
     { id: "support" as Tab, label: "Support Messages", icon: MessageSquare, count: supportTickets.filter((t: any) => t.status === "open").length },
     { id: "announcements" as Tab, label: "Announcements", icon: Megaphone, count: dbAnnouncements.length },
+    { id: "earnings" as Tab, label: "Earnings", icon: DollarSign },
   ];
 
   // Selected user details for verification review
@@ -1122,6 +1130,120 @@ const AdminDashboard = () => {
                     ))}
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* EARNINGS TAB */}
+            {tab === "earnings" && (
+              <div className="space-y-6">
+                <h2 className="font-display text-xl font-bold text-foreground">Earnings Overview</h2>
+                
+                {/* Summary Cards */}
+                <div className="grid gap-4 md:grid-cols-3">
+                  <GlassCard icon={DollarSign} label="Total Earnings Distributed" value={`₦${allEarnings.reduce((s: number, e: any) => s + (e.amount || 0), 0).toLocaleString()}`} />
+                  <GlassCard icon={TrendingUp} label="Rent Rewards" value={`₦${allEarnings.filter((e: any) => e.type === "rent_reward").reduce((s: number, e: any) => s + (e.amount || 0), 0).toLocaleString()}`} />
+                  <GlassCard icon={Building} label="Sale Rewards" value={`₦${allEarnings.filter((e: any) => e.type === "sale_reward").reduce((s: number, e: any) => s + (e.amount || 0), 0).toLocaleString()}`} />
+                </div>
+
+                {/* Top Earning Agents */}
+                <Card className="border-border/50 shadow-card">
+                  <CardHeader><CardTitle className="text-base">Top Earning Agents</CardTitle></CardHeader>
+                  <CardContent>
+                    {(() => {
+                      const agentTotals: Record<string, number> = {};
+                      allEarnings.forEach((e: any) => {
+                        agentTotals[e.user_id] = (agentTotals[e.user_id] || 0) + (e.amount || 0);
+                      });
+                      const sorted = Object.entries(agentTotals).sort((a, b) => b[1] - a[1]).slice(0, 10);
+                      if (sorted.length === 0) return <p className="text-muted-foreground text-sm">No earnings data yet.</p>;
+                      return (
+                        <div className="space-y-2">
+                          {sorted.map(([uid, total], i) => {
+                            const p = profiles.find((pr: any) => pr.user_id === uid);
+                            return (
+                              <div key={uid} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                                <div className="flex items-center gap-3">
+                                  <span className="text-sm font-bold text-muted-foreground">#{i + 1}</span>
+                                  <span className="text-sm font-medium text-foreground">{p?.full_name || "Unknown"}</span>
+                                </div>
+                                <span className="font-bold text-foreground">₦{total.toLocaleString()}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      );
+                    })()}
+                  </CardContent>
+                </Card>
+
+                {/* Referral Tree */}
+                <Card className="border-border/50 shadow-card">
+                  <CardHeader><CardTitle className="text-base">Referral Tree (Who Referred Who)</CardTitle></CardHeader>
+                  <CardContent>
+                    {(() => {
+                      const referrers = profiles.filter((p: any) => p.referral_code);
+                      const tree = referrers.map((r: any) => {
+                        const referred = profiles.filter((p: any) => p.referred_by === r.id);
+                        return { referrer: r, referred };
+                      }).filter(t => t.referred.length > 0);
+                      if (tree.length === 0) return <p className="text-muted-foreground text-sm">No referrals yet.</p>;
+                      return (
+                        <div className="space-y-3">
+                          {tree.map(({ referrer, referred }) => (
+                            <div key={referrer.id} className="p-3 rounded-lg border border-border">
+                              <p className="font-medium text-foreground text-sm">{referrer.full_name} <span className="text-muted-foreground">({referrer.referral_code})</span></p>
+                              <div className="mt-2 ml-4 space-y-1">
+                                {referred.map((ref: any) => (
+                                  <p key={ref.id} className="text-xs text-muted-foreground">↳ {ref.full_name} ({ref.profile_type})</p>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      );
+                    })()}
+                  </CardContent>
+                </Card>
+
+                {/* All Earnings Log */}
+                <Card className="border-border/50 shadow-card">
+                  <CardHeader><CardTitle className="text-base">All Earnings Log</CardTitle></CardHeader>
+                  <CardContent>
+                    {allEarnings.length === 0 ? (
+                      <p className="text-muted-foreground text-sm">No earnings recorded.</p>
+                    ) : (
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="border-b border-border text-muted-foreground">
+                              <th className="text-left py-2 px-3 font-medium">Date</th>
+                              <th className="text-left py-2 px-3 font-medium">Agent</th>
+                              <th className="text-left py-2 px-3 font-medium">Type</th>
+                              <th className="text-left py-2 px-3 font-medium">Description</th>
+                              <th className="text-right py-2 px-3 font-medium">Amount</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {allEarnings.map((e: any) => {
+                              const p = profiles.find((pr: any) => pr.user_id === e.user_id);
+                              return (
+                                <tr key={e.id} className="border-b border-border/50">
+                                  <td className="py-2 px-3">{new Date(e.created_at).toLocaleDateString()}</td>
+                                  <td className="py-2 px-3">{p?.full_name || "Unknown"}</td>
+                                  <td className="py-2 px-3">
+                                    <Badge variant="outline" className="text-xs">{e.type?.replace(/_/g, " ")}</Badge>
+                                  </td>
+                                  <td className="py-2 px-3 text-muted-foreground">{e.description || "—"}</td>
+                                  <td className="py-2 px-3 text-right font-bold">₦{(e.amount || 0).toLocaleString()}</td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
               </div>
             )}
           </>
