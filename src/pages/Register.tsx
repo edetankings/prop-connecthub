@@ -49,7 +49,7 @@ const Register = () => {
 
     setLoading(true);
     try {
-      await signUp(email, password, name, profileType, phone);
+      await signUp(email, password, name, profileType, phone, refCode || undefined);
       setSuccess(true);
     } catch (err: any) {
       setError(err.message || "Registration failed");
