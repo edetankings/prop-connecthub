@@ -11,7 +11,6 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Verify the caller is an admin
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
       return new Response(JSON.stringify({ error: 'No authorization header' }), {
@@ -21,9 +20,9 @@ Deno.serve(async (req) => {
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabaseAnonKey = Deno.env.get('SUPABASE_PUBLISHABLE_KEY')!;
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
 
-    // Create client with user's token to check admin role
+    // Verify caller is admin
     const userClient = createClient(supabaseUrl, supabaseAnonKey, {
       global: { headers: { Authorization: authHeader } },
     });
@@ -35,7 +34,6 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Check admin role
     const { data: isAdmin } = await userClient.rpc('has_role', {
       _user_id: callerUser.id,
       _role: 'admin',
@@ -54,34 +52,57 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Prevent self-deletion
     if (user_id === callerUser.id) {
       return new Response(JSON.stringify({ error: 'Cannot delete your own account' }), {
         status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    // Use service role to delete the user from auth (cascades to profiles etc.)
     const adminClient = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Get profile ID for this user
+    const { data: profile } = await adminClient
+      .from('profiles')
+      .select('id')
+      .eq('user_id', user_id)
+      .maybeSingle();
+
+    const profileId = profile?.id;
+
+    // Clean up data that might not cascade automatically
+    // Delete earnings (has CASCADE via FK now, but be thorough)
+    await adminClient.from('earnings').delete().eq('user_id', user_id);
+
+    // Delete transactions where user is buyer or seller
+    await adminClient.from('transactions').delete().or(`buyer_id.eq.${user_id},seller_id.eq.${user_id}`);
+
+    // Nullify referred_by references pointing to this profile
+    if (profileId) {
+      await adminClient.from('profiles').update({ referred_by: null }).eq('referred_by', profileId);
+    }
+
+    // Log the action before deletion
+    await adminClient.from('audit_logs').insert({
+      user_id: callerUser.id,
+      action: 'admin_delete_user',
+      details: { deleted_user_id: user_id, deleted_profile_id: profileId },
+    });
+
+    // Delete the auth user - cascades to profiles, notifications, etc.
     const { error: deleteError } = await adminClient.auth.admin.deleteUser(user_id);
 
     if (deleteError) {
+      console.error('Delete error:', deleteError);
       return new Response(JSON.stringify({ error: deleteError.message }), {
         status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    // Log the action
-    await adminClient.from('audit_logs').insert({
-      user_id: callerUser.id,
-      action: 'admin_delete_user',
-      details: { deleted_user_id: user_id },
-    });
-
     return new Response(JSON.stringify({ success: true }), {
       status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err) {
+    console.error('Edge function error:', err);
     return new Response(JSON.stringify({ error: err.message }), {
       status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
