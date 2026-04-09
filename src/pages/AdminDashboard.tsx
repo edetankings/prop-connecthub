@@ -262,6 +262,37 @@ const AdminDashboard = () => {
       toast.error(err.message || "Failed to delete account");
     }
   };
+  const handleApproveSubscription = async (requestId: string, reqUserId: string) => {
+    await (supabase as any).from("subscription_requests").update({ status: "approved", reviewed_by: user?.id, reviewed_at: new Date().toISOString() }).eq("id", requestId);
+    const startDate = new Date();
+    const endDate = new Date();
+    endDate.setDate(endDate.getDate() + 30);
+    const existing = allSubscriptions.find((s: any) => s.user_id === reqUserId);
+    if (existing) {
+      await (supabase as any).from("subscriptions").update({ status: "active", start_date: startDate.toISOString(), end_date: endDate.toISOString(), updated_at: new Date().toISOString() }).eq("id", existing.id);
+    } else {
+      await (supabase as any).from("subscriptions").insert({ user_id: reqUserId, status: "active", start_date: startDate.toISOString(), end_date: endDate.toISOString() });
+    }
+    await (supabase as any).from("notifications").insert({
+      user_id: reqUserId, title: "Subscription Activated ✅",
+      message: "Your subscription has been approved. You now have full access to all agent features for 30 days.",
+      type: "success", link: "/payments",
+    });
+    toast.success("Subscription approved!");
+    loadData();
+  };
+
+  const handleRejectSubscription = async (requestId: string, reqUserId: string) => {
+    const reason = prompt("Rejection reason (optional):");
+    await (supabase as any).from("subscription_requests").update({ status: "rejected", reviewed_by: user?.id, reviewed_at: new Date().toISOString() }).eq("id", requestId);
+    await (supabase as any).from("notifications").insert({
+      user_id: reqUserId, title: "Subscription Payment Rejected",
+      message: `Your subscription payment was rejected. ${reason ? `Reason: ${reason}. ` : ""}Please try again.`,
+      type: "error", link: "/payments",
+    });
+    toast.success("Subscription rejected");
+    loadData();
+  };
 
   // Stats
   const verifiedAgents = profiles.filter((p) => p.kyc_verified).length;
