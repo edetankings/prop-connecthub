@@ -674,6 +674,69 @@ export type Database = {
           },
         ]
       }
+      subscription_requests: {
+        Row: {
+          created_at: string
+          id: string
+          note: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          screenshot_url: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          screenshot_url: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          screenshot_url?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          created_at: string
+          end_date: string
+          id: string
+          start_date: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          end_date?: string
+          id?: string
+          start_date?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          end_date?: string
+          id?: string
+          start_date?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       support_tickets: {
         Row: {
           created_at: string

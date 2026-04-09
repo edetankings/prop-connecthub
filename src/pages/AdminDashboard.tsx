@@ -9,12 +9,12 @@ import {
   Users, Building, ShieldCheck, AlertTriangle, TrendingUp,
   CheckCircle, XCircle, FileText, LayoutDashboard, Gavel, ScrollText,
   DollarSign, Wallet, PieChart, Activity, ArrowUpRight, Eye, ExternalLink,
-  CalendarCheck, Trash2, MessageSquare, Mail, MailOpen, Megaphone, Edit3, Plus
+  CalendarCheck, Trash2, MessageSquare, Mail, MailOpen, Megaphone, Edit3, Plus, CreditCard
 } from "lucide-react";
 import { toast } from "sonner";
 import { PieChart as RechartsPie, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
-type Tab = "dashboard" | "users" | "moderation" | "disputes" | "audit" | "verification" | "reservations" | "support" | "announcements" | "earnings";
+type Tab = "dashboard" | "users" | "moderation" | "disputes" | "audit" | "verification" | "reservations" | "support" | "announcements" | "earnings" | "subscriptions";
 
 const AdminDashboard = () => {
   const { user } = useAuth();
@@ -35,6 +35,8 @@ const AdminDashboard = () => {
   const [editingAnnId, setEditingAnnId] = useState<string | null>(null);
   const [allEarnings, setAllEarnings] = useState<any[]>([]);
   const [showAnnForm, setShowAnnForm] = useState(false);
+  const [subRequests, setSubRequests] = useState<any[]>([]);
+  const [allSubscriptions, setAllSubscriptions] = useState<any[]>([]);
 
   useEffect(() => { loadData(); }, []);
 
@@ -81,6 +83,18 @@ const AdminDashboard = () => {
       .select("*")
       .order("created_at", { ascending: false });
     setAllEarnings(earningsData || []);
+
+    const { data: subReqData } = await (supabase as any)
+      .from("subscription_requests")
+      .select("*")
+      .order("created_at", { ascending: false });
+    setSubRequests(subReqData || []);
+
+    const { data: subsData } = await (supabase as any)
+      .from("subscriptions")
+      .select("*")
+      .order("updated_at", { ascending: false });
+    setAllSubscriptions(subsData || []);
 
     setLoading(false);
   };
@@ -248,6 +262,37 @@ const AdminDashboard = () => {
       toast.error(err.message || "Failed to delete account");
     }
   };
+  const handleApproveSubscription = async (requestId: string, reqUserId: string) => {
+    await (supabase as any).from("subscription_requests").update({ status: "approved", reviewed_by: user?.id, reviewed_at: new Date().toISOString() }).eq("id", requestId);
+    const startDate = new Date();
+    const endDate = new Date();
+    endDate.setDate(endDate.getDate() + 30);
+    const existing = allSubscriptions.find((s: any) => s.user_id === reqUserId);
+    if (existing) {
+      await (supabase as any).from("subscriptions").update({ status: "active", start_date: startDate.toISOString(), end_date: endDate.toISOString(), updated_at: new Date().toISOString() }).eq("id", existing.id);
+    } else {
+      await (supabase as any).from("subscriptions").insert({ user_id: reqUserId, status: "active", start_date: startDate.toISOString(), end_date: endDate.toISOString() });
+    }
+    await (supabase as any).from("notifications").insert({
+      user_id: reqUserId, title: "Subscription Activated ✅",
+      message: "Your subscription has been approved. You now have full access to all agent features for 30 days.",
+      type: "success", link: "/payments",
+    });
+    toast.success("Subscription approved!");
+    loadData();
+  };
+
+  const handleRejectSubscription = async (requestId: string, reqUserId: string) => {
+    const reason = prompt("Rejection reason (optional):");
+    await (supabase as any).from("subscription_requests").update({ status: "rejected", reviewed_by: user?.id, reviewed_at: new Date().toISOString() }).eq("id", requestId);
+    await (supabase as any).from("notifications").insert({
+      user_id: reqUserId, title: "Subscription Payment Rejected",
+      message: `Your subscription payment was rejected. ${reason ? `Reason: ${reason}. ` : ""}Please try again.`,
+      type: "error", link: "/payments",
+    });
+    toast.success("Subscription rejected");
+    loadData();
+  };
 
   // Stats
   const verifiedAgents = profiles.filter((p) => p.kyc_verified).length;
@@ -282,6 +327,7 @@ const AdminDashboard = () => {
     { id: "support" as Tab, label: "Support Messages", icon: MessageSquare, count: supportTickets.filter((t: any) => t.status === "open").length },
     { id: "announcements" as Tab, label: "Announcements", icon: Megaphone, count: dbAnnouncements.length },
     { id: "earnings" as Tab, label: "Earnings", icon: DollarSign },
+    { id: "subscriptions" as Tab, label: "Subscriptions", icon: CreditCard, count: subRequests.filter((r: any) => r.status === "pending").length },
   ];
 
   // Selected user details for verification review
@@ -1240,6 +1286,61 @@ const AdminDashboard = () => {
                             })}
                           </tbody>
                         </table>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {/* SUBSCRIPTIONS TAB */}
+            {tab === "subscriptions" && (
+              <div className="space-y-6">
+                <Card className="border-border/50 shadow-card">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-base">
+                      <CreditCard className="h-4 w-4 text-secondary" /> Subscription Requests
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {subRequests.length === 0 ? (
+                      <p className="text-center text-muted-foreground py-8">No subscription requests yet</p>
+                    ) : (
+                      <div className="space-y-4">
+                        {subRequests.map((req: any) => {
+                          const p = profiles.find((pr: any) => pr.user_id === req.user_id);
+                          return (
+                            <div key={req.id} className="border border-border rounded-xl p-4">
+                              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                <div>
+                                  <p className="font-semibold text-foreground">{p?.full_name || "Unknown Agent"}</p>
+                                  <p className="text-xs text-muted-foreground">Submitted: {new Date(req.created_at).toLocaleDateString()}</p>
+                                  {req.note && <p className="text-sm text-muted-foreground mt-1">Note: {req.note}</p>}
+                                  <Badge className={`mt-2 text-xs ${req.status === "pending" ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400" : req.status === "approved" ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"}`}>
+                                    {req.status}
+                                  </Badge>
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                  <a href={req.screenshot_url} target="_blank" rel="noopener noreferrer">
+                                    <Button variant="outline" size="sm" className="gap-1 w-full">
+                                      <Eye className="h-3 w-3" /> View Screenshot
+                                    </Button>
+                                  </a>
+                                  {req.status === "pending" && (
+                                    <div className="flex gap-2">
+                                      <Button size="sm" onClick={() => handleApproveSubscription(req.id, req.user_id)} className="gap-1 bg-emerald-600 hover:bg-emerald-700 text-white">
+                                        <CheckCircle className="h-3 w-3" /> Approve
+                                      </Button>
+                                      <Button size="sm" variant="destructive" onClick={() => handleRejectSubscription(req.id, req.user_id)} className="gap-1">
+                                        <XCircle className="h-3 w-3" /> Reject
+                                      </Button>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
                     )}
                   </CardContent>

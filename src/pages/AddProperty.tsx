@@ -1,15 +1,17 @@
 import { useState, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useSubscription } from "@/hooks/useSubscription";
 import AuthenticatedLayout from "@/components/AuthenticatedLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Upload, X, ImageIcon, MapPin, Sparkles, Save, Send, AlertTriangle } from "lucide-react";
+import { Upload, X, ImageIcon, MapPin, Sparkles, Save, Send, AlertTriangle, CreditCard } from "lucide-react";
 
 const AMENITIES = ["Free WiFi", "Swimming Pool", "Gym", "Parking", "Security", "Garden"];
 const CATEGORIES = [
@@ -21,6 +23,7 @@ const CATEGORIES = [
 
 const AddProperty = () => {
   const { profile } = useAuth();
+  const { isActive, loading: subLoading, isAgent } = useSubscription();
   const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
   const [images, setImages] = useState<{ file: File; preview: string }[]>([]);
@@ -136,6 +139,30 @@ const AddProperty = () => {
       setSubmitting(false);
     }
   };
+
+  // Subscription gate for agents
+  if (isAgent && !subLoading && !isActive) {
+    return (
+      <AuthenticatedLayout>
+        <div className="container mx-auto max-w-xl px-4 py-16 text-center">
+          <Card className="border-destructive/30 bg-destructive/5">
+            <CardContent className="p-8">
+              <CreditCard className="h-12 w-12 text-destructive mx-auto mb-4" />
+              <h2 className="font-display text-xl font-bold text-foreground mb-2">Subscription Required</h2>
+              <p className="text-muted-foreground mb-6">
+                Your subscription is inactive. Please complete payment to access Add Property and other agent features.
+              </p>
+              <Link to="/payments">
+                <Button className="bg-secondary text-secondary-foreground hover:bg-secondary/90 gap-2">
+                  <CreditCard className="h-4 w-4" /> Go to Payments
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+        </div>
+      </AuthenticatedLayout>
+    );
+  }
 
   return (
     <AuthenticatedLayout>
