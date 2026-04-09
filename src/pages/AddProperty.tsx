@@ -140,6 +140,30 @@ const AddProperty = () => {
     }
   };
 
+  // Subscription gate for agents
+  if (isAgent && !subLoading && !isActive) {
+    return (
+      <AuthenticatedLayout>
+        <div className="container mx-auto max-w-xl px-4 py-16 text-center">
+          <Card className="border-destructive/30 bg-destructive/5">
+            <CardContent className="p-8">
+              <CreditCard className="h-12 w-12 text-destructive mx-auto mb-4" />
+              <h2 className="font-display text-xl font-bold text-foreground mb-2">Subscription Required</h2>
+              <p className="text-muted-foreground mb-6">
+                Your subscription is inactive. Please complete payment to access Add Property and other agent features.
+              </p>
+              <Link to="/payments">
+                <Button className="bg-secondary text-secondary-foreground hover:bg-secondary/90 gap-2">
+                  <CreditCard className="h-4 w-4" /> Go to Payments
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+        </div>
+      </AuthenticatedLayout>
+    );
+  }
+
   return (
     <AuthenticatedLayout>
       <div className="container mx-auto max-w-3xl px-4 py-8">
