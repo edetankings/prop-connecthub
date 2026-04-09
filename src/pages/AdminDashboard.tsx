@@ -9,12 +9,12 @@ import {
   Users, Building, ShieldCheck, AlertTriangle, TrendingUp,
   CheckCircle, XCircle, FileText, LayoutDashboard, Gavel, ScrollText,
   DollarSign, Wallet, PieChart, Activity, ArrowUpRight, Eye, ExternalLink,
-  CalendarCheck, Trash2, MessageSquare, Mail, MailOpen, Megaphone, Edit3, Plus
+  CalendarCheck, Trash2, MessageSquare, Mail, MailOpen, Megaphone, Edit3, Plus, CreditCard
 } from "lucide-react";
 import { toast } from "sonner";
 import { PieChart as RechartsPie, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
-type Tab = "dashboard" | "users" | "moderation" | "disputes" | "audit" | "verification" | "reservations" | "support" | "announcements" | "earnings";
+type Tab = "dashboard" | "users" | "moderation" | "disputes" | "audit" | "verification" | "reservations" | "support" | "announcements" | "earnings" | "subscriptions";
 
 const AdminDashboard = () => {
   const { user } = useAuth();
@@ -35,6 +35,8 @@ const AdminDashboard = () => {
   const [editingAnnId, setEditingAnnId] = useState<string | null>(null);
   const [allEarnings, setAllEarnings] = useState<any[]>([]);
   const [showAnnForm, setShowAnnForm] = useState(false);
+  const [subRequests, setSubRequests] = useState<any[]>([]);
+  const [allSubscriptions, setAllSubscriptions] = useState<any[]>([]);
 
   useEffect(() => { loadData(); }, []);
 
@@ -81,6 +83,18 @@ const AdminDashboard = () => {
       .select("*")
       .order("created_at", { ascending: false });
     setAllEarnings(earningsData || []);
+
+    const { data: subReqData } = await (supabase as any)
+      .from("subscription_requests")
+      .select("*")
+      .order("created_at", { ascending: false });
+    setSubRequests(subReqData || []);
+
+    const { data: subsData } = await (supabase as any)
+      .from("subscriptions")
+      .select("*")
+      .order("updated_at", { ascending: false });
+    setAllSubscriptions(subsData || []);
 
     setLoading(false);
   };
@@ -282,6 +296,7 @@ const AdminDashboard = () => {
     { id: "support" as Tab, label: "Support Messages", icon: MessageSquare, count: supportTickets.filter((t: any) => t.status === "open").length },
     { id: "announcements" as Tab, label: "Announcements", icon: Megaphone, count: dbAnnouncements.length },
     { id: "earnings" as Tab, label: "Earnings", icon: DollarSign },
+    { id: "subscriptions" as Tab, label: "Subscriptions", icon: CreditCard, count: subRequests.filter((r: any) => r.status === "pending").length },
   ];
 
   // Selected user details for verification review
