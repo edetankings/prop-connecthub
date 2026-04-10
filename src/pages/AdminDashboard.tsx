@@ -1373,6 +1373,71 @@ const AdminDashboard = () => {
                 </Card>
               </div>
             )}
+            {/* ACTIVE DEALS TAB */}
+            {tab === "active-deals" && (
+              <div className="space-y-4">
+                <Card className="border-border/50">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-base">
+                      <MessageCircle className="h-4 w-4 text-primary" /> Active Deal Chats
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {activeDealThreads.length === 0 ? (
+                      <p className="text-center text-muted-foreground py-8">No active deal chats yet</p>
+                    ) : (
+                      <div className="space-y-3">
+                        {activeDealThreads.map((t: any) => (
+                          <div key={t.id} className="border border-border rounded-xl p-4">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                              <div>
+                                <p className="font-semibold text-foreground">
+                                  {t.buyer_name} ↔ {t.agent_name}
+                                </p>
+                                <p className="text-xs text-muted-foreground">Property: {t.property_title}</p>
+                                <p className="text-xs text-muted-foreground">Messages: {t.message_count} • Started: {new Date(t.created_at).toLocaleDateString()}</p>
+                              </div>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="gap-1"
+                                onClick={async () => {
+                                  setSelectedDealId(t.id);
+                                  const { data } = await supabase
+                                    .from("messages")
+                                    .select("*")
+                                    .eq("thread_id", t.id)
+                                    .order("created_at", { ascending: true });
+                                  setSelectedDealMessages(data || []);
+                                }}
+                              >
+                                <Eye className="h-3 w-3" /> View Chat
+                              </Button>
+                            </div>
+                            {selectedDealId === t.id && selectedDealMessages.length > 0 && (
+                              <div className="mt-4 border-t border-border pt-3 max-h-64 overflow-y-auto space-y-2">
+                                {selectedDealMessages.map((msg: any) => {
+                                  const senderProfile = profiles.find((p: any) => p.id === msg.sender_id);
+                                  return (
+                                    <div key={msg.id} className={`text-sm p-2 rounded-lg ${msg.is_blocked ? "bg-destructive/10 text-destructive" : "bg-muted"}`}>
+                                      <span className="font-medium text-foreground">{senderProfile?.full_name || "Unknown"}: </span>
+                                      <span>{msg.content}</span>
+                                      <span className="text-xs text-muted-foreground ml-2">
+                                        {new Date(msg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                                      </span>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+            )}
           </>
         )}
       </div>
