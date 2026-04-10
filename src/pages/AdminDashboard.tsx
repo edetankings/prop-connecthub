@@ -11,6 +11,7 @@ import {
   DollarSign, Wallet, PieChart, Activity, ArrowUpRight, Eye, ExternalLink,
   CalendarCheck, Trash2, MessageSquare, Mail, MailOpen, Megaphone, Edit3, Plus, CreditCard
 } from "lucide-react";
+import { MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 import { PieChart as RechartsPie, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
