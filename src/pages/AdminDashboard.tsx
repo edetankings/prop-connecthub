@@ -11,10 +11,11 @@ import {
   DollarSign, Wallet, PieChart, Activity, ArrowUpRight, Eye, ExternalLink,
   CalendarCheck, Trash2, MessageSquare, Mail, MailOpen, Megaphone, Edit3, Plus, CreditCard
 } from "lucide-react";
+import { MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 import { PieChart as RechartsPie, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
-type Tab = "dashboard" | "users" | "moderation" | "disputes" | "audit" | "verification" | "reservations" | "support" | "announcements" | "earnings" | "subscriptions";
+type Tab = "dashboard" | "users" | "moderation" | "disputes" | "audit" | "verification" | "reservations" | "support" | "announcements" | "earnings" | "subscriptions" | "active-deals";
 
 const AdminDashboard = () => {
   const { user } = useAuth();
@@ -37,6 +38,9 @@ const AdminDashboard = () => {
   const [showAnnForm, setShowAnnForm] = useState(false);
   const [subRequests, setSubRequests] = useState<any[]>([]);
   const [allSubscriptions, setAllSubscriptions] = useState<any[]>([]);
+  const [activeDealThreads, setActiveDealThreads] = useState<any[]>([]);
+  const [selectedDealMessages, setSelectedDealMessages] = useState<any[]>([]);
+  const [selectedDealId, setSelectedDealId] = useState<string | null>(null);
 
   useEffect(() => { loadData(); }, []);
 
@@ -95,6 +99,27 @@ const AdminDashboard = () => {
       .select("*")
       .order("updated_at", { ascending: false });
     setAllSubscriptions(subsData || []);
+
+    // Active deal threads
+    const { data: dealThreads } = await (supabase as any)
+      .from("chat_threads")
+      .select("*")
+      .eq("status", "active")
+      .order("last_message_at", { ascending: false });
+    if (dealThreads) {
+      const enriched = await Promise.all(
+        dealThreads.map(async (t: any) => {
+          const [buyerRes, agentRes, propRes, msgRes] = await Promise.all([
+            supabase.from("profiles").select("full_name").eq("id", t.buyer_id).maybeSingle(),
+            supabase.from("profiles").select("full_name").eq("id", t.agent_id).maybeSingle(),
+            t.property_id ? supabase.from("properties").select("title").eq("id", t.property_id).maybeSingle() : { data: null },
+            supabase.from("messages").select("*", { count: "exact", head: true }).eq("thread_id", t.id),
+          ]);
+          return { ...t, buyer_name: buyerRes.data?.full_name || "Unknown", agent_name: agentRes.data?.full_name || "Unknown", property_title: propRes.data?.title || "N/A", message_count: msgRes.count || 0 };
+        })
+      );
+      setActiveDealThreads(enriched);
+    }
 
     setLoading(false);
   };
@@ -328,6 +353,7 @@ const AdminDashboard = () => {
     { id: "announcements" as Tab, label: "Announcements", icon: Megaphone, count: dbAnnouncements.length },
     { id: "earnings" as Tab, label: "Earnings", icon: DollarSign },
     { id: "subscriptions" as Tab, label: "Subscriptions", icon: CreditCard, count: subRequests.filter((r: any) => r.status === "pending").length },
+    { id: "active-deals" as Tab, label: "Active Deals", icon: MessageCircle, count: activeDealThreads.length },
   ];
 
   // Selected user details for verification review
@@ -1341,6 +1367,71 @@ const AdminDashboard = () => {
                             </div>
                           );
                         })}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+            {/* ACTIVE DEALS TAB */}
+            {tab === "active-deals" && (
+              <div className="space-y-4">
+                <Card className="border-border/50">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-base">
+                      <MessageCircle className="h-4 w-4 text-primary" /> Active Deal Chats
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {activeDealThreads.length === 0 ? (
+                      <p className="text-center text-muted-foreground py-8">No active deal chats yet</p>
+                    ) : (
+                      <div className="space-y-3">
+                        {activeDealThreads.map((t: any) => (
+                          <div key={t.id} className="border border-border rounded-xl p-4">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                              <div>
+                                <p className="font-semibold text-foreground">
+                                  {t.buyer_name} ↔ {t.agent_name}
+                                </p>
+                                <p className="text-xs text-muted-foreground">Property: {t.property_title}</p>
+                                <p className="text-xs text-muted-foreground">Messages: {t.message_count} • Started: {new Date(t.created_at).toLocaleDateString()}</p>
+                              </div>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="gap-1"
+                                onClick={async () => {
+                                  setSelectedDealId(t.id);
+                                  const { data } = await supabase
+                                    .from("messages")
+                                    .select("*")
+                                    .eq("thread_id", t.id)
+                                    .order("created_at", { ascending: true });
+                                  setSelectedDealMessages(data || []);
+                                }}
+                              >
+                                <Eye className="h-3 w-3" /> View Chat
+                              </Button>
+                            </div>
+                            {selectedDealId === t.id && selectedDealMessages.length > 0 && (
+                              <div className="mt-4 border-t border-border pt-3 max-h-64 overflow-y-auto space-y-2">
+                                {selectedDealMessages.map((msg: any) => {
+                                  const senderProfile = profiles.find((p: any) => p.id === msg.sender_id);
+                                  return (
+                                    <div key={msg.id} className={`text-sm p-2 rounded-lg ${msg.is_blocked ? "bg-destructive/10 text-destructive" : "bg-muted"}`}>
+                                      <span className="font-medium text-foreground">{senderProfile?.full_name || "Unknown"}: </span>
+                                      <span>{msg.content}</span>
+                                      <span className="text-xs text-muted-foreground ml-2">
+                                        {new Date(msg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                                      </span>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            )}
+                          </div>
+                        ))}
                       </div>
                     )}
                   </CardContent>

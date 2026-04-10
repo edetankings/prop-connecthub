@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, Shield } from "lucide-react";
+import { Menu } from "lucide-react";
 import AppSidebar from "@/components/AppSidebar";
 import NotificationBell from "@/components/NotificationBell";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useAuth } from "@/hooks/useAuth";
 import VerificationBanner from "@/components/VerificationBanner";
+import logo from "@/assets/logo.jpg";
 
 interface AuthenticatedLayoutProps {
   children: React.ReactNode;
@@ -28,12 +29,7 @@ const AuthenticatedLayout = ({ children }: AuthenticatedLayoutProps) => {
             <Menu className="h-5 w-5 text-foreground" />
           </button>
           <Link to="/" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-              <Shield className="h-4 w-4 text-primary-foreground" />
-            </div>
-            <span className="font-display text-lg font-bold text-foreground">
-              Prop<span className="text-secondary">Connect</span>
-            </span>
+            <img src={logo} alt="PROP-connect" className="h-9 w-9 rounded-lg object-cover" />
           </Link>
         </div>
         <div className="flex items-center gap-2">

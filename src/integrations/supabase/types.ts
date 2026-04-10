@@ -81,6 +81,7 @@ export type Database = {
           id: string
           last_message_at: string | null
           property_id: string | null
+          status: string
         }
         Insert: {
           agent_id: string
@@ -89,6 +90,7 @@ export type Database = {
           id?: string
           last_message_at?: string | null
           property_id?: string | null
+          status?: string
         }
         Update: {
           agent_id?: string
@@ -97,6 +99,7 @@ export type Database = {
           id?: string
           last_message_at?: string | null
           property_id?: string | null
+          status?: string
         }
         Relationships: [
           {
@@ -283,6 +286,7 @@ export type Database = {
           content: string
           created_at: string
           id: string
+          is_blocked: boolean
           seen: boolean
           sender_id: string
           thread_id: string
@@ -291,6 +295,7 @@ export type Database = {
           content: string
           created_at?: string
           id?: string
+          is_blocked?: boolean
           seen?: boolean
           sender_id: string
           thread_id: string
@@ -299,6 +304,7 @@ export type Database = {
           content?: string
           created_at?: string
           id?: string
+          is_blocked?: boolean
           seen?: boolean
           sender_id?: string
           thread_id?: string
