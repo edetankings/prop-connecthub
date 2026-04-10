@@ -37,6 +37,9 @@ const AdminDashboard = () => {
   const [showAnnForm, setShowAnnForm] = useState(false);
   const [subRequests, setSubRequests] = useState<any[]>([]);
   const [allSubscriptions, setAllSubscriptions] = useState<any[]>([]);
+  const [activeDealThreads, setActiveDealThreads] = useState<any[]>([]);
+  const [selectedDealMessages, setSelectedDealMessages] = useState<any[]>([]);
+  const [selectedDealId, setSelectedDealId] = useState<string | null>(null);
 
   useEffect(() => { loadData(); }, []);
 
