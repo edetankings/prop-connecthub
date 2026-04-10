@@ -23,9 +23,6 @@ const Navbar = () => {
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <Link to="/" className="flex items-center gap-2">
           <img src={logo} alt="PROP-connect" className="h-10 w-10 rounded-lg object-cover" />
-          <span className="font-display text-xl font-bold text-foreground">
-            Prop<span className="text-secondary">Connect</span>
-          </span>
         </Link>
 
         {!user && (
