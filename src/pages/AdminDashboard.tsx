@@ -99,6 +99,27 @@ const AdminDashboard = () => {
       .order("updated_at", { ascending: false });
     setAllSubscriptions(subsData || []);
 
+    // Active deal threads
+    const { data: dealThreads } = await (supabase as any)
+      .from("chat_threads")
+      .select("*")
+      .eq("status", "active")
+      .order("last_message_at", { ascending: false });
+    if (dealThreads) {
+      const enriched = await Promise.all(
+        dealThreads.map(async (t: any) => {
+          const [buyerRes, agentRes, propRes, msgRes] = await Promise.all([
+            supabase.from("profiles").select("full_name").eq("id", t.buyer_id).maybeSingle(),
+            supabase.from("profiles").select("full_name").eq("id", t.agent_id).maybeSingle(),
+            t.property_id ? supabase.from("properties").select("title").eq("id", t.property_id).maybeSingle() : { data: null },
+            supabase.from("messages").select("*", { count: "exact", head: true }).eq("thread_id", t.id),
+          ]);
+          return { ...t, buyer_name: buyerRes.data?.full_name || "Unknown", agent_name: agentRes.data?.full_name || "Unknown", property_title: propRes.data?.title || "N/A", message_count: msgRes.count || 0 };
+        })
+      );
+      setActiveDealThreads(enriched);
+    }
+
     setLoading(false);
   };
 
