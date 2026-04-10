@@ -352,6 +352,7 @@ const AdminDashboard = () => {
     { id: "announcements" as Tab, label: "Announcements", icon: Megaphone, count: dbAnnouncements.length },
     { id: "earnings" as Tab, label: "Earnings", icon: DollarSign },
     { id: "subscriptions" as Tab, label: "Subscriptions", icon: CreditCard, count: subRequests.filter((r: any) => r.status === "pending").length },
+    { id: "active-deals" as Tab, label: "Active Deals", icon: MessageCircle, count: activeDealThreads.length },
   ];
 
   // Selected user details for verification review
