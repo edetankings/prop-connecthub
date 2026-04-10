@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, Shield } from "lucide-react";
+import { Menu } from "lucide-react";
 import AppSidebar from "@/components/AppSidebar";
 import NotificationBell from "@/components/NotificationBell";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useAuth } from "@/hooks/useAuth";
 import VerificationBanner from "@/components/VerificationBanner";
+import logo from "@/assets/logo.jpg";
 
 interface AuthenticatedLayoutProps {
   children: React.ReactNode;
