@@ -126,9 +126,43 @@ const AdminDashboard = () => {
   };
 
   const handleVerifyKyc = async (profileId: string) => {
+    // Update profile
     const { error } = await supabase.from("profiles").update({ kyc_verified: true, trust_score: 80 }).eq("id", profileId);
     if (error) { toast.error(error.message); return; }
-    toast.success("Agent verified!");
+
+    // Get user_id from profile
+    const targetProfile = profiles.find((p: any) => p.id === profileId);
+    if (targetProfile) {
+      // Update kyc_verifications status to verified
+      await (supabase as any).from("kyc_verifications").update({
+        kyc_status: "verified",
+        reviewed_by: user?.id,
+        reviewed_at: new Date().toISOString(),
+      }).eq("user_id", targetProfile.user_id);
+
+      // Also approve all pending verification steps
+      await (supabase as any).from("verification_steps").update({ status: "approved" })
+        .eq("user_id", targetProfile.user_id)
+        .neq("status", "approved");
+
+      // Send notification
+      await (supabase as any).from("notifications").insert({
+        user_id: targetProfile.user_id,
+        title: "Account Verified! ✅",
+        message: "Congratulations! Your identity verification has been approved. You now have full access to all platform features.",
+        type: "success",
+        link: "/dashboard",
+      });
+
+      // Log audit
+      await (supabase as any).from("audit_logs").insert({
+        user_id: user?.id,
+        action: "verify_agent",
+        details: { profile_id: profileId, agent_name: targetProfile.full_name },
+      });
+    }
+
+    toast.success("Agent verified successfully!");
     loadData();
   };
 
