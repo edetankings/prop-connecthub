@@ -1,5 +1,5 @@
-import { Shield } from "lucide-react";
 import { Link } from "react-router-dom";
+import logo from "@/assets/logo.jpg";
 
 const Footer = () => (
   <footer className="border-t border-border bg-primary text-primary-foreground" role="contentinfo">
@@ -7,10 +7,7 @@ const Footer = () => (
       <div className="grid gap-8 md:grid-cols-4">
         <div>
           <Link to="/" className="mb-4 flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary">
-              <Shield className="h-4 w-4 text-secondary-foreground" />
-            </div>
-            <span className="font-display text-lg font-bold">PropConnect</span>
+            <img src={logo} alt="PROP-connect" className="h-12 w-12 rounded-lg object-contain" />
           </Link>
           <p className="text-sm text-primary-foreground/70">
             Nigeria's most secure digital property marketplace with escrow protection and trust verification.

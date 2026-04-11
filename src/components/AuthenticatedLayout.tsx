@@ -29,7 +29,7 @@ const AuthenticatedLayout = ({ children }: AuthenticatedLayoutProps) => {
             <Menu className="h-5 w-5 text-foreground" />
           </button>
           <Link to="/" className="flex items-center gap-2">
-            <img src={logo} alt="PROP-connect" className="h-9 w-9 rounded-lg object-cover" />
+            <img src={logo} alt="PROP-connect" className="h-12 w-12 rounded-lg object-contain" />
           </Link>
         </div>
         <div className="flex items-center gap-2">
