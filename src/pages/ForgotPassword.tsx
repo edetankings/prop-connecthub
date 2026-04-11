@@ -40,13 +40,8 @@ const ForgotPassword = () => {
   return (
     <div className="flex min-h-screen items-center justify-center bg-muted px-4">
       <div className="w-full max-w-md rounded-xl border border-border bg-card p-8 shadow-elevated">
-        <Link to="/" className="mb-6 flex items-center justify-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
-            <Shield className="h-5 w-5 text-primary-foreground" />
-          </div>
-          <span className="font-display text-2xl font-bold text-foreground">
-            Prop<span className="text-secondary">Connect</span>
-          </span>
+        <Link to="/" className="mb-6 flex justify-center">
+          <img src={logo} alt="PROP-connect" className="h-16 w-16 rounded-lg object-contain" />
         </Link>
 
         {sent ? (
