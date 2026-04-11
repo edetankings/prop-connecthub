@@ -46,6 +46,20 @@ const Admin = () => {
   const handleVerifyKyc = async (profileId: string) => {
     const { error } = await supabase.from("profiles").update({ kyc_verified: true, trust_score: 80 }).eq("id", profileId);
     if (error) { toast.error(error.message); return; }
+
+    // Also update kyc_verifications
+    const targetProfile = profiles.find((p: any) => p.id === profileId);
+    if (targetProfile) {
+      await (supabase as any).from("kyc_verifications").update({
+        kyc_status: "verified",
+        reviewed_at: new Date().toISOString(),
+      }).eq("user_id", targetProfile.user_id);
+
+      await (supabase as any).from("verification_steps").update({ status: "approved" })
+        .eq("user_id", targetProfile.user_id)
+        .neq("status", "approved");
+    }
+
     toast.success("Agent verified!");
     loadData();
   };
