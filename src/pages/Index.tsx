@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Search, Shield, TrendingUp, Users, CheckCircle, PlayCircle, ChevronDown, ChevronUp, Building2, FileCheck, MapPin, Lock, BarChart3, Megaphone, Bell, AlertTriangle } from "lucide-react";
+import logo from "@/assets/logo.jpg";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import DBPropertyCard, { type DBProperty } from "@/components/DBPropertyCard";
@@ -400,7 +401,7 @@ const Index = () => {
       {/* Trust CTA */}
       <section className="container mx-auto px-4 py-16">
         <div className="rounded-2xl bg-gradient-hero p-8 text-center md:p-16">
-          <Shield className="mx-auto mb-4 h-12 w-12 text-secondary" />
+          <img src={logo} alt="PROP-connect" className="mx-auto mb-4 h-16 w-16 rounded-lg object-contain" />
           <h2 className="font-display text-3xl font-bold text-primary-foreground md:text-4xl">Your Security Is Our Priority</h2>
           <p className="mx-auto mt-3 max-w-xl text-primary-foreground/80">
             Every transaction is protected by our escrow system. Every agent is verified through a 10-step KYC process. Your money is safe with Prop Connect.

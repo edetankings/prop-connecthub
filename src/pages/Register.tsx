@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Shield, Eye, EyeOff, CheckCircle, XCircle } from "lucide-react";
+import { Eye, EyeOff, CheckCircle, XCircle } from "lucide-react";
+import logo from "@/assets/logo.jpg";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -63,7 +64,7 @@ const Register = () => {
       <div className="flex min-h-screen items-center justify-center bg-muted px-4">
         <div className="w-full max-w-md rounded-xl border border-border bg-card p-8 shadow-elevated text-center">
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[hsl(var(--success)/0.1)]">
-            <Shield className="h-8 w-8 text-[hsl(var(--success))]" />
+            <img src={logo} alt="PROP-connect" className="h-12 w-12 rounded-lg object-contain" />
           </div>
           <h1 className="font-display text-xl font-bold text-foreground">Check Your Email</h1>
           <p className="mt-2 text-sm text-muted-foreground">
@@ -80,11 +81,8 @@ const Register = () => {
   return (
     <div className="flex min-h-screen items-center justify-center bg-muted px-4 py-8">
       <div className="w-full max-w-md rounded-xl border border-border bg-card p-8 shadow-elevated">
-        <Link to="/" className="mb-6 flex items-center justify-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
-            <Shield className="h-5 w-5 text-primary-foreground" />
-          </div>
-          <span className="font-display text-2xl font-bold text-foreground">Prop<span className="text-secondary">Connect</span></span>
+        <Link to="/" className="mb-6 flex justify-center">
+          <img src={logo} alt="PROP-connect" className="h-16 w-16 rounded-lg object-contain" />
         </Link>
         <h1 className="text-center font-display text-xl font-bold text-foreground">Create Account</h1>
         <p className="mt-1 text-center text-sm text-muted-foreground">Join Nigeria's most trusted property marketplace</p>

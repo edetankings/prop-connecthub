@@ -12,6 +12,7 @@ import {
   CalendarCheck, Trash2, MessageSquare, Mail, MailOpen, Megaphone, Edit3, Plus, CreditCard
 } from "lucide-react";
 import { MessageCircle } from "lucide-react";
+import logo from "@/assets/logo.jpg";
 import { toast } from "sonner";
 import { PieChart as RechartsPie, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
@@ -364,9 +365,7 @@ const AdminDashboard = () => {
     <AuthenticatedLayout>
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center gap-3 mb-6">
-          <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center">
-            <ShieldCheck className="h-5 w-5 text-primary-foreground" />
-          </div>
+          <img src={logo} alt="PROP-connect" className="h-12 w-12 rounded-xl object-contain" />
           <div>
             <h1 className="font-display text-2xl font-bold text-foreground">Admin Command Center</h1>
             <p className="text-sm text-muted-foreground">Platform overview & management</p>
