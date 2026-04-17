@@ -1491,7 +1491,175 @@ const AdminDashboard = () => {
                 </Card>
               </div>
             )}
-          </>
+
+            {/* WITHDRAWALS TAB */}
+            {tab === "withdrawals" && (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="font-display text-lg font-semibold text-foreground">Withdrawal Requests</h2>
+                  <Badge variant="outline">{withdrawals.filter((w: any) => w.status === "pending").length} pending</Badge>
+                </div>
+                <div className="rounded-xl border border-border bg-card overflow-hidden shadow-card">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead className="bg-muted/60">
+                        <tr>
+                          <th className="px-4 py-3 text-left font-medium text-muted-foreground">Date</th>
+                          <th className="px-4 py-3 text-left font-medium text-muted-foreground">User</th>
+                          <th className="px-4 py-3 text-left font-medium text-muted-foreground">Amount</th>
+                          <th className="px-4 py-3 text-left font-medium text-muted-foreground">Bank</th>
+                          <th className="px-4 py-3 text-left font-medium text-muted-foreground">Account</th>
+                          <th className="px-4 py-3 text-left font-medium text-muted-foreground">Status</th>
+                          <th className="px-4 py-3 text-left font-medium text-muted-foreground">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {withdrawals.length === 0 && (
+                          <tr><td colSpan={7} className="p-8 text-center text-muted-foreground">No withdrawal requests yet</td></tr>
+                        )}
+                        {withdrawals.map((w: any) => {
+                          const wUser = profiles.find((p: any) => p.user_id === w.user_id);
+                          return (
+                            <tr key={w.id} className="border-t border-border hover:bg-muted/20">
+                              <td className="px-4 py-3 text-xs text-muted-foreground">{new Date(w.created_at).toLocaleDateString()}</td>
+                              <td className="px-4 py-3 font-medium text-foreground">{wUser?.full_name || "Unknown"}</td>
+                              <td className="px-4 py-3 font-bold text-emerald-600">₦{(w.amount || 0).toLocaleString()}</td>
+                              <td className="px-4 py-3 text-foreground">{w.bank_name}</td>
+                              <td className="px-4 py-3 text-foreground text-xs">{w.account_number}<br/><span className="text-muted-foreground">{w.account_name}</span></td>
+                              <td className="px-4 py-3">
+                                <Badge className={`text-xs ${
+                                  w.status === "pending" ? "bg-amber-100 text-amber-700" :
+                                  w.status === "approved" ? "bg-emerald-100 text-emerald-700" :
+                                  "bg-red-100 text-red-700"
+                                }`}>{w.status}</Badge>
+                              </td>
+                              <td className="px-4 py-3">
+                                {w.status === "pending" && (
+                                  <div className="flex gap-2">
+                                    <Button
+                                      size="sm"
+                                      onClick={async () => {
+                                        const { error } = await (supabase as any).from("withdrawals").update({
+                                          status: "approved",
+                                          reviewed_by: user?.id,
+                                          reviewed_at: new Date().toISOString(),
+                                        }).eq("id", w.id);
+                                        if (error) { toast.error(error.message); return; }
+                                        await (supabase as any).from("notifications").insert({
+                                          user_id: w.user_id,
+                                          title: "Withdrawal Approved ✅",
+                                          message: `Your withdrawal of ₦${w.amount.toLocaleString()} has been approved and is being processed.`,
+                                          type: "success",
+                                          link: "/earnings",
+                                        });
+                                        toast.success("Withdrawal approved");
+                                        loadData();
+                                      }}
+                                      className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1"
+                                    >
+                                      <CheckCircle className="h-3.5 w-3.5" /> Approve
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="destructive"
+                                      onClick={async () => {
+                                        const reason = prompt("Reason for rejection:");
+                                        if (!reason) return;
+                                        const { error } = await (supabase as any).from("withdrawals").update({
+                                          status: "rejected",
+                                          admin_note: reason,
+                                          reviewed_by: user?.id,
+                                          reviewed_at: new Date().toISOString(),
+                                        }).eq("id", w.id);
+                                        if (error) { toast.error(error.message); return; }
+                                        await (supabase as any).from("notifications").insert({
+                                          user_id: w.user_id,
+                                          title: "Withdrawal Rejected",
+                                          message: `Your withdrawal of ₦${w.amount.toLocaleString()} was rejected. Reason: ${reason}`,
+                                          type: "warning",
+                                          link: "/earnings",
+                                        });
+                                        toast.success("Withdrawal rejected");
+                                        loadData();
+                                      }}
+                                      className="gap-1"
+                                    >
+                                      <XCircle className="h-3.5 w-3.5" /> Reject
+                                    </Button>
+                                  </div>
+                                )}
+                                {w.status !== "pending" && w.admin_note && (
+                                  <span className="text-xs text-muted-foreground">{w.admin_note}</span>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* REFERRAL TREES TAB */}
+            {tab === "referrals" && (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="font-display text-lg font-semibold text-foreground">Referral Trees</h2>
+                  {selectedReferralUserId && (
+                    <Button variant="ghost" size="sm" onClick={() => setSelectedReferralUserId(null)}>← All Users</Button>
+                  )}
+                </div>
+
+                {!selectedReferralUserId ? (
+                  <div className="rounded-xl border border-border bg-card overflow-hidden shadow-card">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead className="bg-muted/60">
+                          <tr>
+                            <th className="px-4 py-3 text-left font-medium text-muted-foreground">User</th>
+                            <th className="px-4 py-3 text-left font-medium text-muted-foreground">Type</th>
+                            <th className="px-4 py-3 text-left font-medium text-muted-foreground">Referral Code</th>
+                            <th className="px-4 py-3 text-left font-medium text-muted-foreground">Direct Referrals</th>
+                            <th className="px-4 py-3 text-left font-medium text-muted-foreground">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {profiles.filter((p: any) => p.profile_type === "agent" || p.referral_code).map((p: any) => {
+                            const directs = profiles.filter((x: any) => x.referred_by === p.id).length;
+                            return (
+                              <tr key={p.id} className="border-t border-border hover:bg-muted/20">
+                                <td className="px-4 py-3 font-medium text-foreground">{p.full_name || "—"}</td>
+                                <td className="px-4 py-3"><Badge variant="outline" className="capitalize text-xs">{p.profile_type}</Badge></td>
+                                <td className="px-4 py-3 text-xs font-mono text-muted-foreground">{p.referral_code || "—"}</td>
+                                <td className="px-4 py-3 font-bold text-foreground">{directs}</td>
+                                <td className="px-4 py-3">
+                                  <Button size="sm" variant="outline" className="gap-1" onClick={() => setSelectedReferralUserId(p.id)}>
+                                    <Network className="h-3.5 w-3.5" /> View Tree
+                                  </Button>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                ) : (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-base">
+                        Tree for: {profiles.find((p: any) => p.id === selectedReferralUserId)?.full_name}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ReferralTree rootProfileId={selectedReferralUserId} />
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+            )}
         )}
       </div>
     </AuthenticatedLayout>
