@@ -9,14 +9,15 @@ import {
   Users, Building, ShieldCheck, AlertTriangle, TrendingUp,
   CheckCircle, XCircle, FileText, LayoutDashboard, Gavel, ScrollText,
   DollarSign, Wallet, PieChart, Activity, ArrowUpRight, Eye, ExternalLink,
-  CalendarCheck, Trash2, MessageSquare, Mail, MailOpen, Megaphone, Edit3, Plus, CreditCard
+  CalendarCheck, Trash2, MessageSquare, Mail, MailOpen, Megaphone, Edit3, Plus, CreditCard, Network
 } from "lucide-react";
 import { MessageCircle } from "lucide-react";
+import ReferralTree from "@/components/ReferralTree";
 import logo from "@/assets/logo.jpg";
 import { toast } from "sonner";
 import { PieChart as RechartsPie, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
-type Tab = "dashboard" | "users" | "moderation" | "disputes" | "audit" | "verification" | "reservations" | "support" | "announcements" | "earnings" | "subscriptions" | "active-deals";
+type Tab = "dashboard" | "users" | "moderation" | "disputes" | "audit" | "verification" | "reservations" | "support" | "announcements" | "earnings" | "subscriptions" | "active-deals" | "withdrawals" | "referrals";
 
 const AdminDashboard = () => {
   const { user } = useAuth();
@@ -42,6 +43,9 @@ const AdminDashboard = () => {
   const [activeDealThreads, setActiveDealThreads] = useState<any[]>([]);
   const [selectedDealMessages, setSelectedDealMessages] = useState<any[]>([]);
   const [selectedDealId, setSelectedDealId] = useState<string | null>(null);
+  const [withdrawals, setWithdrawals] = useState<any[]>([]);
+  const [kycSubmissions, setKycSubmissions] = useState<any[]>([]);
+  const [selectedReferralUserId, setSelectedReferralUserId] = useState<string | null>(null);
 
   useEffect(() => { loadData(); }, []);
 
