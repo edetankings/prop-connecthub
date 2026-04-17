@@ -15,6 +15,7 @@ const Earnings = () => {
   const [earnings, setEarnings] = useState<any[]>([]);
   const [withdrawals, setWithdrawals] = useState<any[]>([]);
   const [referrals, setReferrals] = useState<any[]>([]);
+  const [downlineCount, setDownlineCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [withdrawOpen, setWithdrawOpen] = useState(false);
 
@@ -33,6 +34,20 @@ const Earnings = () => {
     setEarnings(earningsRes.data || []);
     setReferrals(refsRes.data || []);
     setWithdrawals(wdRes.data || []);
+
+    // Compute total downline (L1+L2+L3) count
+    const l1Ids = (refsRes.data || []).filter((r: any) => r.referral_level === 1).map((r: any) => r.id);
+    let total = (refsRes.data || []).length;
+    if (l1Ids.length) {
+      const { data: l2 } = await (supabase as any).from("profiles").select("id").in("referred_by", l1Ids).eq("referral_level", 1);
+      const l2Ids = (l2 || []).map((r: any) => r.id);
+      total += (l2 || []).length;
+      if (l2Ids.length) {
+        const { data: l3 } = await (supabase as any).from("profiles").select("id").in("referred_by", l2Ids).eq("referral_level", 1);
+        total += (l3 || []).length;
+      }
+    }
+    setDownlineCount(total);
     setLoading(false);
   };
 
@@ -106,7 +121,15 @@ const Earnings = () => {
         )}
 
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+          <Card className="border-secondary/30 shadow-card bg-secondary/5">
+            <CardContent className="p-4">
+              <Users className="h-5 w-5 text-secondary mb-1" />
+              <p className="font-display text-2xl font-bold text-foreground">{downlineCount}</p>
+              <p className="text-xs text-muted-foreground">People Referred</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">{referrals.length} direct</p>
+            </CardContent>
+          </Card>
           <Card className="border-border shadow-card">
             <CardContent className="p-4">
               <DollarSign className="h-5 w-5 text-emerald-600 mb-1" />
@@ -118,7 +141,7 @@ const Earnings = () => {
             <CardContent className="p-4">
               <Wallet className="h-5 w-5 text-emerald-600 mb-1" />
               <p className="font-display text-2xl font-bold text-emerald-700 dark:text-emerald-400">₦{availableBalance.toLocaleString()}</p>
-              <p className="text-xs text-muted-foreground">Available to Withdraw</p>
+              <p className="text-xs text-muted-foreground">Available</p>
             </CardContent>
           </Card>
           <Card className="border-border shadow-card">
