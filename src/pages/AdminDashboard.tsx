@@ -126,6 +126,20 @@ const AdminDashboard = () => {
       setActiveDealThreads(enriched);
     }
 
+    // Withdrawals
+    const { data: wdData } = await (supabase as any)
+      .from("withdrawals")
+      .select("*")
+      .order("created_at", { ascending: false });
+    setWithdrawals(wdData || []);
+
+    // KYC submissions (full documents)
+    const { data: kycData } = await (supabase as any)
+      .from("kyc_verifications")
+      .select("*")
+      .order("submitted_at", { ascending: false });
+    setKycSubmissions(kycData || []);
+
     setLoading(false);
   };
 
@@ -393,6 +407,8 @@ const AdminDashboard = () => {
     { id: "earnings" as Tab, label: "Earnings", icon: DollarSign },
     { id: "subscriptions" as Tab, label: "Subscriptions", icon: CreditCard, count: subRequests.filter((r: any) => r.status === "pending").length },
     { id: "active-deals" as Tab, label: "Active Deals", icon: MessageCircle, count: activeDealThreads.length },
+    { id: "withdrawals" as Tab, label: "Withdrawals", icon: Wallet, count: withdrawals.filter((w: any) => w.status === "pending").length },
+    { id: "referrals" as Tab, label: "Referral Trees", icon: Network },
   ];
 
   // Selected user details for verification review
