@@ -15,6 +15,7 @@ const Earnings = () => {
   const [earnings, setEarnings] = useState<any[]>([]);
   const [withdrawals, setWithdrawals] = useState<any[]>([]);
   const [referrals, setReferrals] = useState<any[]>([]);
+  const [downlineCount, setDownlineCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [withdrawOpen, setWithdrawOpen] = useState(false);
 
@@ -33,6 +34,20 @@ const Earnings = () => {
     setEarnings(earningsRes.data || []);
     setReferrals(refsRes.data || []);
     setWithdrawals(wdRes.data || []);
+
+    // Compute total downline (L1+L2+L3) count
+    const l1Ids = (refsRes.data || []).filter((r: any) => r.referral_level === 1).map((r: any) => r.id);
+    let total = (refsRes.data || []).length;
+    if (l1Ids.length) {
+      const { data: l2 } = await (supabase as any).from("profiles").select("id").in("referred_by", l1Ids).eq("referral_level", 1);
+      const l2Ids = (l2 || []).map((r: any) => r.id);
+      total += (l2 || []).length;
+      if (l2Ids.length) {
+        const { data: l3 } = await (supabase as any).from("profiles").select("id").in("referred_by", l2Ids).eq("referral_level", 1);
+        total += (l3 || []).length;
+      }
+    }
+    setDownlineCount(total);
     setLoading(false);
   };
 
