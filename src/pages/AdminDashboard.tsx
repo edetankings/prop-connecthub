@@ -585,7 +585,7 @@ const AdminDashboard = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {Array.from(new Set(kycSteps.map((s: any) => s.user_id))).map((userId: any) => {
+                        {Array.from(new Set([...kycSteps.map((s: any) => s.user_id), ...kycSubmissions.map((k: any) => k.user_id)])).map((userId: any) => {
                           const userProfile = profiles.find((p: any) => p.user_id === userId);
                           const userSteps = kycSteps.filter((s: any) => s.user_id === userId);
                           const approved = userSteps.filter((s: any) => s.status === "approved").length;
