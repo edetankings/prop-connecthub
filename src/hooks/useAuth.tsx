@@ -112,25 +112,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       },
     });
     if (error) throw error;
-
-    // If referral code provided, link the referred_by after profile is created
-    if (referralCode && data.user) {
-      // Find the referrer profile by referral_code
-      const { data: referrer } = await (supabase as any)
-        .from("profiles")
-        .select("id")
-        .eq("referral_code", referralCode)
-        .maybeSingle();
-      if (referrer) {
-        // Wait briefly for the trigger to create the profile, then update
-        setTimeout(async () => {
-          await (supabase as any)
-            .from("profiles")
-            .update({ referred_by: referrer.id })
-            .eq("user_id", data.user!.id);
-        }, 2000);
-      }
-    }
+    // referral_code is included in user metadata above and is processed by the
+    // handle_new_user + auto_place_referral DB triggers (matrix placement).
+    // Do NOT update referred_by from the client — that would overwrite the matrix slot.
 
     toast.success("Check your email to verify your account!");
   };
