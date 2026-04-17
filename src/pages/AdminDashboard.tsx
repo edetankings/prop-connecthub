@@ -391,8 +391,11 @@ const AdminDashboard = () => {
   const openDisputes = disputes.filter((d) => d.status === "open").length;
   const pendingKycSteps = kycSteps.filter((s: any) => s.status === "pending");
 
-  // Get unique users with pending verification steps
-  const pendingVerificationUsers = Array.from(new Set(pendingKycSteps.map((s: any) => s.user_id)));
+  // Get unique users with pending verification steps OR pending kyc submissions
+  const pendingVerificationUsers = Array.from(new Set([
+    ...pendingKycSteps.map((s: any) => s.user_id),
+    ...kycSubmissions.filter((k: any) => k.kyc_status === "pending").map((k: any) => k.user_id),
+  ]));
 
   const tabs = [
     { id: "dashboard" as Tab, label: "Dashboard", icon: LayoutDashboard },
