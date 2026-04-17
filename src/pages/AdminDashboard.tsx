@@ -661,6 +661,62 @@ const AdminDashboard = () => {
                   </CardContent>
                 </Card>
 
+                {/* KYC submission documents */}
+                {(() => {
+                  const kyc = kycSubmissions.find((k: any) => k.user_id === selectedUserId);
+                  if (!kyc) return null;
+                  const docs = [
+                    { label: "Government ID", url: kyc.government_id_url, type: kyc.government_id_type },
+                    { label: "Live Selfie", url: kyc.selfie_url },
+                    { label: "Proof of Address", url: kyc.proof_of_address_url },
+                  ].filter((d) => d.url);
+                  return (
+                    <Card className="border-border/50 shadow-card">
+                      <CardHeader>
+                        <CardTitle className="text-base flex items-center gap-2">
+                          <FileText className="h-4 w-4 text-primary" /> KYC Submission Documents
+                          <Badge variant="outline" className="capitalize ml-2">{kyc.kyc_status}</Badge>
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                          {kyc.nin_or_bvn && <div><span className="text-muted-foreground">{kyc.nin_bvn_type || "NIN/BVN"}: </span><span className="font-medium text-foreground">{kyc.nin_or_bvn}</span></div>}
+                          {kyc.residential_address && <div><span className="text-muted-foreground">Address: </span><span className="font-medium text-foreground">{kyc.residential_address}</span></div>}
+                          {kyc.bank_name && <div><span className="text-muted-foreground">Bank: </span><span className="font-medium text-foreground">{kyc.bank_name}</span></div>}
+                          {kyc.account_number && <div><span className="text-muted-foreground">Account #: </span><span className="font-medium text-foreground">{kyc.account_number}</span></div>}
+                          {kyc.phone_verified !== null && <div><span className="text-muted-foreground">Phone Verified: </span><span className="font-medium text-foreground">{kyc.phone_verified ? "✅ Yes" : "❌ No"}</span></div>}
+                        </div>
+                        {docs.length > 0 && (
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
+                            {docs.map((d) => (
+                              <div key={d.label} className="border border-border rounded-lg p-2">
+                                <p className="text-xs font-semibold text-foreground mb-1">{d.label}{d.type ? ` (${d.type})` : ""}</p>
+                                {d.url!.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
+                                  <a href={d.url!} target="_blank" rel="noopener noreferrer">
+                                    <img src={d.url!} alt={d.label} className="w-full h-32 object-cover rounded border border-border" />
+                                  </a>
+                                ) : (
+                                  <a href={d.url!} target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline flex items-center gap-1">
+                                    <ExternalLink className="h-3 w-3" /> View document
+                                  </a>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        {kyc.kyc_status === "pending" && selectedUserProfile && !selectedUserProfile.kyc_verified && (
+                          <Button
+                            onClick={() => handleVerifyKyc(selectedUserProfile.id)}
+                            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white gap-2 mt-3"
+                          >
+                            <CheckCircle className="h-4 w-4" /> Verify Agent (Approve KYC)
+                          </Button>
+                        )}
+                      </CardContent>
+                    </Card>
+                  );
+                })()}
+
                 {/* Steps Review */}
                 <div className="space-y-3">
                   {selectedUserSteps.map((step: any) => (
