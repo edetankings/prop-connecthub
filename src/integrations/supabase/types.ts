@@ -415,6 +415,8 @@ export type Database = {
           profile_type: Database["public"]["Enums"]["profile_type"]
           properties_listed: number
           referral_code: string | null
+          referral_level: number | null
+          referral_position: number | null
           referred_by: string | null
           trust_score: number
           updated_at: string
@@ -437,6 +439,8 @@ export type Database = {
           profile_type?: Database["public"]["Enums"]["profile_type"]
           properties_listed?: number
           referral_code?: string | null
+          referral_level?: number | null
+          referral_position?: number | null
           referred_by?: string | null
           trust_score?: number
           updated_at?: string
@@ -459,6 +463,8 @@ export type Database = {
           profile_type?: Database["public"]["Enums"]["profile_type"]
           properties_listed?: number
           referral_code?: string | null
+          referral_level?: number | null
+          referral_position?: number | null
           referred_by?: string | null
           trust_score?: number
           updated_at?: string
@@ -975,6 +981,51 @@ export type Database = {
         }
         Relationships: []
       }
+      withdrawals: {
+        Row: {
+          account_name: string
+          account_number: string
+          admin_note: string | null
+          amount: number
+          bank_name: string
+          created_at: string
+          id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_name: string
+          account_number: string
+          admin_note?: string | null
+          amount: number
+          bank_name: string
+          created_at?: string
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_name?: string
+          account_number?: string
+          admin_note?: string | null
+          amount?: number
+          bank_name?: string
+          created_at?: string
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -988,6 +1039,14 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      place_in_matrix: {
+        Args: { _referrer_profile_id: string }
+        Returns: {
+          lvl: number
+          parent_id: string
+          pos: number
+        }[]
       }
     }
     Enums: {

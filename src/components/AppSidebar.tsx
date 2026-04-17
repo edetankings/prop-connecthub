@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   Home, Search, Heart, MessageCircle, Receipt, User, Settings, HelpCircle, LogOut,
   LayoutDashboard, Building, Plus, Wallet, ShieldCheck, Star, X,
-  Users, FileCheck, CheckCircle, TrendingUp, FileText, BarChart3, Cog, AlertTriangle, ScrollText, CreditCard
+  Users, FileCheck, CheckCircle, TrendingUp, FileText, BarChart3, Cog, AlertTriangle, ScrollText, CreditCard, DollarSign, Network
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -29,6 +29,7 @@ const agentMenu = [
   { label: "Add Property", icon: Plus, to: "/add-property" },
   { label: "My Listings", icon: Building, to: "/dashboard/agent" },
   { label: "Messages", icon: MessageCircle, to: "/messages", badge: true },
+  { label: "Earnings & Referrals", icon: DollarSign, to: "/earnings" },
   { label: "Payments", icon: CreditCard, to: "/payments" },
   { label: "Verification", icon: ShieldCheck, to: "/verification" },
   { label: "Settings", icon: Settings, to: "/settings" },

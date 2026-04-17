@@ -9,14 +9,15 @@ import {
   Users, Building, ShieldCheck, AlertTriangle, TrendingUp,
   CheckCircle, XCircle, FileText, LayoutDashboard, Gavel, ScrollText,
   DollarSign, Wallet, PieChart, Activity, ArrowUpRight, Eye, ExternalLink,
-  CalendarCheck, Trash2, MessageSquare, Mail, MailOpen, Megaphone, Edit3, Plus, CreditCard
+  CalendarCheck, Trash2, MessageSquare, Mail, MailOpen, Megaphone, Edit3, Plus, CreditCard, Network
 } from "lucide-react";
 import { MessageCircle } from "lucide-react";
+import ReferralTree from "@/components/ReferralTree";
 import logo from "@/assets/logo.jpg";
 import { toast } from "sonner";
 import { PieChart as RechartsPie, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
-type Tab = "dashboard" | "users" | "moderation" | "disputes" | "audit" | "verification" | "reservations" | "support" | "announcements" | "earnings" | "subscriptions" | "active-deals";
+type Tab = "dashboard" | "users" | "moderation" | "disputes" | "audit" | "verification" | "reservations" | "support" | "announcements" | "earnings" | "subscriptions" | "active-deals" | "withdrawals" | "referrals";
 
 const AdminDashboard = () => {
   const { user } = useAuth();
@@ -42,6 +43,9 @@ const AdminDashboard = () => {
   const [activeDealThreads, setActiveDealThreads] = useState<any[]>([]);
   const [selectedDealMessages, setSelectedDealMessages] = useState<any[]>([]);
   const [selectedDealId, setSelectedDealId] = useState<string | null>(null);
+  const [withdrawals, setWithdrawals] = useState<any[]>([]);
+  const [kycSubmissions, setKycSubmissions] = useState<any[]>([]);
+  const [selectedReferralUserId, setSelectedReferralUserId] = useState<string | null>(null);
 
   useEffect(() => { loadData(); }, []);
 
@@ -121,6 +125,20 @@ const AdminDashboard = () => {
       );
       setActiveDealThreads(enriched);
     }
+
+    // Withdrawals
+    const { data: wdData } = await (supabase as any)
+      .from("withdrawals")
+      .select("*")
+      .order("created_at", { ascending: false });
+    setWithdrawals(wdData || []);
+
+    // KYC submissions (full documents)
+    const { data: kycData } = await (supabase as any)
+      .from("kyc_verifications")
+      .select("*")
+      .order("submitted_at", { ascending: false });
+    setKycSubmissions(kycData || []);
 
     setLoading(false);
   };
@@ -373,8 +391,11 @@ const AdminDashboard = () => {
   const openDisputes = disputes.filter((d) => d.status === "open").length;
   const pendingKycSteps = kycSteps.filter((s: any) => s.status === "pending");
 
-  // Get unique users with pending verification steps
-  const pendingVerificationUsers = Array.from(new Set(pendingKycSteps.map((s: any) => s.user_id)));
+  // Get unique users with pending verification steps OR pending kyc submissions
+  const pendingVerificationUsers = Array.from(new Set([
+    ...pendingKycSteps.map((s: any) => s.user_id),
+    ...kycSubmissions.filter((k: any) => k.kyc_status === "pending").map((k: any) => k.user_id),
+  ]));
 
   const tabs = [
     { id: "dashboard" as Tab, label: "Dashboard", icon: LayoutDashboard },
@@ -389,6 +410,8 @@ const AdminDashboard = () => {
     { id: "earnings" as Tab, label: "Earnings", icon: DollarSign },
     { id: "subscriptions" as Tab, label: "Subscriptions", icon: CreditCard, count: subRequests.filter((r: any) => r.status === "pending").length },
     { id: "active-deals" as Tab, label: "Active Deals", icon: MessageCircle, count: activeDealThreads.length },
+    { id: "withdrawals" as Tab, label: "Withdrawals", icon: Wallet, count: withdrawals.filter((w: any) => w.status === "pending").length },
+    { id: "referrals" as Tab, label: "Referral Trees", icon: Network },
   ];
 
   // Selected user details for verification review
@@ -562,7 +585,7 @@ const AdminDashboard = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {Array.from(new Set(kycSteps.map((s: any) => s.user_id))).map((userId: any) => {
+                        {Array.from(new Set([...kycSteps.map((s: any) => s.user_id), ...kycSubmissions.map((k: any) => k.user_id)])).map((userId: any) => {
                           const userProfile = profiles.find((p: any) => p.user_id === userId);
                           const userSteps = kycSteps.filter((s: any) => s.user_id === userId);
                           const approved = userSteps.filter((s: any) => s.status === "approved").length;
@@ -640,6 +663,62 @@ const AdminDashboard = () => {
                     </div>
                   </CardContent>
                 </Card>
+
+                {/* KYC submission documents */}
+                {(() => {
+                  const kyc = kycSubmissions.find((k: any) => k.user_id === selectedUserId);
+                  if (!kyc) return null;
+                  const docs = [
+                    { label: "Government ID", url: kyc.government_id_url, type: kyc.government_id_type },
+                    { label: "Live Selfie", url: kyc.selfie_url },
+                    { label: "Proof of Address", url: kyc.proof_of_address_url },
+                  ].filter((d) => d.url);
+                  return (
+                    <Card className="border-border/50 shadow-card">
+                      <CardHeader>
+                        <CardTitle className="text-base flex items-center gap-2">
+                          <FileText className="h-4 w-4 text-primary" /> KYC Submission Documents
+                          <Badge variant="outline" className="capitalize ml-2">{kyc.kyc_status}</Badge>
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                          {kyc.nin_or_bvn && <div><span className="text-muted-foreground">{kyc.nin_bvn_type || "NIN/BVN"}: </span><span className="font-medium text-foreground">{kyc.nin_or_bvn}</span></div>}
+                          {kyc.residential_address && <div><span className="text-muted-foreground">Address: </span><span className="font-medium text-foreground">{kyc.residential_address}</span></div>}
+                          {kyc.bank_name && <div><span className="text-muted-foreground">Bank: </span><span className="font-medium text-foreground">{kyc.bank_name}</span></div>}
+                          {kyc.account_number && <div><span className="text-muted-foreground">Account #: </span><span className="font-medium text-foreground">{kyc.account_number}</span></div>}
+                          {kyc.phone_verified !== null && <div><span className="text-muted-foreground">Phone Verified: </span><span className="font-medium text-foreground">{kyc.phone_verified ? "✅ Yes" : "❌ No"}</span></div>}
+                        </div>
+                        {docs.length > 0 && (
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
+                            {docs.map((d) => (
+                              <div key={d.label} className="border border-border rounded-lg p-2">
+                                <p className="text-xs font-semibold text-foreground mb-1">{d.label}{d.type ? ` (${d.type})` : ""}</p>
+                                {d.url!.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
+                                  <a href={d.url!} target="_blank" rel="noopener noreferrer">
+                                    <img src={d.url!} alt={d.label} className="w-full h-32 object-cover rounded border border-border" />
+                                  </a>
+                                ) : (
+                                  <a href={d.url!} target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline flex items-center gap-1">
+                                    <ExternalLink className="h-3 w-3" /> View document
+                                  </a>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        {kyc.kyc_status === "pending" && selectedUserProfile && !selectedUserProfile.kyc_verified && (
+                          <Button
+                            onClick={() => handleVerifyKyc(selectedUserProfile.id)}
+                            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white gap-2 mt-3"
+                          >
+                            <CheckCircle className="h-4 w-4" /> Verify Agent (Approve KYC)
+                          </Button>
+                        )}
+                      </CardContent>
+                    </Card>
+                  );
+                })()}
 
                 {/* Steps Review */}
                 <div className="space-y-3">
@@ -1469,6 +1548,175 @@ const AdminDashboard = () => {
                     )}
                   </CardContent>
                 </Card>
+              </div>
+            )}
+
+            {/* WITHDRAWALS TAB */}
+            {tab === "withdrawals" && (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="font-display text-lg font-semibold text-foreground">Withdrawal Requests</h2>
+                  <Badge variant="outline">{withdrawals.filter((w: any) => w.status === "pending").length} pending</Badge>
+                </div>
+                <div className="rounded-xl border border-border bg-card overflow-hidden shadow-card">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead className="bg-muted/60">
+                        <tr>
+                          <th className="px-4 py-3 text-left font-medium text-muted-foreground">Date</th>
+                          <th className="px-4 py-3 text-left font-medium text-muted-foreground">User</th>
+                          <th className="px-4 py-3 text-left font-medium text-muted-foreground">Amount</th>
+                          <th className="px-4 py-3 text-left font-medium text-muted-foreground">Bank</th>
+                          <th className="px-4 py-3 text-left font-medium text-muted-foreground">Account</th>
+                          <th className="px-4 py-3 text-left font-medium text-muted-foreground">Status</th>
+                          <th className="px-4 py-3 text-left font-medium text-muted-foreground">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {withdrawals.length === 0 && (
+                          <tr><td colSpan={7} className="p-8 text-center text-muted-foreground">No withdrawal requests yet</td></tr>
+                        )}
+                        {withdrawals.map((w: any) => {
+                          const wUser = profiles.find((p: any) => p.user_id === w.user_id);
+                          return (
+                            <tr key={w.id} className="border-t border-border hover:bg-muted/20">
+                              <td className="px-4 py-3 text-xs text-muted-foreground">{new Date(w.created_at).toLocaleDateString()}</td>
+                              <td className="px-4 py-3 font-medium text-foreground">{wUser?.full_name || "Unknown"}</td>
+                              <td className="px-4 py-3 font-bold text-emerald-600">₦{(w.amount || 0).toLocaleString()}</td>
+                              <td className="px-4 py-3 text-foreground">{w.bank_name}</td>
+                              <td className="px-4 py-3 text-foreground text-xs">{w.account_number}<br/><span className="text-muted-foreground">{w.account_name}</span></td>
+                              <td className="px-4 py-3">
+                                <Badge className={`text-xs ${
+                                  w.status === "pending" ? "bg-amber-100 text-amber-700" :
+                                  w.status === "approved" ? "bg-emerald-100 text-emerald-700" :
+                                  "bg-red-100 text-red-700"
+                                }`}>{w.status}</Badge>
+                              </td>
+                              <td className="px-4 py-3">
+                                {w.status === "pending" && (
+                                  <div className="flex gap-2">
+                                    <Button
+                                      size="sm"
+                                      onClick={async () => {
+                                        const { error } = await (supabase as any).from("withdrawals").update({
+                                          status: "approved",
+                                          reviewed_by: user?.id,
+                                          reviewed_at: new Date().toISOString(),
+                                        }).eq("id", w.id);
+                                        if (error) { toast.error(error.message); return; }
+                                        await (supabase as any).from("notifications").insert({
+                                          user_id: w.user_id,
+                                          title: "Withdrawal Approved ✅",
+                                          message: `Your withdrawal of ₦${w.amount.toLocaleString()} has been approved and is being processed.`,
+                                          type: "success",
+                                          link: "/earnings",
+                                        });
+                                        toast.success("Withdrawal approved");
+                                        loadData();
+                                      }}
+                                      className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1"
+                                    >
+                                      <CheckCircle className="h-3.5 w-3.5" /> Approve
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="destructive"
+                                      onClick={async () => {
+                                        const reason = prompt("Reason for rejection:");
+                                        if (!reason) return;
+                                        const { error } = await (supabase as any).from("withdrawals").update({
+                                          status: "rejected",
+                                          admin_note: reason,
+                                          reviewed_by: user?.id,
+                                          reviewed_at: new Date().toISOString(),
+                                        }).eq("id", w.id);
+                                        if (error) { toast.error(error.message); return; }
+                                        await (supabase as any).from("notifications").insert({
+                                          user_id: w.user_id,
+                                          title: "Withdrawal Rejected",
+                                          message: `Your withdrawal of ₦${w.amount.toLocaleString()} was rejected. Reason: ${reason}`,
+                                          type: "warning",
+                                          link: "/earnings",
+                                        });
+                                        toast.success("Withdrawal rejected");
+                                        loadData();
+                                      }}
+                                      className="gap-1"
+                                    >
+                                      <XCircle className="h-3.5 w-3.5" /> Reject
+                                    </Button>
+                                  </div>
+                                )}
+                                {w.status !== "pending" && w.admin_note && (
+                                  <span className="text-xs text-muted-foreground">{w.admin_note}</span>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* REFERRAL TREES TAB */}
+            {tab === "referrals" && (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="font-display text-lg font-semibold text-foreground">Referral Trees</h2>
+                  {selectedReferralUserId && (
+                    <Button variant="ghost" size="sm" onClick={() => setSelectedReferralUserId(null)}>← All Users</Button>
+                  )}
+                </div>
+
+                {!selectedReferralUserId ? (
+                  <div className="rounded-xl border border-border bg-card overflow-hidden shadow-card">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead className="bg-muted/60">
+                          <tr>
+                            <th className="px-4 py-3 text-left font-medium text-muted-foreground">User</th>
+                            <th className="px-4 py-3 text-left font-medium text-muted-foreground">Type</th>
+                            <th className="px-4 py-3 text-left font-medium text-muted-foreground">Referral Code</th>
+                            <th className="px-4 py-3 text-left font-medium text-muted-foreground">Direct Referrals</th>
+                            <th className="px-4 py-3 text-left font-medium text-muted-foreground">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {profiles.filter((p: any) => p.profile_type === "agent" || p.referral_code).map((p: any) => {
+                            const directs = profiles.filter((x: any) => x.referred_by === p.id).length;
+                            return (
+                              <tr key={p.id} className="border-t border-border hover:bg-muted/20">
+                                <td className="px-4 py-3 font-medium text-foreground">{p.full_name || "—"}</td>
+                                <td className="px-4 py-3"><Badge variant="outline" className="capitalize text-xs">{p.profile_type}</Badge></td>
+                                <td className="px-4 py-3 text-xs font-mono text-muted-foreground">{p.referral_code || "—"}</td>
+                                <td className="px-4 py-3 font-bold text-foreground">{directs}</td>
+                                <td className="px-4 py-3">
+                                  <Button size="sm" variant="outline" className="gap-1" onClick={() => setSelectedReferralUserId(p.id)}>
+                                    <Network className="h-3.5 w-3.5" /> View Tree
+                                  </Button>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                ) : (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-base">
+                        Tree for: {profiles.find((p: any) => p.id === selectedReferralUserId)?.full_name}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ReferralTree rootProfileId={selectedReferralUserId} />
+                    </CardContent>
+                  </Card>
+                )}
               </div>
             )}
           </>
