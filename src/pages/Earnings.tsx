@@ -121,7 +121,15 @@ const Earnings = () => {
         )}
 
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+          <Card className="border-secondary/30 shadow-card bg-secondary/5">
+            <CardContent className="p-4">
+              <Users className="h-5 w-5 text-secondary mb-1" />
+              <p className="font-display text-2xl font-bold text-foreground">{downlineCount}</p>
+              <p className="text-xs text-muted-foreground">People Referred</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">{referrals.length} direct</p>
+            </CardContent>
+          </Card>
           <Card className="border-border shadow-card">
             <CardContent className="p-4">
               <DollarSign className="h-5 w-5 text-emerald-600 mb-1" />
@@ -133,7 +141,7 @@ const Earnings = () => {
             <CardContent className="p-4">
               <Wallet className="h-5 w-5 text-emerald-600 mb-1" />
               <p className="font-display text-2xl font-bold text-emerald-700 dark:text-emerald-400">₦{availableBalance.toLocaleString()}</p>
-              <p className="text-xs text-muted-foreground">Available to Withdraw</p>
+              <p className="text-xs text-muted-foreground">Available</p>
             </CardContent>
           </Card>
           <Card className="border-border shadow-card">
