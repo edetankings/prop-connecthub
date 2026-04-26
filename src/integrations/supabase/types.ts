@@ -633,6 +633,47 @@ export type Database = {
           },
         ]
       }
+      property_documents: {
+        Row: {
+          agent_id: string
+          document_type: string
+          file_name: string
+          file_size: number
+          file_url: string
+          id: string
+          property_id: string
+          uploaded_at: string
+        }
+        Insert: {
+          agent_id: string
+          document_type?: string
+          file_name: string
+          file_size?: number
+          file_url: string
+          id?: string
+          property_id: string
+          uploaded_at?: string
+        }
+        Update: {
+          agent_id?: string
+          document_type?: string
+          file_name?: string
+          file_size?: number
+          file_url?: string
+          id?: string
+          property_id?: string
+          uploaded_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_documents_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ratings: {
         Row: {
           agent_id: string
