@@ -11,7 +11,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Upload, X, ImageIcon, MapPin, Sparkles, Save, Send, AlertTriangle, CreditCard } from "lucide-react";
+import { Upload, X, ImageIcon, MapPin, Sparkles, Save, Send, AlertTriangle, CreditCard, FileText, ShieldCheck } from "lucide-react";
+import LocationPicker from "@/components/LocationPicker";
+import PdfUploader, { type PdfFile } from "@/components/PdfUploader";
 
 const AMENITIES = ["Free WiFi", "Swimming Pool", "Gym", "Parking", "Security", "Garden"];
 const CATEGORIES = [
@@ -28,6 +30,8 @@ const AddProperty = () => {
   const [submitting, setSubmitting] = useState(false);
   const [images, setImages] = useState<{ file: File; preview: string }[]>([]);
   const [dragOver, setDragOver] = useState(false);
+  const [pdfs, setPdfs] = useState<PdfFile[]>([]);
+  const [mapAddress, setMapAddress] = useState("");
 
   const [form, setForm] = useState({
     title: "",
