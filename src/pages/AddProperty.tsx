@@ -84,9 +84,32 @@ const AddProperty = () => {
     if (!form.city.trim()) { toast.error("City is required"); return false; }
     if (!form.state.trim()) { toast.error("State is required"); return false; }
     if (images.length === 0) { toast.error("At least one image is required"); return false; }
+    if (!form.latitude || !form.longitude) { toast.error("Pin the property location on the map"); return false; }
+    if (pdfs.length === 0) { toast.error("Upload at least one property document (PDF)"); return false; }
     if (form.title.length > 150) { toast.error("Title too long (max 150 chars)"); return false; }
     if (form.description.length > 5000) { toast.error("Description too long (max 5000 chars)"); return false; }
     return true;
+  };
+
+  const uploadPdfs = async (propertyId: string): Promise<void> => {
+    if (!profile) return;
+    for (const p of pdfs) {
+      const safeName = p.file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+      const path = `${profile.user_id}/${propertyId}/${Date.now()}-${safeName}`;
+      const { error: upErr } = await supabase.storage.from("property-documents").upload(path, p.file, {
+        contentType: "application/pdf",
+      });
+      if (upErr) { toast.error(`Doc upload failed: ${upErr.message}`); continue; }
+      const { data } = supabase.storage.from("property-documents").getPublicUrl(path);
+      await (supabase as any).from("property_documents").insert({
+        property_id: propertyId,
+        agent_id: profile.id,
+        file_url: data.publicUrl,
+        file_name: p.file.name,
+        file_size: p.file.size,
+        document_type: "other",
+      });
+    }
   };
 
   const uploadImages = async (): Promise<string[]> => {
