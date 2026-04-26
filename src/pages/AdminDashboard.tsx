@@ -46,6 +46,8 @@ const AdminDashboard = () => {
   const [withdrawals, setWithdrawals] = useState<any[]>([]);
   const [kycSubmissions, setKycSubmissions] = useState<any[]>([]);
   const [selectedReferralUserId, setSelectedReferralUserId] = useState<string | null>(null);
+  const [companyWallet, setCompanyWallet] = useState<{ balance: number; total_earned: number } | null>(null);
+  const [escrowHolds, setEscrowHolds] = useState<any[]>([]);
 
   useEffect(() => { loadData(); }, []);
 
@@ -139,6 +141,20 @@ const AdminDashboard = () => {
       .select("*")
       .order("submitted_at", { ascending: false });
     setKycSubmissions(kycData || []);
+
+    // Company wallet
+    const { data: cwData } = await (supabase as any)
+      .from("company_wallet")
+      .select("balance, total_earned")
+      .maybeSingle();
+    setCompanyWallet(cwData || null);
+
+    // Escrow holds
+    const { data: escData } = await (supabase as any)
+      .from("escrow_holds")
+      .select("*")
+      .order("created_at", { ascending: false });
+    setEscrowHolds(escData || []);
 
     setLoading(false);
   };
@@ -1323,11 +1339,55 @@ const AdminDashboard = () => {
                 <h2 className="font-display text-xl font-bold text-foreground">Earnings Overview</h2>
                 
                 {/* Summary Cards */}
-                <div className="grid gap-4 md:grid-cols-3">
-                  <GlassCard icon={DollarSign} label="Total Earnings Distributed" value={`₦${allEarnings.reduce((s: number, e: any) => s + (e.amount || 0), 0).toLocaleString()}`} />
-                  <GlassCard icon={TrendingUp} label="Rent Rewards" value={`₦${allEarnings.filter((e: any) => e.type === "rent_reward").reduce((s: number, e: any) => s + (e.amount || 0), 0).toLocaleString()}`} />
-                  <GlassCard icon={Building} label="Sale Rewards" value={`₦${allEarnings.filter((e: any) => e.type === "sale_reward").reduce((s: number, e: any) => s + (e.amount || 0), 0).toLocaleString()}`} />
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+                  <GlassCard icon={DollarSign} label="Total Distributed" value={`₦${allEarnings.reduce((s: number, e: any) => s + (e.amount || 0), 0).toLocaleString()}`} />
+                  <GlassCard icon={Building} label="Company Wallet" value={`₦${(companyWallet?.balance || 0).toLocaleString()}`} />
+                  <GlassCard icon={TrendingUp} label="Direct Bonuses" value={`₦${allEarnings.filter((e: any) => e.type === "direct_referral").reduce((s: number, e: any) => s + (e.amount || 0), 0).toLocaleString()}`} />
+                  <GlassCard icon={Network} label="Matrix Earnings" value={`₦${allEarnings.filter((e: any) => e.type === "matrix").reduce((s: number, e: any) => s + (e.amount || 0), 0).toLocaleString()}`} />
+                  <GlassCard icon={Wallet} label="Held in Escrow" value={`₦${escrowHolds.filter((h: any) => h.status === "held").reduce((s: number, h: any) => s + (h.amount || 0), 0).toLocaleString()}`} />
                 </div>
+
+                {/* Per-subscription distribution view */}
+                <Card className="border-border/50 shadow-card">
+                  <CardHeader><CardTitle className="text-base">Distribution Per Subscription</CardTitle></CardHeader>
+                  <CardContent>
+                    {(() => {
+                      const bySub: Record<string, any[]> = {};
+                      allEarnings.filter((e: any) => e.transaction_id).forEach((e: any) => {
+                        (bySub[e.transaction_id] ||= []).push(e);
+                      });
+                      const subs = Object.entries(bySub).slice(0, 10);
+                      if (subs.length === 0) return <p className="text-muted-foreground text-sm">No subscription distributions yet.</p>;
+                      return (
+                        <div className="space-y-3">
+                          {subs.map(([subId, items]) => {
+                            const total = items.reduce((s: number, i: any) => s + (i.amount || 0), 0);
+                            const subscriber = items.find((i: any) => i.from_user_id);
+                            const subProfile = profiles.find((p: any) => p.user_id === subscriber?.from_user_id);
+                            return (
+                              <div key={subId} className="p-3 rounded-lg border border-border">
+                                <div className="flex items-center justify-between mb-2">
+                                  <p className="text-sm font-medium text-foreground">From: {subProfile?.full_name || "Unknown"}</p>
+                                  <Badge variant="outline">₦{total.toLocaleString()} distributed</Badge>
+                                </div>
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-1 text-xs">
+                                  {items.filter((i: any) => i.amount > 0).sort((a: any, b: any) => (a.level || 0) - (b.level || 0)).map((i: any) => {
+                                    const recipient = profiles.find((p: any) => p.user_id === i.user_id);
+                                    return (
+                                      <div key={i.id} className="px-2 py-1 rounded bg-muted/50">
+                                        L{i.level} · {recipient?.full_name?.split(" ")[0] || "?"} · <strong>₦{i.amount.toLocaleString()}</strong>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      );
+                    })()}
+                  </CardContent>
+                </Card>
 
                 {/* Top Earning Agents */}
                 <Card className="border-border/50 shadow-card">

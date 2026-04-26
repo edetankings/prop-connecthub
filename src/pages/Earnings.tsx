@@ -5,7 +5,7 @@ import AuthenticatedLayout from "@/components/AuthenticatedLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { DollarSign, Users, Home, Building, Copy, TrendingUp, Wallet, Clock, CheckCircle, XCircle } from "lucide-react";
+import { DollarSign, Users, Copy, TrendingUp, Wallet, Clock, Layers, UserPlus, Building } from "lucide-react";
 import { toast } from "sonner";
 import WithdrawDialog from "@/components/WithdrawDialog";
 import ReferralTree from "@/components/ReferralTree";
@@ -15,7 +15,8 @@ const Earnings = () => {
   const [earnings, setEarnings] = useState<any[]>([]);
   const [withdrawals, setWithdrawals] = useState<any[]>([]);
   const [referrals, setReferrals] = useState<any[]>([]);
-  const [downlineCount, setDownlineCount] = useState(0);
+  const [escrow, setEscrow] = useState<any[]>([]);
+  const [subStatus, setSubStatus] = useState<{ status: string; end_date?: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [withdrawOpen, setWithdrawOpen] = useState(false);
 
@@ -26,39 +27,38 @@ const Earnings = () => {
 
   const loadData = async () => {
     setLoading(true);
-    const [earningsRes, refsRes, wdRes] = await Promise.all([
+    const [earningsRes, refsRes, wdRes, escrowRes, subRes] = await Promise.all([
       (supabase as any).from("earnings").select("*").eq("user_id", user!.id).order("created_at", { ascending: false }),
-      (supabase as any).from("profiles").select("id, full_name, profile_type, kyc_verified, created_at, referral_level").eq("referred_by", profile!.id).order("created_at", { ascending: false }),
+      (supabase as any).from("profiles").select("id, full_name, profile_type, kyc_verified, created_at").eq("referred_by", profile!.id).order("created_at", { ascending: false }),
       (supabase as any).from("withdrawals").select("*").eq("user_id", user!.id).order("created_at", { ascending: false }),
+      (supabase as any).from("escrow_holds").select("*").eq("intended_user_id", user!.id).eq("status", "held"),
+      (supabase as any).from("subscriptions").select("status, end_date").eq("user_id", user!.id).maybeSingle(),
     ]);
     setEarnings(earningsRes.data || []);
     setReferrals(refsRes.data || []);
     setWithdrawals(wdRes.data || []);
-
-    // Compute total downline (L1+L2+L3) count
-    const l1Ids = (refsRes.data || []).filter((r: any) => r.referral_level === 1).map((r: any) => r.id);
-    let total = (refsRes.data || []).length;
-    if (l1Ids.length) {
-      const { data: l2 } = await (supabase as any).from("profiles").select("id").in("referred_by", l1Ids).eq("referral_level", 1);
-      const l2Ids = (l2 || []).map((r: any) => r.id);
-      total += (l2 || []).length;
-      if (l2Ids.length) {
-        const { data: l3 } = await (supabase as any).from("profiles").select("id").in("referred_by", l2Ids).eq("referral_level", 1);
-        total += (l3 || []).length;
-      }
-    }
-    setDownlineCount(total);
+    setEscrow(escrowRes.data || []);
+    setSubStatus(subRes.data || null);
     setLoading(false);
   };
 
   const totalEarnings = earnings.reduce((s, e) => s + (e.amount || 0), 0);
-  const totalApprovedWithdrawals = withdrawals
+  const directEarnings = earnings.filter(e => e.type === "direct_referral").reduce((s, e) => s + (e.amount || 0), 0);
+  const matrixEarnings = earnings.filter(e => e.type === "matrix").reduce((s, e) => s + (e.amount || 0), 0);
+  const escrowTotal = escrow.reduce((s, e) => s + (e.amount || 0), 0);
+
+  const totalCommittedWd = withdrawals
     .filter((w) => w.status === "approved" || w.status === "pending")
     .reduce((s, w) => s + (w.amount || 0), 0);
-  const availableBalance = Math.max(0, totalEarnings - totalApprovedWithdrawals);
+  const availableBalance = Math.max(0, totalEarnings - totalCommittedWd);
 
-  const rentRewards = earnings.filter(e => e.type === "rent_reward").reduce((s, e) => s + (e.amount || 0), 0);
-  const saleRewards = earnings.filter(e => e.type === "sale_reward").reduce((s, e) => s + (e.amount || 0), 0);
+  // Per-level breakdown (1-15)
+  const levelBreakdown = Array.from({ length: 15 }, (_, i) => {
+    const lvl = i + 1;
+    const items = earnings.filter(e => e.level === lvl && (e.type === "matrix" || (lvl === 1 && e.type === "direct_referral")));
+    const amount = items.reduce((s, e) => s + (e.amount || 0), 0);
+    return { level: lvl, amount, count: items.length };
+  });
 
   // Bi-weekly countdown
   const lastWithdrawal = withdrawals[0];
@@ -76,15 +76,17 @@ const Earnings = () => {
     }
   };
 
+  const isSubActive = subStatus?.status === "active" && subStatus.end_date && new Date(subStatus.end_date) >= new Date();
+
   const typeColors: Record<string, string> = {
-    rent_reward: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
-    sale_reward: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
-    referral: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
+    direct_referral: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
+    matrix: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
+    company_fee: "bg-muted text-muted-foreground",
   };
   const typeLabels: Record<string, string> = {
-    rent_reward: "Rent Reward",
-    sale_reward: "Sale Reward",
-    referral: "Referral Bonus",
+    direct_referral: "Direct Referral",
+    matrix: "Matrix Earning",
+    company_fee: "Company Log",
   };
   const wdStatusColors: Record<string, string> = {
     pending: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
@@ -97,13 +99,30 @@ const Earnings = () => {
       <div className="container mx-auto px-4 py-8 max-w-5xl">
         <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h1 className="font-display text-3xl font-bold text-foreground">Earnings & Referrals 💰</h1>
-            <p className="mt-1 text-muted-foreground">Track your income and grow your 3x3 network</p>
+            <h1 className="font-display text-3xl font-bold text-foreground">Earnings & Network 💰</h1>
+            <p className="mt-1 text-muted-foreground">Track your subscription income across 15 generations</p>
           </div>
           <Button onClick={() => setWithdrawOpen(true)} className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white">
             <Wallet className="h-4 w-4" /> Withdraw
           </Button>
         </div>
+
+        {/* Subscription status banner */}
+        <Card className={`mb-4 ${isSubActive ? "border-emerald-300 bg-emerald-50/50 dark:bg-emerald-950/20" : "border-destructive/30 bg-destructive/5"}`}>
+          <CardContent className="p-4 flex items-center justify-between gap-3">
+            <div>
+              <p className="text-xs text-muted-foreground">Subscription Status</p>
+              <p className={`font-display font-bold ${isSubActive ? "text-emerald-700 dark:text-emerald-400" : "text-destructive"}`}>
+                {isSubActive ? "Active" : "Inactive — earnings go to escrow"}
+              </p>
+            </div>
+            {!isSubActive && (
+              <Button size="sm" variant="outline" onClick={() => window.location.href = "/payments"}>
+                Subscribe (₦7,500)
+              </Button>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Referral Link */}
         {referralLink && (
@@ -125,9 +144,9 @@ const Earnings = () => {
           <Card className="border-secondary/30 shadow-card bg-secondary/5">
             <CardContent className="p-4">
               <Users className="h-5 w-5 text-secondary mb-1" />
-              <p className="font-display text-2xl font-bold text-foreground">{downlineCount}</p>
-              <p className="text-xs text-muted-foreground">People Referred</p>
-              <p className="text-[10px] text-muted-foreground mt-0.5">{referrals.length} direct</p>
+              <p className="font-display text-2xl font-bold text-foreground">{referrals.length}</p>
+              <p className="text-xs text-muted-foreground">Direct Referrals</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">2x2 max</p>
             </CardContent>
           </Card>
           <Card className="border-border shadow-card">
@@ -146,19 +165,31 @@ const Earnings = () => {
           </Card>
           <Card className="border-border shadow-card">
             <CardContent className="p-4">
-              <Home className="h-5 w-5 text-emerald-600 mb-1" />
-              <p className="font-display text-2xl font-bold text-foreground">₦{rentRewards.toLocaleString()}</p>
-              <p className="text-xs text-muted-foreground">Rent Rewards</p>
+              <UserPlus className="h-5 w-5 text-emerald-600 mb-1" />
+              <p className="font-display text-2xl font-bold text-foreground">₦{directEarnings.toLocaleString()}</p>
+              <p className="text-xs text-muted-foreground">Direct Bonuses</p>
             </CardContent>
           </Card>
           <Card className="border-border shadow-card">
             <CardContent className="p-4">
-              <Building className="h-5 w-5 text-amber-600 mb-1" />
-              <p className="font-display text-2xl font-bold text-foreground">₦{saleRewards.toLocaleString()}</p>
-              <p className="text-xs text-muted-foreground">Sale Rewards</p>
+              <Layers className="h-5 w-5 text-blue-600 mb-1" />
+              <p className="font-display text-2xl font-bold text-foreground">₦{matrixEarnings.toLocaleString()}</p>
+              <p className="text-xs text-muted-foreground">Matrix Earnings</p>
             </CardContent>
           </Card>
         </div>
+
+        {/* Escrow notice */}
+        {escrowTotal > 0 && (
+          <Card className="mb-6 border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/20">
+            <CardContent className="p-4 flex items-center gap-3">
+              <Clock className="h-5 w-5 text-amber-600 shrink-0" />
+              <p className="text-sm text-foreground">
+                <strong>₦{escrowTotal.toLocaleString()}</strong> held in escrow ({escrow.length} item{escrow.length !== 1 ? "s" : ""}). Activate your subscription within 30 days to unlock these earnings.
+              </p>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Bi-weekly notice */}
         {lastWithdrawal && daysUntilNext > 0 && (
@@ -166,18 +197,43 @@ const Earnings = () => {
             <CardContent className="p-4 flex items-center gap-3">
               <Clock className="h-5 w-5 text-amber-600 shrink-0" />
               <p className="text-sm text-foreground">
-                Your last withdrawal was {daysSince} day{daysSince !== 1 ? "s" : ""} ago. Next bi-weekly window opens in <strong>{daysUntilNext} day{daysUntilNext !== 1 ? "s" : ""}</strong>.
+                Last withdrawal {daysSince} day{daysSince !== 1 ? "s" : ""} ago. Next bi-weekly window opens in <strong>{daysUntilNext} day{daysUntilNext !== 1 ? "s" : ""}</strong>.
               </p>
             </CardContent>
           </Card>
         )}
+
+        {/* Per-level breakdown */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Layers className="h-4 w-4 text-blue-600" /> Earnings by Generation (15 Levels)
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+              {levelBreakdown.map(l => (
+                <div
+                  key={l.level}
+                  className={`rounded-lg border p-3 text-center ${l.amount > 0 ? "border-emerald-300 bg-emerald-50/40 dark:bg-emerald-950/20" : "border-border bg-muted/20"}`}
+                >
+                  <p className="text-[10px] text-muted-foreground">L{l.level}</p>
+                  <p className={`font-display font-bold text-sm ${l.amount > 0 ? "text-emerald-700 dark:text-emerald-400" : "text-muted-foreground"}`}>
+                    ₦{l.amount.toLocaleString()}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">{l.count} item{l.count !== 1 ? "s" : ""}</p>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Referral Tree */}
         {profile?.id && (
           <Card className="mb-6">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
-                <Users className="h-4 w-4 text-secondary" /> Your 3x3 Referral Matrix
+                <Users className="h-4 w-4 text-secondary" /> Your 2x2 Referral Matrix
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -190,7 +246,7 @@ const Earnings = () => {
         <Card className="mb-6">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
-              <Users className="h-4 w-4 text-primary" /> Your Referred Users
+              <Users className="h-4 w-4 text-primary" /> Your Direct Referrals
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -272,7 +328,7 @@ const Earnings = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
-              <TrendingUp className="h-4 w-4 text-secondary" /> Earnings History
+              <TrendingUp className="h-4 w-4 text-secondary" /> Recent Earnings Activity
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -280,7 +336,7 @@ const Earnings = () => {
               <div className="flex justify-center py-8">
                 <div className="animate-spin h-6 w-6 border-2 border-primary border-t-transparent rounded-full" />
               </div>
-            ) : earnings.length === 0 ? (
+            ) : earnings.filter(e => e.amount > 0).length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <DollarSign className="mx-auto h-10 w-10 text-muted-foreground/30 mb-2" />
                 <p>No earnings yet. Share your referral link to start earning!</p>
@@ -292,12 +348,13 @@ const Earnings = () => {
                     <tr className="border-b border-border text-muted-foreground">
                       <th className="text-left py-2 px-3 font-medium">Date</th>
                       <th className="text-left py-2 px-3 font-medium">Type</th>
+                      <th className="text-left py-2 px-3 font-medium">Level</th>
                       <th className="text-left py-2 px-3 font-medium">Description</th>
                       <th className="text-right py-2 px-3 font-medium">Amount</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {earnings.map((e) => (
+                    {earnings.filter(e => e.amount > 0).map((e) => (
                       <tr key={e.id} className="border-b border-border/50 hover:bg-muted/30">
                         <td className="py-3 px-3 text-foreground">{new Date(e.created_at).toLocaleDateString()}</td>
                         <td className="py-3 px-3">
@@ -305,6 +362,7 @@ const Earnings = () => {
                             {typeLabels[e.type] || e.type}
                           </Badge>
                         </td>
+                        <td className="py-3 px-3 text-muted-foreground text-xs">{e.level ? `L${e.level}` : "—"}</td>
                         <td className="py-3 px-3 text-muted-foreground">{e.description || "—"}</td>
                         <td className="py-3 px-3 text-right font-bold text-emerald-600">₦{(e.amount || 0).toLocaleString()}</td>
                       </tr>
