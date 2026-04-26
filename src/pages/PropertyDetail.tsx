@@ -16,6 +16,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import type { DBAgent } from "@/pages/Agents";
 import VerifiedBadge from "@/components/VerifiedBadge";
+import PropertyMapPreview from "@/components/PropertyMapPreview";
 
 interface DBPropertyDetail {
   id: string;
@@ -35,6 +36,8 @@ interface DBPropertyDetail {
   description: string | null;
   is_verified: boolean;
   amenities: string[] | null;
+  latitude: number | null;
+  longitude: number | null;
 }
 
 const PropertyDetail = () => {
@@ -327,6 +330,17 @@ const PropertyDetail = () => {
                       </span>
                     ))}
                   </div>
+                </div>
+              )}
+
+              {dbProperty?.latitude != null && dbProperty?.longitude != null && (
+                <div className="mt-6">
+                  <h2 className="font-display text-lg font-semibold text-foreground mb-3">Location on Map</h2>
+                  <PropertyMapPreview
+                    lat={dbProperty.latitude}
+                    lng={dbProperty.longitude}
+                    address={location}
+                  />
                 </div>
               )}
             </div>

@@ -11,7 +11,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Upload, X, ImageIcon, MapPin, Sparkles, Save, Send, AlertTriangle, CreditCard } from "lucide-react";
+import { Upload, X, ImageIcon, MapPin, Sparkles, Save, Send, AlertTriangle, CreditCard, FileText, ShieldCheck } from "lucide-react";
+import LocationPicker from "@/components/LocationPicker";
+import PdfUploader, { type PdfFile } from "@/components/PdfUploader";
 
 const AMENITIES = ["Free WiFi", "Swimming Pool", "Gym", "Parking", "Security", "Garden"];
 const CATEGORIES = [
@@ -28,6 +30,8 @@ const AddProperty = () => {
   const [submitting, setSubmitting] = useState(false);
   const [images, setImages] = useState<{ file: File; preview: string }[]>([]);
   const [dragOver, setDragOver] = useState(false);
+  const [pdfs, setPdfs] = useState<PdfFile[]>([]);
+  const [mapAddress, setMapAddress] = useState("");
 
   const [form, setForm] = useState({
     title: "",
@@ -80,9 +84,32 @@ const AddProperty = () => {
     if (!form.city.trim()) { toast.error("City is required"); return false; }
     if (!form.state.trim()) { toast.error("State is required"); return false; }
     if (images.length === 0) { toast.error("At least one image is required"); return false; }
+    if (!form.latitude || !form.longitude) { toast.error("Pin the property location on the map"); return false; }
+    if (pdfs.length === 0) { toast.error("Upload at least one property document (PDF)"); return false; }
     if (form.title.length > 150) { toast.error("Title too long (max 150 chars)"); return false; }
     if (form.description.length > 5000) { toast.error("Description too long (max 5000 chars)"); return false; }
     return true;
+  };
+
+  const uploadPdfs = async (propertyId: string): Promise<void> => {
+    if (!profile) return;
+    for (const p of pdfs) {
+      const safeName = p.file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+      const path = `${profile.user_id}/${propertyId}/${Date.now()}-${safeName}`;
+      const { error: upErr } = await supabase.storage.from("property-documents").upload(path, p.file, {
+        contentType: "application/pdf",
+      });
+      if (upErr) { toast.error(`Doc upload failed: ${upErr.message}`); continue; }
+      const { data } = supabase.storage.from("property-documents").getPublicUrl(path);
+      await (supabase as any).from("property_documents").insert({
+        property_id: propertyId,
+        agent_id: profile.id,
+        file_url: data.publicUrl,
+        file_name: p.file.name,
+        file_size: p.file.size,
+        document_type: "other",
+      });
+    }
   };
 
   const uploadImages = async (): Promise<string[]> => {
@@ -102,35 +129,45 @@ const AddProperty = () => {
     if (status === "for_sale" && !validate()) return;
     if (status === "draft" && !form.title.trim()) { toast.error("Title is required even for drafts"); return; }
     if (!profile) { toast.error("Please log in first"); return; }
+    if (status === "for_sale" && isAgent && !isKycVerified) {
+      toast.error("Complete KYC verification before submitting a property for approval.");
+      return;
+    }
 
     setSubmitting(true);
     try {
       const imageUrls = await uploadImages();
-      // All published properties go to under_verification for admin approval
       const finalStatus = status === "draft" ? "draft" : "under_verification";
 
-      const { error } = await supabase.from("properties").insert({
-        title: form.title.trim(),
-        price: Number(form.price) || 0,
-        property_type: form.property_type || "house",
-        description: form.description.trim(),
-        address: form.address.trim(),
-        city: form.city.trim(),
-        state: form.state.trim(),
-        zip_code: form.zip_code.trim(),
-        latitude: form.latitude ? parseFloat(form.latitude) : null,
-        longitude: form.longitude ? parseFloat(form.longitude) : null,
-        bedrooms: form.bedrooms ? parseInt(form.bedrooms) : null,
-        bathrooms: form.bathrooms ? parseInt(form.bathrooms) : null,
-        sqft: form.sqft ? parseInt(form.sqft) : null,
-        amenities: form.amenities,
-        images: imageUrls,
-        image_url: imageUrls[0] || null,
-        agent_id: profile.id,
-        status: (status === "draft" ? "draft" : "under_verification") as any,
-      });
+      const { data: inserted, error } = await supabase
+        .from("properties")
+        .insert({
+          title: form.title.trim(),
+          price: Number(form.price) || 0,
+          property_type: form.property_type || "house",
+          description: form.description.trim(),
+          address: form.address.trim() || mapAddress,
+          city: form.city.trim(),
+          state: form.state.trim(),
+          zip_code: form.zip_code.trim(),
+          latitude: form.latitude ? parseFloat(form.latitude) : null,
+          longitude: form.longitude ? parseFloat(form.longitude) : null,
+          bedrooms: form.bedrooms ? parseInt(form.bedrooms) : null,
+          bathrooms: form.bathrooms ? parseInt(form.bathrooms) : null,
+          sqft: form.sqft ? parseInt(form.sqft) : null,
+          amenities: form.amenities,
+          images: imageUrls,
+          image_url: imageUrls[0] || null,
+          agent_id: profile.id,
+          status: finalStatus as any,
+        })
+        .select("id")
+        .single();
 
       if (error) throw error;
+      if (inserted?.id && pdfs.length > 0) {
+        await uploadPdfs(inserted.id);
+      }
       toast.success(status === "draft" ? "Draft saved!" : "Property submitted for admin approval!");
       navigate("/dashboard");
     } catch (err: any) {
@@ -278,22 +315,44 @@ const AddProperty = () => {
         {/* Location */}
         <section className="mb-8">
           <h2 className="font-display text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
-            <MapPin className="h-5 w-5 text-secondary" /> Location
+            <MapPin className="h-5 w-5 text-secondary" /> Location <span className="text-destructive">*</span>
           </h2>
           <div className="space-y-4">
-            <Input placeholder="Street Address" value={form.address} onChange={(e) => updateField("address", e.target.value)} />
             <div className="grid grid-cols-3 gap-4">
-              <Input placeholder="City" value={form.city} onChange={(e) => updateField("city", e.target.value)} />
-              <Input placeholder="State" value={form.state} onChange={(e) => updateField("state", e.target.value)} />
+              <Input placeholder="City *" value={form.city} onChange={(e) => updateField("city", e.target.value)} />
+              <Input placeholder="State *" value={form.state} onChange={(e) => updateField("state", e.target.value)} />
               <Input placeholder="Zip Code" value={form.zip_code} onChange={(e) => updateField("zip_code", e.target.value)} />
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <Input type="number" placeholder="Latitude" value={form.latitude} onChange={(e) => updateField("latitude", e.target.value)} />
-              <Input type="number" placeholder="Longitude" value={form.longitude} onChange={(e) => updateField("longitude", e.target.value)} />
-            </div>
-            <p className="text-xs text-muted-foreground">Enter coordinates manually or use a map service to find them.</p>
+            <LocationPicker
+              initialLat={form.latitude ? parseFloat(form.latitude) : null}
+              initialLng={form.longitude ? parseFloat(form.longitude) : null}
+              initialAddress={form.address}
+              onChange={({ lat, lng, address }) => {
+                setForm((f) => ({
+                  ...f,
+                  latitude: String(lat),
+                  longitude: String(lng),
+                  address: f.address || address,
+                }));
+                setMapAddress(address);
+              }}
+            />
+            <Input placeholder="Street Address (auto-filled from map, editable)" value={form.address} onChange={(e) => updateField("address", e.target.value)} />
           </div>
         </section>
+
+        {/* Property Documents (PDF) */}
+        <section className="mb-8">
+          <h2 className="font-display text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
+            <FileText className="h-5 w-5 text-secondary" /> Upload Property Documents (PDF) <span className="text-destructive">*</span>
+          </h2>
+          <p className="text-xs text-muted-foreground mb-3 flex items-center gap-1">
+            <ShieldCheck className="h-3 w-3 text-secondary" />
+            Required: ownership proof, survey plan, agreement, land docs. Securely stored & visible only to you and admins.
+          </p>
+          <PdfUploader files={pdfs} onChange={setPdfs} maxFiles={3} maxSizeMb={20} />
+        </section>
+
 
         {/* Amenities */}
         <section className="mb-8">
