@@ -46,6 +46,8 @@ const AdminDashboard = () => {
   const [withdrawals, setWithdrawals] = useState<any[]>([]);
   const [kycSubmissions, setKycSubmissions] = useState<any[]>([]);
   const [selectedReferralUserId, setSelectedReferralUserId] = useState<string | null>(null);
+  const [companyWallet, setCompanyWallet] = useState<{ balance: number; total_earned: number } | null>(null);
+  const [escrowHolds, setEscrowHolds] = useState<any[]>([]);
 
   useEffect(() => { loadData(); }, []);
 
