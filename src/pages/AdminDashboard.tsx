@@ -48,6 +48,7 @@ const AdminDashboard = () => {
   const [selectedReferralUserId, setSelectedReferralUserId] = useState<string | null>(null);
   const [companyWallet, setCompanyWallet] = useState<{ balance: number; total_earned: number } | null>(null);
   const [escrowHolds, setEscrowHolds] = useState<any[]>([]);
+  const [propertyDocs, setPropertyDocs] = useState<any[]>([]);
 
   useEffect(() => { loadData(); }, []);
 
