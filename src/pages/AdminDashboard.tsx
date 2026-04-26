@@ -96,6 +96,12 @@ const AdminDashboard = () => {
       .order("created_at", { ascending: false });
     setAllEarnings(earningsData || []);
 
+    const { data: docsData } = await (supabase as any)
+      .from("property_documents")
+      .select("*")
+      .order("uploaded_at", { ascending: false });
+    setPropertyDocs(docsData || []);
+
     const { data: subReqData } = await (supabase as any)
       .from("subscription_requests")
       .select("*")
