@@ -909,31 +909,77 @@ const AdminDashboard = () => {
               <div className="space-y-6">
                 <h2 className="font-display text-lg font-semibold text-foreground">Properties Pending Approval</h2>
                 {properties.filter((p) => p.status === "under_verification").length === 0 && <p className="text-muted-foreground text-sm">No pending properties</p>}
-                {properties.filter((p) => p.status === "under_verification").map((p) => (
-                  <div key={p.id} className="rounded-xl border border-border bg-card overflow-hidden shadow-card">
-                    <div className="flex flex-col md:flex-row">
-                      {p.image_url && (
-                        <div className="w-full md:w-48 h-36 bg-muted shrink-0">
-                          <img src={p.image_url} alt={p.title} className="h-full w-full object-cover" />
+                {properties.filter((p) => p.status === "under_verification").map((p) => {
+                  const agentProfile = profiles.find((pr: any) => pr.id === p.agent_id);
+                  const docs = propertyDocs.filter((d: any) => d.property_id === p.id);
+                  return (
+                    <div key={p.id} className="rounded-xl border border-border bg-card overflow-hidden shadow-card">
+                      <div className="flex flex-col md:flex-row">
+                        {p.image_url && (
+                          <div className="w-full md:w-48 h-36 bg-muted shrink-0">
+                            <img src={p.image_url} alt={p.title} className="h-full w-full object-cover" />
+                          </div>
+                        )}
+                        <div className="p-4 flex-1">
+                          <p className="font-semibold text-foreground text-lg">{p.title}</p>
+                          <p className="text-sm text-secondary font-bold mt-1">₦{(p.price || 0).toLocaleString()}</p>
+                          <p className="text-sm text-muted-foreground">{p.city}, {p.state}</p>
+                          {(p.latitude != null && p.longitude != null) && (
+                            <a
+                              href={`https://www.openstreetmap.org/?mlat=${p.latitude}&mlon=${p.longitude}#map=17/${p.latitude}/${p.longitude}`}
+                              target="_blank" rel="noopener noreferrer"
+                              className="text-xs text-primary underline inline-flex items-center gap-1 mt-1"
+                            >
+                              <ExternalLink className="h-3 w-3" /> View pinned location
+                            </a>
+                          )}
+                          <div className="mt-2 text-xs text-muted-foreground">
+                            <p><strong className="text-foreground">Agent:</strong> {agentProfile?.full_name || p.profiles?.full_name || "—"}</p>
+                            {agentProfile?.phone && <p><strong className="text-foreground">Phone:</strong> {agentProfile.phone}</p>}
+                            <p>
+                              <strong className="text-foreground">KYC:</strong>{" "}
+                              {agentProfile?.kyc_verified ? <span className="text-[hsl(var(--success))]">Verified</span> : <span className="text-[hsl(var(--warning))]">Not verified</span>}
+                            </p>
+                          </div>
+                          <Badge variant="outline" className="mt-2 text-[hsl(var(--warning))]">Pending Approval</Badge>
                         </div>
-                      )}
-                      <div className="p-4 flex-1">
-                        <p className="font-semibold text-foreground text-lg">{p.title}</p>
-                        <p className="text-sm text-secondary font-bold mt-1">₦{(p.price || 0).toLocaleString()}</p>
-                        <p className="text-sm text-muted-foreground">{p.city}, {p.state} · Agent: {p.profiles?.full_name || "—"}</p>
-                        <Badge variant="outline" className="mt-2 text-[hsl(var(--warning))]">Pending Approval</Badge>
+                        <div className="flex md:flex-col gap-2 p-4 items-center justify-end">
+                          <Button size="sm" onClick={() => handleApproveProperty(p.id)} className="bg-[hsl(var(--success))] text-[hsl(var(--success-foreground))] hover:bg-[hsl(var(--success))]/90 gap-1">
+                            <CheckCircle className="h-4 w-4" /> Approve
+                          </Button>
+                          <Button size="sm" variant="destructive" onClick={() => handleRejectProperty(p.id)} className="gap-1">
+                            <XCircle className="h-4 w-4" /> Reject
+                          </Button>
+                        </div>
                       </div>
-                      <div className="flex md:flex-col gap-2 p-4 items-center justify-end">
-                        <Button size="sm" onClick={() => handleApproveProperty(p.id)} className="bg-[hsl(var(--success))] text-[hsl(var(--success-foreground))] hover:bg-[hsl(var(--success))]/90 gap-1">
-                          <CheckCircle className="h-4 w-4" /> Approve
-                        </Button>
-                        <Button size="sm" variant="destructive" onClick={() => handleRejectProperty(p.id)} className="gap-1">
-                          <XCircle className="h-4 w-4" /> Reject
-                        </Button>
+                      <div className="border-t border-border p-4 bg-muted/30">
+                        <p className="text-xs font-semibold text-foreground mb-2 flex items-center gap-1">
+                          <FileText className="h-3 w-3" /> Property Documents ({docs.length})
+                        </p>
+                        {docs.length === 0 ? (
+                          <p className="text-xs text-muted-foreground">No documents uploaded</p>
+                        ) : (
+                          <div className="space-y-1">
+                            {docs.map((d: any) => (
+                              <a
+                                key={d.id}
+                                href={d.file_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-2 rounded-lg border border-border bg-card p-2 hover:border-secondary/50 transition-colors text-xs"
+                              >
+                                <FileText className="h-4 w-4 text-secondary shrink-0" />
+                                <span className="flex-1 truncate text-foreground">{d.file_name}</span>
+                                <span className="text-muted-foreground">{((d.file_size || 0) / 1024 / 1024).toFixed(2)} MB</span>
+                                <ExternalLink className="h-3 w-3 text-muted-foreground" />
+                              </a>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
 
                 <h2 className="font-display text-lg font-semibold text-foreground mt-8">Verification Documents</h2>
                 {verifications.length === 0 && <p className="p-8 text-center text-muted-foreground">No documents</p>}
