@@ -142,6 +142,20 @@ const AdminDashboard = () => {
       .order("submitted_at", { ascending: false });
     setKycSubmissions(kycData || []);
 
+    // Company wallet
+    const { data: cwData } = await (supabase as any)
+      .from("company_wallet")
+      .select("balance, total_earned")
+      .maybeSingle();
+    setCompanyWallet(cwData || null);
+
+    // Escrow holds
+    const { data: escData } = await (supabase as any)
+      .from("escrow_holds")
+      .select("*")
+      .order("created_at", { ascending: false });
+    setEscrowHolds(escData || []);
+
     setLoading(false);
   };
 
