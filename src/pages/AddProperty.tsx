@@ -315,22 +315,44 @@ const AddProperty = () => {
         {/* Location */}
         <section className="mb-8">
           <h2 className="font-display text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
-            <MapPin className="h-5 w-5 text-secondary" /> Location
+            <MapPin className="h-5 w-5 text-secondary" /> Location <span className="text-destructive">*</span>
           </h2>
           <div className="space-y-4">
-            <Input placeholder="Street Address" value={form.address} onChange={(e) => updateField("address", e.target.value)} />
             <div className="grid grid-cols-3 gap-4">
-              <Input placeholder="City" value={form.city} onChange={(e) => updateField("city", e.target.value)} />
-              <Input placeholder="State" value={form.state} onChange={(e) => updateField("state", e.target.value)} />
+              <Input placeholder="City *" value={form.city} onChange={(e) => updateField("city", e.target.value)} />
+              <Input placeholder="State *" value={form.state} onChange={(e) => updateField("state", e.target.value)} />
               <Input placeholder="Zip Code" value={form.zip_code} onChange={(e) => updateField("zip_code", e.target.value)} />
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <Input type="number" placeholder="Latitude" value={form.latitude} onChange={(e) => updateField("latitude", e.target.value)} />
-              <Input type="number" placeholder="Longitude" value={form.longitude} onChange={(e) => updateField("longitude", e.target.value)} />
-            </div>
-            <p className="text-xs text-muted-foreground">Enter coordinates manually or use a map service to find them.</p>
+            <LocationPicker
+              initialLat={form.latitude ? parseFloat(form.latitude) : null}
+              initialLng={form.longitude ? parseFloat(form.longitude) : null}
+              initialAddress={form.address}
+              onChange={({ lat, lng, address }) => {
+                setForm((f) => ({
+                  ...f,
+                  latitude: String(lat),
+                  longitude: String(lng),
+                  address: f.address || address,
+                }));
+                setMapAddress(address);
+              }}
+            />
+            <Input placeholder="Street Address (auto-filled from map, editable)" value={form.address} onChange={(e) => updateField("address", e.target.value)} />
           </div>
         </section>
+
+        {/* Property Documents (PDF) */}
+        <section className="mb-8">
+          <h2 className="font-display text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
+            <FileText className="h-5 w-5 text-secondary" /> Upload Property Documents (PDF) <span className="text-destructive">*</span>
+          </h2>
+          <p className="text-xs text-muted-foreground mb-3 flex items-center gap-1">
+            <ShieldCheck className="h-3 w-3 text-secondary" />
+            Required: ownership proof, survey plan, agreement, land docs. Securely stored & visible only to you and admins.
+          </p>
+          <PdfUploader files={pdfs} onChange={setPdfs} maxFiles={3} maxSizeMb={20} />
+        </section>
+
 
         {/* Amenities */}
         <section className="mb-8">
