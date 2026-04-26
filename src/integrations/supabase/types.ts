@@ -125,6 +125,27 @@ export type Database = {
           },
         ]
       }
+      company_wallet: {
+        Row: {
+          balance: number
+          id: string
+          total_earned: number
+          updated_at: string
+        }
+        Insert: {
+          balance?: number
+          id?: string
+          total_earned?: number
+          updated_at?: string
+        }
+        Update: {
+          balance?: number
+          id?: string
+          total_earned?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       disputes: {
         Row: {
           created_at: string
@@ -182,7 +203,10 @@ export type Database = {
           amount: number
           created_at: string
           description: string | null
+          from_user_id: string | null
           id: string
+          level: number | null
+          source: string | null
           transaction_id: string | null
           type: string
           user_id: string
@@ -191,7 +215,10 @@ export type Database = {
           amount?: number
           created_at?: string
           description?: string | null
+          from_user_id?: string | null
           id?: string
+          level?: number | null
+          source?: string | null
           transaction_id?: string | null
           type: string
           user_id: string
@@ -200,7 +227,10 @@ export type Database = {
           amount?: number
           created_at?: string
           description?: string | null
+          from_user_id?: string | null
           id?: string
+          level?: number | null
+          source?: string | null
           transaction_id?: string | null
           type?: string
           user_id?: string
@@ -214,6 +244,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      escrow_holds: {
+        Row: {
+          amount: number
+          created_at: string
+          from_user_id: string
+          hold_until: string
+          id: string
+          intended_user_id: string
+          level: number
+          resolved_at: string | null
+          status: string
+          subscription_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          from_user_id: string
+          hold_until?: string
+          id?: string
+          intended_user_id: string
+          level: number
+          resolved_at?: string | null
+          status?: string
+          subscription_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          from_user_id?: string
+          hold_until?: string
+          id?: string
+          intended_user_id?: string
+          level?: number
+          resolved_at?: string | null
+          status?: string
+          subscription_id?: string | null
+        }
+        Relationships: []
       }
       kyc_verifications: {
         Row: {
@@ -1031,6 +1100,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      distribute_subscription_payment: {
+        Args: { _subscription_id: string }
+        Returns: undefined
+      }
       generate_referral_code: { Args: never; Returns: string }
       get_my_profile_id: { Args: never; Returns: string }
       has_role: {
