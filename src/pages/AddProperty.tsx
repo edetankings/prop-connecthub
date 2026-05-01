@@ -204,8 +204,19 @@ const AddProperty = () => {
     }
   };
 
-  // Subscription gate for agents
-  if (isAgent && !subLoading && !isActive) {
+  // Loading guard - prevent blank screen while auth/subscription state resolves
+  if (authLoading || (isAgent && subLoading)) {
+    return (
+      <AuthenticatedLayout>
+        <div className="flex items-center justify-center py-20">
+          <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
+        </div>
+      </AuthenticatedLayout>
+    );
+  }
+
+  // Subscription gate for agents (admins bypass)
+  if (isAgent && !isAdmin && !isActive) {
     return (
       <AuthenticatedLayout>
         <div className="container mx-auto max-w-xl px-4 py-16 text-center">
@@ -231,10 +242,21 @@ const AddProperty = () => {
   return (
     <AuthenticatedLayout>
       <div className="container mx-auto max-w-3xl px-4 py-8">
-        <h1 className="font-display text-2xl font-bold text-foreground mb-4">Add New Property</h1>
+        <h1 className="font-display text-2xl font-bold text-foreground mb-4">
+          {isAdmin ? "Post Property (Admin)" : "Add New Property"}
+        </h1>
+        {isAdmin && (
+          <div className="mb-6 rounded-xl border-2 border-secondary/30 bg-secondary/5 p-4 flex gap-3">
+            <ShieldCheck className="h-5 w-5 text-secondary shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-semibold text-foreground">Posting as Admin</p>
+              <p className="text-xs text-muted-foreground mt-1">This listing will be auto-approved and immediately visible. Documents are optional.</p>
+            </div>
+          </div>
+        )}
 
-        {/* KYC Warning */}
-        {!isKycVerified && (
+        {/* KYC Warning - hidden for admins */}
+        {!isAdmin && !isKycVerified && (
           <div className="mb-6 rounded-xl border-2 border-[hsl(var(--warning))]/30 bg-[hsl(var(--warning))]/5 p-4 flex gap-3">
             <AlertTriangle className="h-5 w-5 text-[hsl(var(--warning))] shrink-0 mt-0.5" />
             <div>
