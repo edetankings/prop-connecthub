@@ -37,6 +37,7 @@ const agentMenu = [
 
 const adminMenu = [
   { label: "Dashboard", icon: LayoutDashboard, to: "/admin" },
+  { label: "Add Property", icon: Plus, to: "/add-property" },
   { label: "All Users", icon: Users, to: "/admin" },
   { label: "Verification Requests", icon: ShieldCheck, to: "/admin" },
   { label: "Pending Properties", icon: FileCheck, to: "/admin", badge: true },

@@ -11,21 +11,25 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Upload, X, ImageIcon, MapPin, Sparkles, Save, Send, AlertTriangle, CreditCard, FileText, ShieldCheck } from "lucide-react";
+import { Upload, X, ImageIcon, MapPin, Sparkles, Save, Send, AlertTriangle, CreditCard, FileText, ShieldCheck, Video } from "lucide-react";
 import LocationPicker from "@/components/LocationPicker";
 import PdfUploader, { type PdfFile } from "@/components/PdfUploader";
+import VideoUploader, { type VideoFile } from "@/components/VideoUploader";
 
 const AMENITIES = ["Free WiFi", "Swimming Pool", "Gym", "Parking", "Security", "Garden"];
 const CATEGORIES = [
   { value: "house", label: "House" },
   { value: "land", label: "Land" },
   { value: "apartment", label: "Apartment" },
+  { value: "hotel", label: "Hotel" },
+  { value: "estate", label: "Estate" },
   { value: "commercial", label: "Commercial" },
 ];
 
 const AddProperty = () => {
-  const { profile } = useAuth();
+  const { profile, loading: authLoading, isAdmin } = useAuth();
   const { isActive, loading: subLoading, isAgent } = useSubscription();
+  const [videos, setVideos] = useState<VideoFile[]>([]);
   const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
   const [images, setImages] = useState<{ file: File; preview: string }[]>([]);
@@ -85,7 +89,8 @@ const AddProperty = () => {
     if (!form.state.trim()) { toast.error("State is required"); return false; }
     if (images.length === 0) { toast.error("At least one image is required"); return false; }
     if (!form.latitude || !form.longitude) { toast.error("Pin the property location on the map"); return false; }
-    if (pdfs.length === 0) { toast.error("Upload at least one property document (PDF)"); return false; }
+    // Admin can post without PDFs (platform listings); agents must include them
+    if (!isAdmin && pdfs.length === 0) { toast.error("Upload at least one property document (PDF)"); return false; }
     if (form.title.length > 150) { toast.error("Title too long (max 150 chars)"); return false; }
     if (form.description.length > 5000) { toast.error("Description too long (max 5000 chars)"); return false; }
     return true;
@@ -125,19 +130,36 @@ const AddProperty = () => {
     return urls;
   };
 
+  const uploadVideos = async (): Promise<string[]> => {
+    const urls: string[] = [];
+    for (const v of videos) {
+      const ext = v.file.name.split(".").pop();
+      const path = `${profile!.user_id}/videos/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const { error } = await supabase.storage.from("property-images").upload(path, v.file, { contentType: v.file.type });
+      if (error) { toast.error(`Video upload failed: ${error.message}`); continue; }
+      const { data } = supabase.storage.from("property-images").getPublicUrl(path);
+      urls.push(data.publicUrl);
+    }
+    return urls;
+  };
+
   const handleSubmit = async (status: "draft" | "for_sale") => {
     if (status === "for_sale" && !validate()) return;
     if (status === "draft" && !form.title.trim()) { toast.error("Title is required even for drafts"); return; }
     if (!profile) { toast.error("Please log in first"); return; }
-    if (status === "for_sale" && isAgent && !isKycVerified) {
+    // Admins bypass KYC + subscription gates and properties auto-approve
+    if (status === "for_sale" && isAgent && !isAdmin && !isKycVerified) {
       toast.error("Complete KYC verification before submitting a property for approval.");
       return;
     }
 
     setSubmitting(true);
     try {
-      const imageUrls = await uploadImages();
-      const finalStatus = status === "draft" ? "draft" : "under_verification";
+      const [imageUrls, videoUrls] = await Promise.all([uploadImages(), uploadVideos()]);
+      // Admins auto-approve their listings; agents go through review
+      const finalStatus =
+        status === "draft" ? "draft" :
+        isAdmin ? "available" : "under_verification";
 
       const { data: inserted, error } = await supabase
         .from("properties")
@@ -158,9 +180,11 @@ const AddProperty = () => {
           amenities: form.amenities,
           images: imageUrls,
           image_url: imageUrls[0] || null,
+          videos: videoUrls,
           agent_id: profile.id,
           status: finalStatus as any,
-        })
+          is_verified: isAdmin ? true : false,
+        } as any)
         .select("id")
         .single();
 
@@ -168,8 +192,11 @@ const AddProperty = () => {
       if (inserted?.id && pdfs.length > 0) {
         await uploadPdfs(inserted.id);
       }
-      toast.success(status === "draft" ? "Draft saved!" : "Property submitted for admin approval!");
-      navigate("/dashboard");
+      toast.success(
+        status === "draft" ? "Draft saved!" :
+        isAdmin ? "Property published!" : "Property submitted for admin approval!"
+      );
+      navigate(isAdmin ? "/admin" : "/dashboard");
     } catch (err: any) {
       toast.error(err.message || "Failed to save property");
     } finally {
@@ -177,8 +204,19 @@ const AddProperty = () => {
     }
   };
 
-  // Subscription gate for agents
-  if (isAgent && !subLoading && !isActive) {
+  // Loading guard - prevent blank screen while auth/subscription state resolves
+  if (authLoading || (isAgent && subLoading)) {
+    return (
+      <AuthenticatedLayout>
+        <div className="flex items-center justify-center py-20">
+          <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
+        </div>
+      </AuthenticatedLayout>
+    );
+  }
+
+  // Subscription gate for agents (admins bypass)
+  if (isAgent && !isAdmin && !isActive) {
     return (
       <AuthenticatedLayout>
         <div className="container mx-auto max-w-xl px-4 py-16 text-center">
@@ -204,10 +242,21 @@ const AddProperty = () => {
   return (
     <AuthenticatedLayout>
       <div className="container mx-auto max-w-3xl px-4 py-8">
-        <h1 className="font-display text-2xl font-bold text-foreground mb-4">Add New Property</h1>
+        <h1 className="font-display text-2xl font-bold text-foreground mb-4">
+          {isAdmin ? "Post Property (Admin)" : "Add New Property"}
+        </h1>
+        {isAdmin && (
+          <div className="mb-6 rounded-xl border-2 border-secondary/30 bg-secondary/5 p-4 flex gap-3">
+            <ShieldCheck className="h-5 w-5 text-secondary shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-semibold text-foreground">Posting as Admin</p>
+              <p className="text-xs text-muted-foreground mt-1">This listing will be auto-approved and immediately visible. Documents are optional.</p>
+            </div>
+          </div>
+        )}
 
-        {/* KYC Warning */}
-        {!isKycVerified && (
+        {/* KYC Warning - hidden for admins */}
+        {!isAdmin && !isKycVerified && (
           <div className="mb-6 rounded-xl border-2 border-[hsl(var(--warning))]/30 bg-[hsl(var(--warning))]/5 p-4 flex gap-3">
             <AlertTriangle className="h-5 w-5 text-[hsl(var(--warning))] shrink-0 mt-0.5" />
             <div>
@@ -254,6 +303,14 @@ const AddProperty = () => {
               ))}
             </div>
           )}
+        </section>
+
+        {/* Video Upload */}
+        <section className="mb-8">
+          <h2 className="font-display text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
+            <Video className="h-5 w-5 text-secondary" /> Property Tour Videos <span className="text-xs text-muted-foreground font-normal">(optional)</span>
+          </h2>
+          <VideoUploader files={videos} onChange={setVideos} maxFiles={3} maxSizeMb={100} />
         </section>
 
         {/* Property Details */}
