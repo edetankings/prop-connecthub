@@ -89,7 +89,8 @@ const AddProperty = () => {
     if (!form.state.trim()) { toast.error("State is required"); return false; }
     if (images.length === 0) { toast.error("At least one image is required"); return false; }
     if (!form.latitude || !form.longitude) { toast.error("Pin the property location on the map"); return false; }
-    if (pdfs.length === 0) { toast.error("Upload at least one property document (PDF)"); return false; }
+    // Admin can post without PDFs (platform listings); agents must include them
+    if (!isAdmin && pdfs.length === 0) { toast.error("Upload at least one property document (PDF)"); return false; }
     if (form.title.length > 150) { toast.error("Title too long (max 150 chars)"); return false; }
     if (form.description.length > 5000) { toast.error("Description too long (max 5000 chars)"); return false; }
     return true;
@@ -129,19 +130,36 @@ const AddProperty = () => {
     return urls;
   };
 
+  const uploadVideos = async (): Promise<string[]> => {
+    const urls: string[] = [];
+    for (const v of videos) {
+      const ext = v.file.name.split(".").pop();
+      const path = `${profile!.user_id}/videos/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const { error } = await supabase.storage.from("property-images").upload(path, v.file, { contentType: v.file.type });
+      if (error) { toast.error(`Video upload failed: ${error.message}`); continue; }
+      const { data } = supabase.storage.from("property-images").getPublicUrl(path);
+      urls.push(data.publicUrl);
+    }
+    return urls;
+  };
+
   const handleSubmit = async (status: "draft" | "for_sale") => {
     if (status === "for_sale" && !validate()) return;
     if (status === "draft" && !form.title.trim()) { toast.error("Title is required even for drafts"); return; }
     if (!profile) { toast.error("Please log in first"); return; }
-    if (status === "for_sale" && isAgent && !isKycVerified) {
+    // Admins bypass KYC + subscription gates and properties auto-approve
+    if (status === "for_sale" && isAgent && !isAdmin && !isKycVerified) {
       toast.error("Complete KYC verification before submitting a property for approval.");
       return;
     }
 
     setSubmitting(true);
     try {
-      const imageUrls = await uploadImages();
-      const finalStatus = status === "draft" ? "draft" : "under_verification";
+      const [imageUrls, videoUrls] = await Promise.all([uploadImages(), uploadVideos()]);
+      // Admins auto-approve their listings; agents go through review
+      const finalStatus =
+        status === "draft" ? "draft" :
+        isAdmin ? "available" : "under_verification";
 
       const { data: inserted, error } = await supabase
         .from("properties")
@@ -162,9 +180,11 @@ const AddProperty = () => {
           amenities: form.amenities,
           images: imageUrls,
           image_url: imageUrls[0] || null,
+          videos: videoUrls,
           agent_id: profile.id,
           status: finalStatus as any,
-        })
+          is_verified: isAdmin ? true : false,
+        } as any)
         .select("id")
         .single();
 
@@ -172,8 +192,11 @@ const AddProperty = () => {
       if (inserted?.id && pdfs.length > 0) {
         await uploadPdfs(inserted.id);
       }
-      toast.success(status === "draft" ? "Draft saved!" : "Property submitted for admin approval!");
-      navigate("/dashboard");
+      toast.success(
+        status === "draft" ? "Draft saved!" :
+        isAdmin ? "Property published!" : "Property submitted for admin approval!"
+      );
+      navigate(isAdmin ? "/admin" : "/dashboard");
     } catch (err: any) {
       toast.error(err.message || "Failed to save property");
     } finally {
