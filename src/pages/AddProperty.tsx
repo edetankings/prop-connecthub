@@ -305,6 +305,14 @@ const AddProperty = () => {
           )}
         </section>
 
+        {/* Video Upload */}
+        <section className="mb-8">
+          <h2 className="font-display text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
+            <Video className="h-5 w-5 text-secondary" /> Property Tour Videos <span className="text-xs text-muted-foreground font-normal">(optional)</span>
+          </h2>
+          <VideoUploader files={videos} onChange={setVideos} maxFiles={3} maxSizeMb={100} />
+        </section>
+
         {/* Property Details */}
         <section className="mb-8">
           <h2 className="font-display text-lg font-semibold text-foreground mb-3">Property Details</h2>

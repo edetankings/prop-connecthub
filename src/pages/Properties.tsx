@@ -26,14 +26,25 @@ const Properties = () => {
   }, []);
 
   const filtered = properties.filter((p) => {
+    const q = search.toLowerCase();
     const matchSearch =
-      p.title.toLowerCase().includes(search.toLowerCase()) ||
-      (p.city || "").toLowerCase().includes(search.toLowerCase()) ||
-      (p.state || "").toLowerCase().includes(search.toLowerCase());
+      !q ||
+      p.title.toLowerCase().includes(q) ||
+      (p.city || "").toLowerCase().includes(q) ||
+      (p.state || "").toLowerCase().includes(q) ||
+      (p.property_type || "").toLowerCase().includes(q);
+    const t = typeFilter;
+    const ptype = (p.property_type || "").toLowerCase();
     const matchType =
-      typeFilter === "all" ||
-      (typeFilter === "sale" && (p.status === "for_sale" || p.status === "available")) ||
-      (typeFilter === "rent" && p.status === "for_rent");
+      t === "all" ||
+      (t === "for_sale" && (p.status === "for_sale" || p.status === "available")) ||
+      (t === "for_rent" && p.status === "for_rent") ||
+      (t === "hotel" && ptype === "hotel") ||
+      (t === "apartment" && ptype === "apartment") ||
+      (t === "estate" && ptype === "estate") ||
+      (t === "house" && ptype === "house") ||
+      (t === "land" && ptype === "land") ||
+      (t === "commercial" && ptype === "commercial");
     return matchSearch && matchType;
   });
 
@@ -47,14 +58,20 @@ const Properties = () => {
         <div className="mt-6 flex flex-col gap-3 md:flex-row">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input placeholder="Search by title or location..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10" />
+            <Input placeholder="Search hotel, apartment, estate, city..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10" />
           </div>
           <Select value={typeFilter} onValueChange={setTypeFilter}>
-            <SelectTrigger className="w-full md:w-40"><SelectValue placeholder="Type" /></SelectTrigger>
+            <SelectTrigger className="w-full md:w-44"><SelectValue placeholder="Type" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Types</SelectItem>
-              <SelectItem value="sale">For Sale</SelectItem>
-              <SelectItem value="rent">For Rent</SelectItem>
+              <SelectItem value="for_sale">For Sale</SelectItem>
+              <SelectItem value="for_rent">For Rent</SelectItem>
+              <SelectItem value="hotel">Hotel</SelectItem>
+              <SelectItem value="apartment">Apartment</SelectItem>
+              <SelectItem value="estate">Estate</SelectItem>
+              <SelectItem value="house">House</SelectItem>
+              <SelectItem value="land">Land</SelectItem>
+              <SelectItem value="commercial">Commercial</SelectItem>
             </SelectContent>
           </Select>
         </div>
