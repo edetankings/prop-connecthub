@@ -11,21 +11,25 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Upload, X, ImageIcon, MapPin, Sparkles, Save, Send, AlertTriangle, CreditCard, FileText, ShieldCheck } from "lucide-react";
+import { Upload, X, ImageIcon, MapPin, Sparkles, Save, Send, AlertTriangle, CreditCard, FileText, ShieldCheck, Video } from "lucide-react";
 import LocationPicker from "@/components/LocationPicker";
 import PdfUploader, { type PdfFile } from "@/components/PdfUploader";
+import VideoUploader, { type VideoFile } from "@/components/VideoUploader";
 
 const AMENITIES = ["Free WiFi", "Swimming Pool", "Gym", "Parking", "Security", "Garden"];
 const CATEGORIES = [
   { value: "house", label: "House" },
   { value: "land", label: "Land" },
   { value: "apartment", label: "Apartment" },
+  { value: "hotel", label: "Hotel" },
+  { value: "estate", label: "Estate" },
   { value: "commercial", label: "Commercial" },
 ];
 
 const AddProperty = () => {
-  const { profile } = useAuth();
+  const { profile, loading: authLoading, isAdmin } = useAuth();
   const { isActive, loading: subLoading, isAgent } = useSubscription();
+  const [videos, setVideos] = useState<VideoFile[]>([]);
   const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
   const [images, setImages] = useState<{ file: File; preview: string }[]>([]);
