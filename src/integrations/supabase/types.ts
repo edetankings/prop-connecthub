@@ -235,15 +235,7 @@ export type Database = {
           type?: string
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "earnings_transaction_id_fkey"
-            columns: ["transaction_id"]
-            isOneToOne: false
-            referencedRelation: "transactions"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       escrow_holds: {
         Row: {
@@ -477,6 +469,7 @@ export type Database = {
           id: string
           is_visible: boolean
           kyc_verified: boolean
+          last_login_at: string | null
           location: string | null
           phone: string | null
           phone_verified: boolean
@@ -501,6 +494,7 @@ export type Database = {
           id?: string
           is_visible?: boolean
           kyc_verified?: boolean
+          last_login_at?: string | null
           location?: string | null
           phone?: string | null
           phone_verified?: boolean
@@ -525,6 +519,7 @@ export type Database = {
           id?: string
           is_visible?: boolean
           kyc_verified?: boolean
+          last_login_at?: string | null
           location?: string | null
           phone?: string | null
           phone_verified?: boolean
@@ -573,6 +568,7 @@ export type Database = {
           status: Database["public"]["Enums"]["property_status"]
           title: string
           updated_at: string
+          videos: string[] | null
           zip_code: string | null
         }
         Insert: {
@@ -597,6 +593,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["property_status"]
           title: string
           updated_at?: string
+          videos?: string[] | null
           zip_code?: string | null
         }
         Update: {
@@ -621,6 +618,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["property_status"]
           title?: string
           updated_at?: string
+          videos?: string[] | null
           zip_code?: string | null
         }
         Relationships: [
@@ -1162,6 +1160,7 @@ export type Database = {
           pos: number
         }[]
       }
+      touch_last_login: { Args: never; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
