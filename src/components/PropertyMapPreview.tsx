@@ -27,7 +27,9 @@ const PropertyMapPreview = ({ lat, lng, address }: PropertyMapPreviewProps) => {
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "&copy; OpenStreetMap" }).addTo(map);
     L.marker([lat, lng], { icon: defaultIcon }).addTo(map);
     setTimeout(() => map.invalidateSize(), 100);
-    return () => map.remove();
+    return () => {
+      map.remove();
+    };
   }, [lat, lng]);
 
   return (
