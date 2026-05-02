@@ -896,6 +896,7 @@ const AdminDashboard = () => {
                         <th className="px-4 py-3 text-left font-medium text-muted-foreground">Trust</th>
                         <th className="px-4 py-3 text-left font-medium text-muted-foreground">KYC</th>
                         <th className="px-4 py-3 text-left font-medium text-muted-foreground">Visible</th>
+                        <th className="px-4 py-3 text-left font-medium text-muted-foreground">Last Login</th>
                         <th className="px-4 py-3 text-left font-medium text-muted-foreground">Actions</th>
                       </tr>
                     </thead>
