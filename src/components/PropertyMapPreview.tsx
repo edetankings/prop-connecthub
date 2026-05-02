@@ -1,4 +1,4 @@
-import { MapContainer, TileLayer, Marker } from "react-leaflet";
+import { useEffect, useRef } from "react";
 import L from "leaflet";
 import { Button } from "@/components/ui/button";
 import { ExternalLink, MapPin } from "lucide-react";
@@ -18,23 +18,23 @@ interface PropertyMapPreviewProps {
 }
 
 const PropertyMapPreview = ({ lat, lng, address }: PropertyMapPreviewProps) => {
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const osmUrl = `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}#map=17/${lat}/${lng}`;
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const map = L.map(containerRef.current, { scrollWheelZoom: false, dragging: false }).setView([lat, lng], 15);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "&copy; OpenStreetMap" }).addTo(map);
+    L.marker([lat, lng], { icon: defaultIcon }).addTo(map);
+    setTimeout(() => map.invalidateSize(), 100);
+    return () => {
+      map.remove();
+    };
+  }, [lat, lng]);
+
   return (
     <div className="rounded-xl overflow-hidden border border-border bg-card">
-      <div className="h-64 w-full">
-        <MapContainer
-          center={[lat, lng]}
-          zoom={15}
-          style={{ height: "100%", width: "100%" }}
-          scrollWheelZoom={false}
-        >
-          <TileLayer
-            attribution='&copy; OpenStreetMap'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
-          <Marker position={[lat, lng]} icon={defaultIcon} />
-        </MapContainer>
-      </div>
+      <div ref={containerRef} className="h-64 w-full" />
       <div className="flex items-center justify-between gap-3 p-3 border-t border-border">
         <div className="flex items-start gap-2 min-w-0">
           <MapPin className="h-4 w-4 text-secondary shrink-0 mt-0.5" />
