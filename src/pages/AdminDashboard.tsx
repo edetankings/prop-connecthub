@@ -55,6 +55,49 @@ const AdminDashboard = () => {
 
   useEffect(() => { loadData(); }, []);
 
+  useEffect(() => {
+    if (!user?.id) return;
+    supabase.from("profiles").select("id").eq("user_id", user.id).maybeSingle()
+      .then(({ data }) => setAdminProfileId(data?.id ?? null));
+  }, [user?.id]);
+
+  const handleAdminChat = async (targetProfileId: string) => {
+    if (!adminProfileId) {
+      toast.error("Admin profile not loaded yet");
+      return;
+    }
+    if (targetProfileId === adminProfileId) {
+      toast.info("Cannot chat with yourself");
+      return;
+    }
+    // Try find existing thread either direction
+    const { data: existing } = await supabase
+      .from("chat_threads")
+      .select("id")
+      .or(
+        `and(buyer_id.eq.${adminProfileId},agent_id.eq.${targetProfileId}),and(buyer_id.eq.${targetProfileId},agent_id.eq.${adminProfileId})`
+      )
+      .limit(1)
+      .maybeSingle();
+
+    if (existing?.id) {
+      navigate(`/chat/${existing.id}`);
+      return;
+    }
+
+    const { data: created, error } = await supabase
+      .from("chat_threads")
+      .insert({ buyer_id: adminProfileId, agent_id: targetProfileId, status: "open" } as any)
+      .select("id")
+      .maybeSingle();
+
+    if (error || !created) {
+      toast.error(error?.message || "Failed to start chat");
+      return;
+    }
+    navigate(`/chat/${created.id}`);
+  };
+
   const loadData = async () => {
     setLoading(true);
     const [p, pr, v, d, a, t, ks] = await Promise.all([
