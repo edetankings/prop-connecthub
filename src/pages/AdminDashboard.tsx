@@ -22,6 +22,8 @@ type Tab = "dashboard" | "users" | "moderation" | "disputes" | "audit" | "verifi
 
 const AdminDashboard = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const [adminProfileId, setAdminProfileId] = useState<string | null>(null);
   const [tab, setTab] = useState<Tab>("dashboard");
   const [profiles, setProfiles] = useState<any[]>([]);
   const [properties, setProperties] = useState<any[]>([]);
