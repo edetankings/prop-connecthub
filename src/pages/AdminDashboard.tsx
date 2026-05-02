@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import AuthenticatedLayout from "@/components/AuthenticatedLayout";
@@ -17,10 +18,12 @@ import logo from "@/assets/logo.jpg";
 import { toast } from "sonner";
 import { PieChart as RechartsPie, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
-type Tab = "dashboard" | "users" | "moderation" | "disputes" | "audit" | "verification" | "reservations" | "support" | "announcements" | "earnings" | "subscriptions" | "active-deals" | "withdrawals" | "referrals";
+type Tab = "dashboard" | "matrix" | "users" | "moderation" | "disputes" | "audit" | "verification" | "reservations" | "support" | "announcements" | "earnings" | "subscriptions" | "active-deals" | "withdrawals" | "referrals";
 
 const AdminDashboard = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const [adminProfileId, setAdminProfileId] = useState<string | null>(null);
   const [tab, setTab] = useState<Tab>("dashboard");
   const [profiles, setProfiles] = useState<any[]>([]);
   const [properties, setProperties] = useState<any[]>([]);
@@ -51,6 +54,49 @@ const AdminDashboard = () => {
   const [propertyDocs, setPropertyDocs] = useState<any[]>([]);
 
   useEffect(() => { loadData(); }, []);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    supabase.from("profiles").select("id").eq("user_id", user.id).maybeSingle()
+      .then(({ data }) => setAdminProfileId(data?.id ?? null));
+  }, [user?.id]);
+
+  const handleAdminChat = async (targetProfileId: string) => {
+    if (!adminProfileId) {
+      toast.error("Admin profile not loaded yet");
+      return;
+    }
+    if (targetProfileId === adminProfileId) {
+      toast.info("Cannot chat with yourself");
+      return;
+    }
+    // Try find existing thread either direction
+    const { data: existing } = await supabase
+      .from("chat_threads")
+      .select("id")
+      .or(
+        `and(buyer_id.eq.${adminProfileId},agent_id.eq.${targetProfileId}),and(buyer_id.eq.${targetProfileId},agent_id.eq.${adminProfileId})`
+      )
+      .limit(1)
+      .maybeSingle();
+
+    if (existing?.id) {
+      navigate(`/chat/${existing.id}`);
+      return;
+    }
+
+    const { data: created, error } = await supabase
+      .from("chat_threads")
+      .insert({ buyer_id: adminProfileId, agent_id: targetProfileId, status: "open" } as any)
+      .select("id")
+      .maybeSingle();
+
+    if (error || !created) {
+      toast.error(error?.message || "Failed to start chat");
+      return;
+    }
+    navigate(`/chat/${created.id}`);
+  };
 
   const loadData = async () => {
     setLoading(true);
@@ -422,6 +468,7 @@ const AdminDashboard = () => {
 
   const tabs = [
     { id: "dashboard" as Tab, label: "Dashboard", icon: LayoutDashboard },
+    { id: "matrix" as Tab, label: "Matrix Overview", icon: Network },
     { id: "verification" as Tab, label: "Verification Requests", icon: ShieldCheck, count: pendingKycSteps.length },
     { id: "users" as Tab, label: "Users", icon: Users },
     { id: "moderation" as Tab, label: "Properties", icon: FileText, count: pendingProperties },
@@ -579,6 +626,156 @@ const AdminDashboard = () => {
                 </Card>
               </div>
             )}
+
+            {/* MATRIX OVERVIEW TAB */}
+            {tab === "matrix" && (() => {
+              const totalSubscribers = profiles.filter((p: any) => allSubscriptions.some((s: any) => s.user_id === p.user_id)).length;
+              const activeSubscribers = allSubscriptions.filter((s: any) => s.status === "active" && new Date(s.end_date) >= new Date()).length;
+              const totalDistributed = allEarnings.reduce((sum: number, e: any) => sum + (e.amount || 0), 0);
+              const pendingPayouts = escrowHolds.filter((h: any) => h.status === "held").reduce((s: number, h: any) => s + (h.amount || 0), 0);
+
+              const agentTotals: Record<string, number> = {};
+              allEarnings.forEach((e: any) => {
+                if (!e.user_id) return;
+                agentTotals[e.user_id] = (agentTotals[e.user_id] || 0) + (e.amount || 0);
+              });
+              const topEarners = Object.entries(agentTotals)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 10);
+
+              const recentEarnings = [...allEarnings]
+                .sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+                .slice(0, 15);
+
+              return (
+                <div className="space-y-6">
+                  <h2 className="font-display text-xl font-bold text-foreground">2x2 Matrix Overview</h2>
+
+                  {/* Stat Cards */}
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    <Card className="border-border/50 shadow-card">
+                      <CardContent className="p-5">
+                        <div className="flex items-center justify-between mb-2">
+                          <p className="text-sm text-muted-foreground">Total Subscribers</p>
+                          <Users className="h-4 w-4 text-primary" />
+                        </div>
+                        <p className="font-display text-3xl font-bold text-foreground">{totalSubscribers}</p>
+                      </CardContent>
+                    </Card>
+                    <Card className="border-border/50 shadow-card">
+                      <CardContent className="p-5">
+                        <div className="flex items-center justify-between mb-2">
+                          <p className="text-sm text-muted-foreground">Active Subscribers</p>
+                          <CheckCircle className="h-4 w-4 text-[hsl(var(--success))]" />
+                        </div>
+                        <p className="font-display text-3xl font-bold text-foreground">{activeSubscribers}</p>
+                      </CardContent>
+                    </Card>
+                    <Card className="border-border/50 shadow-card">
+                      <CardContent className="p-5">
+                        <div className="flex items-center justify-between mb-2">
+                          <p className="text-sm text-muted-foreground">Total Distributed</p>
+                          <DollarSign className="h-4 w-4 text-secondary" />
+                        </div>
+                        <p className="font-display text-3xl font-bold text-foreground">₦{totalDistributed.toLocaleString()}</p>
+                      </CardContent>
+                    </Card>
+                    <Card className="border-border/50 shadow-card">
+                      <CardContent className="p-5">
+                        <div className="flex items-center justify-between mb-2">
+                          <p className="text-sm text-muted-foreground">Pending Payouts</p>
+                          <Wallet className="h-4 w-4 text-[hsl(var(--warning))]" />
+                        </div>
+                        <p className="font-display text-3xl font-bold text-foreground">₦{pendingPayouts.toLocaleString()}</p>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  <div className="grid gap-6 lg:grid-cols-2">
+                    {/* Top Earners */}
+                    <Card className="border-border/50 shadow-card">
+                      <CardHeader><CardTitle className="text-base flex items-center gap-2"><TrendingUp className="h-4 w-4" /> Top Earners</CardTitle></CardHeader>
+                      <CardContent>
+                        {topEarners.length === 0 ? (
+                          <p className="text-sm text-muted-foreground">No earnings yet.</p>
+                        ) : (
+                          <div className="space-y-2">
+                            {topEarners.map(([uid, total], i) => {
+                              const p = profiles.find((pr: any) => pr.user_id === uid);
+                              return (
+                                <div key={uid} className="flex items-center justify-between p-3 rounded-lg bg-muted/40">
+                                  <div className="flex items-center gap-3 min-w-0">
+                                    <span className="text-sm font-bold text-muted-foreground w-6">#{i + 1}</span>
+                                    <span className="text-sm font-medium text-foreground truncate">{p?.full_name || "Unknown"}</span>
+                                  </div>
+                                  <span className="font-bold text-foreground whitespace-nowrap">₦{total.toLocaleString()}</span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+
+                    {/* Recent Transactions */}
+                    <Card className="border-border/50 shadow-card">
+                      <CardHeader><CardTitle className="text-base flex items-center gap-2"><Activity className="h-4 w-4" /> Recent Transactions</CardTitle></CardHeader>
+                      <CardContent>
+                        {recentEarnings.length === 0 ? (
+                          <p className="text-sm text-muted-foreground">No transactions yet.</p>
+                        ) : (
+                          <div className="space-y-2 max-h-[400px] overflow-y-auto">
+                            {recentEarnings.map((e: any) => {
+                              const recipient = profiles.find((p: any) => p.user_id === e.user_id);
+                              const fromUser = profiles.find((p: any) => p.user_id === e.from_user_id);
+                              return (
+                                <div key={e.id} className="flex items-start justify-between gap-2 p-2.5 rounded-lg border border-border/60 text-xs">
+                                  <div className="min-w-0 flex-1">
+                                    <p className="font-medium text-foreground truncate">{recipient?.full_name || "Unknown"}</p>
+                                    <p className="text-muted-foreground">
+                                      {e.type === "matrix" ? `Matrix L${e.level}` : e.type.replace(/_/g, " ")}
+                                      {fromUser && ` · from ${fromUser.full_name?.split(" ")[0]}`}
+                                    </p>
+                                    <p className="text-[10px] text-muted-foreground/70">{new Date(e.created_at).toLocaleString()}</p>
+                                  </div>
+                                  <span className="font-bold text-secondary whitespace-nowrap">₦{(e.amount || 0).toLocaleString()}</span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {/* Per-user 2x2 tree quick browse */}
+                  <Card className="border-border/50 shadow-card">
+                    <CardHeader><CardTitle className="text-base">Browse Agent Matrix Tree</CardTitle></CardHeader>
+                    <CardContent>
+                      {selectedReferralUserId ? (
+                        <div className="space-y-3">
+                          <Button variant="ghost" size="sm" onClick={() => setSelectedReferralUserId(null)}>← Back to list</Button>
+                          <ReferralTree rootProfileId={selectedReferralUserId} />
+                        </div>
+                      ) : (
+                        <div className="grid gap-2 sm:grid-cols-2 max-h-[300px] overflow-y-auto">
+                          {profiles.filter((p: any) => p.profile_type === "agent").map((p: any) => (
+                            <button
+                              key={p.id}
+                              onClick={() => setSelectedReferralUserId(p.id)}
+                              className="text-left p-3 rounded-lg border border-border hover:bg-muted/40 transition-colors"
+                            >
+                              <p className="font-medium text-sm text-foreground">{p.full_name || "Unnamed"}</p>
+                              <p className="text-xs text-muted-foreground">{p.referral_code || "No code"}</p>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
+              );
+            })()}
 
             {/* VERIFICATION REQUESTS TAB */}
             {tab === "verification" && !selectedUserId && (
@@ -849,6 +1046,7 @@ const AdminDashboard = () => {
                         <th className="px-4 py-3 text-left font-medium text-muted-foreground">Trust</th>
                         <th className="px-4 py-3 text-left font-medium text-muted-foreground">KYC</th>
                         <th className="px-4 py-3 text-left font-medium text-muted-foreground">Visible</th>
+                        <th className="px-4 py-3 text-left font-medium text-muted-foreground">Last Login</th>
                         <th className="px-4 py-3 text-left font-medium text-muted-foreground">Actions</th>
                       </tr>
                     </thead>
@@ -872,10 +1070,16 @@ const AdminDashboard = () => {
                               </Badge>
                             ) : "—"}
                           </td>
+                          <td className="px-4 py-3 text-xs text-muted-foreground whitespace-nowrap">
+                            {p.last_login_at ? new Date(p.last_login_at).toLocaleString() : "Never"}
+                          </td>
                           <td className="px-4 py-3">
                             <div className="flex gap-2 flex-wrap">
                               <Button size="sm" variant="outline" className="gap-1" onClick={() => { setTab("verification"); setSelectedUserId(p.user_id); }}>
                                 <Eye className="h-3.5 w-3.5" /> View
+                              </Button>
+                              <Button size="sm" variant="outline" className="gap-1" onClick={() => handleAdminChat(p.id)}>
+                                <MessageCircle className="h-3.5 w-3.5" /> Chat
                               </Button>
                               {!p.kyc_verified && p.profile_type === "agent" && (
                                 <Button size="sm" variant="outline" onClick={() => handleVerifyKyc(p.id)}>Verify</Button>
