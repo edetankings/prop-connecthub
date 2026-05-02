@@ -920,10 +920,16 @@ const AdminDashboard = () => {
                               </Badge>
                             ) : "—"}
                           </td>
+                          <td className="px-4 py-3 text-xs text-muted-foreground whitespace-nowrap">
+                            {p.last_login_at ? new Date(p.last_login_at).toLocaleString() : "Never"}
+                          </td>
                           <td className="px-4 py-3">
                             <div className="flex gap-2 flex-wrap">
                               <Button size="sm" variant="outline" className="gap-1" onClick={() => { setTab("verification"); setSelectedUserId(p.user_id); }}>
                                 <Eye className="h-3.5 w-3.5" /> View
+                              </Button>
+                              <Button size="sm" variant="outline" className="gap-1" onClick={() => handleAdminChat(p.id)}>
+                                <MessageCircle className="h-3.5 w-3.5" /> Chat
                               </Button>
                               {!p.kyc_verified && p.profile_type === "agent" && (
                                 <Button size="sm" variant="outline" onClick={() => handleVerifyKyc(p.id)}>Verify</Button>
