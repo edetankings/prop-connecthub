@@ -468,6 +468,7 @@ const AdminDashboard = () => {
 
   const tabs = [
     { id: "dashboard" as Tab, label: "Dashboard", icon: LayoutDashboard },
+    { id: "matrix" as Tab, label: "Matrix Overview", icon: Network },
     { id: "verification" as Tab, label: "Verification Requests", icon: ShieldCheck, count: pendingKycSteps.length },
     { id: "users" as Tab, label: "Users", icon: Users },
     { id: "moderation" as Tab, label: "Properties", icon: FileText, count: pendingProperties },
