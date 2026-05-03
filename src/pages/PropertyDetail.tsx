@@ -277,14 +277,40 @@ const PropertyDetail = () => {
           {/* Main Content */}
           <div className="lg:col-span-2">
             {/* Image Gallery */}
-            <div className="overflow-hidden rounded-xl">
-              <img src={allImages[0]} alt={title} className="h-72 w-full object-cover md:h-96" />
+            <div className="overflow-hidden rounded-xl cursor-zoom-in" onClick={() => setLightboxIdx(0)}>
+              <img src={allImages[0]} alt={title} className="h-72 w-full object-cover md:h-96 hover:scale-[1.02] transition-transform" />
             </div>
             {allImages.length > 1 && (
               <div className="mt-3 flex gap-2 overflow-x-auto">
-                {allImages.slice(1, 5).map((img, i) => (
-                  <img key={i} src={img} alt={`${title} ${i + 2}`} className="h-20 w-28 flex-shrink-0 rounded-lg object-cover ring-1 ring-border" />
+                {allImages.slice(1, 8).map((img, i) => (
+                  <img
+                    key={i}
+                    src={img}
+                    alt={`${title} ${i + 2}`}
+                    onClick={() => setLightboxIdx(i + 1)}
+                    className="h-20 w-28 flex-shrink-0 rounded-lg object-cover ring-1 ring-border cursor-pointer hover:ring-secondary"
+                  />
                 ))}
+              </div>
+            )}
+
+            {/* Videos */}
+            {dbProperty?.videos && dbProperty.videos.length > 0 && (
+              <div className="mt-6">
+                <h2 className="font-display text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
+                  <Play className="h-5 w-5 text-secondary" /> Property Videos
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {dbProperty.videos.map((v, i) => (
+                    <video
+                      key={i}
+                      src={v}
+                      controls
+                      preload="metadata"
+                      className="w-full rounded-xl border border-border bg-black aspect-video"
+                    />
+                  ))}
+                </div>
               </div>
             )}
 
