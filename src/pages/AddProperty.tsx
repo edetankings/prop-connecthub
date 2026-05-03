@@ -321,7 +321,7 @@ const AddProperty = () => {
               <label className="text-sm font-medium text-foreground mb-1 block">Title *</label>
               <Input placeholder="e.g. Modern 3-Bedroom Apartment" value={form.title} onChange={(e) => updateField("title", e.target.value)} />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="text-sm font-medium text-foreground mb-1 block">Price (₦) *</label>
                 <Input type="number" placeholder="0" min="0" value={form.price} onChange={(e) => updateField("price", e.target.value)} />
@@ -336,7 +336,7 @@ const AddProperty = () => {
                 </Select>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="text-sm font-medium text-foreground mb-1 block">Listing Type *</label>
                 <Select value={form.listing_type} onValueChange={(v) => setForm(f => ({ ...f, listing_type: v as any }))}>
@@ -352,7 +352,7 @@ const AddProperty = () => {
                 <Input type="number" placeholder="0" min="0" value={form.sqft} onChange={(e) => updateField("sqft", e.target.value)} />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="text-sm font-medium text-foreground mb-1 block">Bedrooms</label>
                 <Input type="number" placeholder="0" min="0" value={form.bedrooms} onChange={(e) => updateField("bedrooms", e.target.value)} />
@@ -375,7 +375,7 @@ const AddProperty = () => {
             <MapPin className="h-5 w-5 text-secondary" /> Location <span className="text-destructive">*</span>
           </h2>
           <div className="space-y-4">
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <Input placeholder="City *" value={form.city} onChange={(e) => updateField("city", e.target.value)} />
               <Input placeholder="State *" value={form.state} onChange={(e) => updateField("state", e.target.value)} />
               <Input placeholder="Zip Code" value={form.zip_code} onChange={(e) => updateField("zip_code", e.target.value)} />
@@ -432,7 +432,7 @@ const AddProperty = () => {
         </section>
 
         {/* Actions */}
-        <div className="flex gap-3 pb-8">
+        <div className="flex flex-col sm:flex-row gap-3 pb-8">
           <Button variant="outline" className="flex-1 gap-2" onClick={() => handleSubmit("draft")} disabled={submitting}>
             <Save className="h-4 w-4" /> Save as Draft
           </Button>
