@@ -1152,6 +1152,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      pay_verification_referral_bonus: {
+        Args: { _referred_user_id: string }
+        Returns: undefined
+      }
       place_in_matrix: {
         Args: { _referrer_profile_id: string }
         Returns: {

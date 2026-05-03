@@ -1,6 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { MapPin, Bed, Bath, Maximize, MessageCircle, CalendarCheck, ArrowLeft, CheckCircle, Bookmark, ShieldCheck } from "lucide-react";
+import { MapPin, Bed, Bath, Maximize, MessageCircle, CalendarCheck, ArrowLeft, CheckCircle, Bookmark, ShieldCheck, X, ChevronLeft, ChevronRight, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -26,6 +26,7 @@ interface DBPropertyDetail {
   status: string;
   image_url: string | null;
   images: string[] | null;
+  videos: string[] | null;
   city: string | null;
   state: string | null;
   address: string | null;
@@ -50,6 +51,7 @@ const PropertyDetail = () => {
   const [agent, setAgent] = useState<DBAgent | null>(null);
   const [showReserveModal, setShowReserveModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
   const [form, setForm] = useState({
     buyer_name: "",
     viewing_date: "",
@@ -275,14 +277,40 @@ const PropertyDetail = () => {
           {/* Main Content */}
           <div className="lg:col-span-2">
             {/* Image Gallery */}
-            <div className="overflow-hidden rounded-xl">
-              <img src={allImages[0]} alt={title} className="h-72 w-full object-cover md:h-96" />
+            <div className="overflow-hidden rounded-xl cursor-zoom-in" onClick={() => setLightboxIdx(0)}>
+              <img src={allImages[0]} alt={title} className="h-72 w-full object-cover md:h-96 hover:scale-[1.02] transition-transform" />
             </div>
             {allImages.length > 1 && (
               <div className="mt-3 flex gap-2 overflow-x-auto">
-                {allImages.slice(1, 5).map((img, i) => (
-                  <img key={i} src={img} alt={`${title} ${i + 2}`} className="h-20 w-28 flex-shrink-0 rounded-lg object-cover ring-1 ring-border" />
+                {allImages.slice(1, 8).map((img, i) => (
+                  <img
+                    key={i}
+                    src={img}
+                    alt={`${title} ${i + 2}`}
+                    onClick={() => setLightboxIdx(i + 1)}
+                    className="h-20 w-28 flex-shrink-0 rounded-lg object-cover ring-1 ring-border cursor-pointer hover:ring-secondary"
+                  />
                 ))}
+              </div>
+            )}
+
+            {/* Videos */}
+            {dbProperty?.videos && dbProperty.videos.length > 0 && (
+              <div className="mt-6">
+                <h2 className="font-display text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
+                  <Play className="h-5 w-5 text-secondary" /> Property Videos
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {dbProperty.videos.map((v, i) => (
+                    <video
+                      key={i}
+                      src={v}
+                      controls
+                      preload="metadata"
+                      className="w-full rounded-xl border border-border bg-black aspect-video"
+                    />
+                  ))}
+                </div>
               </div>
             )}
 
@@ -474,6 +502,49 @@ const PropertyDetail = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Image Lightbox */}
+      {lightboxIdx !== null && (
+        <div
+          className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4"
+          onClick={() => setLightboxIdx(null)}
+        >
+          <button
+            onClick={(e) => { e.stopPropagation(); setLightboxIdx(null); }}
+            className="absolute top-4 right-4 rounded-full bg-white/10 hover:bg-white/20 p-2 text-white"
+            aria-label="Close"
+          >
+            <X className="h-6 w-6" />
+          </button>
+          {allImages.length > 1 && (
+            <>
+              <button
+                onClick={(e) => { e.stopPropagation(); setLightboxIdx((lightboxIdx - 1 + allImages.length) % allImages.length); }}
+                className="absolute left-4 rounded-full bg-white/10 hover:bg-white/20 p-2 text-white"
+                aria-label="Previous"
+              >
+                <ChevronLeft className="h-7 w-7" />
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); setLightboxIdx((lightboxIdx + 1) % allImages.length); }}
+                className="absolute right-4 rounded-full bg-white/10 hover:bg-white/20 p-2 text-white"
+                aria-label="Next"
+              >
+                <ChevronRight className="h-7 w-7" />
+              </button>
+            </>
+          )}
+          <img
+            src={allImages[lightboxIdx]}
+            alt={`${title} ${lightboxIdx + 1}`}
+            onClick={(e) => e.stopPropagation()}
+            className="max-h-[90vh] max-w-[95vw] object-contain rounded-lg"
+          />
+          <span className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/80 text-sm bg-black/50 px-3 py-1 rounded-full">
+            {lightboxIdx + 1} / {allImages.length}
+          </span>
+        </div>
+      )}
     </div>
   );
 };
