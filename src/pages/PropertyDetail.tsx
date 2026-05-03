@@ -502,6 +502,49 @@ const PropertyDetail = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Image Lightbox */}
+      {lightboxIdx !== null && (
+        <div
+          className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4"
+          onClick={() => setLightboxIdx(null)}
+        >
+          <button
+            onClick={(e) => { e.stopPropagation(); setLightboxIdx(null); }}
+            className="absolute top-4 right-4 rounded-full bg-white/10 hover:bg-white/20 p-2 text-white"
+            aria-label="Close"
+          >
+            <X className="h-6 w-6" />
+          </button>
+          {allImages.length > 1 && (
+            <>
+              <button
+                onClick={(e) => { e.stopPropagation(); setLightboxIdx((lightboxIdx - 1 + allImages.length) % allImages.length); }}
+                className="absolute left-4 rounded-full bg-white/10 hover:bg-white/20 p-2 text-white"
+                aria-label="Previous"
+              >
+                <ChevronLeft className="h-7 w-7" />
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); setLightboxIdx((lightboxIdx + 1) % allImages.length); }}
+                className="absolute right-4 rounded-full bg-white/10 hover:bg-white/20 p-2 text-white"
+                aria-label="Next"
+              >
+                <ChevronRight className="h-7 w-7" />
+              </button>
+            </>
+          )}
+          <img
+            src={allImages[lightboxIdx]}
+            alt={`${title} ${lightboxIdx + 1}`}
+            onClick={(e) => e.stopPropagation()}
+            className="max-h-[90vh] max-w-[95vw] object-contain rounded-lg"
+          />
+          <span className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/80 text-sm bg-black/50 px-3 py-1 rounded-full">
+            {lightboxIdx + 1} / {allImages.length}
+          </span>
+        </div>
+      )}
     </div>
   );
 };
