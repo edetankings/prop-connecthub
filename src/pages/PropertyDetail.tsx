@@ -1,6 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { MapPin, Bed, Bath, Maximize, MessageCircle, CalendarCheck, ArrowLeft, CheckCircle, Bookmark, ShieldCheck } from "lucide-react";
+import { MapPin, Bed, Bath, Maximize, MessageCircle, CalendarCheck, ArrowLeft, CheckCircle, Bookmark, ShieldCheck, X, ChevronLeft, ChevronRight, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -26,6 +26,7 @@ interface DBPropertyDetail {
   status: string;
   image_url: string | null;
   images: string[] | null;
+  videos: string[] | null;
   city: string | null;
   state: string | null;
   address: string | null;
@@ -50,6 +51,7 @@ const PropertyDetail = () => {
   const [agent, setAgent] = useState<DBAgent | null>(null);
   const [showReserveModal, setShowReserveModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
   const [form, setForm] = useState({
     buyer_name: "",
     viewing_date: "",
