@@ -278,17 +278,17 @@ const PropertyDetail = () => {
           <div className="lg:col-span-2">
             {/* Image Gallery */}
             <div className="overflow-hidden rounded-xl cursor-zoom-in" onClick={() => setLightboxIdx(0)}>
-              <img src={allImages[0]} alt={title} className="h-72 w-full object-cover md:h-96 hover:scale-[1.02] transition-transform" />
+              <img src={allImages[0]} alt={title} className="h-56 sm:h-72 md:h-96 w-full object-cover hover:scale-[1.02] transition-transform" />
             </div>
             {allImages.length > 1 && (
-              <div className="mt-3 flex gap-2 overflow-x-auto">
+              <div className="mt-3 flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
                 {allImages.slice(1, 8).map((img, i) => (
                   <img
                     key={i}
                     src={img}
                     alt={`${title} ${i + 2}`}
                     onClick={() => setLightboxIdx(i + 1)}
-                    className="h-20 w-28 flex-shrink-0 rounded-lg object-cover ring-1 ring-border cursor-pointer hover:ring-secondary"
+                    className="h-16 w-20 sm:h-20 sm:w-28 flex-shrink-0 rounded-lg object-cover ring-1 ring-border cursor-pointer hover:ring-secondary"
                   />
                 ))}
               </div>
