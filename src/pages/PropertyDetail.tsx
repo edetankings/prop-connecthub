@@ -266,29 +266,29 @@ const PropertyDetail = () => {
   const badge = agent ? getTrustBadge(agent.trust_score) : null;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen overflow-x-hidden bg-background">
       <Navbar />
-      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 max-w-7xl">
+      <div className="container mx-auto max-w-7xl px-3 py-4 sm:px-4 sm:py-6">
         <Link to="/properties" className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" /> Back to Properties
         </Link>
 
-        <div className="grid gap-6 lg:gap-8 lg:grid-cols-3">
+        <div className="grid min-w-0 grid-cols-1 gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(18rem,1fr)] lg:gap-8">
           {/* Main Content */}
-          <div className="lg:col-span-2">
+          <div className="min-w-0">
             {/* Image Gallery */}
-            <div className="overflow-hidden rounded-xl cursor-zoom-in bg-muted" onClick={() => setLightboxIdx(0)}>
-              <img src={allImages[0]} alt={title} className="w-full h-auto max-h-[70vh] object-contain hover:scale-[1.02] transition-transform" />
+            <div className="w-full overflow-hidden rounded-xl bg-muted cursor-zoom-in aspect-[4/3] sm:aspect-video max-h-[68vh]" onClick={() => setLightboxIdx(0)}>
+              <img src={allImages[0]} alt={title} className="block h-full w-full object-contain transition-transform hover:scale-[1.02]" />
             </div>
             {allImages.length > 1 && (
-              <div className="mt-3 flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+              <div className="mt-3 flex w-full max-w-full gap-2 overflow-x-auto overscroll-x-contain pb-2 -mx-1 px-1">
                 {allImages.slice(1, 8).map((img, i) => (
                   <img
                     key={i}
                     src={img}
                     alt={`${title} ${i + 2}`}
                     onClick={() => setLightboxIdx(i + 1)}
-                    className="h-16 w-20 sm:h-20 sm:w-28 flex-shrink-0 rounded-lg object-cover ring-1 ring-border cursor-pointer hover:ring-secondary"
+                    className="h-16 w-20 flex-shrink-0 cursor-pointer rounded-lg object-cover ring-1 ring-border hover:ring-secondary sm:h-20 sm:w-28"
                   />
                 ))}
               </div>
@@ -300,15 +300,17 @@ const PropertyDetail = () => {
                 <h2 className="font-display text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
                   <Play className="h-5 w-5 text-secondary" /> Property Videos
                 </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2">
                   {dbProperty.videos.map((v, i) => (
-                    <video
-                      key={i}
-                      src={v}
-                      controls
-                      preload="metadata"
-                      className="w-full rounded-xl border border-border bg-black aspect-video"
-                    />
+                    <div key={i} className="aspect-video w-full min-w-0 overflow-hidden rounded-xl border border-border bg-card">
+                      <video
+                        src={v}
+                        controls
+                        playsInline
+                        preload="metadata"
+                        className="block h-full w-full bg-card object-contain"
+                      />
+                    </div>
                   ))}
                 </div>
               </div>
@@ -375,7 +377,7 @@ const PropertyDetail = () => {
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-4">
+          <div className="min-w-0 space-y-4">
             <div className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-card">
               {!isOwner && (
                 <div className="flex gap-3">
