@@ -268,12 +268,12 @@ const PropertyDetail = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <div className="container mx-auto px-4 py-6">
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 max-w-7xl">
         <Link to="/properties" className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" /> Back to Properties
         </Link>
 
-        <div className="grid gap-8 lg:grid-cols-3">
+        <div className="grid gap-6 lg:gap-8 lg:grid-cols-3">
           {/* Main Content */}
           <div className="lg:col-span-2">
             {/* Image Gallery */}
