@@ -351,7 +351,7 @@ const PropertyDetail = () => {
               {features.length > 0 && (
                 <div className="mt-6">
                   <h2 className="font-display text-lg font-semibold text-foreground">Features</h2>
-                  <div className="mt-3 grid grid-cols-2 gap-2">
+                  <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {features.map((f) => (
                       <span key={f} className="flex items-center gap-2 text-sm text-muted-foreground">
                         <CheckCircle className="h-4 w-4 text-success" /> {f}
