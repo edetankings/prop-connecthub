@@ -268,27 +268,27 @@ const PropertyDetail = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <div className="container mx-auto px-4 py-6">
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 max-w-7xl">
         <Link to="/properties" className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" /> Back to Properties
         </Link>
 
-        <div className="grid gap-8 lg:grid-cols-3">
+        <div className="grid gap-6 lg:gap-8 lg:grid-cols-3">
           {/* Main Content */}
           <div className="lg:col-span-2">
             {/* Image Gallery */}
             <div className="overflow-hidden rounded-xl cursor-zoom-in" onClick={() => setLightboxIdx(0)}>
-              <img src={allImages[0]} alt={title} className="h-72 w-full object-cover md:h-96 hover:scale-[1.02] transition-transform" />
+              <img src={allImages[0]} alt={title} className="h-56 sm:h-72 md:h-96 w-full object-cover hover:scale-[1.02] transition-transform" />
             </div>
             {allImages.length > 1 && (
-              <div className="mt-3 flex gap-2 overflow-x-auto">
+              <div className="mt-3 flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
                 {allImages.slice(1, 8).map((img, i) => (
                   <img
                     key={i}
                     src={img}
                     alt={`${title} ${i + 2}`}
                     onClick={() => setLightboxIdx(i + 1)}
-                    className="h-20 w-28 flex-shrink-0 rounded-lg object-cover ring-1 ring-border cursor-pointer hover:ring-secondary"
+                    className="h-16 w-20 sm:h-20 sm:w-28 flex-shrink-0 rounded-lg object-cover ring-1 ring-border cursor-pointer hover:ring-secondary"
                   />
                 ))}
               </div>
@@ -315,29 +315,29 @@ const PropertyDetail = () => {
             )}
 
             <div className="mt-6">
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h1 className="font-display text-2xl font-bold text-foreground md:text-3xl">{title}</h1>
+              <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-start sm:justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h1 className="font-display text-xl sm:text-2xl md:text-3xl font-bold text-foreground break-words">{title}</h1>
                     {isVerified && <Badge className="bg-success/90 text-success-foreground">Verified</Badge>}
                   </div>
-                  <p className="mt-1 flex items-center gap-1 text-muted-foreground"><MapPin className="h-4 w-4" />{location}</p>
+                  <p className="mt-1 flex items-start gap-1 text-sm sm:text-base text-muted-foreground break-words"><MapPin className="h-4 w-4 mt-0.5 flex-shrink-0" />{location}</p>
                 </div>
-                <div className="text-right">
-                  <p className="font-display text-2xl font-bold text-secondary md:text-3xl">
+                <div className="sm:text-right">
+                  <p className="font-display text-xl sm:text-2xl md:text-3xl font-bold text-secondary break-words">
                     {dbProperty ? `₦${price.toLocaleString()}` : formatPrice(price)}
                   </p>
                   {!isSale && <span className="text-sm text-muted-foreground">per year</span>}
                 </div>
               </div>
 
-              <div className="mt-3 flex gap-2">
+              <div className="mt-3 flex flex-wrap gap-2">
                 <Badge className={isSale ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"}>
                   {isSale ? "For Sale" : "For Rent"}
                 </Badge>
               </div>
 
-              <div className="mt-4 flex gap-4 text-muted-foreground">
+              <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-sm sm:text-base text-muted-foreground">
                 {bedrooms > 0 && <span className="flex items-center gap-1"><Bed className="h-5 w-5" /> {bedrooms} Beds</span>}
                 {bathrooms > 0 && <span className="flex items-center gap-1"><Bath className="h-5 w-5" /> {bathrooms} Baths</span>}
                 {sqft > 0 && <span className="flex items-center gap-1"><Maximize className="h-5 w-5" /> {sqft} sqft</span>}
@@ -351,7 +351,7 @@ const PropertyDetail = () => {
               {features.length > 0 && (
                 <div className="mt-6">
                   <h2 className="font-display text-lg font-semibold text-foreground">Features</h2>
-                  <div className="mt-3 grid grid-cols-2 gap-2">
+                  <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {features.map((f) => (
                       <span key={f} className="flex items-center gap-2 text-sm text-muted-foreground">
                         <CheckCircle className="h-4 w-4 text-success" /> {f}
@@ -376,7 +376,7 @@ const PropertyDetail = () => {
 
           {/* Sidebar */}
           <div className="space-y-4">
-            <div className="rounded-xl border border-border bg-card p-5 shadow-card">
+            <div className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-card">
               {!isOwner && (
                 <div className="flex gap-3">
                   {user ? (
