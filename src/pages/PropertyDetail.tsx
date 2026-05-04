@@ -376,7 +376,7 @@ const PropertyDetail = () => {
 
           {/* Sidebar */}
           <div className="space-y-4">
-            <div className="rounded-xl border border-border bg-card p-5 shadow-card">
+            <div className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-card">
               {!isOwner && (
                 <div className="flex gap-3">
                   {user ? (
