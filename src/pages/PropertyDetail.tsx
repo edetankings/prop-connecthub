@@ -277,8 +277,8 @@ const PropertyDetail = () => {
           {/* Main Content */}
           <div className="lg:col-span-2">
             {/* Image Gallery */}
-            <div className="overflow-hidden rounded-xl cursor-zoom-in" onClick={() => setLightboxIdx(0)}>
-              <img src={allImages[0]} alt={title} className="h-56 sm:h-72 md:h-96 w-full object-cover hover:scale-[1.02] transition-transform" />
+            <div className="overflow-hidden rounded-xl cursor-zoom-in bg-muted" onClick={() => setLightboxIdx(0)}>
+              <img src={allImages[0]} alt={title} className="w-full h-auto max-h-[70vh] object-contain hover:scale-[1.02] transition-transform" />
             </div>
             {allImages.length > 1 && (
               <div className="mt-3 flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
