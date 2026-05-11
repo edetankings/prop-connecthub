@@ -181,7 +181,23 @@ const Register = () => {
             )}
           </div>
 
-          <Button type="submit" className="w-full" disabled={loading || !allRulesPassed || !passwordsMatch}>
+
+          <div className="flex items-start gap-2 rounded-md border border-border bg-muted/40 p-3">
+            <Checkbox
+              id="acceptTerms"
+              checked={acceptTerms}
+              onCheckedChange={(v) => setAcceptTerms(v === true)}
+              className="mt-0.5"
+            />
+            <Label htmlFor="acceptTerms" className="text-xs font-normal leading-relaxed text-muted-foreground cursor-pointer">
+              I have read and accept the{" "}
+              <Link to="/terms" target="_blank" className="font-medium text-secondary hover:underline">Terms of Use</Link>
+              {" "}and{" "}
+              <Link to="/privacy" target="_blank" className="font-medium text-secondary hover:underline">Privacy Policy</Link>.
+            </Label>
+          </div>
+
+          <Button type="submit" className="w-full" disabled={loading || !allRulesPassed || !passwordsMatch || !acceptTerms}>
             {loading ? "Creating Account..." : "Create Account"}
           </Button>
         </form>
