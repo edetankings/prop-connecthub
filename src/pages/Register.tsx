@@ -49,6 +49,10 @@ const Register = () => {
       setError("Passwords do not match.");
       return;
     }
+    if (!acceptTerms) {
+      setError("You must accept the Terms of Use and Privacy Policy to continue.");
+      return;
+    }
 
     setLoading(true);
     try {
