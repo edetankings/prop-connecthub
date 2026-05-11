@@ -30,6 +30,7 @@ const Register = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [acceptTerms, setAcceptTerms] = useState(false);
   const [success, setSuccess] = useState(false);
   const { signUp } = useAuth();
 
