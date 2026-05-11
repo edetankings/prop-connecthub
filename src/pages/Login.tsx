@@ -121,7 +121,21 @@ const Login = () => {
               </button>
             </div>
           </div>
-          <Button type="submit" className="w-full" disabled={loading || isLocked}>
+          <div className="flex items-start gap-2 rounded-md border border-border bg-muted/40 p-3">
+            <Checkbox
+              id="acceptTermsLogin"
+              checked={acceptTerms}
+              onCheckedChange={(v) => setAcceptTerms(v === true)}
+              className="mt-0.5"
+            />
+            <Label htmlFor="acceptTermsLogin" className="text-xs font-normal leading-relaxed text-muted-foreground cursor-pointer">
+              I agree to the{" "}
+              <Link to="/terms" target="_blank" className="font-medium text-secondary hover:underline">Terms of Use</Link>
+              {" "}and{" "}
+              <Link to="/privacy" target="_blank" className="font-medium text-secondary hover:underline">Privacy Policy</Link>.
+            </Label>
+          </div>
+          <Button type="submit" className="w-full" disabled={loading || isLocked || !acceptTerms}>
             {isLocked ? `Locked (${countdown}s)` : loading ? "Logging in..." : "Log In"}
           </Button>
         </form>
