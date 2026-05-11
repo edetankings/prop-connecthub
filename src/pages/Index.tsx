@@ -20,8 +20,8 @@ import cine3 from "@/assets/cinematic-3.jpg";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 40 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } },
-};
+  show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] as const } },
+} as const;
 
 const Reveal = ({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) => {
   const ref = useRef<HTMLDivElement>(null);
