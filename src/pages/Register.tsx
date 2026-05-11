@@ -5,6 +5,7 @@ import logo from "@/assets/logo.jpg";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -29,6 +30,7 @@ const Register = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [acceptTerms, setAcceptTerms] = useState(false);
   const [success, setSuccess] = useState(false);
   const { signUp } = useAuth();
 
@@ -45,6 +47,10 @@ const Register = () => {
     }
     if (!passwordsMatch) {
       setError("Passwords do not match.");
+      return;
+    }
+    if (!acceptTerms) {
+      setError("You must accept the Terms of Use and Privacy Policy to continue.");
       return;
     }
 
@@ -175,7 +181,23 @@ const Register = () => {
             )}
           </div>
 
-          <Button type="submit" className="w-full" disabled={loading || !allRulesPassed || !passwordsMatch}>
+
+          <div className="flex items-start gap-2 rounded-md border border-border bg-muted/40 p-3">
+            <Checkbox
+              id="acceptTerms"
+              checked={acceptTerms}
+              onCheckedChange={(v) => setAcceptTerms(v === true)}
+              className="mt-0.5"
+            />
+            <Label htmlFor="acceptTerms" className="text-xs font-normal leading-relaxed text-muted-foreground cursor-pointer">
+              I have read and accept the{" "}
+              <Link to="/terms" target="_blank" className="font-medium text-secondary hover:underline">Terms of Use</Link>
+              {" "}and{" "}
+              <Link to="/privacy" target="_blank" className="font-medium text-secondary hover:underline">Privacy Policy</Link>.
+            </Label>
+          </div>
+
+          <Button type="submit" className="w-full" disabled={loading || !allRulesPassed || !passwordsMatch || !acceptTerms}>
             {loading ? "Creating Account..." : "Create Account"}
           </Button>
         </form>
