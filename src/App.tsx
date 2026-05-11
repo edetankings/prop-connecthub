@@ -30,6 +30,8 @@ import IdentityVerification from "./pages/IdentityVerification";
 import Earnings from "./pages/Earnings";
 import Payments from "./pages/Payments";
 import NotFound from "./pages/NotFound";
+import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
 import WelcomeModal from "./components/WelcomeModal";
 
 const queryClient = new QueryClient();
