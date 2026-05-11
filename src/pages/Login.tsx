@@ -57,6 +57,10 @@ const Login = () => {
       setError("Please enter both email and password.");
       return;
     }
+    if (!acceptTerms) {
+      setError("Please accept the Terms of Use and Privacy Policy to continue.");
+      return;
+    }
 
     setLoading(true);
     try {
