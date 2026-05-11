@@ -20,6 +20,7 @@ const Login = () => {
   const [attempts, setAttempts] = useState(0);
   const [lockedUntil, setLockedUntil] = useState<number | null>(null);
   const [countdown, setCountdown] = useState(0);
+  const [acceptTerms, setAcceptTerms] = useState(false);
   const { signIn } = useAuth();
   const navigate = useNavigate();
 
