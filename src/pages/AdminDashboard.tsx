@@ -1108,108 +1108,241 @@ const AdminDashboard = () => {
               </div>
             )}
 
-            {/* MODERATION TAB */}
-            {tab === "moderation" && (
-              <div className="space-y-6">
-                <h2 className="font-display text-lg font-semibold text-foreground">Properties Pending Approval</h2>
-                {properties.filter((p) => p.status === "under_verification").length === 0 && <p className="text-muted-foreground text-sm">No pending properties</p>}
-                {properties.filter((p) => p.status === "under_verification").map((p) => {
-                  const agentProfile = profiles.find((pr: any) => pr.id === p.agent_id);
-                  const docs = propertyDocs.filter((d: any) => d.property_id === p.id);
-                  return (
-                    <div key={p.id} className="rounded-xl border border-border bg-card overflow-hidden shadow-card">
-                      <div className="flex flex-col md:flex-row">
-                        {p.image_url && (
-                          <div className="w-full md:w-48 h-36 bg-muted shrink-0">
-                            <img src={p.image_url} alt={p.title} className="h-full w-full object-cover" />
-                          </div>
-                        )}
-                        <div className="p-4 flex-1">
-                          <p className="font-semibold text-foreground text-lg">{p.title}</p>
-                          <p className="text-sm text-secondary font-bold mt-1">₦{(p.price || 0).toLocaleString()}</p>
-                          <p className="text-sm text-muted-foreground">{p.city}, {p.state}</p>
-                          {(p.latitude != null && p.longitude != null) && (
-                            <a
-                              href={`https://www.openstreetmap.org/?mlat=${p.latitude}&mlon=${p.longitude}#map=17/${p.latitude}/${p.longitude}`}
-                              target="_blank" rel="noopener noreferrer"
-                              className="text-xs text-primary underline inline-flex items-center gap-1 mt-1"
-                            >
-                              <ExternalLink className="h-3 w-3" /> View pinned location
-                            </a>
-                          )}
-                          <div className="mt-2 text-xs text-muted-foreground">
-                            <p><strong className="text-foreground">Agent:</strong> {agentProfile?.full_name || p.profiles?.full_name || "—"}</p>
-                            {agentProfile?.phone && <p><strong className="text-foreground">Phone:</strong> {agentProfile.phone}</p>}
-                            <p>
-                              <strong className="text-foreground">KYC:</strong>{" "}
-                              {agentProfile?.kyc_verified ? <span className="text-[hsl(var(--success))]">Verified</span> : <span className="text-[hsl(var(--warning))]">Not verified</span>}
-                            </p>
-                          </div>
-                          <Badge variant="outline" className="mt-2 text-[hsl(var(--warning))]">Pending Approval</Badge>
-                        </div>
-                        <div className="flex md:flex-col gap-2 p-4 items-center justify-end">
-                          <Button size="sm" onClick={() => handleApproveProperty(p.id)} className="bg-[hsl(var(--success))] text-[hsl(var(--success-foreground))] hover:bg-[hsl(var(--success))]/90 gap-1">
-                            <CheckCircle className="h-4 w-4" /> Approve
-                          </Button>
-                          <Button size="sm" variant="destructive" onClick={() => handleRejectProperty(p.id)} className="gap-1">
-                            <XCircle className="h-4 w-4" /> Reject
-                          </Button>
-                        </div>
-                      </div>
-                      <div className="border-t border-border p-4 bg-muted/30">
-                        <p className="text-xs font-semibold text-foreground mb-2 flex items-center gap-1">
-                          <FileText className="h-3 w-3" /> Property Documents ({docs.length})
-                        </p>
-                        {docs.length === 0 ? (
-                          <p className="text-xs text-muted-foreground">No documents uploaded</p>
-                        ) : (
-                          <div className="space-y-1">
-                            {docs.map((d: any) => (
-                              <a
-                                key={d.id}
-                                href={d.file_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center gap-2 rounded-lg border border-border bg-card p-2 hover:border-secondary/50 transition-colors text-xs"
-                              >
-                                <FileText className="h-4 w-4 text-secondary shrink-0" />
-                                <span className="flex-1 truncate text-foreground">{d.file_name}</span>
-                                <span className="text-muted-foreground">{((d.file_size || 0) / 1024 / 1024).toFixed(2)} MB</span>
-                                <ExternalLink className="h-3 w-3 text-muted-foreground" />
-                              </a>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
+            {/* MODERATION / PROPERTY MONITORING TAB */}
+            {tab === "moderation" && (() => {
+              const total = properties.length;
+              const pending = properties.filter((p) => p.status === "under_verification").length;
+              const approved = properties.filter((p) => ["available", "for_sale", "for_rent"].includes(p.status)).length;
+              const rejected = properties.filter((p) => p.status === "draft").length;
+              const sold = properties.filter((p) => ["sold", "rented"].includes(p.status)).length;
 
-                <h2 className="font-display text-lg font-semibold text-foreground mt-8">Verification Documents</h2>
-                {verifications.length === 0 && <p className="p-8 text-center text-muted-foreground">No documents</p>}
-                {verifications.map((v) => {
-                  const docProfile = profiles.find((p: any) => p.user_id === v.user_id);
-                  return (
-                    <div key={v.id} className="rounded-xl border border-border bg-card p-4 flex items-center justify-between shadow-card">
-                      <div>
-                        <p className="font-medium text-foreground capitalize">{v.document_type?.replace(/_/g, " ")}</p>
-                        <p className="text-sm text-muted-foreground">User: {docProfile?.full_name || v.user_id?.slice(0, 8)}</p>
-                        {v.file_url && v.file_url !== "metadata-only" && (
-                          <a href={v.file_url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline">View document</a>
-                        )}
-                        <Badge variant="outline" className="mt-1 ml-2">{v.status}</Badge>
-                      </div>
-                      {v.status === "pending" && (
-                        <div className="flex gap-2">
-                          <Button size="sm" onClick={() => handleDocumentReview(v.id, "approved")} className="bg-[hsl(var(--success))] text-[hsl(var(--success-foreground))] hover:bg-[hsl(var(--success))]/90">Approve</Button>
-                          <Button size="sm" variant="destructive" onClick={() => handleDocumentReview(v.id, "rejected")}>Reject</Button>
+              const statusFilter = (window as any).__adminPropFilter || "pending";
+              const setStatusFilter = (v: string) => {
+                (window as any).__adminPropFilter = v;
+                setTab("moderation"); // force re-render
+              };
+
+              const filtered = properties.filter((p) => {
+                if (statusFilter === "all") return true;
+                if (statusFilter === "pending") return p.status === "under_verification";
+                if (statusFilter === "approved") return ["available", "for_sale", "for_rent"].includes(p.status);
+                if (statusFilter === "rejected") return p.status === "draft";
+                if (statusFilter === "sold") return ["sold", "rented"].includes(p.status);
+                return true;
+              });
+
+              const propActivity = (pid: string) =>
+                auditLogs.filter((l: any) => l.details?.property_id === pid || l.details?.id === pid);
+
+              return (
+                <div className="space-y-6">
+                  <div>
+                    <h2 className="font-display text-xl font-semibold text-foreground">Property Monitoring</h2>
+                    <p className="text-sm text-muted-foreground">Monitor every property listed on the platform.</p>
+                  </div>
+
+                  {/* Stats cards */}
+                  <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
+                    {[
+                      { label: "Total", value: total, key: "all", icon: Building, color: "text-foreground" },
+                      { label: "Pending", value: pending, key: "pending", icon: AlertTriangle, color: "text-[hsl(var(--warning))]" },
+                      { label: "Approved", value: approved, key: "approved", icon: CheckCircle, color: "text-[hsl(var(--success))]" },
+                      { label: "Rejected", value: rejected, key: "rejected", icon: XCircle, color: "text-destructive" },
+                      { label: "Sold/Rented", value: sold, key: "sold", icon: TrendingUp, color: "text-primary" },
+                    ].map((s) => (
+                      <button
+                        key={s.key}
+                        onClick={() => setStatusFilter(s.key)}
+                        className={`rounded-xl border p-4 text-left transition-all ${
+                          statusFilter === s.key
+                            ? "border-secondary bg-secondary/10 shadow-card"
+                            : "border-border bg-card hover:border-secondary/40"
+                        }`}
+                      >
+                        <s.icon className={`h-4 w-4 ${s.color}`} />
+                        <p className="mt-2 font-display text-2xl font-bold text-foreground">{s.value}</p>
+                        <p className="text-xs uppercase tracking-wider text-muted-foreground">{s.label}</p>
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Property list */}
+                  {filtered.length === 0 && (
+                    <p className="rounded-xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">
+                      No properties in this category
+                    </p>
+                  )}
+
+                  {filtered.map((p) => {
+                    const agentProfile = profiles.find((pr: any) => pr.id === p.agent_id);
+                    const docs = propertyDocs.filter((d: any) => d.property_id === p.id);
+                    const reservationCount = allReservations.filter((r: any) => r.property_id === p.id).length;
+                    const interestedBuyers = new Set(allReservations.filter((r: any) => r.property_id === p.id).map((r: any) => r.buyer_id)).size;
+                    const activity = propActivity(p.id);
+                    const isPending = p.status === "under_verification";
+
+                    const statusBadge = isPending
+                      ? { label: "Pending Approval", cls: "text-[hsl(var(--warning))] border-[hsl(var(--warning))]/40" }
+                      : p.status === "draft"
+                      ? { label: "Rejected", cls: "text-destructive border-destructive/40" }
+                      : ["sold", "rented"].includes(p.status)
+                      ? { label: p.status === "sold" ? "Sold" : "Rented", cls: "text-primary border-primary/40" }
+                      : { label: "Approved · Live", cls: "text-[hsl(var(--success))] border-[hsl(var(--success))]/40" };
+
+                    return (
+                      <div key={p.id} className="rounded-xl border border-border bg-card overflow-hidden shadow-card">
+                        <div className="flex flex-col md:flex-row">
+                          {(p.image_url || p.images?.[0]) && (
+                            <div className="w-full md:w-52 h-40 bg-muted shrink-0">
+                              <img src={p.image_url || p.images?.[0]} alt={p.title} className="h-full w-full object-cover" />
+                            </div>
+                          )}
+                          <div className="p-4 flex-1 min-w-0">
+                            <div className="flex items-start justify-between gap-3 flex-wrap">
+                              <div className="min-w-0">
+                                <p className="font-semibold text-foreground text-lg truncate">{p.title}</p>
+                                <p className="text-sm text-secondary font-bold mt-0.5">₦{(p.price || 0).toLocaleString()}</p>
+                                <p className="text-xs text-muted-foreground">{p.city}, {p.state} · {p.property_type}</p>
+                              </div>
+                              <Badge variant="outline" className={statusBadge.cls}>{statusBadge.label}</Badge>
+                            </div>
+
+                            {/* Performance metrics */}
+                            <div className="mt-3 grid grid-cols-3 gap-2 rounded-lg border border-border bg-muted/30 p-2 text-center">
+                              <div>
+                                <p className="font-semibold text-foreground text-sm">{reservationCount}</p>
+                                <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Reservations</p>
+                              </div>
+                              <div>
+                                <p className="font-semibold text-foreground text-sm">{interestedBuyers}</p>
+                                <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Interested</p>
+                              </div>
+                              <div>
+                                <p className="font-semibold text-foreground text-sm">{(p.images?.length || 0) + (p.videos?.length || 0)}</p>
+                                <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Media</p>
+                              </div>
+                            </div>
+
+                            {/* Owner / GPS / Dates */}
+                            <div className="mt-3 grid gap-1 text-xs text-muted-foreground sm:grid-cols-2">
+                              <p><strong className="text-foreground">Agent:</strong> {agentProfile?.full_name || p.profiles?.full_name || "—"}</p>
+                              {agentProfile?.phone && <p><strong className="text-foreground">Phone:</strong> {agentProfile.phone}</p>}
+                              <p>
+                                <strong className="text-foreground">KYC:</strong>{" "}
+                                {agentProfile?.kyc_verified ? <span className="text-[hsl(var(--success))]">Verified</span> : <span className="text-[hsl(var(--warning))]">Not verified</span>}
+                              </p>
+                              <p><strong className="text-foreground">Listed:</strong> {new Date(p.created_at).toLocaleDateString()}</p>
+                              {(p.latitude != null && p.longitude != null) && (
+                                <a
+                                  href={`https://www.openstreetmap.org/?mlat=${p.latitude}&mlon=${p.longitude}#map=17/${p.latitude}/${p.longitude}`}
+                                  target="_blank" rel="noopener noreferrer"
+                                  className="text-primary underline inline-flex items-center gap-1 sm:col-span-2"
+                                >
+                                  <ExternalLink className="h-3 w-3" /> GPS: {p.latitude.toFixed(5)}, {p.longitude.toFixed(5)}
+                                </a>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="flex md:flex-col gap-2 p-4 items-center justify-end shrink-0">
+                            <Button size="sm" variant="outline" onClick={() => navigate(`/property/${p.id}`)} className="gap-1 w-full">
+                              <Eye className="h-4 w-4" /> View
+                            </Button>
+                            {isPending && (
+                              <>
+                                <Button size="sm" onClick={() => handleApproveProperty(p.id)} className="bg-[hsl(var(--success))] text-[hsl(var(--success-foreground))] hover:bg-[hsl(var(--success))]/90 gap-1 w-full">
+                                  <CheckCircle className="h-4 w-4" /> Approve
+                                </Button>
+                                <Button size="sm" variant="destructive" onClick={() => handleRejectProperty(p.id)} className="gap-1 w-full">
+                                  <XCircle className="h-4 w-4" /> Reject
+                                </Button>
+                              </>
+                            )}
+                            {!isPending && p.status !== "draft" && (
+                              <Button size="sm" variant="destructive" onClick={() => handleRejectProperty(p.id)} className="gap-1 w-full">
+                                <XCircle className="h-4 w-4" /> Unpublish
+                              </Button>
+                            )}
+                            {p.status === "draft" && (
+                              <Button size="sm" onClick={() => handleApproveProperty(p.id)} className="bg-[hsl(var(--success))] text-[hsl(var(--success-foreground))] hover:bg-[hsl(var(--success))]/90 gap-1 w-full">
+                                <CheckCircle className="h-4 w-4" /> Re-approve
+                              </Button>
+                            )}
+                          </div>
                         </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
+
+                        {/* Documents */}
+                        <div className="border-t border-border p-4 bg-muted/30">
+                          <p className="text-xs font-semibold text-foreground mb-2 flex items-center gap-1">
+                            <FileText className="h-3 w-3" /> Property Documents ({docs.length})
+                          </p>
+                          {docs.length === 0 ? (
+                            <p className="text-xs text-muted-foreground">No documents uploaded</p>
+                          ) : (
+                            <div className="space-y-1">
+                              {docs.map((d: any) => (
+                                <a
+                                  key={d.id}
+                                  href={d.file_url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex items-center gap-2 rounded-lg border border-border bg-card p-2 hover:border-secondary/50 transition-colors text-xs"
+                                >
+                                  <FileText className="h-4 w-4 text-secondary shrink-0" />
+                                  <span className="flex-1 truncate text-foreground">{d.file_name}</span>
+                                  <span className="text-muted-foreground">{((d.file_size || 0) / 1024 / 1024).toFixed(2)} MB</span>
+                                  <ExternalLink className="h-3 w-3 text-muted-foreground" />
+                                </a>
+                              ))}
+                            </div>
+                          )}
+
+                          {activity.length > 0 && (
+                            <div className="mt-3">
+                              <p className="text-xs font-semibold text-foreground mb-2 flex items-center gap-1">
+                                <Activity className="h-3 w-3" /> Activity Log
+                              </p>
+                              <div className="space-y-1">
+                                {activity.slice(0, 5).map((l: any) => (
+                                  <div key={l.id} className="text-[11px] text-muted-foreground flex justify-between gap-2">
+                                    <span className="capitalize">{l.action?.replace(/_/g, " ")}</span>
+                                    <span>{new Date(l.created_at).toLocaleString()}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+
+                  <h2 className="font-display text-lg font-semibold text-foreground mt-8">Verification Documents</h2>
+                  {verifications.length === 0 && <p className="p-8 text-center text-muted-foreground">No documents</p>}
+                  {verifications.map((v) => {
+                    const docProfile = profiles.find((p: any) => p.user_id === v.user_id);
+                    return (
+                      <div key={v.id} className="rounded-xl border border-border bg-card p-4 flex items-center justify-between shadow-card">
+                        <div>
+                          <p className="font-medium text-foreground capitalize">{v.document_type?.replace(/_/g, " ")}</p>
+                          <p className="text-sm text-muted-foreground">User: {docProfile?.full_name || v.user_id?.slice(0, 8)}</p>
+                          {v.file_url && v.file_url !== "metadata-only" && (
+                            <a href={v.file_url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline">View document</a>
+                          )}
+                          <Badge variant="outline" className="mt-1 ml-2">{v.status}</Badge>
+                        </div>
+                        {v.status === "pending" && (
+                          <div className="flex gap-2">
+                            <Button size="sm" onClick={() => handleDocumentReview(v.id, "approved")} className="bg-[hsl(var(--success))] text-[hsl(var(--success-foreground))] hover:bg-[hsl(var(--success))]/90">Approve</Button>
+                            <Button size="sm" variant="destructive" onClick={() => handleDocumentReview(v.id, "rejected")}>Reject</Button>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })()}
 
             {/* DISPUTES TAB */}
             {tab === "disputes" && (
