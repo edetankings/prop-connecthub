@@ -387,6 +387,8 @@ const Index = () => {
         </div>
       </section>
 
+      <CinematicFAQ />
+
       <Footer />
     </div>
   );
