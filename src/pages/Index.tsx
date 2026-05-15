@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import CinematicFAQ from "@/components/CinematicFAQ";
 import AgentCard from "@/components/AgentCard";
 import type { DBProperty } from "@/components/DBPropertyCard";
 import type { DBAgent } from "@/pages/Agents";
