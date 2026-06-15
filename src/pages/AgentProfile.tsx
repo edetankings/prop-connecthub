@@ -22,7 +22,7 @@ const AgentProfile = () => {
   useEffect(() => {
     const load = async () => {
       const [agentRes, propsRes, ratingsRes] = await Promise.all([
-        supabase.from("profiles").select("*").eq("id", id).eq("profile_type", "agent").maybeSingle(),
+        (supabase as any).from("public_profiles").select("*").eq("id", id).eq("profile_type", "agent").maybeSingle(),
         supabase.from("properties").select("*").eq("agent_id", id!).neq("status", "draft"),
         supabase.from("ratings").select("*, profiles!ratings_reviewer_id_fkey(full_name)").eq("agent_id", id!).order("created_at", { ascending: false }),
       ]);

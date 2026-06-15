@@ -115,10 +115,10 @@ const Index = () => {
       .in("status", ["available", "for_sale", "for_rent"])
       .order("created_at", { ascending: false }).limit(6)
       .then(({ data }) => setProperties((data as DBProperty[]) || []));
-    supabase.from("profiles").select("*")
-      .eq("profile_type", "agent").eq("is_visible", true)
+    (supabase as any).from("public_profiles").select("*")
+      .eq("profile_type", "agent")
       .order("trust_score", { ascending: false }).limit(3)
-      .then(({ data }) => setAgents((data as DBAgent[]) || []));
+      .then(({ data }: any) => setAgents((data as DBAgent[]) || []));
   }, []);
 
   const handleSearch = (e: React.FormEvent) => {
