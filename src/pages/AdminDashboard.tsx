@@ -253,6 +253,34 @@ const AdminDashboard = () => {
     loadData();
   };
 
+  const handleRejectKyc = async (profileId: string) => {
+    const reason = prompt("Enter reason for rejecting this KYC submission (will be sent to the user):");
+    if (!reason || !reason.trim()) { toast.error("Rejection reason is required"); return; }
+    const targetProfile = profiles.find((p: any) => p.id === profileId);
+    if (!targetProfile) { toast.error("Profile not found"); return; }
+
+    // Mark kyc_verifications row as rejected with reason (trigger sends notification)
+    const { error: kycErr } = await (supabase as any).from("kyc_verifications").update({
+      kyc_status: "rejected",
+      rejection_reason: reason.trim(),
+      reviewed_by: user?.id,
+      reviewed_at: new Date().toISOString(),
+    }).eq("user_id", targetProfile.user_id);
+    if (kycErr) { toast.error(kycErr.message); return; }
+
+    // Ensure profile is not marked verified
+    await supabase.from("profiles").update({ kyc_verified: false }).eq("id", profileId);
+
+    await (supabase as any).from("audit_logs").insert({
+      user_id: user?.id,
+      action: "reject_kyc",
+      details: { profile_id: profileId, reason: reason.trim() },
+    });
+
+    toast.success("KYC rejected and user notified");
+    loadData();
+  };
+
   const handleDocumentReview = async (docId: string, status: "approved" | "rejected") => {
     const { data: doc, error } = await supabase
       .from("verification_documents")
@@ -928,12 +956,27 @@ const AdminDashboard = () => {
                           </div>
                         )}
                         {kyc.kyc_status === "pending" && selectedUserProfile && !selectedUserProfile.kyc_verified && (
-                          <Button
-                            onClick={() => handleVerifyKyc(selectedUserProfile.id)}
-                            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white gap-2 mt-3"
-                          >
-                            <CheckCircle className="h-4 w-4" /> Verify Agent (Approve KYC)
-                          </Button>
+                          <div className="flex flex-col md:flex-row gap-2 mt-3">
+                            <Button
+                              onClick={() => handleVerifyKyc(selectedUserProfile.id)}
+                              className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white gap-2"
+                            >
+                              <CheckCircle className="h-4 w-4" /> Verify Agent (Approve KYC)
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              onClick={() => handleRejectKyc(selectedUserProfile.id)}
+                              className="flex-1 gap-2"
+                            >
+                              <XCircle className="h-4 w-4" /> Reject KYC (with reason)
+                            </Button>
+                          </div>
+                        )}
+                        {kyc.kyc_status === "rejected" && kyc.rejection_reason && (
+                          <div className="mt-3 p-3 rounded-lg border border-destructive/30 bg-destructive/5 text-sm">
+                            <p className="font-semibold text-destructive mb-1">Previously rejected</p>
+                            <p className="text-foreground">{kyc.rejection_reason}</p>
+                          </div>
                         )}
                       </CardContent>
                     </Card>
