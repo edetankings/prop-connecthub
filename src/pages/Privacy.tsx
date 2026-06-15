@@ -1,6 +1,13 @@
 import { Link } from "react-router-dom";
 import logo from "@/assets/logo.jpg";
 import { Button } from "@/components/ui/button";
+import { Instagram, Facebook, Phone, Mail } from "lucide-react";
+
+const TikTokIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1 0-5.78c.16 0 .31.03.45.06v-3.5a6.33 6.33 0 0 0-.45-.02A6.34 6.34 0 0 0 4 15.45a6.34 6.34 0 0 0 6.34 6.33 6.33 6.33 0 0 0 6.33-6.33V8.83a7.86 7.86 0 0 0 4.6 1.47V7.13a4.72 4.72 0 0 1-1.68-.44z"/>
+  </svg>
+);
 
 const Privacy = () => {
   return (
@@ -12,7 +19,7 @@ const Privacy = () => {
         </Link>
         <article className="rounded-xl border border-border bg-card p-6 sm:p-10 shadow-elevated prose prose-sm max-w-none dark:prose-invert">
           <h1 className="font-display text-2xl font-bold">PROP-connect Privacy Policy</h1>
-          <p className="text-muted-foreground"><em>Effective Date: [Insert Date]</em></p>
+          <p className="text-muted-foreground"><em>Effective Date: June 15, 2026</em></p>
 
           <p>PROP-connect ("we," "our," or "us") is committed to protecting your privacy and personal information. This Privacy Policy explains how we collect, use, store, disclose, and protect your information when you use our mobile app, website, and related services ("Platform").</p>
           <p>By accessing or using PROP-connect, you agree to the terms outlined in this Privacy Policy.</p>
@@ -95,10 +102,27 @@ const Privacy = () => {
           <p>PROP-connect may update this Privacy Policy from time to time. Users will be notified of significant updates through the app, website, email, or official communication channels. Continued use of the platform after updates means acceptance of the revised policy.</p>
 
           <h2>16. Contact Us</h2>
-          <p>For questions, complaints, or privacy-related concerns, contact:<br/>
-          <strong>PROP-connect NG</strong><br/>
-          Email: [Insert Company Email]<br/>
-          Phone/WhatsApp: [Insert Company Number]</p>
+          <p>For questions, complaints, or privacy-related concerns, contact:</p>
+          <div className="mt-2 rounded-lg border border-border bg-muted p-4">
+            <p className="font-semibold text-foreground">PROP-connect NG</p>
+            <div className="mt-2 flex flex-col gap-2 text-sm">
+              <a href="mailto:propconnect0@gmail.com" className="flex items-center gap-2 text-foreground/80 hover:text-foreground">
+                <Mail className="h-4 w-4 text-secondary" /> propconnect0@gmail.com
+              </a>
+              <a href="tel:+2348144954576" className="flex items-center gap-2 text-foreground/80 hover:text-foreground">
+                <Phone className="h-4 w-4 text-secondary" /> 08144954576
+              </a>
+              <a href="https://instagram.com/propconnect2" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-foreground/80 hover:text-foreground">
+                <Instagram className="h-4 w-4 text-secondary" /> @propconnect2
+              </a>
+              <a href="https://tiktok.com/@prop.connect" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-foreground/80 hover:text-foreground">
+                <TikTokIcon /> @prop.connect
+              </a>
+              <a href="https://facebook.com/Prop Connect" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-foreground/80 hover:text-foreground">
+                <Facebook className="h-4 w-4 text-secondary" /> Prop Connect
+              </a>
+            </div>
+          </div>
 
           <div className="mt-8 flex flex-wrap gap-3">
             <Link to="/terms"><Button variant="outline">View Terms of Use</Button></Link>
