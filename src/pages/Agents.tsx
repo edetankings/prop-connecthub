@@ -23,11 +23,10 @@ const Agents = () => {
 
   useEffect(() => {
     const fetchAgents = async () => {
-      const { data: agentProfiles } = await supabase
-        .from("profiles")
+      const { data: agentProfiles } = await (supabase as any)
+        .from("public_profiles")
         .select("*")
         .eq("profile_type", "agent")
-        .eq("is_visible", true)
         .order("trust_score", { ascending: false });
 
       if (agentProfiles && agentProfiles.length > 0) {
