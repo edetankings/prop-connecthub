@@ -88,7 +88,7 @@ const Chat = () => {
   };
 
   const loadOtherUser = async (otherId: string) => {
-    const { data } = await supabase.from("profiles").select("full_name, avatar_url").eq("id", otherId).maybeSingle();
+    const { data } = await (supabase as any).from("public_profiles").select("full_name, avatar_url").eq("id", otherId).maybeSingle();
     setOtherUser({ name: data?.full_name || "Unknown", avatar: data?.avatar_url || null });
   };
 
