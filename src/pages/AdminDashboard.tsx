@@ -1943,11 +1943,12 @@ const AdminDashboard = () => {
                                   </Badge>
                                 </div>
                                 <div className="flex flex-col gap-2">
-                                  <a href={req.screenshot_url} target="_blank" rel="noopener noreferrer">
-                                    <Button variant="outline" size="sm" className="gap-1 w-full">
-                                      <Eye className="h-3 w-3" /> View Screenshot
-                                    </Button>
-                                  </a>
+                                  <SignedBucketAsset
+                                    bucket="payment-screenshots"
+                                    value={req.screenshot_url}
+                                    label="payment screenshot"
+                                    imgClassName="w-full max-h-40 object-cover rounded border border-border"
+                                  />
                                   {req.status === "pending" && (
                                     <div className="flex gap-2">
                                       <Button size="sm" onClick={() => handleApproveSubscription(req.id, req.user_id)} className="gap-1 bg-emerald-600 hover:bg-emerald-700 text-white">
