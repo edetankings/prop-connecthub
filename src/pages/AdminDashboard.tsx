@@ -1004,18 +1004,11 @@ const AdminDashboard = () => {
                             {/* Document preview */}
                             {step.document_url && (
                               <div className="mb-2">
-                                {step.document_url.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
-                                  <div className="space-y-2">
-                                    <img src={step.document_url} alt="Document" className="max-w-[300px] rounded-lg border border-border" />
-                                    <a href={step.document_url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline flex items-center gap-1">
-                                      <ExternalLink className="h-3 w-3" /> Open full size
-                                    </a>
-                                  </div>
-                                ) : (
-                                  <a href={step.document_url} target="_blank" rel="noopener noreferrer" className="text-sm text-primary underline flex items-center gap-1">
-                                    <FileText className="h-4 w-4" /> View uploaded document
-                                  </a>
-                                )}
+                                <SignedBucketAsset
+                                  bucket="verification-docs"
+                                  value={step.document_url}
+                                  label="uploaded document"
+                                />
                               </div>
                             )}
 
