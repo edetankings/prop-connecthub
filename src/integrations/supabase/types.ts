@@ -1240,6 +1240,8 @@ export type Database = {
           location: string | null
           profile_type: Database["public"]["Enums"]["profile_type"] | null
           properties_listed: number | null
+          referral_code: string | null
+          referred_by: string | null
           trust_score: number | null
           user_id: string | null
         }
@@ -1255,6 +1257,8 @@ export type Database = {
           location?: string | null
           profile_type?: Database["public"]["Enums"]["profile_type"] | null
           properties_listed?: number | null
+          referral_code?: string | null
+          referred_by?: string | null
           trust_score?: number | null
           user_id?: string | null
         }
@@ -1270,10 +1274,27 @@ export type Database = {
           location?: string | null
           profile_type?: Database["public"]["Enums"]["profile_type"] | null
           properties_listed?: number | null
+          referral_code?: string | null
+          referred_by?: string | null
           trust_score?: number | null
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_referred_by_fkey"
+            columns: ["referred_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_referred_by_fkey"
+            columns: ["referred_by"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Functions: {
