@@ -225,16 +225,18 @@ const AdminKYCReview = () => {
     }
 
     return (
-      <a
-        href={url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="flex items-center gap-2 text-primary hover:underline text-sm"
-      >
-        <Icon className="h-4 w-4" />
-        <span>{label}</span>
-        <ExternalLink className="h-3 w-3" />
-      </a>
+      <div className="space-y-2">
+        <div className="flex items-center gap-2 text-sm text-foreground">
+          <Icon className="h-4 w-4 text-primary" />
+          <span className="font-medium">{label}</span>
+        </div>
+        <SignedBucketAsset
+          bucket="verification-docs"
+          value={url}
+          label={label}
+          imgClassName="w-full max-h-40 object-cover rounded border border-border"
+        />
+      </div>
     );
   };
 
