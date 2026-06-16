@@ -29,7 +29,7 @@ const Earnings = () => {
     setLoading(true);
     const [earningsRes, refsRes, wdRes, escrowRes, subRes] = await Promise.all([
       (supabase as any).from("earnings").select("*").eq("user_id", user!.id).order("created_at", { ascending: false }),
-      (supabase as any).from("profiles").select("id, full_name, profile_type, kyc_verified, created_at").eq("referred_by", profile!.id).order("created_at", { ascending: false }),
+      (supabase as any).from("public_profiles").select("id, full_name, profile_type, kyc_verified, created_at").eq("referred_by", profile!.id).order("created_at", { ascending: false }),
       (supabase as any).from("withdrawals").select("*").eq("user_id", user!.id).order("created_at", { ascending: false }),
       (supabase as any).from("escrow_holds").select("*").eq("intended_user_id", user!.id).eq("status", "held"),
       (supabase as any).from("subscriptions").select("status, end_date").eq("user_id", user!.id).maybeSingle(),
