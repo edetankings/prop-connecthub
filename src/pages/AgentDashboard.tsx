@@ -77,7 +77,7 @@ const AgentDashboard = () => {
     if (error) { toast.error("Failed to update reservation"); return; }
 
     // Find buyer's user_id from profiles
-    const { data: buyerProfile } = await supabase.from("profiles").select("user_id").eq("id", buyerId).maybeSingle();
+    const { data: buyerProfile } = await (supabase as any).from("public_profiles").select("user_id").eq("id", buyerId).maybeSingle();
 
     if (buyerProfile) {
       const title = status === "confirmed" ? "Reservation Accepted ✅" : "Reservation Declined";
