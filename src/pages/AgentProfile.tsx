@@ -1,5 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { MapPin, ArrowLeft, Building, Handshake, MessageCircle, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -61,6 +62,26 @@ const AgentProfile = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Helmet>
+        <title>{`${agent.full_name} — Verified Agent | Prop Connect`.slice(0, 60)}</title>
+        <meta name="description" content={(agent.bio || `${agent.full_name} is a verified real estate agent on Prop Connect${agent.location ? ` based in ${agent.location}` : ""}.`).slice(0, 155)} />
+        <link rel="canonical" href={`https://prop-connecthub.lovable.app/agent/${agent.id}`} />
+        <meta property="og:type" content="profile" />
+        <meta property="og:url" content={`https://prop-connecthub.lovable.app/agent/${agent.id}`} />
+        <meta property="og:title" content={`${agent.full_name} — Verified Agent | Prop Connect`} />
+        <meta property="og:description" content={(agent.bio || `Verified real estate agent on Prop Connect.`).slice(0, 155)} />
+        {agent.avatar_url && <meta property="og:image" content={agent.avatar_url} />}
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Person",
+          name: agent.full_name,
+          image: agent.avatar_url || undefined,
+          jobTitle: "Real Estate Agent",
+          address: agent.location || undefined,
+          url: `https://prop-connecthub.lovable.app/agent/${agent.id}`,
+          worksFor: { "@type": "Organization", name: "Prop Connect" },
+        })}</script>
+      </Helmet>
       <Navbar />
       <div className="container mx-auto px-4 py-6">
         <Link to="/agents" className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">

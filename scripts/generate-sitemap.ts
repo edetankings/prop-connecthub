@@ -16,6 +16,7 @@ const entries: SitemapEntry[] = [
   { path: "/agents", changefreq: "weekly", priority: "0.8" },
   { path: "/announcements", changefreq: "daily", priority: "0.7" },
   { path: "/analytics", changefreq: "weekly", priority: "0.6" },
+  { path: "/guides/investing-in-nigeria", changefreq: "monthly", priority: "0.7" },
   { path: "/terms", changefreq: "monthly", priority: "0.5" },
   { path: "/privacy", changefreq: "monthly", priority: "0.5" },
   // Auth pages — low priority for search engines

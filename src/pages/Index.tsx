@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { motion, useScroll, useTransform, useInView } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -132,6 +133,27 @@ const Index = () => {
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-background">
+      <Helmet>
+        <title>Prop Connect — Verified Landed Properties in Nigeria</title>
+        <meta name="description" content="Prop Connect is a digital platform designed to help Nigerians safely search, verify, and acquire genuine landed properties from trusted, KYC-verified agents." />
+        <link rel="canonical" href="https://prop-connecthub.lovable.app/" />
+        <meta property="og:url" content="https://prop-connecthub.lovable.app/" />
+        <meta property="og:title" content="Prop Connect — Verified Landed Properties in Nigeria" />
+        <meta property="og:description" content="Search, verify, and acquire genuine landed properties from trusted, KYC-verified agents across Nigeria." />
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: [
+            { "@type": "Question", name: "What is PROP-CONNECT?", acceptedAnswer: { "@type": "Answer", text: "PROP-CONNECT is a secure real estate platform that connects buyers, renters, and verified agents. Users can discover verified properties, communicate safely, and complete transactions confidently." } },
+            { "@type": "Question", name: "How do I verify my account?", acceptedAnswer: { "@type": "Answer", text: "Go to Verification and upload all required documents. Once all documents are submitted, Admin reviews them and approves verification." } },
+            { "@type": "Question", name: "How do I become an agent?", acceptedAnswer: { "@type": "Answer", text: "Register as an Agent account, complete profile setup, upload verification documents, complete subscription, and wait for approval." } },
+            { "@type": "Question", name: "How does the referral system work?", acceptedAnswer: { "@type": "Answer", text: "Every user receives a referral link. If another agent joins using your link and completes verification and subscription, referral rewards are triggered automatically." } },
+            { "@type": "Question", name: "How do reservations work?", acceptedAnswer: { "@type": "Answer", text: "Users can reserve a property directly through the platform. Reservation requests are sent to agents and monitored through the admin system." } },
+            { "@type": "Question", name: "How do subscription payments work?", acceptedAnswer: { "@type": "Answer", text: "Agents pay a monthly subscription fee of ₦7,500. Subscription status controls access to agent functions." } },
+            { "@type": "Question", name: "How do I contact support?", acceptedAnswer: { "@type": "Answer", text: "Use the Help & Support section in your dashboard. Messages are sent directly to Admin." } },
+          ],
+        })}</script>
+      </Helmet>
       <Navbar />
 
       {/* HERO */}

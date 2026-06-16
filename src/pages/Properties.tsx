@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Helmet } from "react-helmet-async";
 import { Search, SlidersHorizontal } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -50,6 +51,14 @@ const Properties = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Helmet>
+        <title>Browse Verified Properties for Sale & Rent in Nigeria — Prop Connect</title>
+        <meta name="description" content="Search verified houses, apartments, and land for sale or rent across Nigeria. Every listing on Prop Connect is reviewed by our team and posted by a KYC-verified agent." />
+        <link rel="canonical" href="https://prop-connecthub.lovable.app/properties" />
+        <meta property="og:url" content="https://prop-connecthub.lovable.app/properties" />
+        <meta property="og:title" content="Browse Verified Properties for Sale & Rent in Nigeria — Prop Connect" />
+        <meta property="og:description" content="Search verified houses, apartments, and land for sale or rent across Nigeria." />
+      </Helmet>
       <Navbar />
       <div className="container mx-auto px-4 py-8">
         <h1 className="font-display text-3xl font-bold text-foreground">Browse Properties</h1>

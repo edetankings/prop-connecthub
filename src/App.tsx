@@ -32,6 +32,7 @@ import Payments from "./pages/Payments";
 import NotFound from "./pages/NotFound";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
+import InvestingInNigeria from "./pages/InvestingInNigeria";
 import WelcomeModal from "./components/WelcomeModal";
 
 const queryClient = new QueryClient();
@@ -62,6 +63,7 @@ const App = () => (
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/privacy" element={<Privacy />} />
+            <Route path="/guides/investing-in-nigeria" element={<InvestingInNigeria />} />
             {/* Role-based dashboard router */}
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/dashboard/buyer" element={<ProtectedRoute><BuyerDashboard /></ProtectedRoute>} />
