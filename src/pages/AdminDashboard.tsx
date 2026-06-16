@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { MessageCircle } from "lucide-react";
 import ReferralTree from "@/components/ReferralTree";
+import { SignedBucketAsset } from "@/components/SignedBucketAsset";
 import logo from "@/assets/logo.jpg";
 import { toast } from "sonner";
 import { PieChart as RechartsPie, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
