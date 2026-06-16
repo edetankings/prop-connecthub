@@ -943,15 +943,12 @@ const AdminDashboard = () => {
                             {docs.map((d) => (
                               <div key={d.label} className="border border-border rounded-lg p-2">
                                 <p className="text-xs font-semibold text-foreground mb-1">{d.label}{d.type ? ` (${d.type})` : ""}</p>
-                                {d.url!.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
-                                  <a href={d.url!} target="_blank" rel="noopener noreferrer">
-                                    <img src={d.url!} alt={d.label} className="w-full h-32 object-cover rounded border border-border" />
-                                  </a>
-                                ) : (
-                                  <a href={d.url!} target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline flex items-center gap-1">
-                                    <ExternalLink className="h-3 w-3" /> View document
-                                  </a>
-                                )}
+                                <SignedBucketAsset
+                                  bucket="verification-docs"
+                                  value={d.url}
+                                  label={d.label}
+                                  imgClassName="w-full h-32 object-cover rounded border border-border"
+                                />
                               </div>
                             ))}
                           </div>
