@@ -1,0 +1,21 @@
+# Prop Connect
+
+> Prop Connect is a digital platform that helps Nigerians safely search, verify, and acquire genuine landed properties from trusted agents.
+
+Prop Connect connects buyers and renters with verified real estate agents across Nigeria. The platform enforces KYC verification, escrow-backed transactions, AI-guided chat safety, and an admin-reviewed property approval workflow to reduce real estate fraud.
+
+## Pages
+
+- [Home](/): Overview of Prop Connect, featured properties, and how the platform works.
+- [Properties](/properties): Browse verified landed properties for sale and rent across Nigeria.
+- [Agents](/agents): Directory of verified real estate agents with trust scores and KYC badges.
+- [Announcements](/announcements): Latest platform announcements and new listings.
+- [Analytics](/analytics): Public market analytics and trends.
+- [Investing in Nigerian Real Estate](/guides/investing-in-nigeria): Guide covering property types, the Land Use Act, and ROI in major Nigerian cities.
+- [Terms of Service](/terms): Platform terms and conditions.
+- [Privacy Policy](/privacy): How user data is collected, stored, and protected.
+
+## Optional
+
+- [Log In](/login): Sign in to an existing account.
+- [Sign Up](/register): Create a buyer, agent, or builder account.
