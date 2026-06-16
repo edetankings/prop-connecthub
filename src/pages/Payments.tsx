@@ -44,11 +44,10 @@ const Payments = () => {
       const { error: uploadErr } = await supabase.storage.from("payment-screenshots").upload(path, file);
       if (uploadErr) throw uploadErr;
 
-      const { data: urlData } = supabase.storage.from("payment-screenshots").getPublicUrl(path);
-
+      // Bucket is private: store the storage path; admin UI resolves a signed URL on demand.
       const { error } = await (supabase as any).from("subscription_requests").insert({
         user_id: user.id,
-        screenshot_url: urlData.publicUrl,
+        screenshot_url: path,
         note: note || null,
       });
       if (error) throw error;

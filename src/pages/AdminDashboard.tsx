@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { MessageCircle } from "lucide-react";
 import ReferralTree from "@/components/ReferralTree";
+import { SignedBucketAsset } from "@/components/SignedBucketAsset";
 import logo from "@/assets/logo.jpg";
 import { toast } from "sonner";
 import { PieChart as RechartsPie, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
@@ -942,15 +943,12 @@ const AdminDashboard = () => {
                             {docs.map((d) => (
                               <div key={d.label} className="border border-border rounded-lg p-2">
                                 <p className="text-xs font-semibold text-foreground mb-1">{d.label}{d.type ? ` (${d.type})` : ""}</p>
-                                {d.url!.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
-                                  <a href={d.url!} target="_blank" rel="noopener noreferrer">
-                                    <img src={d.url!} alt={d.label} className="w-full h-32 object-cover rounded border border-border" />
-                                  </a>
-                                ) : (
-                                  <a href={d.url!} target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline flex items-center gap-1">
-                                    <ExternalLink className="h-3 w-3" /> View document
-                                  </a>
-                                )}
+                                <SignedBucketAsset
+                                  bucket="verification-docs"
+                                  value={d.url}
+                                  label={d.label}
+                                  imgClassName="w-full h-32 object-cover rounded border border-border"
+                                />
                               </div>
                             ))}
                           </div>
@@ -1006,18 +1004,11 @@ const AdminDashboard = () => {
                             {/* Document preview */}
                             {step.document_url && (
                               <div className="mb-2">
-                                {step.document_url.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
-                                  <div className="space-y-2">
-                                    <img src={step.document_url} alt="Document" className="max-w-[300px] rounded-lg border border-border" />
-                                    <a href={step.document_url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline flex items-center gap-1">
-                                      <ExternalLink className="h-3 w-3" /> Open full size
-                                    </a>
-                                  </div>
-                                ) : (
-                                  <a href={step.document_url} target="_blank" rel="noopener noreferrer" className="text-sm text-primary underline flex items-center gap-1">
-                                    <FileText className="h-4 w-4" /> View uploaded document
-                                  </a>
-                                )}
+                                <SignedBucketAsset
+                                  bucket="verification-docs"
+                                  value={step.document_url}
+                                  label="uploaded document"
+                                />
                               </div>
                             )}
 
@@ -1952,11 +1943,12 @@ const AdminDashboard = () => {
                                   </Badge>
                                 </div>
                                 <div className="flex flex-col gap-2">
-                                  <a href={req.screenshot_url} target="_blank" rel="noopener noreferrer">
-                                    <Button variant="outline" size="sm" className="gap-1 w-full">
-                                      <Eye className="h-3 w-3" /> View Screenshot
-                                    </Button>
-                                  </a>
+                                  <SignedBucketAsset
+                                    bucket="payment-screenshots"
+                                    value={req.screenshot_url}
+                                    label="payment screenshot"
+                                    imgClassName="w-full max-h-40 object-cover rounded border border-border"
+                                  />
                                   {req.status === "pending" && (
                                     <div className="flex gap-2">
                                       <Button size="sm" onClick={() => handleApproveSubscription(req.id, req.user_id)} className="gap-1 bg-emerald-600 hover:bg-emerald-700 text-white">

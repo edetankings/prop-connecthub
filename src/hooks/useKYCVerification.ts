@@ -59,7 +59,7 @@ export function useKYCVerification() {
 
     const ext = file.name.split(".").pop();
     const path = `${user.id}/kyc-${docType}-${Date.now()}.${ext}`;
-    
+
     const { error } = await supabase.storage
       .from("verification-docs")
       .upload(path, file);
@@ -69,11 +69,8 @@ export function useKYCVerification() {
       return null;
     }
 
-    const { data: urlData } = supabase.storage
-      .from("verification-docs")
-      .getPublicUrl(path);
-
-    return urlData.publicUrl;
+    // Bucket is private: store the storage path; the UI resolves a signed URL on demand.
+    return path;
   };
 
   const submitKYC = async (data: {
