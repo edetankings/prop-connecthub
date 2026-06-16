@@ -1,5 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { MapPin, Bed, Bath, Maximize, MessageCircle, CalendarCheck, ArrowLeft, CheckCircle, Bookmark, ShieldCheck, X, ChevronLeft, ChevronRight, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -267,6 +268,41 @@ const PropertyDetail = () => {
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-background">
+      {(() => {
+        const p = dbProperty || (mockProperty as any);
+        if (!p) return null;
+        const pUrl = `https://prop-connecthub.lovable.app/property/${p.id}`;
+        const loc = [p?.city, p?.state].filter(Boolean).join(", ");
+        const title = `${p.title}${loc ? ` — ${loc}` : ""} | Prop Connect`;
+        const desc = (p.description || `${p.title} listed on Prop Connect.${loc ? ` Located in ${loc}.` : ""}`).slice(0, 155);
+        const img = p.image_url || p.images?.[0];
+        return (
+          <Helmet>
+            <title>{title.slice(0, 60)}</title>
+            <meta name="description" content={desc} />
+            <link rel="canonical" href={pUrl} />
+            <meta property="og:type" content="product" />
+            <meta property="og:url" content={pUrl} />
+            <meta property="og:title" content={title} />
+            <meta property="og:description" content={desc} />
+            {img && <meta property="og:image" content={img} />}
+            <script type="application/ld+json">{JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Product",
+              name: p.title,
+              description: desc,
+              image: img || undefined,
+              offers: {
+                "@type": "Offer",
+                price: p.price,
+                priceCurrency: "NGN",
+                availability: "https://schema.org/InStock",
+                url: pUrl,
+              },
+            })}</script>
+          </Helmet>
+        );
+      })()}
       <Navbar />
       <div className="container mx-auto max-w-7xl px-3 py-4 sm:px-4 sm:py-6">
         <Link to="/properties" className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">

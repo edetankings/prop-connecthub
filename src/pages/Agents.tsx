@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import Navbar from "@/components/Navbar";
 import AgentCard from "@/components/AgentCard";
 import { supabase } from "@/integrations/supabase/client";
@@ -56,6 +57,14 @@ const Agents = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Helmet>
+        <title>Verified Real Estate Agents in Nigeria — Prop Connect</title>
+        <meta name="description" content="Browse trust-scored, KYC-verified real estate agents across Nigeria. View transactions, listings, and ratings before you reach out." />
+        <link rel="canonical" href="https://prop-connecthub.lovable.app/agents" />
+        <meta property="og:url" content="https://prop-connecthub.lovable.app/agents" />
+        <meta property="og:title" content="Verified Real Estate Agents in Nigeria — Prop Connect" />
+        <meta property="og:description" content="Trust-scored, KYC-verified real estate agents across Nigeria." />
+      </Helmet>
       <Navbar />
       <div className="container mx-auto px-4 py-8">
         <h1 className="font-display text-3xl font-bold text-foreground">Verified Agents</h1>
