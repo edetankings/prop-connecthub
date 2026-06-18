@@ -1344,6 +1344,8 @@ export type Database = {
         | "draft"
         | "available"
         | "under_verification"
+        | "payment_pending"
+        | "transaction_in_progress"
       reservation_status: "pending" | "confirmed" | "rejected" | "cancelled"
       verification_status: "pending" | "approved" | "rejected"
     }
@@ -1483,6 +1485,8 @@ export const Constants = {
         "draft",
         "available",
         "under_verification",
+        "payment_pending",
+        "transaction_in_progress",
       ],
       reservation_status: ["pending", "confirmed", "rejected", "cancelled"],
       verification_status: ["pending", "approved", "rejected"],
