@@ -146,6 +146,33 @@ export type Database = {
           },
         ]
       }
+      commission_settings: {
+        Row: {
+          id: string
+          rental_percent: number
+          reservation_flat: number
+          sales_percent: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          id?: string
+          rental_percent?: number
+          reservation_flat?: number
+          sales_percent?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          id?: string
+          rental_percent?: number
+          reservation_flat?: number
+          sales_percent?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       company_wallet: {
         Row: {
           balance: number
@@ -498,6 +525,33 @@ export type Database = {
           phone?: string
           purpose?: string
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      platform_settings: {
+        Row: {
+          company_account_name: string
+          company_account_number: string
+          company_bank_name: string
+          id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          company_account_name?: string
+          company_account_number?: string
+          company_bank_name?: string
+          id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          company_account_name?: string
+          company_account_number?: string
+          company_bank_name?: string
+          id?: string
+          updated_at?: string
+          updated_by?: string | null
         }
         Relationships: []
       }
@@ -982,12 +1036,21 @@ export type Database = {
           amount: number
           buyer_id: string
           commission: number
+          commission_amount: number
           created_at: string
+          expires_at: string | null
           id: string
           notes: string | null
+          payment_status: Database["public"]["Enums"]["payment_status"]
+          proof_uploaded_at: string | null
+          proof_url: string | null
+          property_code: string | null
           property_id: string | null
+          rejection_reason: string | null
+          released_at: string | null
           seller_id: string
           status: string
+          total_payable: number
           type: string
           updated_at: string
         }
@@ -995,12 +1058,21 @@ export type Database = {
           amount?: number
           buyer_id: string
           commission?: number
+          commission_amount?: number
           created_at?: string
+          expires_at?: string | null
           id?: string
           notes?: string | null
+          payment_status?: Database["public"]["Enums"]["payment_status"]
+          proof_uploaded_at?: string | null
+          proof_url?: string | null
+          property_code?: string | null
           property_id?: string | null
+          rejection_reason?: string | null
+          released_at?: string | null
           seller_id: string
           status?: string
+          total_payable?: number
           type?: string
           updated_at?: string
         }
@@ -1008,12 +1080,21 @@ export type Database = {
           amount?: number
           buyer_id?: string
           commission?: number
+          commission_amount?: number
           created_at?: string
+          expires_at?: string | null
           id?: string
           notes?: string | null
+          payment_status?: Database["public"]["Enums"]["payment_status"]
+          proof_uploaded_at?: string | null
+          proof_url?: string | null
+          property_code?: string | null
           property_id?: string | null
+          rejection_reason?: string | null
+          released_at?: string | null
           seller_id?: string
           status?: string
+          total_payable?: number
           type?: string
           updated_at?: string
         }
@@ -1318,6 +1399,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      initiate_secure_payment: {
+        Args: { _property_id: string }
+        Returns: string
+      }
       pay_verification_referral_bonus: {
         Args: { _referred_user_id: string }
         Returns: undefined
@@ -1331,10 +1416,22 @@ export type Database = {
         }[]
       }
       state_code_for: { Args: { _state: string }; Returns: string }
+      submit_payment_proof: {
+        Args: { _proof_url: string; _transaction_id: string }
+        Returns: undefined
+      }
       touch_last_login: { Args: never; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
+      payment_status:
+        | "pending_payment"
+        | "under_review"
+        | "secured"
+        | "released"
+        | "expired"
+        | "refunded"
+        | "rejected"
       profile_type: "buyer" | "agent" | "builder"
       property_status:
         | "for_sale"
@@ -1476,6 +1573,15 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "moderator", "user"],
+      payment_status: [
+        "pending_payment",
+        "under_review",
+        "secured",
+        "released",
+        "expired",
+        "refunded",
+        "rejected",
+      ],
       profile_type: ["buyer", "agent", "builder"],
       property_status: [
         "for_sale",
