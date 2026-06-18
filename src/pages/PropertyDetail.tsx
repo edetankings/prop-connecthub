@@ -1,7 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
-import { MapPin, Bed, Bath, Maximize, MessageCircle, CalendarCheck, ArrowLeft, CheckCircle, Bookmark, ShieldCheck, X, ChevronLeft, ChevronRight, Play } from "lucide-react";
+import { MapPin, Bed, Bath, Maximize, MessageCircle, CalendarCheck, ArrowLeft, CheckCircle, Bookmark, ShieldCheck, X, ChevronLeft, ChevronRight, Play, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -40,6 +40,7 @@ interface DBPropertyDetail {
   amenities: string[] | null;
   latitude: number | null;
   longitude: number | null;
+  property_code: string | null;
 }
 
 const PropertyDetail = () => {
@@ -359,6 +360,11 @@ const PropertyDetail = () => {
                     <h1 className="font-display text-xl sm:text-2xl md:text-3xl font-bold text-foreground break-words">{title}</h1>
                     {isVerified && <Badge className="bg-success/90 text-success-foreground">Verified</Badge>}
                   </div>
+                  {dbProperty?.property_code && (
+                    <p className="mt-1 inline-flex items-center gap-1.5 rounded-md border border-border bg-muted/40 px-2 py-0.5 font-mono text-[11px] text-muted-foreground">
+                      <Lock className="h-3 w-3" /> {dbProperty.property_code}
+                    </p>
+                  )}
                   <p className="mt-1 flex items-start gap-1 text-sm sm:text-base text-muted-foreground break-words"><MapPin className="h-4 w-4 mt-0.5 flex-shrink-0" />{location}</p>
                 </div>
                 <div className="sm:text-right">
