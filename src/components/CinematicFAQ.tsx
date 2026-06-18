@@ -8,6 +8,14 @@ const FAQS = [
     a: "PROP-CONNECT is a secure real estate platform that connects buyers, renters, and verified agents. Users can discover verified properties, communicate safely, and complete transactions confidently.",
   },
   {
+    q: "How do property payments work?",
+    a: "Buyers pay through PROP-CONNECT's secure payment process. Funds are verified and held in escrow before being released to the agent — only after the buyer confirms satisfaction with the inspection and documentation.",
+  },
+  {
+    q: "Can I pay agents directly?",
+    a: "No. PROP-CONNECT does not protect payments made outside the platform. Always use the secure payment flow so your money is held in escrow until the transaction is complete.",
+  },
+  {
     q: "How do I verify my account?",
     a: "Go to Verification and upload all required documents. Once all documents are submitted, Admin reviews them and approves verification.",
   },

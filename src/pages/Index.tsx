@@ -12,6 +12,7 @@ import {
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CinematicFAQ from "@/components/CinematicFAQ";
+import SecurePaymentFlow from "@/components/SecurePaymentFlow";
 import AgentCard from "@/components/AgentCard";
 import type { DBProperty } from "@/components/DBPropertyCard";
 import type { DBAgent } from "@/pages/Agents";
@@ -409,6 +410,7 @@ const Index = () => {
         </div>
       </section>
 
+      <SecurePaymentFlow />
       <CinematicFAQ />
 
       <Footer />
