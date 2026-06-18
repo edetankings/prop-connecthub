@@ -611,6 +611,7 @@ export type Database = {
           latitude: number | null
           longitude: number | null
           price: number
+          property_code: string | null
           property_type: string
           sqft: number | null
           state: string | null
@@ -636,6 +637,7 @@ export type Database = {
           latitude?: number | null
           longitude?: number | null
           price?: number
+          property_code?: string | null
           property_type?: string
           sqft?: number | null
           state?: string | null
@@ -661,6 +663,7 @@ export type Database = {
           latitude?: number | null
           longitude?: number | null
           price?: number
+          property_code?: string | null
           property_type?: string
           sqft?: number | null
           state?: string | null
@@ -1302,6 +1305,10 @@ export type Database = {
         Args: { _subscription_id: string }
         Returns: undefined
       }
+      generate_property_code: {
+        Args: { _agent_id: string; _state: string }
+        Returns: string
+      }
       generate_referral_code: { Args: never; Returns: string }
       get_my_profile_id: { Args: never; Returns: string }
       has_role: {
@@ -1323,6 +1330,7 @@ export type Database = {
           pos: number
         }[]
       }
+      state_code_for: { Args: { _state: string }; Returns: string }
       touch_last_login: { Args: never; Returns: undefined }
     }
     Enums: {
