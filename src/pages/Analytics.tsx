@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Users, Home, MessageSquare, CalendarCheck, TrendingUp, BarChart3 } from "lucide-react";
+import { Users, Home, MessageSquare, CalendarCheck, TrendingUp, BarChart3, ShieldCheck, Wallet, AlertTriangle, RotateCcw } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts";
