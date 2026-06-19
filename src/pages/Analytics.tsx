@@ -34,6 +34,7 @@ const Analytics = () => {
   const [dailyMessages, setDailyMessages] = useState<DailyMessages[]>([]);
   const [propertyTypes, setPropertyTypes] = useState<PropertyByType[]>([]);
   const [loading, setLoading] = useState(true);
+  const [escrow, setEscrow] = useState({ total: 0, gmv: 0, revenue: 0, secured: 0, pending: 0, refunded: 0, disputes: 0 });
 
   useEffect(() => {
     const fetchAnalytics = async () => {
