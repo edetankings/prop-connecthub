@@ -200,6 +200,20 @@ const Analytics = () => {
           </div>
         )}
 
+        {/* Escrow & Revenue */}
+        <div className="mt-8">
+          <h2 className="font-display text-xl font-bold mb-3">Secure Payments</h2>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <Card><CardContent className="p-5"><BarChart3 className="mb-2 h-6 w-6 text-primary" /><p className="font-display text-2xl font-bold">{escrow.total}</p><p className="text-sm text-muted-foreground">Total Transactions</p></CardContent></Card>
+            <Card><CardContent className="p-5"><TrendingUp className="mb-2 h-6 w-6 text-success" /><p className="font-display text-2xl font-bold">₦{escrow.gmv.toLocaleString()}</p><p className="text-sm text-muted-foreground">GMV (Released)</p></CardContent></Card>
+            <Card><CardContent className="p-5"><Wallet className="mb-2 h-6 w-6 text-secondary" /><p className="font-display text-2xl font-bold">₦{escrow.revenue.toLocaleString()}</p><p className="text-sm text-muted-foreground">Company Revenue</p></CardContent></Card>
+            <Card><CardContent className="p-5"><ShieldCheck className="mb-2 h-6 w-6 text-info" /><p className="font-display text-2xl font-bold">{escrow.secured}</p><p className="text-sm text-muted-foreground">Currently Secured</p></CardContent></Card>
+            <Card><CardContent className="p-5"><TrendingUp className="mb-2 h-6 w-6 text-warning" /><p className="font-display text-2xl font-bold">{escrow.pending}</p><p className="text-sm text-muted-foreground">Pending Review</p></CardContent></Card>
+            <Card><CardContent className="p-5"><RotateCcw className="mb-2 h-6 w-6 text-muted-foreground" /><p className="font-display text-2xl font-bold">{escrow.refunded}</p><p className="text-sm text-muted-foreground">Refunded</p></CardContent></Card>
+            <Card><CardContent className="p-5"><AlertTriangle className="mb-2 h-6 w-6 text-destructive" /><p className="font-display text-2xl font-bold">{escrow.disputes}</p><p className="text-sm text-muted-foreground">Active Disputes</p></CardContent></Card>
+          </div>
+        </div>
+
         {/* Charts */}
         <div className="mt-10 grid gap-6 lg:grid-cols-2">
           {/* Message Activity Line Chart */}
