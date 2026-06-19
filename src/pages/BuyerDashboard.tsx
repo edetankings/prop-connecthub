@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import AuthenticatedLayout from "@/components/AuthenticatedLayout";
+import SecureTransactions from "@/components/SecureTransactions";
 
 const statusColors: Record<string, string> = {
   pending: "bg-[hsl(var(--warning)/0.15)] text-[hsl(var(--warning))]",
@@ -174,6 +175,12 @@ const BuyerDashboard = () => {
               ))}
             </div>
           )}
+        </section>
+
+        {/* Secure Transactions */}
+        <section className="mb-8">
+          <h2 className="font-display text-xl font-bold text-foreground mb-4">Secure Transactions</h2>
+          <SecureTransactions role="buyer" />
         </section>
 
         {/* Recent Chats */}

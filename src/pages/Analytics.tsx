@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Users, Home, MessageSquare, CalendarCheck, TrendingUp, BarChart3 } from "lucide-react";
+import { Users, Home, MessageSquare, CalendarCheck, TrendingUp, BarChart3, ShieldCheck, Wallet, AlertTriangle, RotateCcw } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts";
@@ -34,6 +34,7 @@ const Analytics = () => {
   const [dailyMessages, setDailyMessages] = useState<DailyMessages[]>([]);
   const [propertyTypes, setPropertyTypes] = useState<PropertyByType[]>([]);
   const [loading, setLoading] = useState(true);
+  const [escrow, setEscrow] = useState({ total: 0, gmv: 0, revenue: 0, secured: 0, pending: 0, refunded: 0, disputes: 0 });
 
   useEffect(() => {
     const fetchAnalytics = async () => {
@@ -109,6 +110,31 @@ const Analytics = () => {
     fetchAnalytics();
   }, []);
 
+  useEffect(() => {
+    (async () => {
+      const [txAll, txSecured, txPending, txRefunded, dispOpen, cw] = await Promise.all([
+        (supabase as any).from("transactions").select("total_payable, commission_amount, payment_status"),
+        (supabase as any).from("transactions").select("id", { count: "exact", head: true }).eq("payment_status", "secured"),
+        (supabase as any).from("transactions").select("id", { count: "exact", head: true }).in("payment_status", ["pending_payment", "under_review"]),
+        (supabase as any).from("transactions").select("id", { count: "exact", head: true }).eq("payment_status", "refunded"),
+        (supabase as any).from("disputes").select("id", { count: "exact", head: true }).in("status", ["open", "under_review"]),
+        (supabase as any).from("company_wallet").select("total_earned").maybeSingle(),
+      ]);
+      const rows = txAll.data || [];
+      const released = rows.filter((r: any) => r.payment_status === "released");
+      const gmv = released.reduce((a: number, r: any) => a + (r.total_payable || 0), 0);
+      setEscrow({
+        total: rows.length,
+        gmv,
+        revenue: cw.data?.total_earned || 0,
+        secured: txSecured.count || 0,
+        pending: txPending.count || 0,
+        refunded: txRefunded.count || 0,
+        disputes: dispOpen.count || 0,
+      });
+    })();
+  }, []);
+
   const statCards = stats
     ? [
         { label: "Total Users", value: stats.totalUsers, icon: Users, color: "text-info" },
@@ -173,6 +199,20 @@ const Analytics = () => {
             </Card>
           </div>
         )}
+
+        {/* Escrow & Revenue */}
+        <div className="mt-8">
+          <h2 className="font-display text-xl font-bold mb-3">Secure Payments</h2>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <Card><CardContent className="p-5"><BarChart3 className="mb-2 h-6 w-6 text-primary" /><p className="font-display text-2xl font-bold">{escrow.total}</p><p className="text-sm text-muted-foreground">Total Transactions</p></CardContent></Card>
+            <Card><CardContent className="p-5"><TrendingUp className="mb-2 h-6 w-6 text-success" /><p className="font-display text-2xl font-bold">₦{escrow.gmv.toLocaleString()}</p><p className="text-sm text-muted-foreground">GMV (Released)</p></CardContent></Card>
+            <Card><CardContent className="p-5"><Wallet className="mb-2 h-6 w-6 text-secondary" /><p className="font-display text-2xl font-bold">₦{escrow.revenue.toLocaleString()}</p><p className="text-sm text-muted-foreground">Company Revenue</p></CardContent></Card>
+            <Card><CardContent className="p-5"><ShieldCheck className="mb-2 h-6 w-6 text-info" /><p className="font-display text-2xl font-bold">{escrow.secured}</p><p className="text-sm text-muted-foreground">Currently Secured</p></CardContent></Card>
+            <Card><CardContent className="p-5"><TrendingUp className="mb-2 h-6 w-6 text-warning" /><p className="font-display text-2xl font-bold">{escrow.pending}</p><p className="text-sm text-muted-foreground">Pending Review</p></CardContent></Card>
+            <Card><CardContent className="p-5"><RotateCcw className="mb-2 h-6 w-6 text-muted-foreground" /><p className="font-display text-2xl font-bold">{escrow.refunded}</p><p className="text-sm text-muted-foreground">Refunded</p></CardContent></Card>
+            <Card><CardContent className="p-5"><AlertTriangle className="mb-2 h-6 w-6 text-destructive" /><p className="font-display text-2xl font-bold">{escrow.disputes}</p><p className="text-sm text-muted-foreground">Active Disputes</p></CardContent></Card>
+          </div>
+        </div>
 
         {/* Charts */}
         <div className="mt-10 grid gap-6 lg:grid-cols-2">

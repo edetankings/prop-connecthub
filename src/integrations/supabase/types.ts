@@ -202,7 +202,12 @@ export type Database = {
           reason: string
           reported_id: string
           reporter_id: string
+          resolution: string | null
+          resolved_at: string | null
+          resolved_by: string | null
           status: string
+          transaction_id: string | null
+          updated_at: string | null
         }
         Insert: {
           created_at?: string
@@ -211,7 +216,12 @@ export type Database = {
           reason: string
           reported_id: string
           reporter_id: string
+          resolution?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
           status?: string
+          transaction_id?: string | null
+          updated_at?: string | null
         }
         Update: {
           created_at?: string
@@ -220,7 +230,12 @@ export type Database = {
           reason?: string
           reported_id?: string
           reporter_id?: string
+          resolution?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
           status?: string
+          transaction_id?: string | null
+          updated_at?: string | null
         }
         Relationships: [
           {
@@ -256,6 +271,13 @@ export type Database = {
             columns: ["reporter_id"]
             isOneToOne: false
             referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "disputes_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
             referencedColumns: ["id"]
           },
         ]
@@ -1382,10 +1404,20 @@ export type Database = {
       }
     }
     Functions: {
+      approve_secure_payment: {
+        Args: { _transaction_id: string }
+        Returns: undefined
+      }
+      approve_withdrawal: {
+        Args: { _id: string; _note: string }
+        Returns: undefined
+      }
       distribute_subscription_payment: {
         Args: { _subscription_id: string }
         Returns: undefined
       }
+      ensure_wallet: { Args: { _user_id: string }; Returns: undefined }
+      expire_stale_transactions: { Args: never; Returns: number }
       generate_property_code: {
         Args: { _agent_id: string; _state: string }
         Returns: string
@@ -1403,6 +1435,10 @@ export type Database = {
         Args: { _property_id: string }
         Returns: string
       }
+      log_admin_action: {
+        Args: { _action: string; _details: Json }
+        Returns: undefined
+      }
       pay_verification_referral_bonus: {
         Args: { _referred_user_id: string }
         Returns: undefined
@@ -1414,6 +1450,30 @@ export type Database = {
           parent_id: string
           pos: number
         }[]
+      }
+      raise_dispute: {
+        Args: { _reason: string; _transaction_id: string }
+        Returns: string
+      }
+      refund_secure_payment: {
+        Args: { _reason: string; _transaction_id: string }
+        Returns: undefined
+      }
+      reject_secure_payment: {
+        Args: { _reason: string; _transaction_id: string }
+        Returns: undefined
+      }
+      reject_withdrawal: {
+        Args: { _id: string; _note: string }
+        Returns: undefined
+      }
+      release_secure_payment: {
+        Args: { _transaction_id: string }
+        Returns: undefined
+      }
+      resolve_dispute: {
+        Args: { _dispute_id: string; _resolution: string; _status: string }
+        Returns: undefined
       }
       state_code_for: { Args: { _state: string }; Returns: string }
       submit_payment_proof: {
