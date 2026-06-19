@@ -167,7 +167,35 @@ const AgentDashboard = () => {
             <CalendarCheck className="mb-1 h-5 w-5 text-secondary" />
             <p className="font-display text-2xl font-bold text-foreground">{reservations.length}</p>
             <p className="text-xs text-muted-foreground">Reservations</p>
+        </div>
+
+        {/* Wallet Panel */}
+        <section className="mb-8">
+          <h2 className="font-display text-xl font-bold text-foreground mb-4">Wallet</h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="rounded-xl border bg-card p-4 shadow-card">
+              <Wallet className="mb-1 h-5 w-5 text-secondary" />
+              <p className="font-display text-2xl font-bold">₦{(wallet?.balance ?? 0).toLocaleString()}</p>
+              <p className="text-xs text-muted-foreground">Withdrawable</p>
+            </div>
+            <div className="rounded-xl border bg-card p-4 shadow-card">
+              <ShieldCheck className="mb-1 h-5 w-5 text-secondary" />
+              <p className="font-display text-2xl font-bold">₦{(wallet?.escrow_balance ?? 0).toLocaleString()}</p>
+              <p className="text-xs text-muted-foreground">In Escrow (Secured)</p>
+            </div>
+            <div className="rounded-xl border bg-card p-4 shadow-card flex items-center">
+              <Link to="/earnings" className="w-full">
+                <Button variant="outline" className="w-full gap-2"><DollarSign className="h-4 w-4" /> View Earnings & Withdraw</Button>
+              </Link>
+            </div>
           </div>
+        </section>
+
+        {/* Secure Transactions */}
+        <section className="mb-8">
+          <h2 className="font-display text-xl font-bold text-foreground mb-4">Secure Transactions</h2>
+          <SecureTransactions role="agent" />
+        </section>
         </div>
 
         {/* Reservations */}
