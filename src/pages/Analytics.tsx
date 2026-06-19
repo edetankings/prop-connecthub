@@ -110,6 +110,31 @@ const Analytics = () => {
     fetchAnalytics();
   }, []);
 
+  useEffect(() => {
+    (async () => {
+      const [txAll, txSecured, txPending, txRefunded, dispOpen, cw] = await Promise.all([
+        (supabase as any).from("transactions").select("total_payable, commission_amount, payment_status"),
+        (supabase as any).from("transactions").select("id", { count: "exact", head: true }).eq("payment_status", "secured"),
+        (supabase as any).from("transactions").select("id", { count: "exact", head: true }).in("payment_status", ["pending_payment", "under_review"]),
+        (supabase as any).from("transactions").select("id", { count: "exact", head: true }).eq("payment_status", "refunded"),
+        (supabase as any).from("disputes").select("id", { count: "exact", head: true }).in("status", ["open", "under_review"]),
+        (supabase as any).from("company_wallet").select("total_earned").maybeSingle(),
+      ]);
+      const rows = txAll.data || [];
+      const released = rows.filter((r: any) => r.payment_status === "released");
+      const gmv = released.reduce((a: number, r: any) => a + (r.total_payable || 0), 0);
+      setEscrow({
+        total: rows.length,
+        gmv,
+        revenue: cw.data?.total_earned || 0,
+        secured: txSecured.count || 0,
+        pending: txPending.count || 0,
+        refunded: txRefunded.count || 0,
+        disputes: dispOpen.count || 0,
+      });
+    })();
+  }, []);
+
   const statCards = stats
     ? [
         { label: "Total Users", value: stats.totalUsers, icon: Users, color: "text-info" },
