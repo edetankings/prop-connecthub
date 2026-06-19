@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import AuthenticatedLayout from "@/components/AuthenticatedLayout";
+import SecureTransactions from "@/components/SecureTransactions";
 
 const statusColors: Record<string, string> = {
   pending: "bg-[hsl(var(--warning)/0.15)] text-[hsl(var(--warning))]",
