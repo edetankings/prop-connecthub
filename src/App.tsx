@@ -34,6 +34,10 @@ import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import InvestingInNigeria from "./pages/InvestingInNigeria";
 import SecurePayment from "./pages/SecurePayment";
+import AdminSecurePayments from "./pages/AdminSecurePayments";
+import AdminDisputes from "./pages/AdminDisputes";
+import AdminWithdrawals from "./pages/AdminWithdrawals";
+import AdminAudit from "./pages/AdminAudit";
 import WelcomeModal from "./components/WelcomeModal";
 
 const queryClient = new QueryClient();
