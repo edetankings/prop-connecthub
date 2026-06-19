@@ -9,6 +9,7 @@ import { TrustScoreRing } from "@/components/AgentCard";
 import AuthenticatedLayout from "@/components/AuthenticatedLayout";
 import { toast } from "sonner";
 import VerifiedBadge from "@/components/VerifiedBadge";
+import SecureTransactions from "@/components/SecureTransactions";
 
 const AgentDashboard = () => {
   const { profile } = useAuth();
