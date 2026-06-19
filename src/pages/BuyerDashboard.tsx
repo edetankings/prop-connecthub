@@ -177,6 +177,12 @@ const BuyerDashboard = () => {
           )}
         </section>
 
+        {/* Secure Transactions */}
+        <section className="mb-8">
+          <h2 className="font-display text-xl font-bold text-foreground mb-4">Secure Transactions</h2>
+          <SecureTransactions role="buyer" />
+        </section>
+
         {/* Recent Chats */}
         <section className="mb-8">
           <h2 className="font-display text-xl font-bold text-foreground mb-4">Recent Chats</h2>
