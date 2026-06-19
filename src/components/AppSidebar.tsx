@@ -37,6 +37,10 @@ const agentMenu = [
 
 const adminMenu = [
   { label: "Dashboard", icon: LayoutDashboard, to: "/admin" },
+  { label: "Secure Payments", icon: ShieldCheck, to: "/admin/secure-payments" },
+  { label: "Disputes", icon: AlertTriangle, to: "/admin/disputes" },
+  { label: "Withdrawals", icon: Wallet, to: "/admin/withdrawals" },
+  { label: "Audit Log", icon: ScrollText, to: "/admin/audit" },
   { label: "Add Property", icon: Plus, to: "/add-property" },
   { label: "All Users", icon: Users, to: "/admin" },
   { label: "Verification Requests", icon: ShieldCheck, to: "/admin" },
