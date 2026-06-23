@@ -224,10 +224,11 @@ const SecurePayment = () => {
   const computedTotal = tx?.total_payable ?? property.price;
 
   const status = tx?.payment_status;
-  const showInitiate = !tx || status === "rejected" || status === "expired";
+  const showAwaitingApproval = !tx;
   const showProofUpload = !!tx && (status === "pending_payment" || status === "under_review");
   const isUnderReview = status === "under_review";
   const isSecured = status === "secured" || status === "released";
+
 
   return (
     <div className="min-h-screen bg-background">
