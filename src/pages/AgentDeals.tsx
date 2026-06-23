@@ -60,7 +60,7 @@ const AgentDeals = () => {
         .select("user_id, full_name")
         .in("user_id", buyerIds);
       const map = new Map((profs || []).map((p: any) => [p.user_id, p.full_name]));
-      rows.forEach((r) => { r.buyer = { full_name: map.get(r.buyer_id) || "Buyer" }; });
+      rows.forEach((r) => { r.buyer = { full_name: (map.get(r.buyer_id) as string) || "Buyer" }; });
     }
     setDeals(rows);
     setLoading(false);
