@@ -62,36 +62,79 @@ const SecureTransactions = ({ role }: { role: "buyer" | "agent" }) => {
     <>
       <div className="space-y-3">
         {rows.map((tx) => (
-          <div key={tx.id} className="rounded-xl border bg-card p-4 shadow-card">
-            <div className="flex items-start justify-between gap-4 flex-wrap">
-              <div className="flex-1 min-w-[220px]">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <Link to={tx.property_id ? `/property/${tx.property_id}` : "#"} className="font-semibold hover:underline">{tx.properties?.title || "Property"}</Link>
-                  <Badge className={`text-xs ${colors[tx.payment_status] || ""}`}>{tx.payment_status?.replace(/_/g, " ").toUpperCase()}</Badge>
-                  {tx.property_code && <Badge variant="outline" className="font-mono text-xs">{tx.property_code}</Badge>}
+          <div key={tx.id} className="rounded-xl border bg-card p-4 shadow-card sm:p-5">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <Link
+                    to={tx.property_id ? `/property/${tx.property_id}` : "#"}
+                    className="font-semibold hover:underline break-words"
+                  >
+                    {tx.properties?.title || "Property"}
+                  </Link>
+                  <Badge className={`text-[10px] sm:text-xs ${colors[tx.payment_status] || ""}`}>
+                    {tx.payment_status?.replace(/_/g, " ").toUpperCase()}
+                  </Badge>
+                  {tx.property_code && (
+                    <Badge variant="outline" className="font-mono text-[10px] sm:text-xs break-all">
+                      {tx.property_code}
+                    </Badge>
+                  )}
                 </div>
-                <div className="grid grid-cols-2 gap-x-6 mt-2 text-sm">
-                  <p className="text-muted-foreground">Amount: <span className="text-foreground font-semibold">₦{tx.total_payable?.toLocaleString()}</span></p>
-                  <p className="text-muted-foreground">Created: <span className="text-foreground">{new Date(tx.created_at).toLocaleDateString()}</span></p>
+                <div className="mt-3 grid grid-cols-1 gap-x-6 gap-y-1 text-sm sm:grid-cols-2">
+                  <p className="text-muted-foreground">
+                    Amount:{" "}
+                    <span className="font-semibold text-foreground">
+                      ₦{tx.total_payable?.toLocaleString()}
+                    </span>
+                  </p>
+                  <p className="text-muted-foreground">
+                    Created:{" "}
+                    <span className="text-foreground">
+                      {new Date(tx.created_at).toLocaleDateString()}
+                    </span>
+                  </p>
                 </div>
-                {tx.rejection_reason && <p className="mt-1 text-xs text-destructive">Note: {tx.rejection_reason}</p>}
+                {tx.rejection_reason && (
+                  <p className="mt-2 text-xs text-destructive break-words">
+                    Note: {tx.rejection_reason}
+                  </p>
+                )}
               </div>
-              <div className="flex flex-col gap-2 items-end">
+              <div className="flex flex-row flex-wrap gap-2 sm:flex-col sm:items-end">
                 {role === "buyer" && tx.payment_status === "pending_payment" && tx.property_id && (
-                  <Link to={`/secure-payment/${tx.property_id}`}><Button size="sm" className="gap-1"><ShieldCheck className="h-4 w-4" /> Upload Proof</Button></Link>
+                  <Link to={`/secure-payment/${tx.property_id}`} className="w-full sm:w-auto">
+                    <Button size="sm" className="w-full gap-1 sm:w-auto">
+                      <ShieldCheck className="h-4 w-4" /> Upload Proof
+                    </Button>
+                  </Link>
                 )}
                 {role === "buyer" && tx.payment_status === "secured" && (
                   <>
-                    <Button size="sm" onClick={() => release(tx.id)} className="gap-1 bg-[hsl(var(--success))] text-[hsl(var(--success-foreground))] hover:bg-[hsl(var(--success))]/90">
+                    <Button
+                      size="sm"
+                      onClick={() => release(tx.id)}
+                      className="w-full gap-1 bg-[hsl(var(--success))] text-[hsl(var(--success-foreground))] hover:bg-[hsl(var(--success))]/90 sm:w-auto"
+                    >
                       <CheckCircle className="h-4 w-4" /> Release Payment
                     </Button>
-                    <Button size="sm" variant="outline" className="gap-1 text-destructive" onClick={() => { setDispute(tx); setReason(""); }}>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="w-full gap-1 text-destructive sm:w-auto"
+                      onClick={() => { setDispute(tx); setReason(""); }}
+                    >
                       <AlertTriangle className="h-4 w-4" /> Raise Dispute
                     </Button>
                   </>
                 )}
                 {tx.payment_status === "released" && (role === "buyer" || role === "agent") && (
-                  <Button size="sm" variant="ghost" className="gap-1 text-destructive" onClick={() => { setDispute(tx); setReason(""); }}>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="w-full gap-1 text-destructive sm:w-auto"
+                    onClick={() => { setDispute(tx); setReason(""); }}
+                  >
                     <AlertTriangle className="h-4 w-4" /> Raise Dispute
                   </Button>
                 )}
@@ -100,6 +143,7 @@ const SecureTransactions = ({ role }: { role: "buyer" | "agent" }) => {
           </div>
         ))}
       </div>
+
 
       <Dialog open={!!dispute} onOpenChange={(o) => !o && setDispute(null)}>
         <DialogContent>
