@@ -1,0 +1,230 @@
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
+import { Handshake, CheckCircle2, XCircle, Clock, Loader2 } from "lucide-react";
+
+type Deal = {
+  id: string;
+  buyer_id: string;
+  property_id: string;
+  property_code: string | null;
+  buyer_message: string | null;
+  status: string;
+  created_at: string;
+  decline_reason: string | null;
+  transaction_id: string | null;
+  properties?: { title: string; price: number; city: string | null; state: string | null; image_url: string | null };
+  buyer?: { full_name: string | null };
+};
+
+const statusColors: Record<string, string> = {
+  pending: "bg-[hsl(var(--warning)/0.15)] text-[hsl(var(--warning))]",
+  accepted: "bg-[hsl(var(--success)/0.15)] text-[hsl(var(--success))]",
+  declined: "bg-destructive/10 text-destructive",
+  cancelled: "bg-muted text-muted-foreground",
+  expired: "bg-muted text-muted-foreground",
+};
+
+const AgentDeals = () => {
+  const { user } = useAuth();
+  const [deals, setDeals] = useState<Deal[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState<string | null>(null);
+  const [declineFor, setDeclineFor] = useState<Deal | null>(null);
+  const [reason, setReason] = useState("");
+
+  const load = async () => {
+    if (!user) return;
+    setLoading(true);
+    const { data } = await (supabase as any)
+      .from("deal_requests")
+      .select("*, properties(title, price, city, state, image_url)")
+      .eq("agent_user_id", user.id)
+      .order("created_at", { ascending: false });
+
+    const rows = (data as Deal[]) || [];
+    // Hydrate buyer names
+    const buyerIds = Array.from(new Set(rows.map((r) => r.buyer_id)));
+    if (buyerIds.length) {
+      const { data: profs } = await (supabase as any)
+        .from("public_profiles")
+        .select("user_id, full_name")
+        .in("user_id", buyerIds);
+      const map = new Map((profs || []).map((p: any) => [p.user_id, p.full_name]));
+      rows.forEach((r) => { r.buyer = { full_name: (map.get(r.buyer_id) as string) || "Buyer" }; });
+    }
+    setDeals(rows);
+    setLoading(false);
+  };
+
+  useEffect(() => { load(); /* eslint-disable-next-line */ }, [user?.id]);
+
+  const accept = async (id: string) => {
+    setBusy(id);
+    const { error } = await (supabase as any).rpc("accept_deal", { _request_id: id });
+    setBusy(null);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Deal accepted — buyer can now complete secure payment.");
+    load();
+  };
+
+  const submitDecline = async () => {
+    if (!declineFor || !reason.trim()) { toast.error("Reason required"); return; }
+    setBusy(declineFor.id);
+    const { error } = await (supabase as any).rpc("decline_deal", {
+      _request_id: declineFor.id, _reason: reason,
+    });
+    setBusy(null);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Deal declined");
+    setDeclineFor(null); setReason("");
+    load();
+  };
+
+  const pending = deals.filter((d) => d.status === "pending");
+  const history = deals.filter((d) => d.status !== "pending");
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Helmet><title>Deals · Prop-Connect</title></Helmet>
+      <div className="container mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-10">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+            <Handshake className="h-5 w-5" />
+          </div>
+          <div>
+            <h1 className="font-display text-2xl font-semibold sm:text-3xl">Deals</h1>
+            <p className="text-sm text-muted-foreground">
+              Approve buyer requests to unlock the secure payment link.
+            </p>
+          </div>
+        </div>
+
+        {loading ? (
+          <div className="flex justify-center py-20"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
+        ) : (
+          <>
+            <Section title="Pending requests" empty="No pending requests right now.">
+              {pending.map((d) => (
+                <DealCard
+                  key={d.id}
+                  d={d}
+                  primaryAction={
+                    <Button
+                      size="sm"
+                      onClick={() => accept(d.id)}
+                      disabled={busy === d.id}
+                      className="w-full gap-1 bg-[hsl(var(--success))] text-[hsl(var(--success-foreground))] hover:bg-[hsl(var(--success))]/90 sm:w-auto"
+                    >
+                      <CheckCircle2 className="h-4 w-4" /> Accept Deal
+                    </Button>
+                  }
+                  secondaryAction={
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="w-full gap-1 text-destructive sm:w-auto"
+                      onClick={() => { setDeclineFor(d); setReason(""); }}
+                    >
+                      <XCircle className="h-4 w-4" /> Decline
+                    </Button>
+                  }
+                />
+              ))}
+            </Section>
+
+            <Section title="History" empty="No past deal requests.">
+              {history.map((d) => (
+                <DealCard
+                  key={d.id}
+                  d={d}
+                  primaryAction={
+                    d.status === "accepted" && d.transaction_id ? (
+                      <Link to="/dashboard/agent" className="w-full sm:w-auto">
+                        <Button size="sm" variant="outline" className="w-full sm:w-auto">View transaction</Button>
+                      </Link>
+                    ) : null
+                  }
+                />
+              ))}
+            </Section>
+          </>
+        )}
+      </div>
+
+      <Dialog open={!!declineFor} onOpenChange={(o) => !o && setDeclineFor(null)}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Decline this deal</DialogTitle></DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            Let the buyer know why so they can adjust or look elsewhere.
+          </p>
+          <Textarea value={reason} onChange={(e) => setReason(e.target.value)} placeholder="e.g. Already let to another tenant…" rows={4} />
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setDeclineFor(null)}>Cancel</Button>
+            <Button variant="destructive" onClick={submitDecline}>Decline</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+};
+
+const Section = ({ title, empty, children }: { title: string; empty: string; children: React.ReactNode }) => {
+  const isEmpty = !children || (Array.isArray(children) && children.length === 0);
+  return (
+    <div className="mt-8">
+      <h2 className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">{title}</h2>
+      <div className="mt-3 space-y-3">
+        {isEmpty ? (
+          <div className="rounded-xl border bg-card p-6 text-center text-sm text-muted-foreground shadow-card">{empty}</div>
+        ) : children}
+      </div>
+    </div>
+  );
+};
+
+const DealCard = ({ d, primaryAction, secondaryAction }: { d: Deal; primaryAction?: React.ReactNode; secondaryAction?: React.ReactNode }) => (
+  <div className="rounded-xl border bg-card p-4 shadow-card sm:p-5">
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+      <div className="min-w-0 flex-1">
+        <div className="flex flex-wrap items-center gap-2">
+          <Link to={`/property/${d.property_id}`} className="font-semibold hover:underline break-words">
+            {d.properties?.title || "Property"}
+          </Link>
+          <Badge className={`text-[10px] sm:text-xs ${statusColors[d.status] || ""}`}>
+            {d.status.toUpperCase()}
+          </Badge>
+          {d.property_code && (
+            <Badge variant="outline" className="font-mono text-[10px] sm:text-xs break-all">{d.property_code}</Badge>
+          )}
+        </div>
+        <div className="mt-2 grid grid-cols-1 gap-x-6 gap-y-1 text-sm sm:grid-cols-2">
+          <p className="text-muted-foreground">Buyer: <span className="font-medium text-foreground">{d.buyer?.full_name || "Buyer"}</span></p>
+          <p className="text-muted-foreground">Price: <span className="font-semibold text-foreground">₦{d.properties?.price?.toLocaleString()}</span></p>
+          <p className="flex items-center gap-1 text-muted-foreground"><Clock className="h-3 w-3" /> {new Date(d.created_at).toLocaleString()}</p>
+        </div>
+        {d.buyer_message && (
+          <p className="mt-2 rounded-lg bg-muted/50 p-3 text-xs text-muted-foreground italic break-words">"{d.buyer_message}"</p>
+        )}
+        {d.decline_reason && (
+          <p className="mt-2 text-xs text-destructive break-words">Decline reason: {d.decline_reason}</p>
+        )}
+      </div>
+      <div className="flex flex-row flex-wrap gap-2 sm:flex-col sm:items-end">
+        {primaryAction}
+        {secondaryAction}
+      </div>
+    </div>
+  </div>
+);
+
+export default AgentDeals;

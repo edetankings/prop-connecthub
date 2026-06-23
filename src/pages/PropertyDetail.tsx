@@ -100,6 +100,8 @@ const PropertyDetail = () => {
   }, [agentId]);
 
   const [alreadyReserved, setAlreadyReserved] = useState(false);
+  const [dealStatus, setDealStatus] = useState<string | null>(null);
+  const [requestingDeal, setRequestingDeal] = useState(false);
 
   // Check for existing reservation by this user
   useEffect(() => {
@@ -113,6 +115,35 @@ const PropertyDetail = () => {
       .maybeSingle()
       .then(({ data }: any) => setAlreadyReserved(!!data));
   }, [profile?.id, id]);
+
+  // Check for existing deal request by this buyer
+  useEffect(() => {
+    if (!user?.id || !id) return;
+    (supabase as any)
+      .from("deal_requests")
+      .select("status")
+      .eq("buyer_id", user.id)
+      .eq("property_id", id)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle()
+      .then(({ data }: any) => setDealStatus(data?.status || null));
+  }, [user?.id, id]);
+
+  const handleRequestDeal = async () => {
+    if (!user) { toast.error("Please log in"); return; }
+    if (!id) return;
+    setRequestingDeal(true);
+    const { error } = await (supabase as any).rpc("request_deal", {
+      _property_id: id,
+      _message: null,
+    });
+    setRequestingDeal(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Request sent to agent. You'll be notified when accepted.");
+    setDealStatus("pending");
+  };
+
 
   const isOwner = profile?.id === (dbProperty?.agent_id || mockProperty?.agentId);
 
@@ -442,27 +473,52 @@ const PropertyDetail = () => {
                 <p className="text-xs text-muted-foreground text-center py-2">This is your listing</p>
               )}
               {!isOwner && user && (
-                <Link to={`/secure-payment/${propertyId}`} className="block">
+                dealStatus === "accepted" ? (
+                  <Link to={`/secure-payment/${propertyId}`} className="block">
+                    <Button className="mt-3 w-full gap-2 bg-[hsl(var(--success))] text-[hsl(var(--success-foreground))] hover:bg-[hsl(var(--success))]/90 text-base py-6 rounded-xl font-semibold shadow-[0_10px_30px_-10px_hsl(var(--primary)/0.5)]">
+                      <Lock className="h-5 w-5" /> Complete Secure Payment
+                    </Button>
+                  </Link>
+                ) : dealStatus === "pending" ? (
+                  <Button disabled className="mt-3 w-full gap-2 text-base py-6 rounded-xl font-semibold" variant="outline">
+                    <Lock className="h-5 w-5" /> Awaiting Agent Approval…
+                  </Button>
+                ) : (
                   <Button
+                    onClick={handleRequestDeal}
+                    disabled={
+                      requestingDeal ||
+                      dbProperty?.status === "payment_pending" ||
+                      dbProperty?.status === "transaction_in_progress" ||
+                      dbProperty?.status === "sold" ||
+                      dbProperty?.status === "rented"
+                    }
                     className="mt-3 w-full gap-2 bg-primary text-primary-foreground hover:bg-primary/90 text-base py-6 rounded-xl font-semibold shadow-[0_10px_30px_-10px_hsl(var(--primary)/0.5)]"
-                    disabled={dbProperty?.status === "payment_pending" || dbProperty?.status === "transaction_in_progress" || dbProperty?.status === "sold" || dbProperty?.status === "rented"}
                   >
                     <Lock className="h-5 w-5" />
                     {dbProperty?.status === "payment_pending" || dbProperty?.status === "transaction_in_progress"
                       ? "Reserved — Payment in Progress"
                       : dbProperty?.status === "sold" || dbProperty?.status === "rented"
                       ? "No longer available"
-                      : "Proceed to Secure Payment"}
+                      : dealStatus === "declined"
+                      ? "Request Again"
+                      : "Request Deal with Agent"}
                   </Button>
-                </Link>
+                )
+              )}
+              {!isOwner && user && dealStatus !== "accepted" && (
+                <p className="mt-2 text-center text-[11px] text-muted-foreground">
+                  Payment unlocks only after the agent accepts your request.
+                </p>
               )}
               {!isOwner && !user && (
                 <Link to="/login" className="block mt-3">
                   <Button className="w-full gap-2 bg-primary text-primary-foreground hover:bg-primary/90 text-base py-6 rounded-xl font-semibold">
-                    <Lock className="h-5 w-5" /> Log in for Secure Payment
+                    <Lock className="h-5 w-5" /> Log in to Request Deal
                   </Button>
                 </Link>
               )}
+
               {!isOwner && (
                 alreadyReserved ? (
                   <div className="mt-3 w-full text-center py-4 rounded-xl bg-[hsl(var(--success))]/10 text-[hsl(var(--success))] font-semibold text-sm flex items-center justify-center gap-2">

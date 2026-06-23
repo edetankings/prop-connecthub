@@ -7,8 +7,9 @@ import { Badge } from "@/components/ui/badge";
 import {
   Home, Search, Heart, MessageCircle, Receipt, User, Settings, HelpCircle, LogOut,
   LayoutDashboard, Building, Plus, Wallet, ShieldCheck, Star, X,
-  Users, FileCheck, CheckCircle, TrendingUp, FileText, BarChart3, Cog, AlertTriangle, ScrollText, CreditCard, DollarSign, Network
+  Users, FileCheck, CheckCircle, TrendingUp, FileText, BarChart3, Cog, AlertTriangle, ScrollText, CreditCard, DollarSign, Network, Handshake
 } from "lucide-react";
+
 import { cn } from "@/lib/utils";
 
 interface AppSidebarProps {
@@ -28,12 +29,14 @@ const agentMenu = [
   { label: "Dashboard", icon: LayoutDashboard, to: "/dashboard/agent" },
   { label: "Add Property", icon: Plus, to: "/add-property" },
   { label: "My Listings", icon: Building, to: "/dashboard/agent" },
+  { label: "Deals", icon: Handshake, to: "/dashboard/agent/deals" },
   { label: "Messages", icon: MessageCircle, to: "/messages", badge: true },
   { label: "Earnings & Referrals", icon: DollarSign, to: "/earnings" },
   { label: "Payments", icon: CreditCard, to: "/payments" },
   { label: "Verification", icon: ShieldCheck, to: "/verification" },
   { label: "Settings", icon: Settings, to: "/settings" },
 ];
+
 
 const adminMenu = [
   { label: "Dashboard", icon: LayoutDashboard, to: "/admin" },

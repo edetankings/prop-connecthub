@@ -34,6 +34,8 @@ import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import InvestingInNigeria from "./pages/InvestingInNigeria";
 import SecurePayment from "./pages/SecurePayment";
+import AgentDeals from "./pages/AgentDeals";
+
 import AdminSecurePayments from "./pages/AdminSecurePayments";
 import AdminDisputes from "./pages/AdminDisputes";
 import AdminWithdrawals from "./pages/AdminWithdrawals";
@@ -73,6 +75,8 @@ const App = () => (
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/dashboard/buyer" element={<ProtectedRoute><BuyerDashboard /></ProtectedRoute>} />
             <Route path="/dashboard/agent" element={<ProtectedRoute><AgentDashboard /></ProtectedRoute>} />
+            <Route path="/dashboard/agent/deals" element={<ProtectedRoute><AgentDeals /></ProtectedRoute>} />
+
             <Route path="/dashboard/builder" element={<ProtectedRoute><BuilderDashboard /></ProtectedRoute>} />
             <Route path="/add-property" element={<ProtectedRoute><AddProperty /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
