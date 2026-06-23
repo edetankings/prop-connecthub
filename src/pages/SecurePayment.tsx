@@ -382,35 +382,28 @@ const SecurePayment = () => {
           {/* Right column — action panel */}
           <div className="space-y-6">
             <div className="rounded-2xl border border-border bg-gradient-to-br from-primary/5 to-secondary/5 p-5 shadow-card">
-              {showInitiate ? (
+              {showAwaitingApproval ? (
                 <>
-                  <ShieldCheck className="h-8 w-8 text-secondary" />
+                  <Lock className="h-8 w-8 text-secondary" />
                   <h3 className="mt-3 font-display text-lg font-semibold">
-                    Start your secure payment
+                    Awaiting agent approval
                   </h3>
                   <p className="mt-2 text-sm text-muted-foreground">
-                    We will lock this property for you and create a protected transaction. You then have 72 hours to upload your transfer proof.
+                    Secure payment is locked until the listing agent accepts your deal request. Once they accept, you'll receive a notification and can complete payment from here.
                   </p>
-                  <Button
-                    onClick={handleInitiate}
-                    disabled={initiating || property.status !== "for_sale" && property.status !== "for_rent" && property.status !== "available"}
-                    className="mt-4 w-full bg-primary text-primary-foreground hover:bg-primary/90"
-                  >
-                    {initiating ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Creating transaction…
-                      </>
-                    ) : (
-                      <>Proceed to Secure Payment</>
-                    )}
-                  </Button>
-                  {property.status === "payment_pending" && (
-                    <p className="mt-3 text-xs text-destructive">
-                      This property is currently locked by another buyer.
-                    </p>
-                  )}
+                  <Link to={`/property/${property.id}`} className="mt-4 block">
+                    <Button variant="outline" className="w-full">
+                      Back to property
+                    </Button>
+                  </Link>
+                  <Link to="/messages" className="mt-3 block">
+                    <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
+                      Chat with agent
+                    </Button>
+                  </Link>
                 </>
               ) : showProofUpload ? (
+
                 <>
                   <Upload className="h-8 w-8 text-secondary" />
                   <h3 className="mt-3 font-display text-lg font-semibold">
