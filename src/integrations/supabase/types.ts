@@ -194,6 +194,65 @@ export type Database = {
         }
         Relationships: []
       }
+      deal_requests: {
+        Row: {
+          accepted_at: string | null
+          agent_profile_id: string
+          agent_user_id: string
+          buyer_id: string
+          buyer_message: string | null
+          created_at: string
+          decline_reason: string | null
+          declined_at: string | null
+          id: string
+          property_code: string | null
+          property_id: string
+          status: string
+          transaction_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          agent_profile_id: string
+          agent_user_id: string
+          buyer_id: string
+          buyer_message?: string | null
+          created_at?: string
+          decline_reason?: string | null
+          declined_at?: string | null
+          id?: string
+          property_code?: string | null
+          property_id: string
+          status?: string
+          transaction_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          agent_profile_id?: string
+          agent_user_id?: string
+          buyer_id?: string
+          buyer_message?: string | null
+          created_at?: string
+          decline_reason?: string | null
+          declined_at?: string | null
+          id?: string
+          property_code?: string | null
+          property_id?: string
+          status?: string
+          transaction_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_requests_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       disputes: {
         Row: {
           created_at: string
@@ -1404,12 +1463,17 @@ export type Database = {
       }
     }
     Functions: {
+      accept_deal: { Args: { _request_id: string }; Returns: string }
       approve_secure_payment: {
         Args: { _transaction_id: string }
         Returns: undefined
       }
       approve_withdrawal: {
         Args: { _id: string; _note: string }
+        Returns: undefined
+      }
+      decline_deal: {
+        Args: { _reason: string; _request_id: string }
         Returns: undefined
       }
       distribute_subscription_payment: {
@@ -1470,6 +1534,10 @@ export type Database = {
       release_secure_payment: {
         Args: { _transaction_id: string }
         Returns: undefined
+      }
+      request_deal: {
+        Args: { _message?: string; _property_id: string }
+        Returns: string
       }
       resolve_dispute: {
         Args: { _dispute_id: string; _resolution: string; _status: string }
