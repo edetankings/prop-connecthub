@@ -100,6 +100,8 @@ const PropertyDetail = () => {
   }, [agentId]);
 
   const [alreadyReserved, setAlreadyReserved] = useState(false);
+  const [dealStatus, setDealStatus] = useState<string | null>(null);
+  const [requestingDeal, setRequestingDeal] = useState(false);
 
   // Check for existing reservation by this user
   useEffect(() => {
@@ -113,6 +115,35 @@ const PropertyDetail = () => {
       .maybeSingle()
       .then(({ data }: any) => setAlreadyReserved(!!data));
   }, [profile?.id, id]);
+
+  // Check for existing deal request by this buyer
+  useEffect(() => {
+    if (!user?.id || !id) return;
+    (supabase as any)
+      .from("deal_requests")
+      .select("status")
+      .eq("buyer_id", user.id)
+      .eq("property_id", id)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle()
+      .then(({ data }: any) => setDealStatus(data?.status || null));
+  }, [user?.id, id]);
+
+  const handleRequestDeal = async () => {
+    if (!user) { toast.error("Please log in"); return; }
+    if (!id) return;
+    setRequestingDeal(true);
+    const { error } = await (supabase as any).rpc("request_deal", {
+      _property_id: id,
+      _message: null,
+    });
+    setRequestingDeal(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Request sent to agent. You'll be notified when accepted.");
+    setDealStatus("pending");
+  };
+
 
   const isOwner = profile?.id === (dbProperty?.agent_id || mockProperty?.agentId);
 
