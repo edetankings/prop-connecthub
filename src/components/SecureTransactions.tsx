@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { ShieldCheck, AlertTriangle, CheckCircle } from "lucide-react";
+import TransactionTrace from "@/components/TransactionTrace";
 
 const colors: Record<string, string> = {
   pending_payment: "bg-[hsl(var(--warning)/0.15)] text-[hsl(var(--warning))]",
