@@ -40,6 +40,9 @@ import AdminSecurePayments from "./pages/AdminSecurePayments";
 import AdminDisputes from "./pages/AdminDisputes";
 import AdminWithdrawals from "./pages/AdminWithdrawals";
 import AdminAudit from "./pages/AdminAudit";
+import AdminOverview from "./pages/AdminOverview";
+import AdminPropertyMonitoring from "./pages/AdminPropertyMonitoring";
+import BuyerSecurePayments from "./pages/BuyerSecurePayments";
 import WelcomeModal from "./components/WelcomeModal";
 
 const queryClient = new QueryClient();
