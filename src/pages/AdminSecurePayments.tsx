@@ -122,6 +122,17 @@ const AdminSecurePayments = () => {
                           {tx.released_at && <p className="text-muted-foreground">Released: <span className="text-foreground">{new Date(tx.released_at).toLocaleString()}</span></p>}
                         </div>
                         {tx.rejection_reason && <p className="mt-2 text-sm text-destructive">Reason: {tx.rejection_reason}</p>}
+                        <div className="mt-3">
+                          <TransactionTrace
+                            transactionId={tx.id}
+                            propertyId={tx.property_id}
+                            propertyCode={tx.property_code || tx.properties?.property_code}
+                            buyerId={tx.buyer_id}
+                            agentId={tx.seller_id}
+                            buyerName={tx.buyer?.email}
+                            agentName={tx.seller?.email}
+                          />
+                        </div>
                       </div>
                       <div className="flex flex-col items-end gap-2 shrink-0">
                         {tx.property_id && <Link to={`/property/${tx.property_id}`} className="text-xs text-secondary hover:underline">View property →</Link>}
