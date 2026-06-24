@@ -88,11 +88,7 @@ const SecurePayment = () => {
           .select("id,title,price,property_code,status,city,state,image_url,agent_id")
           .eq("id", propertyId)
           .maybeSingle(),
-        supabase
-          .from("platform_settings")
-          .select("company_account_name,company_account_number,company_bank_name")
-          .limit(1)
-          .maybeSingle(),
+        supabase.rpc("get_company_payment_details"),
         supabase
           .from("commission_settings")
           .select("sales_percent,rental_percent")
