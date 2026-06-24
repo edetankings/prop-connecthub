@@ -1487,6 +1487,14 @@ export type Database = {
         Returns: string
       }
       generate_referral_code: { Args: never; Returns: string }
+      get_company_payment_details: {
+        Args: never
+        Returns: {
+          company_account_name: string
+          company_account_number: string
+          company_bank_name: string
+        }[]
+      }
       get_my_profile_id: { Args: never; Returns: string }
       has_role: {
         Args: {

@@ -88,11 +88,7 @@ const SecurePayment = () => {
           .select("id,title,price,property_code,status,city,state,image_url,agent_id")
           .eq("id", propertyId)
           .maybeSingle(),
-        supabase
-          .from("platform_settings")
-          .select("company_account_name,company_account_number,company_bank_name")
-          .limit(1)
-          .maybeSingle(),
+        supabase.rpc("get_company_payment_details"),
         supabase
           .from("commission_settings")
           .select("sales_percent,rental_percent")
@@ -118,7 +114,7 @@ const SecurePayment = () => {
           .maybeSingle();
         setAgentName((ag as any)?.full_name || "Verified Agent");
       }
-      if (settingsRes.data) setSettings(settingsRes.data as Settings);
+      if (settingsRes.data) setSettings(((settingsRes.data as any)[0] ?? settingsRes.data) as Settings);
       if (commRes.data) setCommission(commRes.data as Commission);
       if (txRes.data) setTx(txRes.data as Tx);
       setLoading(false);
