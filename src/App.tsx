@@ -40,6 +40,9 @@ import AdminSecurePayments from "./pages/AdminSecurePayments";
 import AdminDisputes from "./pages/AdminDisputes";
 import AdminWithdrawals from "./pages/AdminWithdrawals";
 import AdminAudit from "./pages/AdminAudit";
+import AdminOverview from "./pages/AdminOverview";
+import AdminPropertyMonitoring from "./pages/AdminPropertyMonitoring";
+import BuyerSecurePayments from "./pages/BuyerSecurePayments";
 import WelcomeModal from "./components/WelcomeModal";
 
 const queryClient = new QueryClient();
@@ -84,7 +87,10 @@ const App = () => (
             <Route path="/earnings" element={<ProtectedRoute><Earnings /></ProtectedRoute>} />
             <Route path="/payments" element={<ProtectedRoute><Payments /></ProtectedRoute>} />
             <Route path="/secure-payment/:propertyId" element={<ProtectedRoute><SecurePayment /></ProtectedRoute>} />
+            <Route path="/dashboard/buyer/secure-payments" element={<ProtectedRoute><BuyerSecurePayments /></ProtectedRoute>} />
             <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+            <Route path="/admin/overview" element={<AdminRoute><AdminOverview /></AdminRoute>} />
+            <Route path="/admin/properties" element={<AdminRoute><AdminPropertyMonitoring /></AdminRoute>} />
             <Route path="/admin/secure-payments" element={<AdminRoute><AdminSecurePayments /></AdminRoute>} />
             <Route path="/admin/disputes" element={<AdminRoute><AdminDisputes /></AdminRoute>} />
             <Route path="/admin/withdrawals" element={<AdminRoute><AdminWithdrawals /></AdminRoute>} />
