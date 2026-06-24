@@ -101,6 +101,15 @@ const SecureTransactions = ({ role }: { role: "buyer" | "agent" }) => {
                     Note: {tx.rejection_reason}
                   </p>
                 )}
+                <div className="mt-3">
+                  <TransactionTrace
+                    transactionId={tx.id}
+                    propertyId={tx.property_id}
+                    propertyCode={tx.property_code || tx.properties?.property_code}
+                    buyerId={tx.buyer_id}
+                    agentId={tx.seller_id}
+                  />
+                </div>
               </div>
               <div className="flex flex-row flex-wrap gap-2 sm:flex-col sm:items-end">
                 {role === "buyer" && tx.payment_status === "pending_payment" && tx.property_id && (
