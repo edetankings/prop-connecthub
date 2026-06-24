@@ -114,7 +114,7 @@ const SecurePayment = () => {
           .maybeSingle();
         setAgentName((ag as any)?.full_name || "Verified Agent");
       }
-      if (settingsRes.data) setSettings(settingsRes.data as Settings);
+      if (settingsRes.data) setSettings(((settingsRes.data as any)[0] ?? settingsRes.data) as Settings);
       if (commRes.data) setCommission(commRes.data as Commission);
       if (txRes.data) setTx(txRes.data as Tx);
       setLoading(false);
