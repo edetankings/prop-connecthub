@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { CheckCircle, XCircle, RotateCcw, FileText, RefreshCw, Clock } from "lucide-react";
+import TransactionTrace from "@/components/TransactionTrace";
 
 const STATUSES = ["under_review", "pending_payment", "secured", "released", "refunded", "expired", "rejected"] as const;
 type Status = typeof STATUSES[number];
