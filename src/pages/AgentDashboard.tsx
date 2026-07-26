@@ -10,6 +10,8 @@ import AuthenticatedLayout from "@/components/AuthenticatedLayout";
 import { toast } from "sonner";
 import VerifiedBadge from "@/components/VerifiedBadge";
 import SecureTransactions from "@/components/SecureTransactions";
+import { useSubscription } from "@/hooks/useSubscription";
+
 
 const AgentDashboard = () => {
   const { profile } = useAuth();
