@@ -54,9 +54,13 @@ const AgentDashboard = () => {
       .select("*, properties(title, image_url, city, state, price)")
       .eq("agent_id", profile.id)
       .order("created_at", { ascending: false })
-      .then(({ data }: any) => setReservations(data || []));
+      .then(({ data }: any) => {
+        setReservations(data || []);
+        setLoadingStats(false);
+      });
 
     setStats((s) => ({ ...s, deals: profile.completed_transactions || 0 }));
+
   }, [profile?.id]);
 
   const deleteProperty = async (id: string, status: string) => {
