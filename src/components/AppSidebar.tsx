@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   Home, Search, Heart, MessageCircle, Receipt, User, Settings, HelpCircle, LogOut,
   LayoutDashboard, Building, Plus, Wallet, ShieldCheck, Star, X,
-  Users, FileCheck, CheckCircle, TrendingUp, FileText, BarChart3, Cog, AlertTriangle, ScrollText, CreditCard, DollarSign, Network, Handshake
+  Users, FileCheck, CheckCircle, TrendingUp, FileText, BarChart3, Cog, AlertTriangle, ScrollText, CreditCard, DollarSign, Network, Handshake, Bot
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -20,6 +20,7 @@ interface AppSidebarProps {
 const buyerMenu = [
   { label: "Dashboard", icon: Home, to: "/dashboard/buyer" },
   { label: "Find Properties", icon: Search, to: "/properties" },
+  { label: "Prop Connect AI", icon: Bot, to: "/ai-assistant" },
   { label: "Secure Payments", icon: ShieldCheck, to: "/dashboard/buyer/secure-payments" },
   { label: "Messages", icon: MessageCircle, to: "/messages", badge: true },
   { label: "Verification", icon: ShieldCheck, to: "/verification" },
@@ -30,6 +31,7 @@ const agentMenu = [
   { label: "Dashboard", icon: LayoutDashboard, to: "/dashboard/agent" },
   { label: "Add Property", icon: Plus, to: "/add-property" },
   { label: "My Listings", icon: Building, to: "/dashboard/agent" },
+  { label: "Prop Connect AI", icon: Bot, to: "/ai-assistant" },
   { label: "Deals", icon: Handshake, to: "/dashboard/agent/deals" },
   { label: "Messages", icon: MessageCircle, to: "/messages", badge: true },
   { label: "Earnings & Referrals", icon: DollarSign, to: "/earnings" },
@@ -42,7 +44,9 @@ const agentMenu = [
 const adminMenu = [
   { label: "Overview", icon: BarChart3, to: "/admin/overview" },
   { label: "Dashboard", icon: LayoutDashboard, to: "/admin" },
+  { label: "Prop Connect AI", icon: Bot, to: "/ai-assistant" },
   { label: "Property Monitoring", icon: Building, to: "/admin/properties" },
+
   { label: "Secure Payments", icon: ShieldCheck, to: "/admin/secure-payments" },
   { label: "Disputes", icon: AlertTriangle, to: "/admin/disputes" },
   { label: "Withdrawals", icon: Wallet, to: "/admin/withdrawals" },

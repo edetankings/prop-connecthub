@@ -43,6 +43,8 @@ import AdminAudit from "./pages/AdminAudit";
 import AdminOverview from "./pages/AdminOverview";
 import AdminPropertyMonitoring from "./pages/AdminPropertyMonitoring";
 import BuyerSecurePayments from "./pages/BuyerSecurePayments";
+import AIAssistant from "./pages/AIAssistant";
+
 import WelcomeModal from "./components/WelcomeModal";
 
 const queryClient = new QueryClient();
@@ -88,6 +90,8 @@ const App = () => (
             <Route path="/payments" element={<ProtectedRoute><Payments /></ProtectedRoute>} />
             <Route path="/secure-payment/:propertyId" element={<ProtectedRoute><SecurePayment /></ProtectedRoute>} />
             <Route path="/dashboard/buyer/secure-payments" element={<ProtectedRoute><BuyerSecurePayments /></ProtectedRoute>} />
+            <Route path="/ai-assistant" element={<ProtectedRoute><AIAssistant /></ProtectedRoute>} />
+
             <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
             <Route path="/admin/overview" element={<AdminRoute><AdminOverview /></AdminRoute>} />
             <Route path="/admin/properties" element={<AdminRoute><AdminPropertyMonitoring /></AdminRoute>} />
