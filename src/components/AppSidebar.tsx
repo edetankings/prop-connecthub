@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   Home, Search, Heart, MessageCircle, Receipt, User, Settings, HelpCircle, LogOut,
   LayoutDashboard, Building, Plus, Wallet, ShieldCheck, Star, X,
-  Users, FileCheck, CheckCircle, TrendingUp, FileText, BarChart3, Cog, AlertTriangle, ScrollText, CreditCard, DollarSign, Network, Handshake
+  Users, FileCheck, CheckCircle, TrendingUp, FileText, BarChart3, Cog, AlertTriangle, ScrollText, CreditCard, DollarSign, Network, Handshake, Bot
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
