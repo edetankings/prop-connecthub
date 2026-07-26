@@ -43,6 +43,8 @@ import AdminAudit from "./pages/AdminAudit";
 import AdminOverview from "./pages/AdminOverview";
 import AdminPropertyMonitoring from "./pages/AdminPropertyMonitoring";
 import BuyerSecurePayments from "./pages/BuyerSecurePayments";
+import AIAssistant from "./pages/AIAssistant";
+
 import WelcomeModal from "./components/WelcomeModal";
 
 const queryClient = new QueryClient();
