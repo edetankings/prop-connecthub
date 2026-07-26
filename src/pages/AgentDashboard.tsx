@@ -13,13 +13,16 @@ import SecureTransactions from "@/components/SecureTransactions";
 
 const AgentDashboard = () => {
   const { profile } = useAuth();
+  const { isActive: subActive, daysRemaining } = useSubscription();
   const navigate = useNavigate();
   const [properties, setProperties] = useState<any[]>([]);
   const [wallet, setWallet] = useState<{ balance: number; escrow_balance: number } | null>(null);
   const [stats, setStats] = useState({ listings: 0, messages: 0, deals: 0, rating: 0 });
+  const [loadingStats, setLoadingStats] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [reservations, setReservations] = useState<any[]>([]);
   const [updatingResId, setUpdatingResId] = useState<string | null>(null);
+
 
   const firstName = profile?.full_name?.split(" ")[0] || "Agent";
 
