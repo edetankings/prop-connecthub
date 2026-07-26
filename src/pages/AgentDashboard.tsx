@@ -115,88 +115,124 @@ const AgentDashboard = () => {
     cancelled: "bg-muted text-muted-foreground",
   };
 
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? "Good Morning" : hour < 17 ? "Good Afternoon" : "Good Evening";
+
+  const statCards = [
+    { icon: Building, label: "My Listings", value: String(stats.listings) },
+    { icon: TrendingUp, label: "Completed Sales", value: String(stats.deals) },
+    { icon: CalendarCheck, label: "Reservations", value: String(reservations.length) },
+    { icon: Star, label: "Trust Score", value: String(profile?.trust_score ?? 0) },
+    { icon: Wallet, label: "Withdrawable", value: `₦${(wallet?.balance ?? 0).toLocaleString()}` },
+    { icon: ShieldCheck, label: "In Escrow", value: `₦${(wallet?.escrow_balance ?? 0).toLocaleString()}` },
+  ];
+
   return (
     <AuthenticatedLayout>
-      <div className="container mx-auto px-4 py-8 max-w-5xl">
-        {/* KYC Verified Badge - only show when verified */}
-        {profile?.kyc_verified && (
-          <div className="mb-6 rounded-xl border-2 border-[hsl(var(--success))]/30 bg-[hsl(var(--success))]/5 p-4 flex items-center gap-3">
-            <VerifiedBadge size="md" />
-            <p className="text-sm text-foreground">Your account is verified. You have full access to all platform features.</p>
+      <div className="container mx-auto max-w-5xl px-4 py-6 sm:py-8">
+        {/* Premium header */}
+        <header className="mb-6 overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-primary/10 via-card to-secondary/10 p-4 shadow-card sm:p-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex min-w-0 items-center gap-3 sm:gap-4">
+              <div className="relative shrink-0">
+                <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border-2 border-secondary/40 bg-muted sm:h-16 sm:w-16">
+                  {profile?.avatar_url ? (
+                    <img src={profile.avatar_url} alt={profile?.full_name || "Agent"} className="h-full w-full object-cover" />
+                  ) : (
+                    <span className="font-display text-xl font-bold text-primary">{firstName.charAt(0).toUpperCase()}</span>
+                  )}
+                </div>
+                {profile?.kyc_verified && (
+                  <span className="absolute -bottom-1 -right-1 rounded-full bg-background p-0.5">
+                    <VerifiedBadge size="sm" />
+                  </span>
+                )}
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{greeting}</p>
+                <h1 className="truncate font-display text-2xl font-bold text-foreground sm:text-3xl">{firstName}</h1>
+                <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                  {profile?.kyc_verified && (
+                    <Badge className="bg-[hsl(var(--success)/0.15)] text-[10px] text-[hsl(var(--success))] sm:text-xs">Verified Agent</Badge>
+                  )}
+                  <Badge variant="outline" className="gap-1 text-[10px] sm:text-xs">
+                    <Star className="h-3 w-3 text-secondary" /> Trust {profile?.trust_score ?? 0}
+                  </Badge>
+                  <Badge
+                    className={`text-[10px] sm:text-xs ${
+                      subActive
+                        ? "bg-primary/15 text-primary"
+                        : "bg-[hsl(var(--warning)/0.15)] text-[hsl(var(--warning))]"
+                    }`}
+                  >
+                    {subActive ? `Subscription Active · ${daysRemaining}d` : "Subscription Inactive"}
+                  </Badge>
+                </div>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-2 sm:flex sm:shrink-0">
+              <Link to="/add-property" className="w-full sm:w-auto">
+                <Button className="w-full gap-2 bg-secondary text-secondary-foreground hover:bg-secondary/90">
+                  <Plus className="h-4 w-4" /> Add Property
+                </Button>
+              </Link>
+              <Link to="/earnings" className="w-full sm:w-auto">
+                <Button variant="outline" className="w-full gap-2">
+                  <DollarSign className="h-4 w-4" /> Earnings
+                </Button>
+              </Link>
+            </div>
           </div>
-        )}
-
-        {/* Greeting + Add Property */}
-        <div className="mb-8 flex items-start justify-between gap-4">
-          <div>
-            <h1 className="font-display text-3xl font-bold text-foreground">Hello, {firstName}! 🏗️</h1>
-            <p className="mt-1 text-muted-foreground">Manage your listings and grow your business</p>
-          </div>
-          <div className="flex gap-2">
-            <Link to="/add-property">
-              <Button className="gap-2 bg-secondary text-secondary-foreground hover:bg-secondary/90 shrink-0">
-                <Plus className="h-4 w-4" /> Add Property
-              </Button>
-            </Link>
-            <Link to="/earnings">
-              <Button variant="outline" className="gap-2 shrink-0">
-                <DollarSign className="h-4 w-4" /> Earnings
-              </Button>
-            </Link>
-          </div>
-        </div>
+        </header>
 
         {/* Stats */}
-        <div className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
-          <div className="rounded-xl border border-border bg-card p-4 shadow-card">
-            <Building className="mb-1 h-5 w-5 text-secondary" />
-            <p className="font-display text-2xl font-bold text-foreground">{stats.listings}</p>
-            <p className="text-xs text-muted-foreground">My Listings</p>
-          </div>
-          <div className="rounded-xl border border-border bg-card p-4 shadow-card">
-            <TrendingUp className="mb-1 h-5 w-5 text-secondary" />
-            <p className="font-display text-2xl font-bold text-foreground">{stats.deals}</p>
-            <p className="text-xs text-muted-foreground">Completed Sales</p>
-          </div>
-          <div className="rounded-xl border border-border bg-card p-4 shadow-card">
-            <Star className="mb-1 h-5 w-5 text-secondary" />
-            <p className="font-display text-2xl font-bold text-foreground">{profile?.trust_score ?? 0}</p>
-            <p className="text-xs text-muted-foreground">Trust Score</p>
-          </div>
-          <div className="rounded-xl border border-border bg-card p-4 shadow-card">
-            <CalendarCheck className="mb-1 h-5 w-5 text-secondary" />
-            <p className="font-display text-2xl font-bold text-foreground">{reservations.length}</p>
-            <p className="text-xs text-muted-foreground">Reservations</p>
+        <div className="mb-8 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-6">
+          {loadingStats
+            ? Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="h-[104px] animate-pulse rounded-2xl border border-border bg-muted/40" />
+              ))
+            : statCards.map((c) => (
+                <div
+                  key={c.label}
+                  className="flex h-[104px] flex-col justify-between rounded-2xl border border-border bg-card p-3 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:border-secondary/40 sm:p-4"
+                >
+                  <c.icon className="h-4 w-4 shrink-0 text-secondary" />
+                  <p className="truncate font-display text-lg font-bold leading-tight text-foreground sm:text-xl">{c.value}</p>
+                  <p className="truncate text-[11px] text-muted-foreground">{c.label}</p>
+                </div>
+              ))}
         </div>
 
         {/* Wallet Panel */}
         <section className="mb-8">
-          <h2 className="font-display text-xl font-bold text-foreground mb-4">Wallet</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            <div className="rounded-xl border bg-card p-4 shadow-card">
-              <Wallet className="mb-1 h-5 w-5 text-secondary" />
-              <p className="font-display text-2xl font-bold">₦{(wallet?.balance ?? 0).toLocaleString()}</p>
-              <p className="text-xs text-muted-foreground">Withdrawable</p>
+          <div className="mb-4 flex items-center justify-between gap-2">
+            <h2 className="font-display text-xl font-bold text-foreground">Wallet</h2>
+            <Link to="/earnings">
+              <Button size="sm" variant="outline" className="gap-1">
+                <DollarSign className="h-4 w-4" /> Withdraw
+              </Button>
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="rounded-2xl border bg-card p-4 shadow-card">
+              <Wallet className="mb-2 h-5 w-5 text-secondary" />
+              <p className="break-words font-display text-2xl font-bold">₦{(wallet?.balance ?? 0).toLocaleString()}</p>
+              <p className="text-xs text-muted-foreground">Available for withdrawal</p>
             </div>
-            <div className="rounded-xl border bg-card p-4 shadow-card">
-              <ShieldCheck className="mb-1 h-5 w-5 text-secondary" />
-              <p className="font-display text-2xl font-bold">₦{(wallet?.escrow_balance ?? 0).toLocaleString()}</p>
-              <p className="text-xs text-muted-foreground">In Escrow (Secured)</p>
-            </div>
-            <div className="rounded-xl border bg-card p-4 shadow-card flex items-center">
-              <Link to="/earnings" className="w-full">
-                <Button variant="outline" className="w-full gap-2"><DollarSign className="h-4 w-4" /> View Earnings & Withdraw</Button>
-              </Link>
+            <div className="rounded-2xl border bg-card p-4 shadow-card">
+              <ShieldCheck className="mb-2 h-5 w-5 text-secondary" />
+              <p className="break-words font-display text-2xl font-bold">₦{(wallet?.escrow_balance ?? 0).toLocaleString()}</p>
+              <p className="text-xs text-muted-foreground">Held in escrow</p>
             </div>
           </div>
         </section>
 
         {/* Secure Transactions */}
         <section className="mb-8">
-          <h2 className="font-display text-xl font-bold text-foreground mb-4">Secure Transactions</h2>
+          <h2 className="mb-4 font-display text-xl font-bold text-foreground">Secure Transactions</h2>
           <SecureTransactions role="agent" />
         </section>
-        </div>
+
 
         {/* Reservations */}
         <section className="mb-8">
