@@ -29,15 +29,20 @@ const buyerMenu = [
 
 const agentMenu = [
   { label: "Dashboard", icon: LayoutDashboard, to: "/dashboard/agent" },
-  { label: "Add Property", icon: Plus, to: "/add-property" },
-  { label: "My Listings", icon: Building, to: "/dashboard/agent" },
-  { label: "Prop Connect AI", icon: Bot, to: "/ai-assistant" },
-  { label: "Deals", icon: Handshake, to: "/dashboard/agent/deals" },
+  { label: "Properties", icon: Building, to: "/add-property" },
+  { label: "Secure Transactions", icon: ShieldCheck, to: "/payments" },
+  { label: "Reservations", icon: Handshake, to: "/dashboard/agent/deals" },
+  { label: "Wallet", icon: Wallet, to: "/earnings" },
+  { label: "Earnings", icon: DollarSign, to: "/earnings" },
+  { label: "Withdrawals", icon: TrendingUp, to: "/earnings" },
+  { label: "Referrals", icon: Users, to: "/earnings" },
+  { label: "Matrix Earnings", icon: Network, to: "/earnings" },
+  { label: "Subscriptions", icon: CreditCard, to: "/payments" },
   { label: "Messages", icon: MessageCircle, to: "/messages", badge: true },
-  { label: "Earnings & Referrals", icon: DollarSign, to: "/earnings" },
-  { label: "Payments", icon: CreditCard, to: "/payments" },
-  { label: "Verification", icon: ShieldCheck, to: "/verification" },
-  { label: "Settings", icon: Settings, to: "/settings" },
+  { label: "Analytics", icon: BarChart3, to: "/analytics" },
+  { label: "Prop Connect AI", icon: Bot, to: "/ai-assistant" },
+  { label: "Verification", icon: FileCheck, to: "/verification" },
+  { label: "Profile Settings", icon: Settings, to: "/settings" },
 ];
 
 
