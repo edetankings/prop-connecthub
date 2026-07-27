@@ -29,15 +29,20 @@ const buyerMenu = [
 
 const agentMenu = [
   { label: "Dashboard", icon: LayoutDashboard, to: "/dashboard/agent" },
-  { label: "Add Property", icon: Plus, to: "/add-property" },
-  { label: "My Listings", icon: Building, to: "/dashboard/agent" },
-  { label: "Prop Connect AI", icon: Bot, to: "/ai-assistant" },
-  { label: "Deals", icon: Handshake, to: "/dashboard/agent/deals" },
+  { label: "Properties", icon: Building, to: "/add-property" },
+  { label: "Secure Transactions", icon: ShieldCheck, to: "/payments" },
+  { label: "Reservations", icon: Handshake, to: "/dashboard/agent/deals" },
+  { label: "Wallet", icon: Wallet, to: "/earnings" },
+  { label: "Earnings", icon: DollarSign, to: "/earnings" },
+  { label: "Withdrawals", icon: TrendingUp, to: "/earnings" },
+  { label: "Referrals", icon: Users, to: "/earnings" },
+  { label: "Matrix Earnings", icon: Network, to: "/earnings" },
+  { label: "Subscriptions", icon: CreditCard, to: "/payments" },
   { label: "Messages", icon: MessageCircle, to: "/messages", badge: true },
-  { label: "Earnings & Referrals", icon: DollarSign, to: "/earnings" },
-  { label: "Payments", icon: CreditCard, to: "/payments" },
-  { label: "Verification", icon: ShieldCheck, to: "/verification" },
-  { label: "Settings", icon: Settings, to: "/settings" },
+  { label: "Analytics", icon: BarChart3, to: "/analytics" },
+  { label: "Prop Connect AI", icon: Bot, to: "/ai-assistant" },
+  { label: "Verification", icon: FileCheck, to: "/verification" },
+  { label: "Profile Settings", icon: Settings, to: "/settings" },
 ];
 
 
@@ -214,6 +219,24 @@ const AppSidebar = ({ open, onClose }: AppSidebarProps) => {
             );
           })}
         </nav>
+
+        {/* Promo card (agents) */}
+        {!isAdmin && profile?.profile_type === "agent" && (
+          <div className="px-3 pb-2">
+            <div className="rounded-2xl bg-sidebar-accent p-4">
+              <p className="font-display text-sm font-bold text-sidebar-accent-foreground">Grow Your Business</p>
+              <p className="mt-1 text-xs text-sidebar-foreground/70">
+                List more properties and get more clients today.
+              </p>
+              <Link to="/add-property" onClick={onClose}>
+                <button className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-xl bg-sidebar-primary px-3 py-2 text-xs font-semibold text-sidebar-primary-foreground transition-transform active:scale-[0.97]">
+                  <Plus className="h-3.5 w-3.5" /> Add Property
+                </button>
+              </Link>
+            </div>
+          </div>
+        )}
+
 
         {/* Logout */}
         <div className="px-3 pb-5 pt-2 border-t border-sidebar-border">
