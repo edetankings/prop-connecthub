@@ -220,6 +220,24 @@ const AppSidebar = ({ open, onClose }: AppSidebarProps) => {
           })}
         </nav>
 
+        {/* Promo card (agents) */}
+        {!isAdmin && profile?.profile_type === "agent" && (
+          <div className="px-3 pb-2">
+            <div className="rounded-2xl bg-sidebar-accent p-4">
+              <p className="font-display text-sm font-bold text-sidebar-accent-foreground">Grow Your Business</p>
+              <p className="mt-1 text-xs text-sidebar-foreground/70">
+                List more properties and get more clients today.
+              </p>
+              <Link to="/add-property" onClick={onClose}>
+                <button className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-xl bg-sidebar-primary px-3 py-2 text-xs font-semibold text-sidebar-primary-foreground transition-transform active:scale-[0.97]">
+                  <Plus className="h-3.5 w-3.5" /> Add Property
+                </button>
+              </Link>
+            </div>
+          </div>
+        )}
+
+
         {/* Logout */}
         <div className="px-3 pb-5 pt-2 border-t border-sidebar-border">
           <button
