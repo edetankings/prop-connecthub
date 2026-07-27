@@ -693,7 +693,22 @@ const AgentDashboard = () => {
         </div>
       </div>
 
-      <WithdrawDialog open={withdrawOpen} onOpenChange={setWithdrawOpen} />
+      <WithdrawDialog
+        open={withdrawOpen}
+        onClose={() => setWithdrawOpen(false)}
+        availableBalance={wallet?.balance ?? 0}
+        onSuccess={() => {
+          setWithdrawOpen(false);
+          if (profile?.user_id) {
+            supabase
+              .from("wallets")
+              .select("balance, escrow_balance")
+              .eq("user_id", profile.user_id)
+              .maybeSingle()
+              .then(({ data }) => setWallet(data));
+          }
+        }}
+      />
     </AuthenticatedLayout>
   );
 };
