@@ -513,9 +513,11 @@ const Chat = () => {
                   <MessageBubble
                     message={msg}
                     mine={msg.sender_id === profile?.id}
-                    avatar={grouped ? null : otherUser?.avatar}
+                    avatar={otherUser?.avatar}
                     name={otherUser?.name}
+                    hideAvatar={grouped}
                   />
+
                 </div>
               );
             })}
