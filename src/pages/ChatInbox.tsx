@@ -228,6 +228,31 @@ const ChatInbox = () => {
           ))}
         </div>
 
+        {/* Permanent AI assistant conversation */}
+        <Link
+          to="/ai-assistant"
+          className="mb-3 flex items-center gap-3 rounded-2xl border border-primary/25 bg-gradient-to-r from-primary/10 via-card to-secondary/10 px-4 py-3.5 shadow-card transition-all hover:border-primary/50 hover:shadow-lg"
+        >
+          <img
+            src={propAi}
+            alt="Prop-Connect AI"
+            width={512}
+            height={512}
+            className="h-12 w-12 shrink-0 rounded-full border border-border bg-card object-contain p-1"
+          />
+          <div className="min-w-0 flex-1">
+            <h3 className="flex items-center gap-1.5 font-semibold text-foreground">
+              <span className="truncate">Prop-Connect AI</span>
+              <BadgeCheck className="h-4 w-4 shrink-0 text-primary" />
+              <Badge variant="secondary" className="shrink-0 text-[10px]">Official</Badge>
+            </h3>
+            <p className="mt-0.5 flex items-center gap-1 truncate text-sm text-muted-foreground">
+              <Sparkles className="h-3.5 w-3.5 shrink-0 text-secondary" />
+              <span className="truncate">Ask me about payments, verification, listings or anything property.</span>
+            </p>
+          </div>
+        </Link>
+
         {loading ? (
           <div className="space-y-3">
             {[1, 2, 3, 4].map((i) => (
@@ -241,7 +266,7 @@ const ChatInbox = () => {
             ))}
           </div>
         ) : filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
+          <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
             <MessageCircle className="mb-4 h-14 w-14 opacity-25" />
             <p className="text-base font-medium">No conversations found</p>
             <p className="mt-1 text-sm">Start a chat from a property or agent profile</p>
@@ -252,9 +277,9 @@ const ChatInbox = () => {
               <Link
                 key={thread.id}
                 to={`/chat/${thread.id}`}
-                className="flex items-center gap-3 px-4 py-3.5 transition-colors hover:bg-muted/50 active:bg-muted"
+                className="flex items-start gap-3 px-3 py-3.5 transition-colors hover:bg-muted/50 active:bg-muted sm:px-4"
               >
-                <div className="relative">
+                <div className="relative shrink-0">
                   <Avatar className="h-12 w-12">
                     <AvatarImage src={thread.other_avatar || undefined} />
                     <AvatarFallback className="bg-primary/10 font-semibold text-primary">
@@ -265,14 +290,16 @@ const ChatInbox = () => {
                 </div>
 
                 <div className="min-w-0 flex-1">
-                  <div className="flex items-center justify-between gap-2">
-                    <h3 className="flex min-w-0 items-center gap-1 truncate font-semibold text-foreground">
+                  <div className="flex items-start justify-between gap-2">
+                    <h3 className="flex min-w-0 items-center gap-1 font-semibold text-foreground">
                       <span className="truncate">{thread.other_name}</span>
                       {thread.other_verified && <BadgeCheck className="h-4 w-4 shrink-0 text-primary" />}
-                      {thread.property_id && <Home className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />}
                     </h3>
-                    <span className="shrink-0 text-xs text-muted-foreground">{formatTime(thread.last_message_at)}</span>
+                    <span className="shrink-0 pt-0.5 text-[11px] text-muted-foreground">
+                      {formatTime(thread.last_message_at)}
+                    </span>
                   </div>
+
                   <div className="mt-0.5 flex items-center justify-between gap-2">
                     <p className="flex min-w-0 items-center gap-1 truncate text-sm text-muted-foreground">
                       {thread.last_kind === "voice" && <Mic className="h-3.5 w-3.5 shrink-0 text-primary" />}
@@ -284,11 +311,46 @@ const ChatInbox = () => {
                       </Badge>
                     )}
                   </div>
+
+                  {thread.property_id && (
+                    <div className="mt-2 flex items-center gap-2 rounded-xl bg-muted/60 p-1.5">
+                      <div className="h-9 w-11 shrink-0 overflow-hidden rounded-lg bg-muted">
+                        {thread.property_image ? (
+                          <img
+                            src={thread.property_image}
+                            alt={thread.property_title || "Property"}
+                            loading="lazy"
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <span className="flex h-full w-full items-center justify-center">
+                            <Home className="h-4 w-4 text-muted-foreground" />
+                          </span>
+                        )}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-xs font-medium text-foreground">
+                          {thread.property_title || "Linked property"}
+                        </p>
+                        <div className="mt-0.5 flex flex-wrap items-center gap-1">
+                          {thread.property_code && (
+                            <span className="font-mono text-[10px] text-muted-foreground">{thread.property_code}</span>
+                          )}
+                          {thread.property_status && (
+                            <Badge variant="outline" className="h-4 px-1.5 text-[9px] capitalize">
+                              {thread.property_status.replace(/_/g, " ")}
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </Link>
             ))}
           </div>
         )}
+
       </div>
     </AuthenticatedLayout>
   );
