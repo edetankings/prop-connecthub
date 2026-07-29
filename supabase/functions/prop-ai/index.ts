@@ -66,7 +66,7 @@ Deno.serve(async (req) => {
         stream: true,
         messages: [
           { role: "system", content: system },
-          ...messages.slice(-20).map((m: any) => ({ role: m.role, content: m.content })),
+          ...messages.slice(-30).map((m: any) => ({ role: m.role, content: m.content })),
         ],
       }),
     });
