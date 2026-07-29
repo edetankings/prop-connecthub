@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { MessageCircle, Search, SlidersHorizontal, SquarePen, Home, Mic, BadgeCheck } from "lucide-react";
+import { MessageCircle, Search, SlidersHorizontal, SquarePen, Home, Mic, BadgeCheck, Sparkles } from "lucide-react";
 import AuthenticatedLayout from "@/components/AuthenticatedLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { attachmentPreview, parseAttachment } from "@/lib/chatAttachments";
 import { cn } from "@/lib/utils";
+import propAi from "@/assets/prop-ai.png";
 
 interface ThreadWithDetails {
   id: string;
@@ -26,6 +27,9 @@ interface ThreadWithDetails {
   last_kind: string | null;
   unread_count: number;
   property_code: string | null;
+  property_title: string | null;
+  property_image: string | null;
+  property_status: string | null;
 }
 
 type Tab = "all" | "buyers" | "agents" | "system";
@@ -36,6 +40,7 @@ const TABS: { id: Tab; label: string }[] = [
   { id: "agents", label: "Agents" },
   { id: "system", label: "System" },
 ];
+
 
 const ChatInbox = () => {
   const { profile } = useAuth();
