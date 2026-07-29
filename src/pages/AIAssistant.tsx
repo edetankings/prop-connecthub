@@ -42,8 +42,10 @@ const QUICK_PROMPTS: Record<string, string[]> = {
 
 const AIAssistant = () => {
   const { profile, session } = useAuth() as any;
+  const navigate = useNavigate();
   const role: "buyer" | "agent" | "admin" =
     profile?.profile_type === "agent" ? "agent" : profile?.profile_type === "admin" ? "admin" : "buyer";
+
 
   const [messages, setMessages] = useState<AIMessage[]>(() => {
     if (typeof window === "undefined") return [];
