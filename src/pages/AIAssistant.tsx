@@ -169,6 +169,14 @@ const AIAssistant = () => {
 
   const prompts = QUICK_PROMPTS[role];
 
+  const suggestions = useMemo(() => {
+    if (streaming || messages.length === 0) return [];
+    const lastUser = [...messages].reverse().find((m) => m.role === "user")?.content || "";
+    const lastAssistant = [...messages].reverse().find((m) => m.role === "assistant")?.content || "";
+    return getSuggestions(lastUser, lastAssistant);
+  }, [messages, streaming]);
+
+
   return (
     <AuthenticatedLayout>
       <div className="flex min-h-[calc(100vh-3.5rem)] flex-col">
