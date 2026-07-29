@@ -489,15 +489,39 @@ const Chat = () => {
               <p className="py-10 text-center text-sm text-muted-foreground">No messages yet. Say hello! 👋</p>
             )}
 
-            {visible.map((msg) => (
-              <MessageBubble
-                key={msg.id}
-                message={msg}
-                mine={msg.sender_id === profile?.id}
-                avatar={otherUser?.avatar}
-                name={otherUser?.name}
-              />
-            ))}
+            {visible.map((msg, i) => {
+              const prev = visible[i - 1];
+              const dayLabel = new Date(msg.created_at).toDateString();
+              const showDay = !prev || new Date(prev.created_at).toDateString() !== dayLabel;
+              const today = new Date().toDateString();
+              const grouped =
+                !showDay &&
+                prev?.sender_id === msg.sender_id &&
+                new Date(msg.created_at).getTime() - new Date(prev.created_at).getTime() < 120000;
+
+              return (
+                <div key={msg.id} className={grouped ? "pt-0.5" : "pt-2 first:pt-0"}>
+                  {showDay && (
+                    <div className="flex justify-center py-2">
+                      <span className="rounded-full bg-card px-3 py-1 text-[11px] font-medium text-muted-foreground shadow-sm">
+                        {dayLabel === today
+                          ? "Today"
+                          : new Date(msg.created_at).toLocaleDateString([], { month: "short", day: "numeric" })}
+                      </span>
+                    </div>
+                  )}
+                  <MessageBubble
+                    message={msg}
+                    mine={msg.sender_id === profile?.id}
+                    avatar={otherUser?.avatar}
+                    name={otherUser?.name}
+                    hideAvatar={grouped}
+                  />
+
+                </div>
+              );
+            })}
+
 
             {otherTyping && (
               <div className="flex items-center gap-1 pl-9">

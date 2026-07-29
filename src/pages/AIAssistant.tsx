@@ -1,11 +1,13 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { Send, Sparkle, Trash2, ShieldCheck, Loader2 } from "lucide-react";
+import { Send, Sparkle, Trash2, ShieldCheck, Loader2, ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import AuthenticatedLayout from "@/components/AuthenticatedLayout";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { getSuggestions } from "@/lib/aiSuggestions";
 import propAi from "@/assets/prop-ai.png";
 
 interface AIMessage {
@@ -15,6 +17,7 @@ interface AIMessage {
 }
 
 const STORAGE_KEY = "prop-connect-ai-conversation";
+
 
 const QUICK_PROMPTS: Record<string, string[]> = {
   buyer: [
@@ -39,8 +42,10 @@ const QUICK_PROMPTS: Record<string, string[]> = {
 
 const AIAssistant = () => {
   const { profile, session } = useAuth() as any;
+  const navigate = useNavigate();
   const role: "buyer" | "agent" | "admin" =
     profile?.profile_type === "agent" ? "agent" : profile?.profile_type === "admin" ? "admin" : "buyer";
+
 
   const [messages, setMessages] = useState<AIMessage[]>(() => {
     if (typeof window === "undefined") return [];
@@ -164,6 +169,14 @@ const AIAssistant = () => {
 
   const prompts = QUICK_PROMPTS[role];
 
+  const suggestions = useMemo(() => {
+    if (streaming || messages.length === 0) return [];
+    const lastUser = [...messages].reverse().find((m) => m.role === "user")?.content || "";
+    const lastAssistant = [...messages].reverse().find((m) => m.role === "assistant")?.content || "";
+    return getSuggestions(lastUser, lastAssistant);
+  }, [messages, streaming]);
+
+
   return (
     <AuthenticatedLayout>
       <div className="flex min-h-[calc(100vh-3.5rem)] flex-col">
@@ -265,6 +278,25 @@ const AIAssistant = () => {
             </div>
           </div>
         )}
+
+        {/* Smart suggestions */}
+        {suggestions.length > 0 && (
+          <div className="px-4 pb-1">
+            <div className="container mx-auto flex max-w-3xl flex-wrap gap-2">
+              {suggestions.map((s) => (
+                <button
+                  key={s.label}
+                  onClick={() => (s.to ? navigate(s.to) : ask(s.ask || s.label))}
+                  className="animate-fade-in inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3.5 py-1.5 text-xs font-medium text-foreground transition-colors hover:border-primary/50 hover:bg-primary/5"
+                >
+                  {s.to ? <ArrowUpRight className="h-3.5 w-3.5 text-primary" /> : <Sparkle className="h-3.5 w-3.5 text-secondary" />}
+                  {s.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
 
         {/* Composer */}
         <div className="sticky bottom-0 border-t border-border bg-card/95 px-4 py-3 backdrop-blur">
