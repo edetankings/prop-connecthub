@@ -105,7 +105,11 @@ const ChatInbox = () => {
             .eq("seen", false)
             .neq("sender_id", profile.id),
           thread.property_id
-            ? (supabase as any).from("properties").select("property_code").eq("id", thread.property_id).maybeSingle()
+            ? (supabase as any)
+                .from("properties")
+                .select("property_code, title, image_url, status")
+                .eq("id", thread.property_id)
+                .maybeSingle()
             : Promise.resolve({ data: null }),
         ]);
 
@@ -119,7 +123,11 @@ const ChatInbox = () => {
           last_kind: lastMsg?.content ? parseAttachment(lastMsg.content)?.kind ?? "text" : null,
           unread_count: count || 0,
           property_code: property?.property_code ?? null,
+          property_title: property?.title ?? null,
+          property_image: property?.image_url ?? null,
+          property_status: property?.status ?? null,
         };
+
       })
     );
 
