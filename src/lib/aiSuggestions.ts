@@ -31,7 +31,7 @@ const RULES: Rule[] = [
     match: /\b(sell|selling|list my|become an agent|landlord|developer)\b/i,
     suggestions: [
       { label: "Become an Agent", to: "/register" },
-      { label: "Verify Account", to: "/identity-verification" },
+      { label: "Verify Account", to: "/verification" },
       { label: "Add Property", to: "/add-property" },
       { label: "Agent subscription", ask: "How much is the agent subscription and what do I get?" },
     ],
@@ -39,7 +39,7 @@ const RULES: Rule[] = [
   {
     match: /\b(escrow|secure payment|payment|refund|proof of payment)\b/i,
     suggestions: [
-      { label: "Secure Payments", to: "/buyer-secure-payments" },
+      { label: "Secure Payments", to: "/dashboard/buyer/secure-payments" },
       { label: "Wallet", to: "/earnings" },
       { label: "Talk to an Agent", to: "/agents" },
       { label: "Dispute process", ask: "What happens if I raise a dispute on an escrow transaction?" },
@@ -48,7 +48,7 @@ const RULES: Rule[] = [
   {
     match: /\b(kyc|verify|verification|trust score|badge)\b/i,
     suggestions: [
-      { label: "Verify Identity", to: "/identity-verification" },
+      { label: "Verify Identity", to: "/verification" },
       { label: "Trust Score explained", ask: "How is my Trust Score calculated and how do I raise it?" },
       { label: "Settings", to: "/settings" },
     ],
@@ -73,7 +73,7 @@ const RULES: Rule[] = [
     match: /\b(subscription|subscribe|plan|renew)\b/i,
     suggestions: [
       { label: "Subscription & Payments", to: "/payments" },
-      { label: "Verify Account", to: "/identity-verification" },
+      { label: "Verify Account", to: "/verification" },
     ],
   },
 ];
