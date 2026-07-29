@@ -21,7 +21,10 @@ interface Props {
   mine: boolean;
   avatar?: string | null;
   name?: string;
+  /** hide the avatar when this bubble is grouped under the previous one */
+  hideAvatar?: boolean;
 }
+
 
 const SignedMedia = ({ path, name, mime }: { path?: string; name?: string; mime?: string }) => {
   const [url, setUrl] = useState<string | null>(null);
