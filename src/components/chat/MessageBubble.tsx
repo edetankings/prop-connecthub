@@ -66,7 +66,7 @@ const SignedMedia = ({ path, name, mime }: { path?: string; name?: string; mime?
   );
 };
 
-export function MessageBubble({ message, mine, avatar, name }: Props) {
+export function MessageBubble({ message, mine, avatar, name, hideAvatar }: Props) {
   const att = parseAttachment(message.content);
   const blocked = message.is_blocked;
   const time = new Date(message.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
@@ -83,14 +83,18 @@ export function MessageBubble({ message, mine, avatar, name }: Props) {
 
   return (
     <div className={cn("flex items-end gap-2 animate-fade-in", mine ? "justify-end" : "justify-start")}>
-      {!mine && (
-        <Avatar className="h-7 w-7 shrink-0">
-          <AvatarImage src={avatar || undefined} />
-          <AvatarFallback className="bg-primary/10 text-[10px] font-semibold text-primary">
-            {name?.slice(0, 2).toUpperCase() || "?"}
-          </AvatarFallback>
-        </Avatar>
-      )}
+      {!mine &&
+        (hideAvatar ? (
+          <span className="h-7 w-7 shrink-0" aria-hidden />
+        ) : (
+          <Avatar className="h-7 w-7 shrink-0">
+            <AvatarImage src={avatar || undefined} />
+            <AvatarFallback className="bg-primary/10 text-[10px] font-semibold text-primary">
+              {name?.slice(0, 2).toUpperCase() || "?"}
+            </AvatarFallback>
+          </Avatar>
+        ))}
+
 
       <div
         className={cn(
