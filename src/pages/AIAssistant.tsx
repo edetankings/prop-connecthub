@@ -1,11 +1,13 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { Send, Sparkle, Trash2, ShieldCheck, Loader2 } from "lucide-react";
+import { Send, Sparkle, Trash2, ShieldCheck, Loader2, ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import AuthenticatedLayout from "@/components/AuthenticatedLayout";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { getSuggestions } from "@/lib/aiSuggestions";
 import propAi from "@/assets/prop-ai.png";
 
 interface AIMessage {
@@ -15,6 +17,7 @@ interface AIMessage {
 }
 
 const STORAGE_KEY = "prop-connect-ai-conversation";
+
 
 const QUICK_PROMPTS: Record<string, string[]> = {
   buyer: [
