@@ -279,6 +279,25 @@ const AIAssistant = () => {
           </div>
         )}
 
+        {/* Smart suggestions */}
+        {suggestions.length > 0 && (
+          <div className="px-4 pb-1">
+            <div className="container mx-auto flex max-w-3xl flex-wrap gap-2">
+              {suggestions.map((s) => (
+                <button
+                  key={s.label}
+                  onClick={() => (s.to ? navigate(s.to) : ask(s.ask || s.label))}
+                  className="animate-fade-in inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3.5 py-1.5 text-xs font-medium text-foreground transition-colors hover:border-primary/50 hover:bg-primary/5"
+                >
+                  {s.to ? <ArrowUpRight className="h-3.5 w-3.5 text-primary" /> : <Sparkle className="h-3.5 w-3.5 text-secondary" />}
+                  {s.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+
         {/* Composer */}
         <div className="sticky bottom-0 border-t border-border bg-card/95 px-4 py-3 backdrop-blur">
           <div className="container mx-auto max-w-3xl">
