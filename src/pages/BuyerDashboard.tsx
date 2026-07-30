@@ -243,7 +243,7 @@ const BuyerDashboard = () => {
                   className="animate-fade-in flex flex-col justify-between rounded-2xl border border-border bg-card p-4 shadow-card transition-all hover:-translate-y-0.5 hover:shadow-elevated"
                 >
                   <div className={`mb-3 flex h-9 w-9 items-center justify-center rounded-xl ${c.tint}`}>
-                    <c.icon className="h-4.5 w-4.5" />
+                    <c.icon className="h-5 w-5" />
                   </div>
                   <p className="font-display text-2xl font-bold text-foreground sm:text-3xl">{c.value}</p>
                   <p className="text-xs font-medium text-foreground/80">{c.label}</p>
