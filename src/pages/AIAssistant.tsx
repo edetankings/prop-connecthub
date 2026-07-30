@@ -16,7 +16,10 @@ interface AIMessage {
   content: string;
 }
 
-const STORAGE_KEY = "prop-connect-ai-conversation";
+const LEGACY_STORAGE_KEY = "prop-connect-ai-conversation";
+/** Conversations are namespaced per authenticated user so no history leaks between accounts. */
+const storageKeyFor = (userId?: string | null) =>
+  userId ? `prop-connect-ai-conversation:${userId}` : null;
 
 
 const QUICK_PROMPTS: Record<string, string[]> = {
