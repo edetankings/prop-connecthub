@@ -26,7 +26,7 @@ const VerificationBanner = () => {
           </div>
         </div>
         <Button size="sm" className="shrink-0 rounded-full px-5" asChild>
-          <Link to="/identity-verification">Verify Now</Link>
+          <Link to="/verification">Verify Now</Link>
         </Button>
       </div>
     </div>
