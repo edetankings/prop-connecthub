@@ -182,7 +182,7 @@ const AIAssistant = () => {
   const clearChat = () => {
     setMessages([]);
     try {
-      window.localStorage.removeItem(STORAGE_KEY);
+      if (storageKey) window.localStorage.removeItem(storageKey);
     } catch {
       /* ignore */
     }
