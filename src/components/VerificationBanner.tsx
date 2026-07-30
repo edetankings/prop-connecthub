@@ -1,4 +1,4 @@
-import { AlertTriangle } from "lucide-react";
+import { ShieldAlert } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useKYCVerification } from "@/hooks/useKYCVerification";
 import { Link } from "react-router-dom";
@@ -12,16 +12,23 @@ const VerificationBanner = () => {
   if (!profile || profile.kyc_verified || kycStatus === "pending" || kycStatus === "verified") return null;
 
   return (
-    <div className="bg-[hsl(var(--warning))]/10 border-b border-[hsl(var(--warning))]/30 px-4 py-2.5 flex items-center justify-between gap-3">
-      <div className="flex items-center gap-2 text-sm">
-        <AlertTriangle className="h-4 w-4 text-[hsl(var(--warning))] shrink-0" />
-        <span className="text-[hsl(var(--warning))] font-medium">
-          Complete your identity verification to unlock all features.
-        </span>
+    <div className="px-3 pt-3 sm:px-4">
+      <div className="mx-auto flex max-w-7xl flex-col gap-3 rounded-2xl border border-[hsl(var(--warning))]/25 bg-[hsl(var(--warning))]/[0.07] p-4 shadow-card sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-start gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[hsl(var(--warning))]/15">
+            <ShieldAlert className="h-5 w-5 text-[hsl(var(--warning))]" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-foreground">Complete Identity Verification</p>
+            <p className="text-xs text-muted-foreground">
+              Unlock secure payments, reservations and verified agents.
+            </p>
+          </div>
+        </div>
+        <Button size="sm" className="shrink-0 rounded-full px-5" asChild>
+          <Link to="/verification">Verify Now</Link>
+        </Button>
       </div>
-      <Button size="sm" variant="outline" className="border-[hsl(var(--warning))] text-[hsl(var(--warning))] hover:bg-[hsl(var(--warning))]/10 shrink-0" asChild>
-        <Link to="/identity-verification">Verify Now</Link>
-      </Button>
     </div>
   );
 };
