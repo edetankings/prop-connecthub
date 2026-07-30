@@ -16,7 +16,10 @@ interface AIMessage {
   content: string;
 }
 
-const STORAGE_KEY = "prop-connect-ai-conversation";
+const LEGACY_STORAGE_KEY = "prop-connect-ai-conversation";
+/** Conversations are namespaced per authenticated user so no history leaks between accounts. */
+const storageKeyFor = (userId?: string | null) =>
+  userId ? `prop-connect-ai-conversation:${userId}` : null;
 
 
 const QUICK_PROMPTS: Record<string, string[]> = {
@@ -41,33 +44,51 @@ const QUICK_PROMPTS: Record<string, string[]> = {
 };
 
 const AIAssistant = () => {
-  const { profile, session } = useAuth() as any;
+  const { profile, session, user } = useAuth() as any;
   const navigate = useNavigate();
+  const userId: string | undefined = user?.id ?? session?.user?.id;
+  const storageKey = storageKeyFor(userId);
   const role: "buyer" | "agent" | "admin" =
     profile?.profile_type === "agent" ? "agent" : profile?.profile_type === "admin" ? "admin" : "buyer";
 
 
-  const [messages, setMessages] = useState<AIMessage[]>(() => {
-    if (typeof window === "undefined") return [];
-    try {
-      const raw = window.localStorage.getItem(STORAGE_KEY);
-      return raw ? (JSON.parse(raw) as AIMessage[]) : [];
-    } catch {
-      return [];
-    }
-  });
+  const [messages, setMessages] = useState<AIMessage[]>([]);
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const hydratedFor = useRef<string | null>(null);
+
+  // Load (or reset) the conversation whenever the signed-in user changes.
+  useEffect(() => {
+    // Drop the legacy shared key so old cross-account history can never surface.
+    try {
+      window.localStorage.removeItem(LEGACY_STORAGE_KEY);
+    } catch {
+      /* ignore */
+    }
+    if (!storageKey) {
+      hydratedFor.current = null;
+      setMessages([]);
+      return;
+    }
+    try {
+      const raw = window.localStorage.getItem(storageKey);
+      setMessages(raw ? (JSON.parse(raw) as AIMessage[]) : []);
+    } catch {
+      setMessages([]);
+    }
+    hydratedFor.current = storageKey;
+  }, [storageKey]);
 
   useEffect(() => {
+    if (!storageKey || hydratedFor.current !== storageKey) return;
     try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(messages.slice(-50)));
+      window.localStorage.setItem(storageKey, JSON.stringify(messages.slice(-50)));
     } catch {
       /* storage full — ignore */
     }
-  }, [messages]);
+  }, [messages, storageKey]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -161,7 +182,7 @@ const AIAssistant = () => {
   const clearChat = () => {
     setMessages([]);
     try {
-      window.localStorage.removeItem(STORAGE_KEY);
+      if (storageKey) window.localStorage.removeItem(storageKey);
     } catch {
       /* ignore */
     }
