@@ -1,11 +1,11 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, Search, MessageCircle, BookmarkCheck, User } from "lucide-react";
+import { Home, Search, MessageCircle, ShieldCheck, User } from "lucide-react";
 
 const items = [
   { to: "/dashboard/buyer", label: "Home", icon: Home },
   { to: "/properties", label: "Search", icon: Search },
   { to: "/messages", label: "Chats", icon: MessageCircle },
-  { to: "/reservations", label: "Bookings", icon: BookmarkCheck },
+  { to: "/dashboard/buyer/secure-payments", label: "Payments", icon: ShieldCheck },
   { to: "/settings", label: "Profile", icon: User },
 ];
 
@@ -22,9 +22,7 @@ const BottomNav = () => {
               <Link
                 to={to}
                 className={`flex flex-col items-center gap-0.5 rounded-xl px-1 py-1.5 text-[10px] font-medium transition-all ${
-                  active
-                    ? "bg-primary/10 text-primary"
-                    : "text-muted-foreground hover:text-foreground"
+                  active ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 <Icon className={`h-5 w-5 transition-transform ${active ? "scale-110" : ""}`} />
