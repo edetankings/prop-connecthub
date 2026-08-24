@@ -8,6 +8,26 @@ const TikTokIcon = () => (
   </svg>
 );
 
+const platformLinks = [
+  { to: "/properties", label: "Browse Properties" },
+  { to: "/agents", label: "Find an Agent" },
+  { to: "/add-property", label: "List a Property" },
+  { to: "/payments", label: "Secure Transactions" },
+  { to: "/messages", label: "Messages" },
+  { to: "/ai-assistant", label: "Prop-Connect AI" },
+  { to: "/announcements", label: "Announcements" },
+];
+
+const trustLinks = [
+  { to: "/trust/safety-center", label: "Safety Center" },
+  { to: "/trust/escrow-protection", label: "Escrow Protection" },
+  { to: "/trust/agent-verification", label: "Agent Verification" },
+  { to: "/trust/property-verification", label: "Property Verification" },
+  { to: "/trust/fraud-prevention", label: "Fraud Prevention" },
+  { to: "/trust/code-of-conduct", label: "Code of Conduct" },
+  { to: "/privacy", label: "NDPR & Privacy" },
+];
+
 const Footer = () => (
   <footer className="border-t border-border bg-primary text-primary-foreground" role="contentinfo">
     <div className="container mx-auto px-4 py-12">
@@ -34,19 +54,21 @@ const Footer = () => (
         <div>
           <h4 className="mb-3 font-display text-sm font-semibold uppercase tracking-wider text-secondary">Platform</h4>
           <div className="flex flex-col gap-2">
-            <Link to="/properties" className="text-sm text-primary-foreground/70 hover:text-primary-foreground">Properties</Link>
-            <Link to="/agents" className="text-sm text-primary-foreground/70 hover:text-primary-foreground">Find Agents</Link>
-            <Link to="/announcements" className="text-sm text-primary-foreground/70 hover:text-primary-foreground">Announcements</Link>
-            <Link to="/analytics" className="text-sm text-primary-foreground/70 hover:text-primary-foreground">Analytics</Link>
+            {platformLinks.map((l) => (
+              <Link key={l.to} to={l.to} className="text-sm text-primary-foreground/70 hover:text-primary-foreground">
+                {l.label}
+              </Link>
+            ))}
           </div>
         </div>
         <div>
           <h4 className="mb-3 font-display text-sm font-semibold uppercase tracking-wider text-secondary">Trust & Safety</h4>
           <div className="flex flex-col gap-2">
-            <span className="text-sm text-primary-foreground/70">Escrow Protection</span>
-            <span className="text-sm text-primary-foreground/70">Agent Verification</span>
-            <span className="text-sm text-primary-foreground/70">Code of Conduct</span>
-            <span className="text-sm text-primary-foreground/70">NDPR Compliance</span>
+            {trustLinks.map((l) => (
+              <Link key={l.to} to={l.to} className="text-sm text-primary-foreground/70 hover:text-primary-foreground">
+                {l.label}
+              </Link>
+            ))}
           </div>
         </div>
         <div>
