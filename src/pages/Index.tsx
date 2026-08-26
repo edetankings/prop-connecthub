@@ -106,6 +106,7 @@ const Index = () => {
   const [agents, setAgents] = useState<DBAgent[]>([]);
   const [properties, setProperties] = useState<DBProperty[]>([]);
   const [search, setSearch] = useState({ location: "", type: "any", price: "any" });
+  const [stats, setStats] = useState<{ buyers: number; verified_agents: number; live_listings: number; secured_escrow: number } | null>(null);
 
   const heroRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
