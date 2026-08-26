@@ -369,10 +369,10 @@ const Index = () => {
       <section className="bg-card border-y border-border py-20">
         <div className="container mx-auto grid grid-cols-2 gap-y-10 px-4 md:grid-cols-4">
           {[
-            { v: "12K+", l: "Verified Buyers", icon: Users },
-            { v: "850+", l: "Trusted Agents", icon: BadgeCheck },
-            { v: "₦18B", l: "Secured in Escrow", icon: Shield },
-            { v: "98%", l: "Success Rate", icon: TrendingUp },
+            { v: formatCount(stats?.buyers), l: "Registered Buyers", icon: Users },
+            { v: formatCount(stats?.verified_agents), l: "Verified Agents", icon: BadgeCheck },
+            { v: formatCount(stats?.live_listings), l: "Live Listings", icon: Building2 },
+            { v: formatNaira(stats?.secured_escrow), l: "Secured in Escrow", icon: Shield },
           ].map((s, i) => (
             <Reveal key={s.l} delay={i * 0.08} className="text-center">
               <s.icon className="mx-auto mb-3 h-5 w-5 text-secondary" />
