@@ -346,7 +346,7 @@ const PropertyDetail = () => {
           <div className="min-w-0">
             {/* Image Gallery */}
             <div className="w-full overflow-hidden rounded-xl bg-muted cursor-zoom-in aspect-[4/3] sm:aspect-video max-h-[68vh]" onClick={() => setLightboxIdx(0)}>
-              <img src={allImages[0]} alt={title} className="block h-full w-full object-contain transition-transform hover:scale-[1.02]" />
+              <img src={allImages[0]} alt={title} className="block h-full w-full object-cover object-center transition-transform hover:scale-[1.02]" />
             </div>
             {allImages.length > 1 && (
               <div className="mt-3 flex w-full max-w-full gap-2 overflow-x-auto overscroll-x-contain pb-2 -mx-1 px-1">
