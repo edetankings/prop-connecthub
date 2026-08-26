@@ -123,6 +123,9 @@ const Index = () => {
       .eq("profile_type", "agent")
       .order("trust_score", { ascending: false }).limit(3)
       .then(({ data }: any) => setAgents((data as DBAgent[]) || []));
+    (supabase as any).rpc("get_platform_stats").then(({ data }: any) => {
+      if (data?.[0]) setStats(data[0]);
+    });
   }, []);
 
   const handleSearch = (e: React.FormEvent) => {
