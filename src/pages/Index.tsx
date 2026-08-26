@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import PropertyCarousel from "@/components/PropertyCarousel";
 import CinematicFAQ from "@/components/CinematicFAQ";
 import SecurePaymentFlow from "@/components/SecurePaymentFlow";
 import AgentCard from "@/components/AgentCard";
@@ -115,7 +116,7 @@ const Index = () => {
   useEffect(() => {
     supabase.from("properties").select("*")
       .in("status", ["available", "for_sale", "for_rent"])
-      .order("created_at", { ascending: false }).limit(6)
+      .order("created_at", { ascending: false }).limit(12)
       .then(({ data }) => setProperties((data as DBProperty[]) || []));
     (supabase as any).from("public_profiles").select("*")
       .eq("profile_type", "agent")
@@ -270,22 +271,20 @@ const Index = () => {
           <Reveal>
             <p className="text-xs uppercase tracking-[0.3em] text-secondary">— Discover</p>
             <h2 className="mt-3 max-w-2xl font-display text-4xl font-semibold leading-tight md:text-6xl">
-              Curated homes,<br />cinematically presented.
+              Curated homes.
             </h2>
           </Reveal>
           <Reveal delay={0.15}>
             <Link to="/properties">
               <Button variant="ghost" className="group gap-2 text-foreground">
-                Explore all <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                See All Properties <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Button>
             </Link>
           </Reveal>
         </div>
 
         {properties.length > 0 ? (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {properties.map((p, i) => <CinematicCard key={p.id} p={p} index={i} />)}
-          </div>
+          <PropertyCarousel properties={properties} />
         ) : (
           <p className="py-16 text-center text-muted-foreground">No properties yet. Check back soon.</p>
         )}

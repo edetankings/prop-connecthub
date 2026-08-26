@@ -32,6 +32,12 @@ import Payments from "./pages/Payments";
 import NotFound from "./pages/NotFound";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
+import SafetyCenter from "./pages/trust/SafetyCenter";
+import EscrowProtection from "./pages/trust/EscrowProtection";
+import AgentVerification from "./pages/trust/AgentVerification";
+import PropertyVerification from "./pages/trust/PropertyVerification";
+import FraudPrevention from "./pages/trust/FraudPrevention";
+import CodeOfConduct from "./pages/trust/CodeOfConduct";
 import InvestingInNigeria from "./pages/InvestingInNigeria";
 import SecurePayment from "./pages/SecurePayment";
 import AgentDeals from "./pages/AgentDeals";
@@ -75,6 +81,12 @@ const App = () => (
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/privacy" element={<Privacy />} />
+            <Route path="/trust/safety-center" element={<SafetyCenter />} />
+            <Route path="/trust/escrow-protection" element={<EscrowProtection />} />
+            <Route path="/trust/agent-verification" element={<AgentVerification />} />
+            <Route path="/trust/property-verification" element={<PropertyVerification />} />
+            <Route path="/trust/fraud-prevention" element={<FraudPrevention />} />
+            <Route path="/trust/code-of-conduct" element={<CodeOfConduct />} />
             <Route path="/guides/investing-in-nigeria" element={<InvestingInNigeria />} />
             {/* Role-based dashboard router */}
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
