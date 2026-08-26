@@ -8,6 +8,13 @@
       "when": 1787731508432,
       "tag": "0000_harden_audit_logs_and_commission_settings",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1787732411147,
+      "tag": "0001_platform_stats_rpc",
+      "breakpoints": true
     }
   ]
 }
