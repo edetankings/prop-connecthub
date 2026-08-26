@@ -242,11 +242,10 @@ const AdminDashboard = () => {
         link: "/dashboard",
       });
 
-      // Log audit
-      await (supabase as any).from("audit_logs").insert({
-        user_id: user?.id,
-        action: "verify_agent",
-        details: { profile_id: profileId, agent_name: targetProfile.full_name },
+      // Log audit (server-side, admin-only RPC)
+      await (supabase as any).rpc("log_admin_action", {
+        _action: "verify_agent",
+        _details: { profile_id: profileId, agent_name: targetProfile.full_name },
       });
     }
 
@@ -272,10 +271,9 @@ const AdminDashboard = () => {
     // Ensure profile is not marked verified
     await supabase.from("profiles").update({ kyc_verified: false }).eq("id", profileId);
 
-    await (supabase as any).from("audit_logs").insert({
-      user_id: user?.id,
-      action: "reject_kyc",
-      details: { profile_id: profileId, reason: reason.trim() },
+    await (supabase as any).rpc("log_admin_action", {
+      _action: "reject_kyc",
+      _details: { profile_id: profileId, reason: reason.trim() },
     });
 
     toast.success("KYC rejected and user notified");
