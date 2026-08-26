@@ -74,11 +74,13 @@ const Properties = () => {
     return matchSearch && matchType && matchState && matchPrice && matchBeds;
   });
 
+  const created = (p: DBProperty) => (p as { created_at?: string }).created_at || "";
+
   const filtered = [...filteredAll].sort((a, b) => {
     if (sortBy === "price_asc") return (Number(a.price) || 0) - (Number(b.price) || 0);
     if (sortBy === "price_desc") return (Number(b.price) || 0) - (Number(a.price) || 0);
-    if (sortBy === "oldest") return (a.created_at || "").localeCompare(b.created_at || "");
-    return (b.created_at || "").localeCompare(a.created_at || "");
+    if (sortBy === "oldest") return created(a).localeCompare(created(b));
+    return created(b).localeCompare(created(a));
   });
 
   const shown = filtered.slice(0, visible);
