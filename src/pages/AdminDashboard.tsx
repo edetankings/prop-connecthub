@@ -271,10 +271,9 @@ const AdminDashboard = () => {
     // Ensure profile is not marked verified
     await supabase.from("profiles").update({ kyc_verified: false }).eq("id", profileId);
 
-    await (supabase as any).from("audit_logs").insert({
-      user_id: user?.id,
-      action: "reject_kyc",
-      details: { profile_id: profileId, reason: reason.trim() },
+    await (supabase as any).rpc("log_admin_action", {
+      _action: "reject_kyc",
+      _details: { profile_id: profileId, reason: reason.trim() },
     });
 
     toast.success("KYC rejected and user notified");
