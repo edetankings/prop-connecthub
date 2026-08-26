@@ -1496,6 +1496,15 @@ export type Database = {
         }[]
       }
       get_my_profile_id: { Args: never; Returns: string }
+      get_platform_stats: {
+        Args: never
+        Returns: {
+          buyers: number
+          live_listings: number
+          secured_escrow: number
+          verified_agents: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

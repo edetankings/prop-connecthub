@@ -106,6 +106,7 @@ const Index = () => {
   const [agents, setAgents] = useState<DBAgent[]>([]);
   const [properties, setProperties] = useState<DBProperty[]>([]);
   const [search, setSearch] = useState({ location: "", type: "any", price: "any" });
+  const [stats, setStats] = useState<{ buyers: number; verified_agents: number; live_listings: number; secured_escrow: number } | null>(null);
 
   const heroRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
@@ -122,6 +123,9 @@ const Index = () => {
       .eq("profile_type", "agent")
       .order("trust_score", { ascending: false }).limit(3)
       .then(({ data }: any) => setAgents((data as DBAgent[]) || []));
+    (supabase as any).rpc("get_platform_stats").then(({ data }: any) => {
+      if (data?.[0]) setStats(data[0]);
+    });
   }, []);
 
   const handleSearch = (e: React.FormEvent) => {
@@ -365,10 +369,10 @@ const Index = () => {
       <section className="bg-card border-y border-border py-20">
         <div className="container mx-auto grid grid-cols-2 gap-y-10 px-4 md:grid-cols-4">
           {[
-            { v: "12K+", l: "Verified Buyers", icon: Users },
-            { v: "850+", l: "Trusted Agents", icon: BadgeCheck },
-            { v: "₦18B", l: "Secured in Escrow", icon: Shield },
-            { v: "98%", l: "Success Rate", icon: TrendingUp },
+            { v: formatCount(stats?.buyers), l: "Registered Buyers", icon: Users },
+            { v: formatCount(stats?.verified_agents), l: "Verified Agents", icon: BadgeCheck },
+            { v: formatCount(stats?.live_listings), l: "Live Listings", icon: Building2 },
+            { v: formatNaira(stats?.secured_escrow), l: "Secured in Escrow", icon: Shield },
           ].map((s, i) => (
             <Reveal key={s.l} delay={i * 0.08} className="text-center">
               <s.icon className="mx-auto mb-3 h-5 w-5 text-secondary" />
