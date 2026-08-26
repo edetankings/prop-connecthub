@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1787731508432,
+      "tag": "0000_harden_audit_logs_and_commission_settings",
+      "breakpoints": true
+    }
+  ]
+}
