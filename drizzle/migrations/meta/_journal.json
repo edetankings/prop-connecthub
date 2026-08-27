@@ -29,6 +29,13 @@
       "when": 1787828349396,
       "tag": "0003_restrict_anon_table_grants",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1787828593001,
+      "tag": "0004_split_properties_select_policy",
+      "breakpoints": true
     }
   ]
 }
