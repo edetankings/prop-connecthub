@@ -27,6 +27,20 @@ const fadeUp = {
   show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] as const } },
 } as const;
 
+const formatCount = (n?: number) =>
+  n == null ? "—" : n >= 1000 ? `${(n / 1000).toFixed(n >= 10000 ? 0 : 1)}K` : `${n}`;
+
+const formatNaira = (n?: number) =>
+  n == null
+    ? "—"
+    : n >= 1_000_000_000
+      ? `₦${(n / 1_000_000_000).toFixed(1)}B`
+      : n >= 1_000_000
+        ? `₦${(n / 1_000_000).toFixed(1)}M`
+        : n >= 1_000
+          ? `₦${(n / 1_000).toFixed(0)}K`
+          : `₦${n}`;
+
 const Reveal = ({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) => {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
