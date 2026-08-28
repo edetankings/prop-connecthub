@@ -1,7 +1,5 @@
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { createClient } from "npm:@supabase/supabase-js@2";
+import { corsFor } from "../_shared/cors.ts";
 
 const SYSTEM_PROMPTS: Record<string, string> = {
   buyer: `You are Prop Connect AI, the in-app real estate assistant for PROP-CONNECT, a secure Nigerian property marketplace.
@@ -39,22 +37,72 @@ Rules:
 - If asked something outside real estate or the platform, briefly redirect to how you can help with property.
 ${PLATFORM_KNOWLEDGE}`;
 
+const MAX_MESSAGES = 40;
+const MAX_CHARS = 4000;
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  const cors = corsFor(req);
+  if (req.method === "OPTIONS") return new Response(null, { headers: cors });
+
+  const fail = (error: string, status: number) =>
+    new Response(JSON.stringify({ error }), {
+      status,
+      headers: { ...cors, "Content-Type": "application/json" },
+    });
 
   try {
+    if (req.method !== "POST") return fail("Method not allowed", 405);
+
+    // --- Authentication: signed-in users only ---
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) return fail("Unauthorized", 401);
+
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+      { global: { headers: { Authorization: authHeader } } },
+    );
+
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(token);
+    const userId = claimsData?.claims?.sub;
+    if (claimsError || !userId) return fail("Unauthorized", 401);
+
     const apiKey = Deno.env.get("LOVABLE_API_KEY");
-    if (!apiKey) {
-      return new Response(JSON.stringify({ error: "AI is not configured" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+    if (!apiKey) return fail("AI is not configured", 500);
 
-    const { messages = [], role = "buyer", userName } = await req.json();
+    const body = await req.json().catch(() => null);
+    if (!body || typeof body !== "object") return fail("Invalid request body", 400);
 
-    const system = `${SYSTEM_PROMPTS[role] ?? SYSTEM_PROMPTS.buyer}${BASE_RULES}${
+    const rawMessages = Array.isArray((body as any).messages) ? (body as any).messages : [];
+    const messages = rawMessages
+      .filter(
+        (m: any) =>
+          m && (m.role === "user" || m.role === "assistant") && typeof m.content === "string",
+      )
+      .slice(-MAX_MESSAGES)
+      .map((m: any) => ({ role: m.role, content: m.content.slice(0, MAX_CHARS) }));
+
+    if (messages.length === 0) return fail("At least one message is required", 400);
+
+    const requestedRole = typeof (body as any).role === "string" ? (body as any).role : "buyer";
+
+    // --- Authorization: the role prompt must match the caller's real profile ---
+    const [{ data: profile }, { data: isAdmin }] = await Promise.all([
+      supabase.from("profiles").select("profile_type, full_name").eq("user_id", userId).maybeSingle(),
+      supabase.rpc("has_role", { _user_id: userId, _role: "admin" }),
+    ]);
+
+    let role: "buyer" | "agent" | "admin" = "buyer";
+    if (isAdmin === true) role = "admin";
+    else if (profile?.profile_type === "agent" || profile?.profile_type === "builder") role = "agent";
+    // Never grant a higher-privilege prompt than the caller actually holds.
+    if (requestedRole === "buyer") role = role === "buyer" ? "buyer" : role;
+
+    const userName =
+      typeof profile?.full_name === "string" ? profile.full_name.split(" ")[0] : undefined;
+
+    const system = `${SYSTEM_PROMPTS[role]}${BASE_RULES}${
       userName ? `\nThe user's name is ${userName}.` : ""
     }`;
 
@@ -64,10 +112,7 @@ Deno.serve(async (req) => {
       body: JSON.stringify({
         model: "google/gemini-3.6-flash",
         stream: true,
-        messages: [
-          { role: "system", content: system },
-          ...messages.slice(-30).map((m: any) => ({ role: m.role, content: m.content })),
-        ],
+        messages: [{ role: "system", content: system }, ...messages],
       }),
     });
 
@@ -80,20 +125,14 @@ Deno.serve(async (req) => {
           : upstream.status === 402
           ? "AI credits exhausted. Please contact support."
           : "The assistant is unavailable right now.";
-      return new Response(JSON.stringify({ error: msg, status: upstream.status }), {
-        status: upstream.status,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return fail(msg, upstream.status);
     }
 
     return new Response(upstream.body, {
-      headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
+      headers: { ...cors, "Content-Type": "text/event-stream" },
     });
   } catch (e) {
     console.error("prop-ai failure", e);
-    return new Response(JSON.stringify({ error: "Unexpected error" }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return fail("Unexpected error", 500);
   }
 });
