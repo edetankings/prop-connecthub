@@ -112,17 +112,22 @@ const AIAssistant = () => {
       const assistantId = crypto.randomUUID();
       let acc = "";
 
+      if (!session?.access_token) {
+        setMessages(messages);
+        toast.error("Please sign in to chat with Prop Connect AI.");
+        setStreaming(false);
+        return;
+      }
+
       try {
         const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/prop-ai`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            Authorization: `Bearer ${session.access_token}`,
             apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
           },
           body: JSON.stringify({
-            role,
-            userName: profile?.full_name?.split(" ")[0],
             messages: history.map((m) => ({ role: m.role, content: m.content })),
           }),
         });
