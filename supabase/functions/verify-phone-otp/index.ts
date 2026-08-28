@@ -1,11 +1,9 @@
 // supabase/functions/verify-phone-otp/index.ts
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { corsFor } from "../_shared/cors.ts";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-};
+let corsHeaders: Record<string, string> = {};
+
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -23,6 +21,7 @@ async function sha256(text: string) {
 }
 
 Deno.serve(async (req) => {
+  corsHeaders = corsFor(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
@@ -51,6 +50,7 @@ Deno.serve(async (req) => {
       .select("id, otp_hash, expires_at, attempts, max_attempts")
       .eq("phone", normalized)
       .eq("purpose", "verify_phone")
+      .eq("user_id", userRes.user.id)
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
@@ -95,7 +95,8 @@ Deno.serve(async (req) => {
       .from("phone_otp_challenges")
       .delete()
       .eq("phone", normalized)
-      .eq("purpose", "verify_phone");
+      .eq("purpose", "verify_phone")
+      .eq("user_id", userRes.user.id);
 
     return json({ ok: true });
   } catch (e: any) {
