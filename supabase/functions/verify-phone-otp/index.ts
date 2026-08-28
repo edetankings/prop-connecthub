@@ -2,6 +2,8 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { corsFor } from "../_shared/cors.ts";
 
+let corsHeaders: Record<string, string> = {};
+
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -19,7 +21,7 @@ async function sha256(text: string) {
 }
 
 Deno.serve(async (req) => {
-  const corsHeaders = corsFor(req);
+  corsHeaders = corsFor(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
@@ -48,6 +50,7 @@ Deno.serve(async (req) => {
       .select("id, otp_hash, expires_at, attempts, max_attempts")
       .eq("phone", normalized)
       .eq("purpose", "verify_phone")
+      .eq("user_id", userRes.user.id)
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
@@ -92,7 +95,8 @@ Deno.serve(async (req) => {
       .from("phone_otp_challenges")
       .delete()
       .eq("phone", normalized)
-      .eq("purpose", "verify_phone");
+      .eq("purpose", "verify_phone")
+      .eq("user_id", userRes.user.id);
 
     return json({ ok: true });
   } catch (e: any) {

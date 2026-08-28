@@ -2,6 +2,8 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { corsFor } from "../_shared/cors.ts";
 
+let corsHeaders: Record<string, string> = {};
+
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -25,7 +27,7 @@ async function sha256(text: string) {
 }
 
 Deno.serve(async (req) => {
-  const corsHeaders = corsFor(req);
+  corsHeaders = corsFor(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
