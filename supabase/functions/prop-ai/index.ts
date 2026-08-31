@@ -63,10 +63,20 @@ Deno.serve(async (req) => {
       { global: { headers: { Authorization: authHeader } } },
     );
 
-    const token = authHeader.replace("Bearer ", "");
+    const token = authHeader.replace("Bearer ", "").trim();
+    let userId: string | undefined;
     const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(token);
-    const userId = claimsData?.claims?.sub;
-    if (claimsError || !userId) return fail("Unauthorized", 401);
+    userId = claimsData?.claims?.sub as string | undefined;
+    if (!userId) {
+      // Fallback for tokens getClaims cannot verify locally (e.g. legacy signing keys).
+      const { data: userData, error: userError } = await supabase.auth.getUser(token);
+      userId = userData?.user?.id;
+      if (!userId) {
+        console.error("prop-ai auth rejected", claimsError?.message, userError?.message);
+        return fail("Your session expired. Please sign in again.", 401);
+      }
+    }
+
 
     const apiKey = Deno.env.get("LOVABLE_API_KEY");
     if (!apiKey) return fail("AI is not configured", 500);
