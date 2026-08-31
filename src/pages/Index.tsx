@@ -191,7 +191,7 @@ const Index = () => {
             transition={{ duration: 1, delay: 0.2 }}
             className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-medium tracking-widest uppercase backdrop-blur-md"
           >
-            <Sparkles className="h-3 w-3 text-secondary" /> Nigeria's Premium Property Experience
+            Nigeria's Premium Property Experience
           </motion.div>
 
           <motion.h1
