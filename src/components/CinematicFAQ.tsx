@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
-import { Plus, Sparkles } from "lucide-react";
+import { Plus } from "lucide-react";
 
 const FAQS = [
   {
