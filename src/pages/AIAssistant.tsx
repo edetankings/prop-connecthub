@@ -6,6 +6,8 @@ import { Send, Sparkle, Trash2, ShieldCheck, Loader2, ArrowUpRight } from "lucid
 import { Button } from "@/components/ui/button";
 import AuthenticatedLayout from "@/components/AuthenticatedLayout";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+
 import { toast } from "sonner";
 import { getSuggestions } from "@/lib/aiSuggestions";
 import propAi from "@/assets/prop-ai.png";
