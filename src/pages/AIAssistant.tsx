@@ -112,30 +112,46 @@ const AIAssistant = () => {
       const assistantId = crypto.randomUUID();
       let acc = "";
 
-      if (!session?.access_token) {
+      // Always use a FRESH token: a stale/expired JWT is rejected by the API gateway
+      // before our function runs, which the browser surfaces as "Failed to fetch".
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData.session?.access_token;
+
+      if (!accessToken) {
         setMessages(messages);
-        toast.error("Please sign in to chat with Prop Connect AI.");
+        toast.error("Your session expired. Please sign in again to chat with Prop Connect AI.");
         setStreaming(false);
         return;
       }
 
       try {
-        const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/prop-ai`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${session.access_token}`,
-            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-          },
-          body: JSON.stringify({
-            messages: history.map((m) => ({ role: m.role, content: m.content })),
-          }),
-        });
+        let res: Response;
+        try {
+          res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/prop-ai`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${accessToken}`,
+              apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            },
+            body: JSON.stringify({
+              messages: history.map((m) => ({ role: m.role, content: m.content })),
+            }),
+          });
+        } catch {
+          // Network-level failure (offline, blocked request, gateway rejection without CORS)
+          throw new Error("Couldn't reach Prop Connect AI. Check your connection and try again.");
+        }
+
+        if (res.status === 401) {
+          throw new Error("Your session expired. Please sign in again to continue.");
+        }
 
         if (!res.ok || !res.body) {
           const body = await res.json().catch(() => ({}));
           throw new Error(body.error || "The assistant is unavailable right now.");
         }
+
 
         setMessages((prev) => [...prev, { id: assistantId, role: "assistant", content: "" }]);
 

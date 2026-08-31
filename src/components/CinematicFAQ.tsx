@@ -71,7 +71,7 @@ const CinematicFAQ = () => {
           transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
         >
           <div className="inline-flex items-center gap-2 rounded-full border border-secondary/30 bg-secondary/10 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.3em] text-secondary backdrop-blur-md">
-            <Sparkles className="h-3 w-3" /> FAQ
+            FAQ
           </div>
           <h2 className="mt-6 font-display text-4xl font-semibold leading-[1.05] tracking-tight md:text-6xl">
             Questions,<br />
