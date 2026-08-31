@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
   Search, Shield, ChevronDown, MapPin, Bed, Bath, ArrowRight,
-  Sparkles, Lock, BadgeCheck, Building2, Users, TrendingUp,
+  Lock, BadgeCheck, Building2, Users, TrendingUp,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
