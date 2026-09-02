@@ -36,6 +36,13 @@
       "when": 1787828593001,
       "tag": "0004_split_properties_select_policy",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1788348170806,
+      "tag": "0005_lock_chat_reservation_update_columns",
+      "breakpoints": true
     }
   ]
 }
