@@ -43,6 +43,13 @@
       "when": 1788348170806,
       "tag": "0005_lock_chat_reservation_update_columns",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1791039285479,
+      "tag": "0006_deal_room_inspections",
+      "breakpoints": true
     }
   ]
 }

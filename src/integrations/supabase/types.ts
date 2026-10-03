@@ -194,6 +194,41 @@ export type Database = {
         }
         Relationships: []
       }
+      deal_events: {
+        Row: {
+          actor_id: string | null
+          created_at: string
+          deal_id: string
+          details: string | null
+          event: string
+          id: string
+        }
+        Insert: {
+          actor_id?: string | null
+          created_at?: string
+          deal_id: string
+          details?: string | null
+          event: string
+          id?: string
+        }
+        Update: {
+          actor_id?: string | null
+          created_at?: string
+          deal_id?: string
+          details?: string | null
+          event?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_events_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deal_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       deal_requests: {
         Row: {
           accepted_at: string | null
@@ -202,11 +237,13 @@ export type Database = {
           buyer_id: string
           buyer_message: string | null
           created_at: string
+          deal_number: string | null
           decline_reason: string | null
           declined_at: string | null
           id: string
           property_code: string | null
           property_id: string
+          stage: string
           status: string
           transaction_id: string | null
           updated_at: string
@@ -218,11 +255,13 @@ export type Database = {
           buyer_id: string
           buyer_message?: string | null
           created_at?: string
+          deal_number?: string | null
           decline_reason?: string | null
           declined_at?: string | null
           id?: string
           property_code?: string | null
           property_id: string
+          stage?: string
           status?: string
           transaction_id?: string | null
           updated_at?: string
@@ -234,11 +273,13 @@ export type Database = {
           buyer_id?: string
           buyer_message?: string | null
           created_at?: string
+          deal_number?: string | null
           decline_reason?: string | null
           declined_at?: string | null
           id?: string
           property_code?: string | null
           property_id?: string
+          stage?: string
           status?: string
           transaction_id?: string | null
           updated_at?: string
@@ -935,45 +976,60 @@ export type Database = {
       reservations: {
         Row: {
           agent_id: string | null
+          agent_note: string | null
           buyer_email: string | null
           buyer_id: string
           buyer_name: string | null
           buyer_phone: string | null
           created_at: string
           id: string
+          inspection_status: string
+          inspection_time: string | null
           message: string | null
           notes: string | null
           property_id: string
+          proposed_date: string | null
+          proposed_time: string | null
           status: Database["public"]["Enums"]["reservation_status"]
           updated_at: string
           viewing_date: string | null
         }
         Insert: {
           agent_id?: string | null
+          agent_note?: string | null
           buyer_email?: string | null
           buyer_id: string
           buyer_name?: string | null
           buyer_phone?: string | null
           created_at?: string
           id?: string
+          inspection_status?: string
+          inspection_time?: string | null
           message?: string | null
           notes?: string | null
           property_id: string
+          proposed_date?: string | null
+          proposed_time?: string | null
           status?: Database["public"]["Enums"]["reservation_status"]
           updated_at?: string
           viewing_date?: string | null
         }
         Update: {
           agent_id?: string | null
+          agent_note?: string | null
           buyer_email?: string | null
           buyer_id?: string
           buyer_name?: string | null
           buyer_phone?: string | null
           created_at?: string
           id?: string
+          inspection_status?: string
+          inspection_time?: string | null
           message?: string | null
           notes?: string | null
           property_id?: string
+          proposed_date?: string | null
+          proposed_time?: string | null
           status?: Database["public"]["Enums"]["reservation_status"]
           updated_at?: string
           viewing_date?: string | null
@@ -1464,12 +1520,30 @@ export type Database = {
     }
     Functions: {
       accept_deal: { Args: { _request_id: string }; Returns: string }
+      advance_deal_stage: {
+        Args: { _deal_id: string; _stage: string }
+        Returns: undefined
+      }
+      agent_respond_inspection: {
+        Args: {
+          _action: string
+          _date?: string
+          _id: string
+          _note?: string
+          _time?: string
+        }
+        Returns: undefined
+      }
       approve_secure_payment: {
         Args: { _transaction_id: string }
         Returns: undefined
       }
       approve_withdrawal: {
         Args: { _id: string; _note: string }
+        Returns: undefined
+      }
+      buyer_respond_inspection: {
+        Args: { _action: string; _id: string }
         Returns: undefined
       }
       decline_deal: {

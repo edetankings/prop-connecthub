@@ -58,7 +58,11 @@ const PropertyDetail = () => {
     buyer_name: "",
     viewing_date: "",
     message: "",
+    inspection_time: "",
   });
+  const [showDealSummary, setShowDealSummary] = useState(false);
+  const [dealMessage, setDealMessage] = useState("");
+  const [dealId, setDealId] = useState<string | null>(null);
 
   // Try mock data as fallback
   const mockProperty = properties.find((p) => p.id === id);
@@ -111,7 +115,7 @@ const PropertyDetail = () => {
       .select("id")
       .eq("buyer_id", profile.id)
       .eq("property_id", id)
-      .in("status", ["pending", "confirmed"])
+      .in("inspection_status", ["requested", "confirmed", "reschedule_proposed"])
       .maybeSingle()
       .then(({ data }: any) => setAlreadyReserved(!!data));
   }, [profile?.id, id]);
@@ -121,13 +125,13 @@ const PropertyDetail = () => {
     if (!user?.id || !id) return;
     (supabase as any)
       .from("deal_requests")
-      .select("status")
+      .select("id, status")
       .eq("buyer_id", user.id)
       .eq("property_id", id)
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle()
-      .then(({ data }: any) => setDealStatus(data?.status || null));
+      .then(({ data }: any) => { setDealStatus(data?.status || null); setDealId(data?.id || null); });
   }, [user?.id, id]);
 
   const handleRequestDeal = async () => {
@@ -136,20 +140,22 @@ const PropertyDetail = () => {
     setRequestingDeal(true);
     const { error } = await (supabase as any).rpc("request_deal", {
       _property_id: id,
-      _message: null,
+      _message: dealMessage.trim() || null,
     });
     setRequestingDeal(false);
     if (error) { toast.error(error.message); return; }
-    toast.success("Request sent to agent. You'll be notified when accepted.");
+    setShowDealSummary(false);
+    toast.success("Request sent — waiting for agent confirmation.");
     setDealStatus("pending");
   };
 
 
+  const isRental = dbProperty?.status === "for_rent" || dbProperty?.status === "rented";
   const isOwner = profile?.id === (dbProperty?.agent_id || mockProperty?.agentId);
 
   const handleReserve = async () => {
     if (!user || !profile) {
-      toast.error("Please log in to reserve a property");
+      toast.error("Please log in to book an inspection");
       return;
     }
     if (isOwner) {
@@ -185,7 +191,8 @@ const PropertyDetail = () => {
       message: form.message || null,
       viewing_date: form.viewing_date,
       notes: form.message || null,
-    });
+      inspection_time: form.inspection_time || null,
+    } as any);
 
     // Auto-create a chat thread between buyer and agent for this property
     if (!error) {
@@ -209,24 +216,12 @@ const PropertyDetail = () => {
     setSubmitting(false);
 
     if (error) {
-      toast.error("Failed to submit reservation");
+      toast.error("Failed to send inspection request");
       console.error(error);
       return;
     }
 
-    // Notify agent
-    if (agent) {
-      const title = dbProperty?.title || mockProperty?.title || "a property";
-      await supabase.from("notifications").insert({
-        user_id: agent.user_id,
-        title: "New Reservation Request 🏠",
-        message: `${form.buyer_name} has requested to reserve "${title}" for ${form.viewing_date}.`,
-        type: "info",
-        link: "/dashboard/agent",
-      } as any);
-    }
-
-    toast.success("Reservation submitted successfully!");
+    toast.success("Inspection request sent to the agent.");
     setAlreadyReserved(true);
     setShowReserveModal(false);
   };
@@ -457,7 +452,7 @@ const PropertyDetail = () => {
                   {user ? (
                     <Link to={`/chat/new?agent=${propertyAgentId}&property=${propertyId}`} className="flex-1">
                       <Button className="w-full gap-2 bg-primary text-primary-foreground hover:bg-primary/90">
-                        <MessageCircle className="h-4 w-4" /> Message Agent
+                        <MessageCircle className="h-4 w-4" /> Chat with Agent
                       </Button>
                     </Link>
                   ) : (
@@ -474,18 +469,18 @@ const PropertyDetail = () => {
               )}
               {!isOwner && user && (
                 dealStatus === "accepted" ? (
-                  <Link to={`/secure-payment/${propertyId}`} className="block">
+                  <Link to={dealId ? `/deal/${dealId}` : `/secure-payment/${propertyId}`} className="block">
                     <Button className="mt-3 w-full gap-2 bg-[hsl(var(--success))] text-[hsl(var(--success-foreground))] hover:bg-[hsl(var(--success))]/90 text-base py-6 rounded-xl font-semibold shadow-[0_10px_30px_-10px_hsl(var(--primary)/0.5)]">
-                      <Lock className="h-5 w-5" /> Complete Secure Payment
+                      <Lock className="h-5 w-5" /> Open Deal Room
                     </Button>
                   </Link>
                 ) : dealStatus === "pending" ? (
                   <Button disabled className="mt-3 w-full gap-2 text-base py-6 rounded-xl font-semibold" variant="outline">
-                    <Lock className="h-5 w-5" /> Awaiting Agent Approval…
+                    <Lock className="h-5 w-5" /> Waiting for agent confirmation…
                   </Button>
                 ) : (
                   <Button
-                    onClick={handleRequestDeal}
+                    onClick={() => setShowDealSummary(true)}
                     disabled={
                       requestingDeal ||
                       dbProperty?.status === "payment_pending" ||
@@ -502,7 +497,7 @@ const PropertyDetail = () => {
                       ? "No longer available"
                       : dealStatus === "declined"
                       ? "Request Again"
-                      : "Request Deal with Agent"}
+                      : isRental ? "Rent Now" : "Buy Now"}
                   </Button>
                 )
               )}
@@ -514,7 +509,7 @@ const PropertyDetail = () => {
               {!isOwner && !user && (
                 <Link to="/login" className="block mt-3">
                   <Button className="w-full gap-2 bg-primary text-primary-foreground hover:bg-primary/90 text-base py-6 rounded-xl font-semibold">
-                    <Lock className="h-5 w-5" /> Log in to Request Deal
+                    <Lock className="h-5 w-5" /> Log in to Buy or Rent
                   </Button>
                 </Link>
               )}
@@ -522,7 +517,7 @@ const PropertyDetail = () => {
               {!isOwner && (
                 alreadyReserved ? (
                   <div className="mt-3 w-full text-center py-4 rounded-xl bg-[hsl(var(--success))]/10 text-[hsl(var(--success))] font-semibold text-sm flex items-center justify-center gap-2">
-                    <CheckCircle className="h-4 w-4" /> Reservation Submitted
+                    <CheckCircle className="h-4 w-4" /> Inspection Requested
                   </div>
                 ) : user ? (
                   <Button
@@ -530,7 +525,7 @@ const PropertyDetail = () => {
                     variant="outline"
                     className="mt-3 w-full gap-2 text-base py-6 rounded-xl font-semibold"
                   >
-                    <CalendarCheck className="h-5 w-5" /> Reserve for Inspection
+                    <CalendarCheck className="h-5 w-5" /> Book Inspection
                   </Button>
                 ) : null
               )}
@@ -593,7 +588,7 @@ const PropertyDetail = () => {
       <Dialog open={showReserveModal} onOpenChange={setShowReserveModal}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="font-display text-xl">Reserve Property</DialogTitle>
+            <DialogTitle className="font-display text-xl">Book Inspection</DialogTitle>
             <p className="text-sm text-muted-foreground mt-1">{title}</p>
           </DialogHeader>
           <div className="space-y-4 mt-2">
@@ -602,18 +597,58 @@ const PropertyDetail = () => {
               <Input id="r-name" value={form.buyer_name} onChange={(e) => setForm({ ...form, buyer_name: e.target.value })} placeholder="Your full name" />
             </div>
             <div>
-              <Label htmlFor="r-date">Preferred Viewing Date *</Label>
+              <Label htmlFor="r-date">Preferred Date *</Label>
               <Input id="r-date" type="date" value={form.viewing_date} onChange={(e) => setForm({ ...form, viewing_date: e.target.value })} />
+            </div>
+            <div>
+              <Label htmlFor="r-time">Preferred Time</Label>
+              <Input id="r-time" type="time" value={form.inspection_time} onChange={(e) => setForm({ ...form, inspection_time: e.target.value })} />
             </div>
             <div>
               <Label htmlFor="r-msg">Message to Agent</Label>
               <Textarea id="r-msg" value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} placeholder="Any special requests or questions..." rows={3} />
             </div>
-            <p className="text-xs text-muted-foreground">A chat thread will be created automatically so you can communicate directly with the agent.</p>
+            <p className="text-xs text-muted-foreground">The agent will confirm, propose a new time, or decline. A chat with the agent is opened for you.</p>
             <div className="flex gap-3 pt-2">
               <Button variant="outline" className="flex-1" onClick={() => setShowReserveModal(false)}>Cancel</Button>
               <Button className="flex-1 bg-secondary text-secondary-foreground hover:bg-secondary/90" onClick={handleReserve} disabled={submitting}>
-                {submitting ? "Submitting…" : "Submit Reservation"}
+                {submitting ? "Sending…" : "Request Inspection"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Deal Summary */}
+      <Dialog open={showDealSummary} onOpenChange={setShowDealSummary}>
+        <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="font-display text-xl">Deal Summary</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <img src={dbProperty?.image_url || dbProperty?.images?.[0] || "/placeholder.svg"} alt={title} className="h-40 w-full rounded-xl object-cover" />
+            <div className="space-y-1 text-sm">
+              <p className="font-semibold text-foreground">{title}</p>
+              {dbProperty?.property_code && <p className="font-mono text-xs text-muted-foreground">{dbProperty.property_code}</p>}
+              <p className="text-muted-foreground">{location}</p>
+            </div>
+            <div className="grid grid-cols-2 gap-3 rounded-xl border border-border p-3 text-sm">
+              <div><p className="text-xs text-muted-foreground">Price</p><p className="font-semibold">₦{Number(dbProperty?.price || 0).toLocaleString()}</p></div>
+              <div><p className="text-xs text-muted-foreground">Type</p><p className="font-semibold">{isRental ? "Rent" : "Purchase"}</p></div>
+              <div className="col-span-2"><p className="text-xs text-muted-foreground">Agent</p>
+                <p className="flex items-center gap-1 font-semibold">{agent?.full_name || "Agent"} {agent?.kyc_verified && <VerifiedBadge size="sm" />}
+                  {agent && <span className="ml-auto text-xs font-normal text-muted-foreground">Trust {agent.trust_score}/100</span>}</p>
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="d-msg">Message to agent (optional)</Label>
+              <Textarea id="d-msg" rows={3} value={dealMessage} onChange={(e) => setDealMessage(e.target.value)} placeholder="Any questions or conditions…" />
+            </div>
+            <p className="text-xs text-muted-foreground">Nothing is paid now. The agent must confirm the property is available before payment unlocks. Never pay an agent directly.</p>
+            <div className="flex gap-3">
+              <Button variant="outline" className="flex-1" onClick={() => setShowDealSummary(false)}>Cancel</Button>
+              <Button className="flex-1" onClick={handleRequestDeal} disabled={requestingDeal}>
+                {requestingDeal ? "Sending…" : isRental ? "Request to Rent" : "Request to Buy"}
               </Button>
             </div>
           </div>
