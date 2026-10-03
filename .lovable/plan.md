@@ -1,49 +1,47 @@
-# PROP-CONNECT v1.0 — Secure Payment & Escrow
+# PROP-CONNECT — Deal, Inspection & AI Workflow
 
-This is a large platform upgrade (23 parts). I will keep your existing homepage, dashboards, property/agent/buyer/admin pages, and cinematic UI intact, and integrate everything as additive features. I recommend shipping in 5 phases so each milestone is testable.
+Goal: connect Property → Buyer → Agent → Inspection → Deal → Payment → Completion. This builds on what already exists and redesigns nothing.
 
-## Existing foundation I will reuse
-- `transactions`, `escrow_holds`, `wallets`, `withdrawals`, `disputes`, `notifications`, `audit_logs`, `reservations`, `property_documents`, `company_wallet`, `payment-screenshots` storage bucket — already exist.
-- Sidebar layout, Admin dashboard shell, Agent dashboard, Buyer dashboard, FAQ, Earnings page, WithdrawDialog — already exist.
+## What already exists (reused)
+- **Deal requests**: buyers already "Request Deal", and agents Accept or Decline with a reason on the Deals page. Accepting creates a transaction and unlocks secure payment.
+- **Payments**: the secure payment page, proof upload, admin approval, release, refund and 72h expiry all work today and stay unchanged.
+- **Reservations**: buyers can request a viewing with a date. This becomes "Inspection".
+- **Chat**: chats are tied to a property, buyer and agent. Agents cannot start chats.
+- **Prop Connect AI**: works, requires sign-in, and keeps a separate history for each account.
+- **Notifications, disputes, audit logs, property codes**: all reused.
 
-## Phase 1 — Homepage section + Property ID system
-- New component `SecurePaymentFlow.tsx` (glassmorphism, deep-green/white/gold, scroll-animated horizontal timeline desktop / vertical mobile) mounted in `Index.tsx` just above `CinematicFAQ`. 6 steps as specified, with the "Never pay agents directly" warning on Step 2.
-- Add FAQ entries (Part 23) into `CinematicFAQ.tsx`.
-- DB: add `property_code TEXT UNIQUE` column to `properties`, plus a `state_code` mapping + trigger `generate_property_code()` producing `PROP-{STATE}-{AGENT_REF}-{NNNN}` (per-agent sequence). Backfill existing rows.
-- Surface Property ID on property cards, detail page, receipts, reservations, chat header, admin tables.
+## Phase 1 — Property page actions + Buy/Rent Now
+- On the property page, the buttons become **Chat with Agent · Book Inspection · Buy Now** (or **Rent Now** for rentals).
+- Chat opens the existing chat for that property, and never creates a duplicate.
+- Buy/Rent Now opens a **Deal Summary**: image, title, Property ID, location, price, type, agent and their verification and trust score. The button reads **Request to Buy / Request to Rent**.
+- After sending, the buyer sees "Waiting for agent confirmation".
+- A buyer can only have one active deal per property. Sending a request never marks the property sold or rented.
 
-## Phase 2 — Buyer secure payment flow + Payment page + Submission
-- Extend `transactions` with: `property_code`, `commission_amount`, `total_payable`, `payment_status` enum (`pending_payment`, `under_review`, `secured`, `released`, `expired`, `refunded`, `rejected`), `proof_url`, `proof_uploaded_at`, `expires_at` (now + 72h), `released_at`.
-- DB enum + `commission_settings` table (sales %, rental %, reservation flat) editable by admin.
-- New page `SecurePayment.tsx` at `/secure-payment/:propertyId`: shows property info, transaction summary, company account (config table `platform_settings`), warning notice, "I HAVE MADE PAYMENT" button → upload (JPG/PNG/PDF) to `payment-screenshots` bucket → status `under_review`.
-- "Proceed to Secure Payment" CTA on `PropertyDetail.tsx` (replacing/augmenting current contact CTA for buyers).
-- Double-purchase guard: when a transaction enters `pending_payment`/`under_review`/`secured`, property status flips to `payment_pending`; other buyers see "Reserved — payment in progress".
+## Phase 2 — Inspections without admin bottleneck
+- Inspection requests go straight to the agent. The agent can **Confirm**, **Propose new time** or **Decline**.
+- The buyer can accept or reject a proposed time.
+- Statuses: requested, confirmed, reschedule_proposed, declined, cancelled, completed, no_show.
+- Admin keeps a read-only overview of all inspections and steps in only for disputes or reports.
 
-## Phase 3 — Admin Secure Payments dashboard + approval + release
-- New admin route `/admin/secure-payments` with tabs: Pending Review, Secured, Released, Refunded, Expired, Rejected.
-- Row actions: Approve (→ `secured`, property → `transaction_in_progress`, notify buyer+agent), Reject (reason → `rejected`, property → `available`), View Receipt (signed URL), View Property/Buyer/Agent, Release Funds.
-- Release flow: buyer-side "Release Payment" button on Buyer Dashboard once `secured`; admin can also release. On release: credit agent `wallets.balance` minus commission, credit `company_wallet`, log `earnings` row, property → `sold`/`rented`, notify both.
-- Expiry: scheduled edge function `expire-stale-transactions` (runs hourly) flips `pending_payment` > 72h with no proof to `expired` and frees the property.
+## Phase 3 — Deal Room
+- New page per accepted deal, with a deal number like `PC-2026-000184`.
+- Sections: Overview, Property, Buyer/Agent, Inspection, Documents, Payment Status (linked to the existing secure payment), Activity, and a progress timeline.
+- Deal stages: pending_agent → accepted → inspection → documents → payment_pending → payment_under_review → payment_confirmed → completed (or declined / cancelled / disputed).
+- Linked from the buyer dashboard, the agent's Deals page and admin.
 
-## Phase 4 — Wallet, Withdrawals, Disputes, Refunds, Sales Docs
-- Agent wallet panel in `AgentDashboard`: Total Earnings, Pending, Withdrawable, Released, Total Withdrawn (derived from existing `wallets` + `earnings` + `withdrawals`).
-- Withdrawal request dialog already exists — wire admin Approve/Reject + status flow Pending → Approved → Paid, with audit log entry.
-- Buyer "Raise Dispute" on a transaction → existing `disputes` table; admin resolution UI with Open / Under Review / Resolved / Refunded states; agent response thread.
-- Refund action on admin transaction row → status `refunded`, reverses wallet credit if released, records reason; refund history tab.
-- Sales document upload on completed transactions (`property_documents` already exists) — agent uploads agreement/transfer/allocation; buyer can download via signed URLs.
+## Phase 4 — AI property assistant
+- Upgrade the existing Prop Connect AI. It will search real, approved listings using filters such as city, budget, bedrooms and type, and return clickable property cards.
+- It never shows other users' data, agent contact details, unapproved listings or legal and financial guarantees.
 
-## Phase 5 — Notifications, Audit Logs, Admin Analytics, Transaction History views
-- Wire `notifications` inserts at every state change listed in Part 18 (DB triggers where possible).
-- Audit log writes (Part 19) via SECURITY DEFINER helper `log_admin_action(action, entity, entity_id, meta)` called from admin RPCs; new `/admin/audit` viewer with filters.
-- Admin analytics cards on `Analytics.tsx`: Total Transactions, GMV, Company Revenue, Refunds, Active, Pending, Avg Transaction Time.
-- Transaction history sections on Buyer / Agent / Admin dashboards with Property ID, status, receipts, dates.
+## Phase 5 — Notifications + Admin
+- Notifications for: deal requested, accepted or declined; inspection requested, confirmed, rescheduled or declined; and each deal stage change.
+- An admin Deals and Inspections overview with filters, kept separate from the existing secure payments page.
 
-## Technical notes
-- All new tables get `GRANT` + RLS in the same migration: buyers see only their own transactions/disputes; agents see only transactions on their properties; admins via `has_role(auth.uid(),'admin')`.
-- Fund movements (approve, release, refund, withdraw) executed in SECURITY DEFINER Postgres functions so wallet math + status + audit + notification happen atomically.
-- Storage: receipts in `payment-screenshots` (private, owner-folder policies already in place); sales docs in `property_documents` (private).
-- Edge functions: `expire-stale-transactions` (cron), `release-funds`, `process-refund`, `approve-withdrawal` — each validates the caller's role server-side.
-- No homepage redesign. Only additive section + new routes wired into existing sidebar/nav.
-
-## Deliverable per phase
-Each phase ends with a working slice you can click through. Reply **"start phase 1"** (or name the phases you want first) and I'll build it. If you'd rather I attempt the whole thing in one pass, say "build all" — it will be a very long single change with higher risk of needing follow-ups.
+## Technical details
+- Add a `deal_number` column and an extended deal `stage` to `deal_requests`, plus a unique partial index stopping a buyer from having two active deals on the same property.
+- Add new deal stages as text values. The existing `payment_status` on transactions stays the source of truth for payment; the deal stage shows it, mapped across.
+- Add inspection fields to `reservations`: `inspection_time`, `proposed_date`, `proposed_time`, `agent_note`, and a new text `inspection_status` column. The existing enum stays and is mapped for backward compatibility.
+- New `deal_events` table for the activity timeline, readable only by the buyer, the agent and admins. All writes happen inside security definer functions.
+- New functions: `confirm_inspection`, `propose_inspection_time`, `respond_inspection_proposal`, `decline_inspection`, `advance_deal_stage`. Each checks the caller's role server-side, writes an audit entry and sends a notification.
+- AI: the `prop-ai` function gets a property search tool that queries only approved, public listings using the caller's own access.
+- Every change adds to what's there. Nothing existing is dropped or renamed.
