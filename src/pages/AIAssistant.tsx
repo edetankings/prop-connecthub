@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate , Link } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Send, Sparkle, Trash2, ShieldCheck, Loader2, ArrowUpRight } from "lucide-react";
@@ -291,7 +291,11 @@ const AIAssistant = () => {
                   />
                   <div className="prose prose-sm dark:prose-invert min-w-0 max-w-none flex-1 break-words text-sm text-foreground prose-headings:font-display prose-p:my-2 prose-ul:my-2 prose-strong:text-foreground">
                     {m.content ? (
-                      <ReactMarkdown remarkPlugins={[remarkGfm]}>{m.content}</ReactMarkdown>
+                      <ReactMarkdown remarkPlugins={[remarkGfm]} components={{
+                        a: ({ href, children }) => href?.startsWith("/")
+                          ? <Link to={href} className="font-semibold text-primary underline">{children}</Link>
+                          : <a href={href} target="_blank" rel="noopener noreferrer" className="text-primary underline">{children}</a>,
+                      }}>{m.content}</ReactMarkdown>
                     ) : (
                       <span className="flex items-center gap-2 text-muted-foreground">
                         <Loader2 className="h-4 w-4 animate-spin" /> Thinking…
