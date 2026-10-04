@@ -50,6 +50,9 @@ import AdminOverview from "./pages/AdminOverview";
 import AdminPropertyMonitoring from "./pages/AdminPropertyMonitoring";
 import BuyerSecurePayments from "./pages/BuyerSecurePayments";
 import AIAssistant from "./pages/AIAssistant";
+import DealRoom from "./pages/DealRoom";
+import DealsList from "./pages/DealsList";
+import Inspections from "./pages/Inspections";
 
 import WelcomeModal from "./components/WelcomeModal";
 
@@ -102,6 +105,12 @@ const App = () => (
             <Route path="/payments" element={<ProtectedRoute><Payments /></ProtectedRoute>} />
             <Route path="/secure-payment/:propertyId" element={<ProtectedRoute><SecurePayment /></ProtectedRoute>} />
             <Route path="/dashboard/buyer/secure-payments" element={<ProtectedRoute><BuyerSecurePayments /></ProtectedRoute>} />
+            <Route path="/deal/:id" element={<ProtectedRoute><DealRoom /></ProtectedRoute>} />
+            <Route path="/dashboard/buyer/deals" element={<ProtectedRoute><DealsList mode="buyer" /></ProtectedRoute>} />
+            <Route path="/dashboard/buyer/inspections" element={<ProtectedRoute><Inspections mode="buyer" /></ProtectedRoute>} />
+            <Route path="/dashboard/agent/inspections" element={<ProtectedRoute><Inspections mode="agent" /></ProtectedRoute>} />
+            <Route path="/admin/deals" element={<AdminRoute><DealsList mode="admin" /></AdminRoute>} />
+            <Route path="/admin/inspections" element={<AdminRoute><Inspections mode="admin" /></AdminRoute>} />
             <Route path="/ai-assistant" element={<ProtectedRoute><AIAssistant /></ProtectedRoute>} />
 
             <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />

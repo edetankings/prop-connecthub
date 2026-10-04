@@ -40,6 +40,50 @@ ${PLATFORM_KNOWLEDGE}`;
 const MAX_MESSAGES = 40;
 const MAX_CHARS = 4000;
 
+
+// --- Real listing search: parses simple filters from the latest user message
+// and queries ONLY public, approved listings through the caller's own RLS context.
+const NAIRA_UNITS: Record<string, number> = { k: 1e3, thousand: 1e3, m: 1e6, million: 1e6, mil: 1e6, b: 1e9, billion: 1e9 };
+function parseFilters(text: string) {
+  const t = text.toLowerCase();
+  const f: { maxPrice?: number; beds?: number; rent?: boolean; sale?: boolean; place?: string; type?: string } = {};
+  const money = t.match(/(?:under|below|less than|max(?:imum)?|budget(?: of| is)?|within|up to|₦|n)\s*₦?\s*([\d.,]+)\s*(k|thousand|m|million|mil|b|billion)?/);
+  if (money) {
+    const n = parseFloat(money[1].replace(/,/g, ""));
+    if (!isNaN(n)) f.maxPrice = n * (money[2] ? NAIRA_UNITS[money[2]] : 1);
+  }
+  const beds = t.match(/(\d+)\s*(?:-|\s)?(?:bed|bedroom|br\b)/);
+  if (beds) f.beds = parseInt(beds[1]);
+  if (/\b(rent|rental|lease|let)\b/.test(t)) f.rent = true;
+  if (/\b(buy|purchase|for sale|sale)\b/.test(t)) f.sale = true;
+  const place = t.match(/\bin\s+([a-z][a-z\s-]{2,30}?)(?:\s+(?:under|below|for|with|within|around|budget)|[,.?!]|$)/);
+  if (place) f.place = place[1].trim();
+  const type = t.match(/\b(duplex|bungalow|flat|apartment|terrace|land|mansion|studio|penthouse|detached)\b/);
+  if (type) f.type = type[1];
+  return f;
+}
+const looksLikeSearch = (t: string) => /\b(find|show|search|looking|need|want|recommend|any|list|available)\b.*\b(house|home|property|properties|apartment|flat|duplex|bungalow|land|bed|rent|buy)/i.test(t)
+  || /\b\d+\s*(bed|bedroom)/i.test(t);
+
+async function searchListings(supabase: any, text: string) {
+  const f = parseFilters(text);
+  let q = supabase.from("properties")
+    .select("id, title, price, city, state, bedrooms, bathrooms, property_type, status, property_code")
+    .in("status", f.rent && !f.sale ? ["for_rent"] : f.sale && !f.rent ? ["for_sale", "available"] : ["for_sale", "for_rent", "available"])
+    .order("created_at", { ascending: false })
+    .limit(6);
+  if (f.maxPrice) q = q.lte("price", f.maxPrice);
+  if (f.beds) q = q.gte("bedrooms", f.beds);
+  if (f.place) {
+    const safe = f.place.replace(/[^a-z\s-]/g, "");
+    q = q.or(`city.ilike.%${safe}%,state.ilike.%${safe}%,address.ilike.%${safe}%`);
+  }
+  if (f.type) q = q.ilike("property_type", `%${f.type}%`);
+  const { data, error } = await q;
+  if (error) { console.error("listing search failed", error.message); return { f, rows: [] }; }
+  return { f, rows: data || [] };
+}
+
 Deno.serve(async (req) => {
   const cors = corsFor(req);
   if (req.method === "OPTIONS") return new Response(null, { headers: cors });
@@ -116,13 +160,23 @@ Deno.serve(async (req) => {
       userName ? `\nThe user's name is ${userName}.` : ""
     }`;
 
+    let listingContext = "";
+    const lastUser = [...messages].reverse().find((m: any) => m.role === "user")?.content || "";
+    if (looksLikeSearch(lastUser)) {
+      const { f, rows } = await searchListings(supabase, lastUser);
+      listingContext = rows.length
+        ? `\n\nREAL PROP-CONNECT LISTINGS matching the user's request (filters: ${JSON.stringify(f)}). Present them as a short markdown list. Each item MUST be a link in the form [Title](/property/ID) followed by price in ₦, location, bedrooms and Property ID. Only use these listings — never invent properties:\n` +
+          rows.map((r: any) => `- id=${r.id} | ${r.title} | ₦${Number(r.price).toLocaleString()} | ${[r.city, r.state].filter(Boolean).join(", ")} | ${r.bedrooms ?? "?"} bed | ${r.status === "for_rent" ? "rent" : "sale"} | ${r.property_code ?? ""}`).join("\n")
+        : `\n\nA search of real PROP-CONNECT listings found NO matches for filters ${JSON.stringify(f)}. Say so honestly, suggest widening budget/location, and link to [browse all properties](/properties). Never invent listings.`;
+    }
+
     const upstream = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
         model: "google/gemini-3.6-flash",
         stream: true,
-        messages: [{ role: "system", content: system }, ...messages],
+        messages: [{ role: "system", content: system + listingContext + "\nNever share agent phone numbers, emails or other users' data. Never guarantee legal title, returns or financial outcomes." }, ...messages],
       }),
     });
 
