@@ -149,8 +149,8 @@ const AgentDeals = () => {
                   d={d}
                   primaryAction={
                     d.status === "accepted" && d.transaction_id ? (
-                      <Link to="/dashboard/agent" className="w-full sm:w-auto">
-                        <Button size="sm" variant="outline" className="w-full sm:w-auto">View transaction</Button>
+                      <Link to={`/deal/${d.id}`} className="w-full sm:w-auto">
+                        <Button size="sm" variant="outline" className="w-full sm:w-auto">Open Deal Room</Button>
                       </Link>
                     ) : null
                   }
