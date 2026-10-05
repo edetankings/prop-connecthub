@@ -48,7 +48,7 @@ const CarouselCard = ({ p }: { p: DBProperty }) => {
           src={img}
           alt={p.title}
           loading="lazy"
-          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
         <div className="absolute left-2.5 top-2.5 flex flex-wrap gap-1.5">
