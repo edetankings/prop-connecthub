@@ -1,4 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
+import MarketplaceFlow from "@/components/home/MarketplaceFlow";
 import { useEffect, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { motion, useScroll, useTransform, useInView } from "framer-motion";
