@@ -283,6 +283,8 @@ const Index = () => {
         </div>
       </section>
 
+      <MarketplaceFlow />
+
       {/* DISCOVERY */}
       <section className="container mx-auto px-4 py-24 md:py-32">
         <div className="mb-14 flex flex-col items-start justify-between gap-4 md:flex-row md:items-end">
