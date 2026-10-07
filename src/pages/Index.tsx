@@ -1,4 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
+import MarketplaceFlow from "@/components/home/MarketplaceFlow";
 import { useEffect, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { motion, useScroll, useTransform, useInView } from "framer-motion";
@@ -282,6 +283,8 @@ const Index = () => {
           <span className="flex items-center gap-2"><Building2 className="h-3.5 w-3.5 text-secondary" /> Government Aligned</span>
         </div>
       </section>
+
+      <MarketplaceFlow />
 
       {/* DISCOVERY */}
       <section className="container mx-auto px-4 py-24 md:py-32">

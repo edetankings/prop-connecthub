@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { Helmet } from "react-helmet-async";
+import { useSearchParams } from "react-router-dom";
 import { Search, SlidersHorizontal, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,8 +10,12 @@ import DBPropertyCard, { type DBProperty } from "@/components/DBPropertyCard";
 import { supabase } from "@/integrations/supabase/client";
 
 const Properties = () => {
+  const [params] = useSearchParams();
   const [search, setSearch] = useState("");
-  const [typeFilter, setTypeFilter] = useState("all");
+  const [typeFilter, setTypeFilter] = useState(params.get("type") || "all");
+  useEffect(() => {
+    setTypeFilter(params.get("type") || "all");
+  }, [params]);
   const [stateFilter, setStateFilter] = useState("all");
   const [priceFilter, setPriceFilter] = useState("all");
   const [bedFilter, setBedFilter] = useState("all");
