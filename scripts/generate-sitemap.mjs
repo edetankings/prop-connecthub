@@ -1,45 +1,41 @@
-import { writeFileSync } from "fs";
-import { resolve } from "path";
+import { writeFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
+import { absoluteSiteUrl, resolveSiteUrl } from '../config/site-url.mjs';
 
-const BASE_URL = "https://prop-connecthub.lovable.app";
-
-const entries = [
-  { path: "/", changefreq: "weekly", priority: "1.0" },
-  { path: "/properties", changefreq: "daily", priority: "0.9" },
-  { path: "/agents", changefreq: "weekly", priority: "0.8" },
-  { path: "/announcements", changefreq: "daily", priority: "0.7" },
-  { path: "/analytics", changefreq: "weekly", priority: "0.6" },
-  { path: "/guides/investing-in-nigeria", changefreq: "monthly", priority: "0.7" },
-  { path: "/terms", changefreq: "monthly", priority: "0.5" },
-  { path: "/privacy", changefreq: "monthly", priority: "0.5" },
-  // Auth pages — low priority for search engines
-  { path: "/login", changefreq: "monthly", priority: "0.3" },
-  { path: "/register", changefreq: "monthly", priority: "0.3" },
-  { path: "/forgot-password", changefreq: "yearly", priority: "0.2" },
-  { path: "/reset-password", changefreq: "yearly", priority: "0.2" },
+// Public static routes only; authentication and account routes are intentionally absent.
+export const publicRoutes = [
+  '/', '/properties', '/agents', '/announcements', '/analytics',
+  '/guides/investing-in-nigeria', '/terms', '/privacy',
+  '/trust/safety-center', '/trust/escrow-protection', '/trust/agent-verification',
+  '/trust/property-verification', '/trust/fraud-prevention', '/trust/code-of-conduct',
 ];
 
-function generateSitemap(entries) {
-  const urls = entries.map((e) =>
-    [
-      `  <url>`,
-      `    <loc>${BASE_URL}${e.path}</loc>`,
-      e.lastmod ? `    <lastmod>${e.lastmod}</lastmod>` : null,
-      e.changefreq ? `    <changefreq>${e.changefreq}</changefreq>` : null,
-      e.priority ? `    <priority>${e.priority}</priority>` : null,
-      `  </url>`,
-    ]
-      .filter(Boolean)
-      .join("\n")
-  );
-
-  return [
-    `<?xml version="1.0" encoding="UTF-8"?>`,
-    `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`,
-    ...urls,
-    `</urlset>`,
-  ].join("\n");
+export function renderSitemap(base) {
+  const urls = publicRoutes.map((path) =>
+    `  <url><loc>${absoluteSiteUrl(path, base)}</loc></url>`);
+  return ['<?xml version="1.0" encoding="UTF-8"?>',
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+    ...urls, '</urlset>', ''].join('\n');
 }
 
-writeFileSync(resolve("public/sitemap.xml"), generateSitemap(entries));
-console.log(`sitemap.xml written (${entries.length} entries)`);
+export function renderRobots(base) {
+  // Crawling remains allowed; sitemap inclusion is not access control or a noindex rule.
+  return `User-agent: *\nAllow: /\n\nSitemap: ${absoluteSiteUrl('/sitemap.xml', base)}\n`;
+}
+
+export function generateSeoFiles(base, directory = resolve('public')) {
+  writeFileSync(resolve(directory, 'sitemap.xml'), renderSitemap(base));
+  writeFileSync(resolve(directory, 'robots.txt'), renderRobots(base));
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
+  const { loadEnv } = await import('vite');
+  const modeIndex = process.argv.indexOf('--mode');
+  const mode = modeIndex >= 0 ? process.argv[modeIndex + 1] :
+    (process.env.npm_lifecycle_event === 'predev' ? 'development' : 'production');
+  if (!mode) throw new Error('--mode requires a value');
+  const base = resolveSiteUrl(loadEnv(mode, process.cwd(), ['VITE_SITE_URL', 'SITE_URL']));
+  generateSeoFiles(base);
+  console.log(`SEO files written (${publicRoutes.length} public routes)`);
+}

@@ -1,3 +1,4 @@
+import { siteUrl } from "@/lib/seo";
 import { Link, useNavigate } from "react-router-dom";
 import MarketplaceFlow from "@/components/home/MarketplaceFlow";
 import { useEffect, useRef, useState } from "react";
@@ -157,8 +158,8 @@ const Index = () => {
       <Helmet>
         <title>Prop Connect — Verified Landed Properties in Nigeria</title>
         <meta name="description" content="Prop Connect is a digital platform designed to help Nigerians safely search, verify, and acquire genuine landed properties from trusted, KYC-verified agents." />
-        <link rel="canonical" href="https://prop-connecthub.lovable.app/" />
-        <meta property="og:url" content="https://prop-connecthub.lovable.app/" />
+        <link rel="canonical" href={siteUrl("/")} />
+        <meta property="og:url" content={siteUrl("/")} />
         <meta property="og:title" content="Prop Connect — Verified Landed Properties in Nigeria" />
         <meta property="og:description" content="Search, verify, and acquire genuine landed properties from trusted, KYC-verified agents across Nigeria." />
         <script type="application/ld+json">{JSON.stringify({

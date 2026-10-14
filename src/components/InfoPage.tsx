@@ -1,3 +1,4 @@
+import { siteUrl } from "@/lib/seo";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { ArrowLeft, ArrowRight, ShieldCheck } from "lucide-react";
@@ -42,11 +43,11 @@ const InfoPage = ({
     <Helmet>
       <title>{metaTitle}</title>
       <meta name="description" content={metaDescription} />
-      <link rel="canonical" href={`https://prop-connecthub.lovable.app${path}`} />
+      <link rel="canonical" href={siteUrl(path)} />
       <meta property="og:title" content={metaTitle} />
       <meta property="og:description" content={metaDescription} />
       <meta property="og:type" content="article" />
-      <meta property="og:url" content={`https://prop-connecthub.lovable.app${path}`} />
+      <meta property="og:url" content={siteUrl(path)} />
       <meta name="twitter:card" content="summary_large_image" />
     </Helmet>
     <Navbar />

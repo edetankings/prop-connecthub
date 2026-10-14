@@ -1,3 +1,4 @@
+import { siteUrl } from "@/lib/seo";
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import Navbar from "@/components/Navbar";
@@ -60,8 +61,8 @@ const Agents = () => {
       <Helmet>
         <title>Verified Real Estate Agents in Nigeria — Prop Connect</title>
         <meta name="description" content="Browse trust-scored, KYC-verified real estate agents across Nigeria. View transactions, listings, and ratings before you reach out." />
-        <link rel="canonical" href="https://prop-connecthub.lovable.app/agents" />
-        <meta property="og:url" content="https://prop-connecthub.lovable.app/agents" />
+        <link rel="canonical" href={siteUrl("/agents")} />
+        <meta property="og:url" content={siteUrl("/agents")} />
         <meta property="og:title" content="Verified Real Estate Agents in Nigeria — Prop Connect" />
         <meta property="og:description" content="Trust-scored, KYC-verified real estate agents across Nigeria." />
       </Helmet>

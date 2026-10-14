@@ -1,3 +1,4 @@
+import { siteUrl } from "@/lib/seo";
 import { useState, useEffect, useMemo } from "react";
 import { Helmet } from "react-helmet-async";
 import { useSearchParams } from "react-router-dom";
@@ -104,8 +105,8 @@ const Properties = () => {
       <Helmet>
         <title>Browse Verified Properties for Sale & Rent in Nigeria — Prop Connect</title>
         <meta name="description" content="Search verified houses, apartments, and land for sale or rent across Nigeria. Every listing on Prop Connect is reviewed by our team and posted by a KYC-verified agent." />
-        <link rel="canonical" href="https://prop-connecthub.lovable.app/properties" />
-        <meta property="og:url" content="https://prop-connecthub.lovable.app/properties" />
+        <link rel="canonical" href={siteUrl("/properties")} />
+        <meta property="og:url" content={siteUrl("/properties")} />
         <meta property="og:title" content="Browse Verified Properties for Sale & Rent in Nigeria — Prop Connect" />
         <meta property="og:description" content="Search verified houses, apartments, and land for sale or rent across Nigeria." />
       </Helmet>

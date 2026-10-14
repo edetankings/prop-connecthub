@@ -1,3 +1,4 @@
+import { siteUrl } from "@/lib/seo";
 import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
@@ -298,7 +299,7 @@ const PropertyDetail = () => {
       {(() => {
         const p = dbProperty || (mockProperty as any);
         if (!p) return null;
-        const pUrl = `https://prop-connecthub.lovable.app/property/${p.id}`;
+        const pUrl = siteUrl(`/property/${p.id}`);
         const loc = [p?.city, p?.state].filter(Boolean).join(", ");
         const title = `${p.title}${loc ? ` — ${loc}` : ""} | Prop Connect`;
         const desc = (p.description || `${p.title} listed on Prop Connect.${loc ? ` Located in ${loc}.` : ""}`).slice(0, 155);

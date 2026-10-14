@@ -1,9 +1,10 @@
+import { siteUrl } from "@/lib/seo";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
-const URL = "https://prop-connecthub.lovable.app/guides/investing-in-nigeria";
+const URL = siteUrl("/guides/investing-in-nigeria");
 
 const InvestingInNigeria = () => {
   return (
