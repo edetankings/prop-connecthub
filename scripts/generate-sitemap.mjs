@@ -3,14 +3,7 @@ import { resolve } from "path";
 
 const BASE_URL = "https://prop-connecthub.lovable.app";
 
-interface SitemapEntry {
-  path: string;
-  lastmod?: string;
-  changefreq?: "always" | "hourly" | "daily" | "weekly" | "monthly" | "yearly" | "never";
-  priority?: string;
-}
-
-const entries: SitemapEntry[] = [
+const entries = [
   { path: "/", changefreq: "weekly", priority: "1.0" },
   { path: "/properties", changefreq: "daily", priority: "0.9" },
   { path: "/agents", changefreq: "weekly", priority: "0.8" },
@@ -26,7 +19,7 @@ const entries: SitemapEntry[] = [
   { path: "/reset-password", changefreq: "yearly", priority: "0.2" },
 ];
 
-function generateSitemap(entries: SitemapEntry[]) {
+function generateSitemap(entries) {
   const urls = entries.map((e) =>
     [
       `  <url>`,
