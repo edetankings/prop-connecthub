@@ -1,0 +1,2856 @@
+{
+  "status": "offline_checks_passed",
+  "database_sql_executed": false,
+  "runtime_validation": "NOT PERFORMED",
+  "statement_count": 561,
+  "plpgsql_bodies_parsed": 58,
+  "sql_bodies_parsed": 11,
+  "tables": 30,
+  "functions": 69,
+  "checks": [
+    {
+      "check": "55 historical files mapped exactly once",
+      "passed": true
+    },
+    {
+      "check": "historical hash: supabase/migrations/20260216081539_621e9669-f9f7-46cf-9692-087deb23b82a.sql",
+      "passed": true
+    },
+    {
+      "check": "historical hash: supabase/migrations/20260216081623_edc895fb-1c47-4060-9abe-acbcc41b4c8e.sql",
+      "passed": true
+    },
+    {
+      "check": "historical hash: supabase/migrations/20260217080001_fb193530-811d-4afd-8650-f22ebe05f1ab.sql",
+      "passed": true
+    },
+    {
+      "check": "historical hash: supabase/migrations/20260219084848_a5001cf6-e659-486b-a100-b762e2e53903.sql",
+      "passed": true
+    },
+    {
+      "check": "historical hash: supabase/migrations/20260301075459_ae8155b3-0aee-4d02-8a88-b65f0ef7c37a.sql",
+      "passed": true
+    },
+    {
+      "check": "historical hash: supabase/migrations/20260301075656_37d5bb58-549e-45be-9d6d-a9c903856133.sql",
+      "passed": true
+    },
+    {
+      "check": "historical hash: supabase/migrations/20260302083447_80b6134e-95d6-46f4-a009-f312b43f230d.sql",
+      "passed": true
+    },
+    {
+      "check": "historical hash: supabase/migrations/20260305112042_455a1c6f-43fe-4145-a03c-5555a2b7b641.sql",
+      "passed": true
+    },
+    {
+      "check": "historical hash: supabase/migrations/20260305112050_153583c9-6732-474b-90c3-f3c0c4938801.sql",
+      "passed": true
+    },
+    {
+      "check": "historical hash: supabase/migrations/20260308201540_0683e12f-8e1b-4c78-8ff3-b12c93e46a4e.sql",
+      "passed": true
+    },
+    {
+      "check": "historical hash: supabase/migrations/20260308201552_4ddcde50-1767-4af3-a4af-88f89d10880f.sql",
+      "passed": true
+    },
+    {
+      "check": "historical hash: supabase/migrations/20260308204630_c9329acc-d127-44c6-bd3d-5ef2cf9127b7.sql",
+      "passed": true
+    },
+    {
+      "check": "historical hash: supabase/migrations/20260308225713_44444fe6-c656-48cc-a5aa-e29875db23c0.sql",
+      "passed": true
+    },
+    {
+      "check": "historical hash: supabase/migrations/20260308230133_f3d3d833-8362-4a98-88bd-696c8fc8eebc.sql",
+      "passed": true
+    },
+    {
+      "check": "historical hash: supabase/migrations/20260308231321_f6945a63-d1de-4fe3-a727-578acd1906a5.sql",
+      "passed": true
+    },
+    {
+      "check": "historical hash: supabase/migrations/20260309001644_dd594661-6a87-4db9-a18c-eb1e7fdac9e8.sql",
+      "passed": true
+    },
+    {
+      "check": "historical hash: supabase/migrations/20260309001657_fead6ea6-b4af-43fb-9ae5-06a379dcca07.sql",
+      "passed": true
+    },
+    {
+      "check": "historical hash: supabase/migrations/20260309010237_0ef110c7-11ff-4d5c-887b-4b4cbb231e56.sql",
+      "passed": true
+    },
+    {
+      "check": "historical hash: supabase/migrations/20260309011108_07e5e7f2-8e05-40e6-beb7-6c4c4b2d9e8d.sql",
+      "passed": true
+    },
+    {
+      "check": "historical hash: supabase/migrations/20260309011123_c601afc1-363a-4e16-8fae-9c05aef55c01.sql",
+      "passed": true
+    },
+    {
+      "check": "historical hash: supabase/migrations/20260309020130_7d27e342-9c24-4e93-b751-28b30b63d617.sql",
+      "passed": true
+    },
+    {
+      "check": "historical hash: supabase/migrations/20260407145405_7223510f-9310-4448-9552-59572e8e7660.sql",
+      "passed": true
+    },
+    {
+      "check": "historical hash: supabase/migrations/20260407145414_00281839-1dfa-478f-a655-d9ee8c6a49ab.sql",
+      "passed": true
+    },
+    {
+      "check": "historical hash: supabase/migrations/20260407150036_e19f2c80-65df-4a6a-83bc-a13fea7dcba4.sql",
+      "passed": true
+    },
+    {
+      "check": "historical hash: supabase/migrations/20260409073104_3f2427ea-54f5-4d49-90c0-b13605504bc8.sql",
+      "passed": true
+    },
+    {
+      "check": "historical hash: supabase/migrations/20260410002324_c76be606-6cef-4237-803e-e81a2e5f2c06.sql",
+      "passed": true
+    },
+    {
+      "check": "historical hash: supabase/migrations/20260417230659_349ca8f4-d2d9-4c06-b7b1-8a585c26da93.sql",
+      "passed": true
+    },
+    {
+      "check": "historical hash: supabase/migrations/20260417230726_7c638e98-209b-457a-90d8-9dae8ea397ea.sql",
+      "passed": true
+    },
+    {
+      "check": "historical hash: supabase/migrations/20260426223933_324d9d0b-1526-4c84-91df-2ea8cc664948.sql",
+      "passed": true
+    },
+    {
+      "check": "historical hash: supabase/migrations/20260426224903_d683aaad-977a-4ca7-af89-d5ecca1ec554.sql",
+      "passed": true
+    },
+    {
+      "check": "historical hash: supabase/migrations/20260501104714_873fe1c3-f300-4d51-be3e-075c929fa245.sql",
+      "passed": true
+    },
+    {
+      "check": "historical hash: supabase/migrations/20260503112230_f0e4a6f6-06eb-4a3a-94f2-0f9a747e9577.sql",
+      "passed": true
+    },
+    {
+      "check": "historical hash: supabase/migrations/20260503112517_0728c53c-9757-42ae-9464-d8a6389c6fea.sql",
+      "passed": true
+    },
+    {
+      "check": "historical hash: supabase/migrations/20260615151845_c8c3d7e5-be08-422c-9d33-4c84272881f9.sql",
+      "passed": true
+    },
+    {
+      "check": "historical hash: supabase/migrations/20260615152344_5a26d5a2-0e58-4945-aabe-31f80e5df1f8.sql",
+      "passed": true
+    },
+    {
+      "check": "historical hash: supabase/migrations/20260616110940_d03730a8-18f9-4e14-9e90-7eca3d9aa048.sql",
+      "passed": true
+    },
+    {
+      "check": "historical hash: supabase/migrations/20260616111400_6b37ae19-3702-4bad-8bae-73497d35eff0.sql",
+      "passed": true
+    },
+    {
+      "check": "historical hash: supabase/migrations/20260618082734_7d6d21c2-2ade-49f8-b04d-2dde7d874dbf.sql",
+      "passed": true
+    },
+    {
+      "check": "historical hash: supabase/migrations/20260618135730_8b349c2d-9b17-48b5-a5a0-947f1a678c23.sql",
+      "passed": true
+    },
+    {
+      "check": "historical hash: supabase/migrations/20260618140034_a1145314-d751-4e01-8d78-a59bf1956349.sql",
+      "passed": true
+    },
+    {
+      "check": "historical hash: supabase/migrations/20260618140113_ff992dbd-d105-49c7-900b-f494545c2f45.sql",
+      "passed": true
+    },
+    {
+      "check": "historical hash: supabase/migrations/20260619080101_0a4acbee-6c0e-46ca-87e2-79f119329217.sql",
+      "passed": true
+    },
+    {
+      "check": "historical hash: supabase/migrations/20260622114509_7e854e0b-cf2d-49d2-8f13-51b44a022954.sql",
+      "passed": true
+    },
+    {
+      "check": "historical hash: supabase/migrations/20260623153918_5f1d7b86-ac83-4f9e-88ed-754b884e9d1d.sql",
+      "passed": true
+    },
+    {
+      "check": "historical hash: supabase/migrations/20260624120019_e0837b12-c540-4cd9-aa2a-c8e56bc558a7.sql",
+      "passed": true
+    },
+    {
+      "check": "historical hash: supabase/migrations/20260728184224_6a2c8bc4-ad3f-4af4-9be9-021f90509be7.sql",
+      "passed": true
+    },
+    {
+      "check": "historical hash: supabase/migrations/20260728184621_4c99b5ea-d695-4b60-bf3c-aceb3cca1dc1.sql",
+      "passed": true
+    },
+    {
+      "check": "historical hash: supabase/migrations/20260729222515_5770ca0a-16f4-43b4-b3c1-2d65cc83e017.sql",
+      "passed": true
+    },
+    {
+      "check": "historical hash: drizzle/migrations/0000_harden_audit_logs_and_commission_settings.sql",
+      "passed": true
+    },
+    {
+      "check": "historical hash: drizzle/migrations/0001_platform_stats_rpc.sql",
+      "passed": true
+    },
+    {
+      "check": "historical hash: drizzle/migrations/0002_harden_function_execute_grants.sql",
+      "passed": true
+    },
+    {
+      "check": "historical hash: drizzle/migrations/0003_restrict_anon_table_grants.sql",
+      "passed": true
+    },
+    {
+      "check": "historical hash: drizzle/migrations/0004_split_properties_select_policy.sql",
+      "passed": true
+    },
+    {
+      "check": "historical hash: drizzle/migrations/0005_lock_chat_reservation_update_columns.sql",
+      "passed": true
+    },
+    {
+      "check": "historical hash: drizzle/migrations/0006_deal_room_inspections.sql",
+      "passed": true
+    },
+    {
+      "check": "Drizzle journal unchanged",
+      "passed": true
+    },
+    {
+      "check": "installer uses exact isolated allowlist",
+      "passed": true
+    },
+    {
+      "check": "installer cannot include historical paths",
+      "passed": true
+    },
+    {
+      "check": "explicit approval gate and atomic transaction",
+      "passed": true
+    },
+    {
+      "check": "table defined once: profiles",
+      "passed": true
+    },
+    {
+      "check": "table defined once: user_roles",
+      "passed": true
+    },
+    {
+      "check": "table defined once: properties",
+      "passed": true
+    },
+    {
+      "check": "table defined once: chat_threads",
+      "passed": true
+    },
+    {
+      "check": "table defined once: messages",
+      "passed": true
+    },
+    {
+      "check": "table defined once: reservations",
+      "passed": true
+    },
+    {
+      "check": "table defined once: ratings",
+      "passed": true
+    },
+    {
+      "check": "table defined once: verification_documents",
+      "passed": true
+    },
+    {
+      "check": "table defined once: announcements",
+      "passed": true
+    },
+    {
+      "check": "table defined once: disputes",
+      "passed": true
+    },
+    {
+      "check": "table defined once: audit_logs",
+      "passed": true
+    },
+    {
+      "check": "table defined once: wallets",
+      "passed": true
+    },
+    {
+      "check": "table defined once: transactions",
+      "passed": true
+    },
+    {
+      "check": "table defined once: support_tickets",
+      "passed": true
+    },
+    {
+      "check": "table defined once: user_preferences",
+      "passed": true
+    },
+    {
+      "check": "table defined once: verification_steps",
+      "passed": true
+    },
+    {
+      "check": "table defined once: notifications",
+      "passed": true
+    },
+    {
+      "check": "table defined once: phone_otp_challenges",
+      "passed": true
+    },
+    {
+      "check": "table defined once: kyc_verifications",
+      "passed": true
+    },
+    {
+      "check": "table defined once: earnings",
+      "passed": true
+    },
+    {
+      "check": "table defined once: subscription_requests",
+      "passed": true
+    },
+    {
+      "check": "table defined once: subscriptions",
+      "passed": true
+    },
+    {
+      "check": "table defined once: withdrawals",
+      "passed": true
+    },
+    {
+      "check": "table defined once: company_wallet",
+      "passed": true
+    },
+    {
+      "check": "table defined once: escrow_holds",
+      "passed": true
+    },
+    {
+      "check": "table defined once: property_documents",
+      "passed": true
+    },
+    {
+      "check": "table defined once: commission_settings",
+      "passed": true
+    },
+    {
+      "check": "table defined once: platform_settings",
+      "passed": true
+    },
+    {
+      "check": "table defined once: deal_requests",
+      "passed": true
+    },
+    {
+      "check": "table defined once: deal_events",
+      "passed": true
+    },
+    {
+      "check": "FK target table exists: profiles",
+      "passed": true
+    },
+    {
+      "check": "FK local columns exist: profiles_referred_by_fkey",
+      "passed": true
+    },
+    {
+      "check": "FK target table exists: profiles",
+      "passed": true
+    },
+    {
+      "check": "FK local columns exist: properties_agent_id_fkey",
+      "passed": true
+    },
+    {
+      "check": "FK target table exists: properties",
+      "passed": true
+    },
+    {
+      "check": "FK local columns exist: chat_threads_property_id_fkey",
+      "passed": true
+    },
+    {
+      "check": "FK target table exists: profiles",
+      "passed": true
+    },
+    {
+      "check": "FK local columns exist: chat_threads_buyer_id_fkey",
+      "passed": true
+    },
+    {
+      "check": "FK target table exists: profiles",
+      "passed": true
+    },
+    {
+      "check": "FK local columns exist: chat_threads_agent_id_fkey",
+      "passed": true
+    },
+    {
+      "check": "FK target table exists: chat_threads",
+      "passed": true
+    },
+    {
+      "check": "FK local columns exist: messages_thread_id_fkey",
+      "passed": true
+    },
+    {
+      "check": "FK target table exists: profiles",
+      "passed": true
+    },
+    {
+      "check": "FK local columns exist: messages_sender_id_fkey",
+      "passed": true
+    },
+    {
+      "check": "FK target table exists: profiles",
+      "passed": true
+    },
+    {
+      "check": "FK local columns exist: reservations_buyer_id_fkey",
+      "passed": true
+    },
+    {
+      "check": "FK target table exists: profiles",
+      "passed": true
+    },
+    {
+      "check": "FK local columns exist: reservations_agent_id_fkey",
+      "passed": true
+    },
+    {
+      "check": "FK target table exists: properties",
+      "passed": true
+    },
+    {
+      "check": "FK local columns exist: reservations_property_id_fkey",
+      "passed": true
+    },
+    {
+      "check": "FK target table exists: profiles",
+      "passed": true
+    },
+    {
+      "check": "FK local columns exist: ratings_reviewer_id_fkey",
+      "passed": true
+    },
+    {
+      "check": "FK target table exists: profiles",
+      "passed": true
+    },
+    {
+      "check": "FK local columns exist: ratings_agent_id_fkey",
+      "passed": true
+    },
+    {
+      "check": "FK target table exists: properties",
+      "passed": true
+    },
+    {
+      "check": "FK local columns exist: ratings_property_id_fkey",
+      "passed": true
+    },
+    {
+      "check": "FK target table exists: profiles",
+      "passed": true
+    },
+    {
+      "check": "FK local columns exist: verification_documents_reviewed_by_fkey",
+      "passed": true
+    },
+    {
+      "check": "FK target table exists: profiles",
+      "passed": true
+    },
+    {
+      "check": "FK local columns exist: announcements_author_id_fkey",
+      "passed": true
+    },
+    {
+      "check": "FK target table exists: profiles",
+      "passed": true
+    },
+    {
+      "check": "FK local columns exist: disputes_reporter_id_fkey",
+      "passed": true
+    },
+    {
+      "check": "FK target table exists: profiles",
+      "passed": true
+    },
+    {
+      "check": "FK local columns exist: disputes_reported_id_fkey",
+      "passed": true
+    },
+    {
+      "check": "FK target table exists: properties",
+      "passed": true
+    },
+    {
+      "check": "FK local columns exist: disputes_property_id_fkey",
+      "passed": true
+    },
+    {
+      "check": "FK target table exists: transactions",
+      "passed": true
+    },
+    {
+      "check": "FK local columns exist: disputes_transaction_id_fkey",
+      "passed": true
+    },
+    {
+      "check": "FK target table exists: properties",
+      "passed": true
+    },
+    {
+      "check": "FK local columns exist: transactions_property_id_fkey",
+      "passed": true
+    },
+    {
+      "check": "FK target table exists: transactions",
+      "passed": true
+    },
+    {
+      "check": "FK local columns exist: earnings_transaction_id_fkey",
+      "passed": true
+    },
+    {
+      "check": "FK target table exists: subscriptions",
+      "passed": true
+    },
+    {
+      "check": "FK local columns exist: earnings_subscription_id_fkey",
+      "passed": true
+    },
+    {
+      "check": "FK target table exists: subscription_requests",
+      "passed": true
+    },
+    {
+      "check": "FK local columns exist: subscriptions_activation_request_id_fkey",
+      "passed": true
+    },
+    {
+      "check": "FK target table exists: subscriptions",
+      "passed": true
+    },
+    {
+      "check": "FK local columns exist: escrow_holds_subscription_id_fkey",
+      "passed": true
+    },
+    {
+      "check": "FK target table exists: properties",
+      "passed": true
+    },
+    {
+      "check": "FK local columns exist: property_documents_property_id_fkey",
+      "passed": true
+    },
+    {
+      "check": "FK target table exists: profiles",
+      "passed": true
+    },
+    {
+      "check": "FK local columns exist: property_documents_agent_id_fkey",
+      "passed": true
+    },
+    {
+      "check": "FK target table exists: profiles",
+      "passed": true
+    },
+    {
+      "check": "FK local columns exist: deal_requests_agent_profile_id_fkey",
+      "passed": true
+    },
+    {
+      "check": "FK target table exists: properties",
+      "passed": true
+    },
+    {
+      "check": "FK local columns exist: deal_requests_property_id_fkey",
+      "passed": true
+    },
+    {
+      "check": "FK target table exists: transactions",
+      "passed": true
+    },
+    {
+      "check": "FK local columns exist: deal_requests_transaction_id_fkey",
+      "passed": true
+    },
+    {
+      "check": "FK target table exists: deal_requests",
+      "passed": true
+    },
+    {
+      "check": "FK local columns exist: deal_events_deal_id_fkey",
+      "passed": true
+    },
+    {
+      "check": "FK target table exists: profiles",
+      "passed": true
+    },
+    {
+      "check": "FK local columns exist: profiles_invited_by_fkey",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.has_role",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.has_role",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.get_my_profile_id",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.get_my_profile_id",
+      "passed": true
+    },
+    {
+      "check": "function defined once: prop_connect_private.assert_admin",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: prop_connect_private.assert_admin",
+      "passed": true
+    },
+    {
+      "check": "function defined once: prop_connect_private.assert_finance_ready",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: prop_connect_private.assert_finance_ready",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.update_updated_at",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.update_updated_at",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.log_admin_action",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.log_admin_action",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.touch_last_login",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.touch_last_login",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.generate_referral_code",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.generate_referral_code",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.auto_assign_referral_code",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.auto_assign_referral_code",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.place_in_matrix",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.place_in_matrix",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.auto_place_referral",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.auto_place_referral",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.handle_new_user",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.handle_new_user",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.prevent_profile_sensitive_field_updates",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.prevent_profile_sensitive_field_updates",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.clamp_profile_trust_score",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.clamp_profile_trust_score",
+      "passed": true
+    },
+    {
+      "check": "function defined once: prop_connect_private.public_agent_rows",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: prop_connect_private.public_agent_rows",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.get_platform_stats",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.get_platform_stats",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.get_company_payment_details",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.get_company_payment_details",
+      "passed": true
+    },
+    {
+      "check": "function defined once: prop_connect_private.can_list",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: prop_connect_private.can_list",
+      "passed": true
+    },
+    {
+      "check": "function defined once: prop_connect_private.guard_property",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: prop_connect_private.guard_property",
+      "passed": true
+    },
+    {
+      "check": "function defined once: prop_connect_private.guard_kyc",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: prop_connect_private.guard_kyc",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.guard_chat_thread_update",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.guard_chat_thread_update",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.guard_message_update",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.guard_message_update",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.guard_reservation_update",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.guard_reservation_update",
+      "passed": true
+    },
+    {
+      "check": "function defined once: prop_connect_private.guard_verification",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: prop_connect_private.guard_verification",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.notify_kyc_status_change",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.notify_kyc_status_change",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.notify_kyc_verification_status",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.notify_kyc_verification_status",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.notify_property_status_change",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.notify_property_status_change",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.notify_new_announcement",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.notify_new_announcement",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.notify_new_inspection",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.notify_new_inspection",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.ensure_wallet",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.ensure_wallet",
+      "passed": true
+    },
+    {
+      "check": "function defined once: prop_connect_private.credit_earning",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: prop_connect_private.credit_earning",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.approve_secure_payment",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.approve_secure_payment",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.submit_payment_proof",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.submit_payment_proof",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.reject_secure_payment",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.reject_secure_payment",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.release_secure_payment",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.release_secure_payment",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.refund_secure_payment",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.refund_secure_payment",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.expire_stale_transactions",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.expire_stale_transactions",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.raise_dispute",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.raise_dispute",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.resolve_dispute",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.resolve_dispute",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.request_withdrawal",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.request_withdrawal",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.approve_withdrawal",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.approve_withdrawal",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.reject_withdrawal",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.reject_withdrawal",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.distribute_subscription_payment",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.distribute_subscription_payment",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.activate_subscription",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.activate_subscription",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.pay_verification_referral_bonus",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.pay_verification_referral_bonus",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.reject_subscription_request",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.reject_subscription_request",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.on_kyc_verified_pay_referral",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.on_kyc_verified_pay_referral",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.on_subscription_active_pay_referral",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.on_subscription_active_pay_referral",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.on_subscription_activated",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.on_subscription_activated",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.state_code_for",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.state_code_for",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.generate_property_code",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.generate_property_code",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.auto_assign_property_code",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.auto_assign_property_code",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.assign_deal_number",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.assign_deal_number",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.request_deal",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.request_deal",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.accept_deal",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.accept_deal",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.initiate_secure_payment",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.initiate_secure_payment",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.decline_deal",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.decline_deal",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.log_deal_status",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.log_deal_status",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.sync_deal_stage_from_tx",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.sync_deal_stage_from_tx",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.advance_deal_stage",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.advance_deal_stage",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.agent_respond_inspection",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.agent_respond_inspection",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.buyer_respond_inspection",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.buyer_respond_inspection",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.activate_chat",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.activate_chat",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.get_deal_participants",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.get_deal_participants",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.get_referral_summary",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.get_referral_summary",
+      "passed": true
+    },
+    {
+      "check": "function defined once: public.get_chat_participants",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: public.get_chat_participants",
+      "passed": true
+    },
+    {
+      "check": "function defined once: prop_connect_private.can_chat",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: prop_connect_private.can_chat",
+      "passed": true
+    },
+    {
+      "check": "function defined once: prop_connect_private.can_read_document",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: prop_connect_private.can_read_document",
+      "passed": true
+    },
+    {
+      "check": "function defined once: prop_connect_private.can_read_chat_file",
+      "passed": true
+    },
+    {
+      "check": "fixed function search_path: prop_connect_private.can_read_chat_file",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'profiles', 'admin_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'user_roles', 'admin_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'properties', 'admin_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'chat_threads', 'admin_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'messages', 'admin_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'reservations', 'admin_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'ratings', 'admin_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'verification_documents', 'admin_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'announcements', 'admin_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'disputes', 'admin_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'audit_logs', 'admin_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'wallets', 'admin_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'transactions', 'admin_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'support_tickets', 'admin_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'user_preferences', 'admin_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'verification_steps', 'admin_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'notifications', 'admin_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'kyc_verifications', 'admin_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'earnings', 'admin_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'subscription_requests', 'admin_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'subscriptions', 'admin_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'withdrawals', 'admin_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'company_wallet', 'admin_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'escrow_holds', 'admin_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'property_documents', 'admin_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'commission_settings', 'admin_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'platform_settings', 'admin_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'deal_requests', 'admin_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'deal_events', 'admin_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'profiles', 'owner_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'user_roles', 'owner_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'wallets', 'owner_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'user_preferences', 'owner_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'verification_documents', 'owner_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'verification_steps', 'owner_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'kyc_verifications', 'owner_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'earnings', 'owner_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'subscriptions', 'owner_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'subscription_requests', 'owner_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'withdrawals', 'owner_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'support_tickets', 'owner_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'notifications', 'owner_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'transactions', 'party_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'disputes', 'party_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'deal_requests', 'party_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'deal_events', 'party_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'escrow_holds', 'owner_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'announcements', 'public_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'ratings', 'public_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'properties', 'public_listings')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'properties', 'owner_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'profiles', 'owner_update')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'profiles', 'admin_update')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'user_roles', 'admin_insert')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'user_roles', 'admin_delete')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'properties', 'agent_insert')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'properties', 'agent_update')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'properties', 'agent_delete')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'commission_settings', 'admin_update')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'platform_settings', 'admin_update')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'user_preferences', 'owner_insert')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'user_preferences', 'owner_update')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'verification_documents', 'owner_insert')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'verification_documents', 'owner_update')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'verification_documents', 'admin_update')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'verification_steps', 'owner_insert')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'verification_steps', 'owner_update')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'verification_steps', 'admin_update')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'kyc_verifications', 'owner_insert')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'kyc_verifications', 'owner_update')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'kyc_verifications', 'admin_update')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'subscription_requests', 'owner_insert')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'notifications', 'owner_insert')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'notifications', 'owner_update')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'support_tickets', 'owner_insert')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'support_tickets', 'admin_update')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'support_tickets', 'admin_delete')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'announcements', 'author_insert')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'announcements', 'author_update')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'announcements', 'author_delete')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'ratings', 'owner_insert')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'chat_threads', 'party_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'chat_threads', 'owner_insert')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'chat_threads', 'party_update')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'messages', 'party_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'messages', 'sender_insert')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'messages', 'party_update')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'reservations', 'party_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'reservations', 'buyer_insert')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'property_documents', 'party_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'property_documents', 'owner_insert')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'property_documents', 'owner_update')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('public', 'property_documents', 'owner_delete')",
+      "passed": true
+    },
+    {
+      "check": "trigger defined once: ('public', 'profiles', 'z_updated_at')",
+      "passed": true
+    },
+    {
+      "check": "trigger defined once: ('public', 'properties', 'z_updated_at')",
+      "passed": true
+    },
+    {
+      "check": "trigger defined once: ('public', 'reservations', 'z_updated_at')",
+      "passed": true
+    },
+    {
+      "check": "trigger defined once: ('public', 'disputes', 'z_updated_at')",
+      "passed": true
+    },
+    {
+      "check": "trigger defined once: ('public', 'wallets', 'z_updated_at')",
+      "passed": true
+    },
+    {
+      "check": "trigger defined once: ('public', 'transactions', 'z_updated_at')",
+      "passed": true
+    },
+    {
+      "check": "trigger defined once: ('public', 'user_preferences', 'z_updated_at')",
+      "passed": true
+    },
+    {
+      "check": "trigger defined once: ('public', 'verification_steps', 'z_updated_at')",
+      "passed": true
+    },
+    {
+      "check": "trigger defined once: ('public', 'kyc_verifications', 'z_updated_at')",
+      "passed": true
+    },
+    {
+      "check": "trigger defined once: ('public', 'subscriptions', 'z_updated_at')",
+      "passed": true
+    },
+    {
+      "check": "trigger defined once: ('public', 'withdrawals', 'z_updated_at')",
+      "passed": true
+    },
+    {
+      "check": "trigger defined once: ('public', 'company_wallet', 'z_updated_at')",
+      "passed": true
+    },
+    {
+      "check": "trigger defined once: ('public', 'commission_settings', 'z_updated_at')",
+      "passed": true
+    },
+    {
+      "check": "trigger defined once: ('public', 'platform_settings', 'z_updated_at')",
+      "passed": true
+    },
+    {
+      "check": "trigger defined once: ('public', 'deal_requests', 'z_updated_at')",
+      "passed": true
+    },
+    {
+      "check": "trigger defined once: ('auth', 'users', 'on_auth_user_created')",
+      "passed": true
+    },
+    {
+      "check": "trigger defined once: ('public', 'profiles', 'a_profile_guard')",
+      "passed": true
+    },
+    {
+      "check": "trigger defined once: ('public', 'profiles', 'b_profile_code')",
+      "passed": true
+    },
+    {
+      "check": "trigger defined once: ('public', 'profiles', 'c_matrix_placement')",
+      "passed": true
+    },
+    {
+      "check": "trigger defined once: ('public', 'profiles', 'd_trust_bounds')",
+      "passed": true
+    },
+    {
+      "check": "trigger defined once: ('public', 'profiles', 'kyc_profile_notification')",
+      "passed": true
+    },
+    {
+      "check": "trigger defined once: ('public', 'profiles', 'kyc_bonus_gate')",
+      "passed": true
+    },
+    {
+      "check": "trigger defined once: ('public', 'properties', 'a_property_guard')",
+      "passed": true
+    },
+    {
+      "check": "trigger defined once: ('public', 'properties', 'b_property_code')",
+      "passed": true
+    },
+    {
+      "check": "trigger defined once: ('public', 'properties', 'property_review_notification')",
+      "passed": true
+    },
+    {
+      "check": "trigger defined once: ('public', 'kyc_verifications', 'a_kyc_guard')",
+      "passed": true
+    },
+    {
+      "check": "trigger defined once: ('public', 'kyc_verifications', 'kyc_decision')",
+      "passed": true
+    },
+    {
+      "check": "trigger defined once: ('public', 'chat_threads', 'chat_guard')",
+      "passed": true
+    },
+    {
+      "check": "trigger defined once: ('public', 'messages', 'message_guard')",
+      "passed": true
+    },
+    {
+      "check": "trigger defined once: ('public', 'reservations', 'inspection_guard')",
+      "passed": true
+    },
+    {
+      "check": "trigger defined once: ('public', 'reservations', 'inspection_notification')",
+      "passed": true
+    },
+    {
+      "check": "trigger defined once: ('public', 'announcements', 'announcement_notification')",
+      "passed": true
+    },
+    {
+      "check": "trigger defined once: ('public', 'deal_requests', 'a_deal_number')",
+      "passed": true
+    },
+    {
+      "check": "trigger defined once: ('public', 'deal_requests', 'deal_insert_event')",
+      "passed": true
+    },
+    {
+      "check": "trigger defined once: ('public', 'deal_requests', 'deal_update_event')",
+      "passed": true
+    },
+    {
+      "check": "trigger defined once: ('public', 'transactions', 'payment_deal_sync')",
+      "passed": true
+    },
+    {
+      "check": "trigger defined once: ('public', 'subscriptions', 'subscription_distribution')",
+      "passed": true
+    },
+    {
+      "check": "trigger defined once: ('public', 'subscriptions', 'subscription_bonus_gate')",
+      "passed": true
+    },
+    {
+      "check": "trigger defined once: ('public', 'verification_documents', 'verification_guard')",
+      "passed": true
+    },
+    {
+      "check": "trigger defined once: ('public', 'verification_steps', 'verification_guard')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('storage', 'objects', 'property_images_upload')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('storage', 'objects', 'property_images_update')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('storage', 'objects', 'property_images_delete')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('storage', 'objects', 'property_images_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('storage', 'objects', 'avatars_upload')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('storage', 'objects', 'avatars_update')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('storage', 'objects', 'avatars_delete')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('storage', 'objects', 'avatars_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('storage', 'objects', 'verification_docs_upload')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('storage', 'objects', 'verification_docs_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('storage', 'objects', 'payment_screenshots_upload')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('storage', 'objects', 'payment_screenshots_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('storage', 'objects', 'property_documents_upload')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('storage', 'objects', 'property_documents_read')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('storage', 'objects', 'chat_attachments_upload')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('storage', 'objects', 'chat_attachments_delete')",
+      "passed": true
+    },
+    {
+      "check": "policy defined once: ('storage', 'objects', 'chat_attachments_read')",
+      "passed": true
+    },
+    {
+      "check": "configuration-only seeds",
+      "passed": true
+    },
+    {
+      "check": "configuration-only seeds",
+      "passed": true
+    },
+    {
+      "check": "configuration-only seeds",
+      "passed": true
+    },
+    {
+      "check": "configuration-only seeds",
+      "passed": true
+    },
+    {
+      "check": "verification SQL is SELECT/transaction only: readiness.sql",
+      "passed": true
+    },
+    {
+      "check": "verification SQL is SELECT/transaction only: validation.sql",
+      "passed": true
+    },
+    {
+      "check": "all 30 tables match generated type inventory",
+      "passed": true
+    },
+    {
+      "check": "all historical frontend columns preserved: announcements",
+      "passed": true
+    },
+    {
+      "check": "all historical frontend columns preserved: audit_logs",
+      "passed": true
+    },
+    {
+      "check": "all historical frontend columns preserved: chat_threads",
+      "passed": true
+    },
+    {
+      "check": "all historical frontend columns preserved: commission_settings",
+      "passed": true
+    },
+    {
+      "check": "all historical frontend columns preserved: company_wallet",
+      "passed": true
+    },
+    {
+      "check": "all historical frontend columns preserved: deal_events",
+      "passed": true
+    },
+    {
+      "check": "all historical frontend columns preserved: deal_requests",
+      "passed": true
+    },
+    {
+      "check": "all historical frontend columns preserved: disputes",
+      "passed": true
+    },
+    {
+      "check": "all historical frontend columns preserved: earnings",
+      "passed": true
+    },
+    {
+      "check": "all historical frontend columns preserved: escrow_holds",
+      "passed": true
+    },
+    {
+      "check": "all historical frontend columns preserved: kyc_verifications",
+      "passed": true
+    },
+    {
+      "check": "all historical frontend columns preserved: messages",
+      "passed": true
+    },
+    {
+      "check": "all historical frontend columns preserved: notifications",
+      "passed": true
+    },
+    {
+      "check": "all historical frontend columns preserved: phone_otp_challenges",
+      "passed": true
+    },
+    {
+      "check": "all historical frontend columns preserved: platform_settings",
+      "passed": true
+    },
+    {
+      "check": "all historical frontend columns preserved: profiles",
+      "passed": true
+    },
+    {
+      "check": "all historical frontend columns preserved: properties",
+      "passed": true
+    },
+    {
+      "check": "all historical frontend columns preserved: property_documents",
+      "passed": true
+    },
+    {
+      "check": "all historical frontend columns preserved: ratings",
+      "passed": true
+    },
+    {
+      "check": "all historical frontend columns preserved: reservations",
+      "passed": true
+    },
+    {
+      "check": "all historical frontend columns preserved: subscription_requests",
+      "passed": true
+    },
+    {
+      "check": "all historical frontend columns preserved: subscriptions",
+      "passed": true
+    },
+    {
+      "check": "all historical frontend columns preserved: support_tickets",
+      "passed": true
+    },
+    {
+      "check": "all historical frontend columns preserved: transactions",
+      "passed": true
+    },
+    {
+      "check": "all historical frontend columns preserved: user_preferences",
+      "passed": true
+    },
+    {
+      "check": "all historical frontend columns preserved: user_roles",
+      "passed": true
+    },
+    {
+      "check": "all historical frontend columns preserved: verification_documents",
+      "passed": true
+    },
+    {
+      "check": "all historical frontend columns preserved: verification_steps",
+      "passed": true
+    },
+    {
+      "check": "all historical frontend columns preserved: wallets",
+      "passed": true
+    },
+    {
+      "check": "all historical frontend columns preserved: withdrawals",
+      "passed": true
+    },
+    {
+      "check": "RLS enabled on all 30 tables",
+      "passed": true
+    },
+    {
+      "check": "six complete enum definitions",
+      "passed": true
+    },
+    {
+      "check": "only two private bookkeeping tables",
+      "passed": true
+    },
+    {
+      "check": "granted function exists: prop_connect_private.public_agent_rows",
+      "passed": true
+    },
+    {
+      "check": "grant resolves exact input signature: prop_connect_private.public_agent_rows",
+      "passed": true
+    },
+    {
+      "check": "granted function exists: prop_connect_private.can_chat",
+      "passed": true
+    },
+    {
+      "check": "grant resolves exact input signature: prop_connect_private.can_chat",
+      "passed": true
+    },
+    {
+      "check": "granted function exists: prop_connect_private.can_list",
+      "passed": true
+    },
+    {
+      "check": "grant resolves exact input signature: prop_connect_private.can_list",
+      "passed": true
+    },
+    {
+      "check": "granted function exists: prop_connect_private.can_read_document",
+      "passed": true
+    },
+    {
+      "check": "grant resolves exact input signature: prop_connect_private.can_read_document",
+      "passed": true
+    },
+    {
+      "check": "granted function exists: prop_connect_private.can_read_chat_file",
+      "passed": true
+    },
+    {
+      "check": "grant resolves exact input signature: prop_connect_private.can_read_chat_file",
+      "passed": true
+    },
+    {
+      "check": "granted function exists: public.has_role",
+      "passed": true
+    },
+    {
+      "check": "grant resolves exact input signature: public.has_role",
+      "passed": true
+    },
+    {
+      "check": "granted function exists: public.get_my_profile_id",
+      "passed": true
+    },
+    {
+      "check": "grant resolves exact input signature: public.get_my_profile_id",
+      "passed": true
+    },
+    {
+      "check": "granted function exists: public.get_platform_stats",
+      "passed": true
+    },
+    {
+      "check": "grant resolves exact input signature: public.get_platform_stats",
+      "passed": true
+    },
+    {
+      "check": "granted function exists: public.touch_last_login",
+      "passed": true
+    },
+    {
+      "check": "grant resolves exact input signature: public.touch_last_login",
+      "passed": true
+    },
+    {
+      "check": "granted function exists: public.log_admin_action",
+      "passed": true
+    },
+    {
+      "check": "grant resolves exact input signature: public.log_admin_action",
+      "passed": true
+    },
+    {
+      "check": "granted function exists: public.get_company_payment_details",
+      "passed": true
+    },
+    {
+      "check": "grant resolves exact input signature: public.get_company_payment_details",
+      "passed": true
+    },
+    {
+      "check": "granted function exists: public.request_deal",
+      "passed": true
+    },
+    {
+      "check": "grant resolves exact input signature: public.request_deal",
+      "passed": true
+    },
+    {
+      "check": "granted function exists: public.accept_deal",
+      "passed": true
+    },
+    {
+      "check": "grant resolves exact input signature: public.accept_deal",
+      "passed": true
+    },
+    {
+      "check": "granted function exists: public.decline_deal",
+      "passed": true
+    },
+    {
+      "check": "grant resolves exact input signature: public.decline_deal",
+      "passed": true
+    },
+    {
+      "check": "granted function exists: public.initiate_secure_payment",
+      "passed": true
+    },
+    {
+      "check": "grant resolves exact input signature: public.initiate_secure_payment",
+      "passed": true
+    },
+    {
+      "check": "granted function exists: public.submit_payment_proof",
+      "passed": true
+    },
+    {
+      "check": "grant resolves exact input signature: public.submit_payment_proof",
+      "passed": true
+    },
+    {
+      "check": "granted function exists: public.approve_secure_payment",
+      "passed": true
+    },
+    {
+      "check": "grant resolves exact input signature: public.approve_secure_payment",
+      "passed": true
+    },
+    {
+      "check": "granted function exists: public.reject_secure_payment",
+      "passed": true
+    },
+    {
+      "check": "grant resolves exact input signature: public.reject_secure_payment",
+      "passed": true
+    },
+    {
+      "check": "granted function exists: public.release_secure_payment",
+      "passed": true
+    },
+    {
+      "check": "grant resolves exact input signature: public.release_secure_payment",
+      "passed": true
+    },
+    {
+      "check": "granted function exists: public.refund_secure_payment",
+      "passed": true
+    },
+    {
+      "check": "grant resolves exact input signature: public.refund_secure_payment",
+      "passed": true
+    },
+    {
+      "check": "granted function exists: public.expire_stale_transactions",
+      "passed": true
+    },
+    {
+      "check": "grant resolves exact input signature: public.expire_stale_transactions",
+      "passed": true
+    },
+    {
+      "check": "granted function exists: public.raise_dispute",
+      "passed": true
+    },
+    {
+      "check": "grant resolves exact input signature: public.raise_dispute",
+      "passed": true
+    },
+    {
+      "check": "granted function exists: public.resolve_dispute",
+      "passed": true
+    },
+    {
+      "check": "grant resolves exact input signature: public.resolve_dispute",
+      "passed": true
+    },
+    {
+      "check": "granted function exists: public.request_withdrawal",
+      "passed": true
+    },
+    {
+      "check": "grant resolves exact input signature: public.request_withdrawal",
+      "passed": true
+    },
+    {
+      "check": "granted function exists: public.approve_withdrawal",
+      "passed": true
+    },
+    {
+      "check": "grant resolves exact input signature: public.approve_withdrawal",
+      "passed": true
+    },
+    {
+      "check": "granted function exists: public.reject_withdrawal",
+      "passed": true
+    },
+    {
+      "check": "grant resolves exact input signature: public.reject_withdrawal",
+      "passed": true
+    },
+    {
+      "check": "granted function exists: public.activate_subscription",
+      "passed": true
+    },
+    {
+      "check": "grant resolves exact input signature: public.activate_subscription",
+      "passed": true
+    },
+    {
+      "check": "granted function exists: public.advance_deal_stage",
+      "passed": true
+    },
+    {
+      "check": "grant resolves exact input signature: public.advance_deal_stage",
+      "passed": true
+    },
+    {
+      "check": "granted function exists: public.agent_respond_inspection",
+      "passed": true
+    },
+    {
+      "check": "grant resolves exact input signature: public.agent_respond_inspection",
+      "passed": true
+    },
+    {
+      "check": "granted function exists: public.buyer_respond_inspection",
+      "passed": true
+    },
+    {
+      "check": "grant resolves exact input signature: public.buyer_respond_inspection",
+      "passed": true
+    },
+    {
+      "check": "granted function exists: public.activate_chat",
+      "passed": true
+    },
+    {
+      "check": "grant resolves exact input signature: public.activate_chat",
+      "passed": true
+    },
+    {
+      "check": "granted function exists: public.get_deal_participants",
+      "passed": true
+    },
+    {
+      "check": "grant resolves exact input signature: public.get_deal_participants",
+      "passed": true
+    },
+    {
+      "check": "granted function exists: public.get_referral_summary",
+      "passed": true
+    },
+    {
+      "check": "grant resolves exact input signature: public.get_referral_summary",
+      "passed": true
+    },
+    {
+      "check": "granted function exists: public.get_chat_participants",
+      "passed": true
+    },
+    {
+      "check": "grant resolves exact input signature: public.get_chat_participants",
+      "passed": true
+    },
+    {
+      "check": "granted function exists: public.reject_subscription_request",
+      "passed": true
+    },
+    {
+      "check": "grant resolves exact input signature: public.reject_subscription_request",
+      "passed": true
+    },
+    {
+      "check": "granted function exists: public.expire_stale_transactions",
+      "passed": true
+    },
+    {
+      "check": "grant resolves exact input signature: public.expire_stale_transactions",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: prop_connect_private.assert_admin",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: prop_connect_private.assert_finance_ready",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: prop_connect_private.can_chat",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: prop_connect_private.can_list",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: prop_connect_private.can_read_chat_file",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: prop_connect_private.can_read_document",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: prop_connect_private.credit_earning",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: prop_connect_private.guard_kyc",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: prop_connect_private.guard_property",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: prop_connect_private.guard_verification",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: prop_connect_private.installation_history",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: prop_connect_private.payment_receipts",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: prop_connect_private.public_agent_rows",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.accept_deal",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.activate_chat",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.activate_subscription",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.advance_deal_stage",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.agent_respond_inspection",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.announcements",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.approve_secure_payment",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.approve_withdrawal",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.assign_deal_number",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.audit_logs",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.auto_assign_property_code",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.auto_assign_referral_code",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.auto_place_referral",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.buyer_respond_inspection",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.chat_threads",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.clamp_profile_trust_score",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.commission_settings",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.company_wallet",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.deal_events",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.deal_requests",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.decline_deal",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.disputes",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.distribute_subscription_payment",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.earnings",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.ensure_wallet",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.escrow_holds",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.expire_stale_transactions",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.generate_property_code",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.generate_referral_code",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.get_chat_participants",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.get_company_payment_details",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.get_deal_participants",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.get_my_profile_id",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.get_platform_stats",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.get_referral_summary",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.guard_chat_thread_update",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.guard_message_update",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.guard_reservation_update",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.handle_new_user",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.has_role",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.initiate_secure_payment",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.kyc_verifications",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.log_admin_action",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.log_deal_status",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.messages",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.notifications",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.notify_kyc_status_change",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.notify_kyc_verification_status",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.notify_new_announcement",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.notify_new_inspection",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.notify_property_status_change",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.on_kyc_verified_pay_referral",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.on_subscription_activated",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.on_subscription_active_pay_referral",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.pay_verification_referral_bonus",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.phone_otp_challenges",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.place_in_matrix",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.platform_settings",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.prevent_profile_sensitive_field_updates",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.profiles",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.properties",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.property_documents",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.raise_dispute",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.ratings",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.refund_secure_payment",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.reject_secure_payment",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.reject_subscription_request",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.reject_withdrawal",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.release_secure_payment",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.request_deal",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.request_withdrawal",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.reservations",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.resolve_dispute",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.state_code_for",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.submit_payment_proof",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.subscription_requests",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.subscriptions",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.support_tickets",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.sync_deal_stage_from_tx",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.touch_last_login",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.transactions",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.update_updated_at",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.user_preferences",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.user_roles",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.verification_documents",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.verification_steps",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.wallets",
+      "passed": true
+    },
+    {
+      "check": "qualified function/relation reference defined: public.withdrawals",
+      "passed": true
+    },
+    {
+      "check": "every existing literal RPC name retained",
+      "passed": true
+    },
+    {
+      "check": "retired transaction reward function absent",
+      "passed": true
+    },
+    {
+      "check": "six buckets explicitly created",
+      "passed": true
+    },
+    {
+      "check": "private bucket: verification-docs",
+      "passed": true
+    },
+    {
+      "check": "private bucket: payment-screenshots",
+      "passed": true
+    },
+    {
+      "check": "private bucket: property-documents",
+      "passed": true
+    },
+    {
+      "check": "private bucket: chat-attachments",
+      "passed": true
+    },
+    {
+      "check": "distinct subscription FK and event idempotency",
+      "passed": true
+    },
+    {
+      "check": "no runtime database connection in validator",
+      "passed": true
+    },
+    {
+      "check": "seed ledger references reviewed historical manifest",
+      "passed": true
+    },
+    {
+      "check": "no dangerous schema cleanup: 00_preflight.sql",
+      "passed": true
+    },
+    {
+      "check": "no dangerous schema cleanup: 01_schema.sql",
+      "passed": true
+    },
+    {
+      "check": "no dangerous schema cleanup: 02_relationships.sql",
+      "passed": true
+    },
+    {
+      "check": "no dangerous schema cleanup: 03_identity.sql",
+      "passed": true
+    },
+    {
+      "check": "no dangerous schema cleanup: 04_guards.sql",
+      "passed": true
+    },
+    {
+      "check": "no dangerous schema cleanup: 05_finance.sql",
+      "passed": true
+    },
+    {
+      "check": "no dangerous schema cleanup: 06_workflows.sql",
+      "passed": true
+    },
+    {
+      "check": "no dangerous schema cleanup: 07_security.sql",
+      "passed": true
+    },
+    {
+      "check": "no dangerous schema cleanup: 08_integrations.sql",
+      "passed": true
+    },
+    {
+      "check": "no dangerous schema cleanup: 09_seed.sql",
+      "passed": true
+    },
+    {
+      "check": "expected object inventory unchanged",
+      "passed": true
+    },
+    {
+      "check": "SQL Editor artifact contains no psql commands",
+      "passed": true
+    },
+    {
+      "check": "SQL Editor source order matches installer",
+      "passed": true
+    },
+    {
+      "check": "SQL Editor source preserved verbatim: 00_preflight.sql",
+      "passed": true
+    },
+    {
+      "check": "SQL Editor source preserved verbatim: 01_schema.sql",
+      "passed": true
+    },
+    {
+      "check": "SQL Editor source preserved verbatim: 02_relationships.sql",
+      "passed": true
+    },
+    {
+      "check": "SQL Editor source preserved verbatim: 03_identity.sql",
+      "passed": true
+    },
+    {
+      "check": "SQL Editor source preserved verbatim: 04_guards.sql",
+      "passed": true
+    },
+    {
+      "check": "SQL Editor source preserved verbatim: 05_finance.sql",
+      "passed": true
+    },
+    {
+      "check": "SQL Editor source preserved verbatim: 06_workflows.sql",
+      "passed": true
+    },
+    {
+      "check": "SQL Editor source preserved verbatim: 07_security.sql",
+      "passed": true
+    },
+    {
+      "check": "SQL Editor source preserved verbatim: 08_integrations.sql",
+      "passed": true
+    },
+    {
+      "check": "SQL Editor source preserved verbatim: 09_seed.sql",
+      "passed": true
+    },
+    {
+      "check": "SQL Editor exact ordered SQL statement equivalence",
+      "passed": true
+    },
+    {
+      "check": "SQL Editor single BEGIN and COMMIT",
+      "passed": true
+    },
+    {
+      "check": "SQL Editor uses reviewed transactional statement classes",
+      "passed": true
+    },
+    {
+      "check": "SQL Editor has no concurrent index operations",
+      "passed": true
+    },
+    {
+      "check": "package checksum: 00_preflight.sql",
+      "passed": true
+    },
+    {
+      "check": "package checksum: 01_schema.sql",
+      "passed": true
+    },
+    {
+      "check": "package checksum: 02_relationships.sql",
+      "passed": true
+    },
+    {
+      "check": "package checksum: 03_identity.sql",
+      "passed": true
+    },
+    {
+      "check": "package checksum: 04_guards.sql",
+      "passed": true
+    },
+    {
+      "check": "package checksum: 05_finance.sql",
+      "passed": true
+    },
+    {
+      "check": "package checksum: 06_workflows.sql",
+      "passed": true
+    },
+    {
+      "check": "package checksum: 07_security.sql",
+      "passed": true
+    },
+    {
+      "check": "package checksum: 08_integrations.sql",
+      "passed": true
+    },
+    {
+      "check": "package checksum: 09_seed.sql",
+      "passed": true
+    },
+    {
+      "check": "package checksum: CORRECTIONS.md",
+      "passed": true
+    },
+    {
+      "check": "package checksum: expected-objects.json",
+      "passed": true
+    },
+    {
+      "check": "package checksum: historical-manifest.json",
+      "passed": true
+    },
+    {
+      "check": "package checksum: install.psql",
+      "passed": true
+    },
+    {
+      "check": "package checksum: readiness.sql",
+      "passed": true
+    },
+    {
+      "check": "package checksum: README.md",
+      "passed": true
+    },
+    {
+      "check": "package checksum: REGRESSION-PLAN.md",
+      "passed": true
+    },
+    {
+      "check": "package checksum: validation.sql",
+      "passed": true
+    },
+    {
+      "check": "package checksum: verify.py",
+      "passed": true
+    },
+    {
+      "check": "package checksum: install-sql-editor.sql",
+      "passed": true
+    },
+    {
+      "check": "package checksum: build-sql-editor.py",
+      "passed": true
+    }
+  ]
+}

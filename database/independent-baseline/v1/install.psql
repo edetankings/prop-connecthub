@@ -1,0 +1,26 @@
+\set ON_ERROR_STOP on
+\if :{?PROP_CONNECT_INSTALL_APPROVED}
+\else
+  \echo 'Preparation artifact only. Explicit approval and verified destination required.'
+  \quit
+\endif
+\if :PROP_CONNECT_INSTALL_APPROVED
+\else
+  \echo 'Installation not approved; no SQL executed.'
+  \quit
+\endif
+BEGIN;
+SET LOCAL lock_timeout='5s';
+SET LOCAL statement_timeout='120s';
+\ir 00_preflight.sql
+\ir 01_schema.sql
+\ir 02_relationships.sql
+\ir 03_identity.sql
+\ir 04_guards.sql
+\ir 05_finance.sql
+\ir 06_workflows.sql
+\ir 07_security.sql
+\ir 08_integrations.sql
+\ir 09_seed.sql
+COMMIT;
+\echo 'Baseline installed. Run validation.sql before any frontend cutover or business activation.'

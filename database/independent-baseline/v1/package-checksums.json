@@ -1,0 +1,30 @@
+{
+  "algorithm": "SHA256",
+  "files": {
+    "00_preflight.sql": "95668b71d169f78484478adec8c3b080f241e92b23a996fff6c591caa6825492",
+    "01_schema.sql": "4ee94c3b82c2546cf77117d5b7070253d66aa1daef3126ed7804de5ba1e07797",
+    "02_relationships.sql": "ec272a3946ec4673fe58f6b830c9e4825ec6b1244ad2c30937c11593d3bcd3dc",
+    "03_identity.sql": "c1ff2f91229bafd5fa3a624735a30f74c8f7b7f64ea012f0af06b091dd5cc9b3",
+    "04_guards.sql": "a5fdcf14a1a6a5c4204a7603490f720f09771af15c261704008b68b3d85bea4e",
+    "05_finance.sql": "9199eb91ce6df5193a14a500eb406fe4c915c9e846c283883db280776de3159e",
+    "06_workflows.sql": "d27faf96423a9bc5c929131ed16d0f1a1e298b26e79a9ab27803af5ec0332ad9",
+    "07_security.sql": "2ada40b2d2c196a8199b815579703fce9563a19ba71fa2c99b2c59acda1e3a26",
+    "08_integrations.sql": "acaca480e27a568e92d07cf57d49f9e7735d4ad76f1239b060ab476fe5c6099f",
+    "09_seed.sql": "fe178e2931b66bafd7ee250b288592c9f518e71a30f1d8708ed1d80b3a02c3bb",
+    "CORRECTIONS.md": "51a1a80ee7503279c865830fb4e854e1402906c2e4bff518543900d8d04a50bf",
+    "expected-objects.json": "074f4d0ca53154defd11d5057cbd60cee3b439bfee951865c69d2f5d1ee09f29",
+    "historical-manifest.json": "e0bbc1b6d984777cc160e77fb4d23fc3a31a05956457d9310aefe373d469202c",
+    "install.psql": "15d4ad1945bbe3f535376474875e037c271a6c313e34255f46072da889f39a82",
+    "readiness.sql": "f37f3813cd2f168c59c08414e3ab422a4f6ba693fff70d455c8a12b647d20570",
+    "README.md": "8a6a7a092129542848b30815bbb5a377029eef7007e80982e3b2b1561110e715",
+    "REGRESSION-PLAN.md": "c734d848ba4628a433c40ee6d14dfe8d7ac8918b76275d2e75a9d9329fe842f7",
+    "validation.sql": "16ffda10902fd982fff37e395384fbdd90ccb5e163c607aeaef209b1cdae0a07",
+    "verify.py": "614dcf02aa94e3b54b1f666a8430870964fb370dac6980b5c0944ee343e6a264",
+    "install-sql-editor.sql": "ffccf592b39ff537763af1476428ab074bbb4daa67874e6f9a4cd44ca8f4a56a",
+    "build-sql-editor.py": "257b32c1d76f98df3c526a16bf34a2eb00aa6aa12a4be5a30e126caa6ab6b401"
+  },
+  "excluded": [
+    "package-checksums.json (self)",
+    "offline-verification.json (derived check report)"
+  ]
+}
