@@ -26,6 +26,7 @@ interface DBPropertyDetail {
   price: number;
   property_type: string;
   status: string;
+  listing_type?: "sale" | "rental" | null;
   image_url: string | null;
   images: string[] | null;
   videos: string[] | null;
@@ -97,7 +98,7 @@ const PropertyDetail = () => {
   useEffect(() => {
     if (!agentId) return;
     supabase
-      .from("profiles")
+      .from("public_profiles")
       .select("*")
       .eq("id", agentId)
       .maybeSingle()
@@ -151,7 +152,7 @@ const PropertyDetail = () => {
   };
 
 
-  const isRental = dbProperty?.status === "for_rent" || dbProperty?.status === "rented";
+  const isRental = dbProperty?.listing_type === "rental";
   const isOwner = profile?.id === (dbProperty?.agent_id || mockProperty?.agentId);
 
   const handleReserve = async () => {
@@ -278,7 +279,7 @@ const PropertyDetail = () => {
   const bathrooms = dbProperty?.bathrooms ?? mockProperty?.bathrooms ?? 0;
   const sqft = dbProperty?.sqft ?? mockProperty?.sqft ?? 0;
   const isSale = dbProperty
-    ? (dbProperty.status === "for_sale" || dbProperty.status === "available")
+    ? dbProperty.listing_type === "sale"
     : mockProperty?.type === "sale";
   const isVerified = dbProperty?.is_verified ?? false;
   const features = dbProperty?.amenities ?? mockProperty?.features ?? [];

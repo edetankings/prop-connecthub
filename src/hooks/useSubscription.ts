@@ -25,7 +25,7 @@ export const useSubscription = () => {
   const [pendingRequest, setPendingRequest] = useState<SubscriptionRequest | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const isAgent = profile?.profile_type === "agent";
+  const isAgent = profile?.profile_type === "agent" || profile?.profile_type === "builder";
 
   const fetchData = useCallback(async () => {
     if (!user?.id || !isAgent) {

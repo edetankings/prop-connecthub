@@ -98,8 +98,8 @@ const AgentDashboard = () => {
 
   /* ---------- derived (frontend-only calculations from existing data) ---------- */
   const secureSales = useMemo(
-    () => transactions.filter((t) => t.payment_status === "released").reduce((s, t) => s + (t.total_payable || 0), 0),
-    [transactions]
+    () => earnings.filter((e) => e.type === "sale_payout").reduce((s, e) => s + Number(e.amount || 0), 0),
+    [earnings]
   );
   const referralIncome = useMemo(
     () => earnings.filter((e) => e.type === "direct_referral").reduce((s, e) => s + (e.amount || 0), 0),
@@ -129,7 +129,7 @@ const AgentDashboard = () => {
       if (m) m.value += amount || 0;
     };
     earnings.forEach((e) => add(e.created_at, e.amount));
-    transactions.filter((t) => t.payment_status === "released").forEach((t) => add(t.created_at, t.total_payable));
+    // Sale payouts are already included in the earning ledger above.
     return months;
   }, [earnings, transactions]);
 
@@ -166,25 +166,12 @@ const AgentDashboard = () => {
 
   const handleReservation = async (resId: string, status: "confirmed" | "rejected", buyerId: string, propertyTitle: string) => {
     setUpdatingResId(resId);
-    const { error } = await (supabase as any).from("reservations").update({ status }).eq("id", resId);
+    const { error } = await (supabase as any).rpc("agent_respond_inspection", {
+      _id: resId, _action: status === "confirmed" ? "confirm" : "decline",
+      _note: null, _date: null, _time: null,
+    });
     setUpdatingResId(null);
-    if (error) { toast.error("Failed to update reservation"); return; }
-
-    const { data: buyerProfile } = await (supabase as any).from("public_profiles").select("user_id").eq("id", buyerId).maybeSingle();
-
-    if (buyerProfile) {
-      const title = status === "confirmed" ? "Reservation Accepted ✅" : "Reservation Declined";
-      const message = status === "confirmed"
-        ? `Your reservation request for "${propertyTitle}" has been accepted by the agent.`
-        : `Your reservation request for "${propertyTitle}" was declined by the agent.`;
-      await (supabase as any).from("notifications").insert({
-        user_id: buyerProfile.user_id,
-        title,
-        message,
-        type: status === "confirmed" ? "success" : "error",
-        link: "/buyer-dashboard",
-      });
-    }
+    if (error) { toast.error(error.message); return; }
 
     toast.success(status === "confirmed" ? "Reservation accepted" : "Reservation declined");
     setReservations((prev) => prev.map((r) => r.id === resId ? { ...r, status } : r));
@@ -199,13 +186,7 @@ const AgentDashboard = () => {
       .eq("property_id", r.property_id)
       .maybeSingle();
     if (thread) { navigate(`/chat/${thread.id}`); return; }
-    const { data: newThread } = await supabase
-      .from("chat_threads")
-      .insert({ buyer_id: r.buyer_id, agent_id: profile!.id, property_id: r.property_id })
-      .select("id")
-      .single();
-    if (newThread) navigate(`/chat/${newThread.id}`);
-    else toast.error("Failed to start chat");
+    toast.info("The buyer must start the conversation before the agent can reply.");
   };
 
   /* ---------- styles ---------- */

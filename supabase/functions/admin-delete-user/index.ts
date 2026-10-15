@@ -17,7 +17,6 @@ Deno.serve(async (req) => {
     }
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
 
     // Verify caller is admin
@@ -56,48 +55,10 @@ Deno.serve(async (req) => {
       });
     }
 
-    const adminClient = createClient(supabaseUrl, supabaseServiceKey);
-
-    // Get profile ID for this user
-    const { data: profile } = await adminClient
-      .from('profiles')
-      .select('id')
-      .eq('user_id', user_id)
-      .maybeSingle();
-
-    const profileId = profile?.id;
-
-    // Clean up data that might not cascade automatically
-    // Delete earnings (has CASCADE via FK now, but be thorough)
-    await adminClient.from('earnings').delete().eq('user_id', user_id);
-
-    // Delete transactions where user is buyer or seller
-    await adminClient.from('transactions').delete().or(`buyer_id.eq.${user_id},seller_id.eq.${user_id}`);
-
-    // Nullify referred_by references pointing to this profile
-    if (profileId) {
-      await adminClient.from('profiles').update({ referred_by: null }).eq('referred_by', profileId);
-    }
-
-    // Log the action before deletion
-    await adminClient.from('audit_logs').insert({
-      user_id: callerUser.id,
-      action: 'admin_delete_user',
-      details: { deleted_user_id: user_id, deleted_profile_id: profileId },
-    });
-
-    // Delete the auth user - cascades to profiles, notifications, etc.
-    const { error: deleteError } = await adminClient.auth.admin.deleteUser(user_id);
-
-    if (deleteError) {
-      console.error('Delete error:', deleteError);
-      return new Response(JSON.stringify({ error: deleteError.message }), {
-        status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    return new Response(JSON.stringify({ success: true }), {
-      status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    // Retention and transactional account cleanup have not been approved.
+    // Never perform partial destructive cleanup against the independent baseline.
+    return new Response(JSON.stringify({ error: 'Account deletion is unavailable pending an approved data-retention workflow.' }), {
+      status: 409, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err) {
     console.error('Edge function error:', err);

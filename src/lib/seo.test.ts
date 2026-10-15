@@ -32,7 +32,7 @@ describe('portable SEO URLs', () => {
       const xml = new DOMParser().parseFromString(renderSitemap(base), 'application/xml');
       expect(xml.querySelector('parsererror')).toBeNull();
       const locations = [...xml.querySelectorAll('loc')].map((node) => node.textContent!);
-      expect(locations).toHaveLength(14);
+      expect(locations).toHaveLength(13);
       expect(new Set(locations).size).toBe(locations.length);
       expect(locations.map((url) => new URL(url).pathname)).toEqual(publicRoutes);
       expect(locations.every((url) => new URL(url).origin === base)).toBe(true);

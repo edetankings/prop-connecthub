@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.5"
+    PostgrestVersion: "14.18"
   }
   public: {
     Tables: {
@@ -45,13 +45,6 @@ export type Database = {
             columns: ["author_id"]
             isOneToOne: false
             referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "announcements_author_id_fkey"
-            columns: ["author_id"]
-            isOneToOne: false
-            referencedRelation: "public_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -117,24 +110,10 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "chat_threads_agent_id_fkey"
-            columns: ["agent_id"]
-            isOneToOne: false
-            referencedRelation: "public_profiles"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "chat_threads_buyer_id_fkey"
             columns: ["buyer_id"]
             isOneToOne: false
             referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "chat_threads_buyer_id_fkey"
-            columns: ["buyer_id"]
-            isOneToOne: false
-            referencedRelation: "public_profiles"
             referencedColumns: ["id"]
           },
           {
@@ -152,6 +131,7 @@ export type Database = {
           rental_percent: number
           reservation_flat: number
           sales_percent: number
+          singleton: boolean
           updated_at: string
           updated_by: string | null
         }
@@ -160,6 +140,7 @@ export type Database = {
           rental_percent?: number
           reservation_flat?: number
           sales_percent?: number
+          singleton?: boolean
           updated_at?: string
           updated_by?: string | null
         }
@@ -168,6 +149,7 @@ export type Database = {
           rental_percent?: number
           reservation_flat?: number
           sales_percent?: number
+          singleton?: boolean
           updated_at?: string
           updated_by?: string | null
         }
@@ -177,18 +159,21 @@ export type Database = {
         Row: {
           balance: number
           id: string
+          singleton: boolean
           total_earned: number
           updated_at: string
         }
         Insert: {
           balance?: number
           id?: string
+          singleton?: boolean
           total_earned?: number
           updated_at?: string
         }
         Update: {
           balance?: number
           id?: string
+          singleton?: boolean
           total_earned?: number
           updated_at?: string
         }
@@ -286,10 +271,24 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "deal_requests_agent_profile_id_fkey"
+            columns: ["agent_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "deal_requests_property_id_fkey"
             columns: ["property_id"]
             isOneToOne: false
             referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deal_requests_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: true
+            referencedRelation: "transactions"
             referencedColumns: ["id"]
           },
         ]
@@ -353,24 +352,10 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "disputes_reported_id_fkey"
-            columns: ["reported_id"]
-            isOneToOne: false
-            referencedRelation: "public_profiles"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "disputes_reporter_id_fkey"
             columns: ["reporter_id"]
             isOneToOne: false
             referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "disputes_reporter_id_fkey"
-            columns: ["reporter_id"]
-            isOneToOne: false
-            referencedRelation: "public_profiles"
             referencedColumns: ["id"]
           },
           {
@@ -387,10 +372,12 @@ export type Database = {
           amount: number
           created_at: string
           description: string | null
+          event_key: string
           from_user_id: string | null
           id: string
           level: number | null
           source: string | null
+          subscription_id: string | null
           transaction_id: string | null
           type: string
           user_id: string
@@ -399,10 +386,12 @@ export type Database = {
           amount?: number
           created_at?: string
           description?: string | null
+          event_key: string
           from_user_id?: string | null
           id?: string
           level?: number | null
           source?: string | null
+          subscription_id?: string | null
           transaction_id?: string | null
           type: string
           user_id: string
@@ -411,20 +400,38 @@ export type Database = {
           amount?: number
           created_at?: string
           description?: string | null
+          event_key?: string
           from_user_id?: string | null
           id?: string
           level?: number | null
           source?: string | null
+          subscription_id?: string | null
           transaction_id?: string | null
           type?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "earnings_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "earnings_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       escrow_holds: {
         Row: {
           amount: number
           created_at: string
+          event_key: string
           from_user_id: string
           hold_until: string
           id: string
@@ -437,6 +444,7 @@ export type Database = {
         Insert: {
           amount: number
           created_at?: string
+          event_key: string
           from_user_id: string
           hold_until?: string
           id?: string
@@ -449,6 +457,7 @@ export type Database = {
         Update: {
           amount?: number
           created_at?: string
+          event_key?: string
           from_user_id?: string
           hold_until?: string
           id?: string
@@ -458,7 +467,15 @@ export type Database = {
           status?: string
           subscription_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "escrow_holds_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       kyc_verifications: {
         Row: {
@@ -528,6 +545,7 @@ export type Database = {
       }
       messages: {
         Row: {
+          attachment_path: string | null
           content: string
           created_at: string
           id: string
@@ -537,6 +555,7 @@ export type Database = {
           thread_id: string
         }
         Insert: {
+          attachment_path?: string | null
           content: string
           created_at?: string
           id?: string
@@ -546,6 +565,7 @@ export type Database = {
           thread_id: string
         }
         Update: {
+          attachment_path?: string | null
           content?: string
           created_at?: string
           id?: string
@@ -560,13 +580,6 @@ export type Database = {
             columns: ["sender_id"]
             isOneToOne: false
             referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "messages_sender_id_fkey"
-            columns: ["sender_id"]
-            isOneToOne: false
-            referencedRelation: "public_profiles"
             referencedColumns: ["id"]
           },
           {
@@ -652,28 +665,49 @@ export type Database = {
       }
       platform_settings: {
         Row: {
-          company_account_name: string
-          company_account_number: string
-          company_bank_name: string
+          company_account_name: string | null
+          company_account_number: string | null
+          company_bank_name: string | null
           id: string
+          monetary_unit: string | null
+          money_rules_approved: boolean
+          referral_policy: string | null
+          referral_rules_approved: boolean
+          singleton: boolean
+          subscription_amount: number | null
           updated_at: string
           updated_by: string | null
+          verification_bonus_policy: string | null
         }
         Insert: {
-          company_account_name?: string
-          company_account_number?: string
-          company_bank_name?: string
+          company_account_name?: string | null
+          company_account_number?: string | null
+          company_bank_name?: string | null
           id?: string
+          monetary_unit?: string | null
+          money_rules_approved?: boolean
+          referral_policy?: string | null
+          referral_rules_approved?: boolean
+          singleton?: boolean
+          subscription_amount?: number | null
           updated_at?: string
           updated_by?: string | null
+          verification_bonus_policy?: string | null
         }
         Update: {
-          company_account_name?: string
-          company_account_number?: string
-          company_bank_name?: string
+          company_account_name?: string | null
+          company_account_number?: string | null
+          company_bank_name?: string | null
           id?: string
+          monetary_unit?: string | null
+          money_rules_approved?: boolean
+          referral_policy?: string | null
+          referral_rules_approved?: boolean
+          singleton?: boolean
+          subscription_amount?: number | null
           updated_at?: string
           updated_by?: string | null
+          verification_bonus_policy?: string | null
         }
         Relationships: []
       }
@@ -685,7 +719,9 @@ export type Database = {
           created_at: string
           full_name: string
           id: string
+          invited_by: string | null
           is_visible: boolean
+          kyc_trust_awarded: boolean
           kyc_verified: boolean
           last_login_at: string | null
           location: string | null
@@ -710,7 +746,9 @@ export type Database = {
           created_at?: string
           full_name?: string
           id?: string
+          invited_by?: string | null
           is_visible?: boolean
+          kyc_trust_awarded?: boolean
           kyc_verified?: boolean
           last_login_at?: string | null
           location?: string | null
@@ -735,7 +773,9 @@ export type Database = {
           created_at?: string
           full_name?: string
           id?: string
+          invited_by?: string | null
           is_visible?: boolean
+          kyc_trust_awarded?: boolean
           kyc_verified?: boolean
           last_login_at?: string | null
           location?: string | null
@@ -755,8 +795,8 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "profiles_referred_by_fkey"
-            columns: ["referred_by"]
+            foreignKeyName: "profiles_invited_by_fkey"
+            columns: ["invited_by"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -765,7 +805,7 @@ export type Database = {
             foreignKeyName: "profiles_referred_by_fkey"
             columns: ["referred_by"]
             isOneToOne: false
-            referencedRelation: "public_profiles"
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -785,6 +825,7 @@ export type Database = {
           images: string[] | null
           is_verified: boolean
           latitude: number | null
+          listing_type: string | null
           longitude: number | null
           price: number
           property_code: string | null
@@ -811,6 +852,7 @@ export type Database = {
           images?: string[] | null
           is_verified?: boolean
           latitude?: number | null
+          listing_type?: string | null
           longitude?: number | null
           price?: number
           property_code?: string | null
@@ -837,6 +879,7 @@ export type Database = {
           images?: string[] | null
           is_verified?: boolean
           latitude?: number | null
+          listing_type?: string | null
           longitude?: number | null
           price?: number
           property_code?: string | null
@@ -855,13 +898,6 @@ export type Database = {
             columns: ["agent_id"]
             isOneToOne: false
             referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "properties_agent_id_fkey"
-            columns: ["agent_id"]
-            isOneToOne: false
-            referencedRelation: "public_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -898,6 +934,13 @@ export type Database = {
           uploaded_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "property_documents_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "property_documents_property_id_fkey"
             columns: ["property_id"]
@@ -944,13 +987,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "ratings_agent_id_fkey"
-            columns: ["agent_id"]
-            isOneToOne: false
-            referencedRelation: "public_profiles"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "ratings_property_id_fkey"
             columns: ["property_id"]
             isOneToOne: false
@@ -962,13 +998,6 @@ export type Database = {
             columns: ["reviewer_id"]
             isOneToOne: false
             referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "ratings_reviewer_id_fkey"
-            columns: ["reviewer_id"]
-            isOneToOne: false
-            referencedRelation: "public_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -1043,24 +1072,10 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "reservations_agent_id_fkey"
-            columns: ["agent_id"]
-            isOneToOne: false
-            referencedRelation: "public_profiles"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "reservations_buyer_id_fkey"
             columns: ["buyer_id"]
             isOneToOne: false
             referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "reservations_buyer_id_fkey"
-            columns: ["buyer_id"]
-            isOneToOne: false
-            referencedRelation: "public_profiles"
             referencedColumns: ["id"]
           },
           {
@@ -1077,6 +1092,8 @@ export type Database = {
           created_at: string
           id: string
           note: string | null
+          payment_reference: string | null
+          review_note: string | null
           reviewed_at: string | null
           reviewed_by: string | null
           screenshot_url: string
@@ -1087,6 +1104,8 @@ export type Database = {
           created_at?: string
           id?: string
           note?: string | null
+          payment_reference?: string | null
+          review_note?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           screenshot_url: string
@@ -1097,6 +1116,8 @@ export type Database = {
           created_at?: string
           id?: string
           note?: string | null
+          payment_reference?: string | null
+          review_note?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           screenshot_url?: string
@@ -1107,33 +1128,53 @@ export type Database = {
       }
       subscriptions: {
         Row: {
+          activation_request_id: string | null
+          activation_version: number
           created_at: string
+          distribution_version: number
           end_date: string
           id: string
+          paid_amount: number | null
           start_date: string
           status: string
           updated_at: string
           user_id: string
         }
         Insert: {
+          activation_request_id?: string | null
+          activation_version?: number
           created_at?: string
+          distribution_version?: number
           end_date?: string
           id?: string
+          paid_amount?: number | null
           start_date?: string
           status?: string
           updated_at?: string
           user_id: string
         }
         Update: {
+          activation_request_id?: string | null
+          activation_version?: number
           created_at?: string
+          distribution_version?: number
           end_date?: string
           id?: string
+          paid_amount?: number | null
           start_date?: string
           status?: string
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_activation_request_id_fkey"
+            columns: ["activation_request_id"]
+            isOneToOne: true
+            referencedRelation: "subscription_requests"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       support_tickets: {
         Row: {
@@ -1183,6 +1224,7 @@ export type Database = {
           proof_url: string | null
           property_code: string | null
           property_id: string | null
+          receipt_reference: string | null
           rejection_reason: string | null
           released_at: string | null
           seller_id: string
@@ -1205,12 +1247,13 @@ export type Database = {
           proof_url?: string | null
           property_code?: string | null
           property_id?: string | null
+          receipt_reference?: string | null
           rejection_reason?: string | null
           released_at?: string | null
           seller_id: string
           status?: string
           total_payable?: number
-          type?: string
+          type: string
           updated_at?: string
         }
         Update: {
@@ -1227,6 +1270,7 @@ export type Database = {
           proof_url?: string | null
           property_code?: string | null
           property_id?: string | null
+          receipt_reference?: string | null
           rejection_reason?: string | null
           released_at?: string | null
           seller_id?: string
@@ -1329,13 +1373,6 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "verification_documents_reviewed_by_fkey"
-            columns: ["reviewed_by"]
-            isOneToOne: false
-            referencedRelation: "public_profiles"
-            referencedColumns: ["id"]
-          },
         ]
       }
       verification_steps: {
@@ -1382,6 +1419,7 @@ export type Database = {
           id: string
           updated_at: string
           user_id: string
+          withdrawal_reserved: number
         }
         Insert: {
           balance?: number
@@ -1390,6 +1428,7 @@ export type Database = {
           id?: string
           updated_at?: string
           user_id: string
+          withdrawal_reserved?: number
         }
         Update: {
           balance?: number
@@ -1398,6 +1437,7 @@ export type Database = {
           id?: string
           updated_at?: string
           user_id?: string
+          withdrawal_reserved?: number
         }
         Relationships: []
       }
@@ -1410,6 +1450,7 @@ export type Database = {
           bank_name: string
           created_at: string
           id: string
+          payment_reference: string | null
           reviewed_at: string | null
           reviewed_by: string | null
           status: string
@@ -1424,6 +1465,7 @@ export type Database = {
           bank_name: string
           created_at?: string
           id?: string
+          payment_reference?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           status?: string
@@ -1438,6 +1480,7 @@ export type Database = {
           bank_name?: string
           created_at?: string
           id?: string
+          payment_reference?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           status?: string
@@ -1461,65 +1504,22 @@ export type Database = {
           location: string | null
           profile_type: Database["public"]["Enums"]["profile_type"] | null
           properties_listed: number | null
-          referral_code: string | null
-          referred_by: string | null
           trust_score: number | null
-          user_id: string | null
         }
-        Insert: {
-          avatar_url?: string | null
-          bio?: string | null
-          completed_transactions?: number | null
-          created_at?: string | null
-          full_name?: string | null
-          id?: string | null
-          is_visible?: boolean | null
-          kyc_verified?: boolean | null
-          location?: string | null
-          profile_type?: Database["public"]["Enums"]["profile_type"] | null
-          properties_listed?: number | null
-          referral_code?: string | null
-          referred_by?: string | null
-          trust_score?: number | null
-          user_id?: string | null
-        }
-        Update: {
-          avatar_url?: string | null
-          bio?: string | null
-          completed_transactions?: number | null
-          created_at?: string | null
-          full_name?: string | null
-          id?: string | null
-          is_visible?: boolean | null
-          kyc_verified?: boolean | null
-          location?: string | null
-          profile_type?: Database["public"]["Enums"]["profile_type"] | null
-          properties_listed?: number | null
-          referral_code?: string | null
-          referred_by?: string | null
-          trust_score?: number | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "profiles_referred_by_fkey"
-            columns: ["referred_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "profiles_referred_by_fkey"
-            columns: ["referred_by"]
-            isOneToOne: false
-            referencedRelation: "public_profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
     }
     Functions: {
       accept_deal: { Args: { _request_id: string }; Returns: string }
+      activate_chat: { Args: { _thread_id: string }; Returns: undefined }
+      activate_subscription: {
+        Args: {
+          _end_date: string
+          _payment_reference: string
+          _request_id: string
+        }
+        Returns: string
+      }
       advance_deal_stage: {
         Args: { _deal_id: string; _stage: string }
         Returns: undefined
@@ -1535,7 +1535,7 @@ export type Database = {
         Returns: undefined
       }
       approve_secure_payment: {
-        Args: { _transaction_id: string }
+        Args: { _payment_reference?: string; _transaction_id: string }
         Returns: undefined
       }
       approve_withdrawal: {
@@ -1561,12 +1561,30 @@ export type Database = {
         Returns: string
       }
       generate_referral_code: { Args: never; Returns: string }
+      get_chat_participants: {
+        Args: { _thread_id: string }
+        Returns: {
+          avatar_url: string
+          full_name: string
+          id: string
+          profile_type: Database["public"]["Enums"]["profile_type"]
+        }[]
+      }
       get_company_payment_details: {
         Args: never
         Returns: {
           company_account_name: string
           company_account_number: string
           company_bank_name: string
+        }[]
+      }
+      get_deal_participants: {
+        Args: { _deal_id: string }
+        Returns: {
+          avatar_url: string
+          full_name: string
+          profile_id: string
+          user_id: string
         }[]
       }
       get_my_profile_id: { Args: never; Returns: string }
@@ -1577,6 +1595,16 @@ export type Database = {
           live_listings: number
           secured_escrow: number
           verified_agents: number
+        }[]
+      }
+      get_referral_summary: {
+        Args: never
+        Returns: {
+          created_at: string
+          full_name: string
+          id: string
+          kyc_verified: boolean
+          profile_type: Database["public"]["Enums"]["profile_type"]
         }[]
       }
       has_role: {
@@ -1618,6 +1646,10 @@ export type Database = {
         Args: { _reason: string; _transaction_id: string }
         Returns: undefined
       }
+      reject_subscription_request: {
+        Args: { _reason: string; _request_id: string }
+        Returns: undefined
+      }
       reject_withdrawal: {
         Args: { _id: string; _note: string }
         Returns: undefined
@@ -1628,6 +1660,15 @@ export type Database = {
       }
       request_deal: {
         Args: { _message?: string; _property_id: string }
+        Returns: string
+      }
+      request_withdrawal: {
+        Args: {
+          _account_name: string
+          _account_number: string
+          _amount: number
+          _bank_name: string
+        }
         Returns: string
       }
       resolve_dispute: {

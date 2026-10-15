@@ -22,7 +22,7 @@ const Chat = () => {
   const { threadId } = useParams();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { user, profile } = useAuth();
+  const { user, profile, isAdmin } = useAuth();
 
   const [messages, setMessages] = useState<BubbleMessage[]>([]);
   const [input, setInput] = useState("");
@@ -76,7 +76,7 @@ const Chat = () => {
           if (newThread) {
             setCurrentThreadId(newThread.id);
             setThreadStatus((newThread as any).status || "restricted");
-            await loadOtherUser(agentProfileId);
+            await loadOtherUser(agentProfileId, newThread.id);
             if (propertyId) await loadProperty(propertyId);
             navigate(`/chat/${newThread.id}`, { replace: true });
           }
@@ -95,7 +95,7 @@ const Chat = () => {
       const mineIsBuyer = thread.buyer_id === profile.id;
       setIsBuyer(mineIsBuyer);
       const otherId = mineIsBuyer ? thread.agent_id : thread.buyer_id;
-      await loadOtherUser(otherId);
+      await loadOtherUser(otherId, tId);
       if (thread.property_id) {
         await loadProperty(thread.property_id);
         await loadDeal(thread.property_id, thread.buyer_id);
@@ -104,13 +104,11 @@ const Chat = () => {
     setLoading(false);
   };
 
-  const loadOtherUser = async (otherId: string) => {
-    const { data } = await (supabase as any)
-      .from("public_profiles")
-      .select("full_name, avatar_url")
-      .eq("id", otherId)
-      .maybeSingle();
-    setOtherUser({ name: data?.full_name || "Unknown", avatar: data?.avatar_url || null });
+  const loadOtherUser = async (otherId: string, id: string) => {
+    const { data, error } = await (supabase as any).rpc("get_chat_participants", { _thread_id: id });
+    if (error) toast.error(error.message);
+    const other = data?.find((p: any) => p.id === otherId);
+    setOtherUser({ name: other?.full_name || "Unknown", avatar: other?.avatar_url || null });
   };
 
   const loadProperty = async (pid: string) => {
@@ -222,7 +220,12 @@ const Chat = () => {
           },
         ]);
       }
-      await supabase.from("messages").insert({ thread_id: currentThreadId, sender_id: profile.id, content } as any);
+      const { error } = await supabase.from("messages").insert({ thread_id: currentThreadId, sender_id: profile.id, content } as any);
+      if (error) {
+        setMessages((prev) => prev.filter((m) => !(m.pending && m.content === content)));
+        toast.error(error.message);
+        return;
+      }
       await supabase
         .from("chat_threads")
         .update({ last_message_at: new Date().toISOString() } as any)
@@ -235,12 +238,6 @@ const Chat = () => {
     async (text: string) => {
       if (!text.trim() || !currentThreadId || !profile) return;
       if (containsContactInfo(text)) {
-        await supabase.from("messages").insert({
-          thread_id: currentThreadId,
-          sender_id: profile.id,
-          content: BLOCKED_MESSAGE,
-          is_blocked: true,
-        } as any);
         toast.error("Contact sharing is not allowed on this platform.");
         return;
       }
@@ -300,9 +297,7 @@ const Chat = () => {
     persist(encodeAttachment({ kind: "property", propertyId: property.id, text: property.title }), false);
   };
 
-  const shareContact = () => {
-    persist(encodeAttachment({ kind: "contact", name: profile?.full_name || "Contact" }), false);
-  };
+  const shareContact = () => toast.error("Contact sharing is not allowed on this platform.");
 
   /* ---------------- secure payment flow ---------------- */
   const canPay = dealStatus === "accepted";
@@ -322,32 +317,16 @@ const Chat = () => {
       return;
     }
     setDealStatus("pending");
-    await persist(
-      encodeAttachment({ kind: "system", text: "🔐 Secure payment requested — waiting for agent approval", tone: "payment" }),
-      false
-    );
     toast.success("Request sent. The agent must approve before payment unlocks.");
   };
 
   const handleInterested = async () => {
-    if (!currentThreadId || !profile) return;
-    await supabase.from("chat_threads").update({ status: "active" } as any).eq("id", currentThreadId);
+    if (!currentThreadId) return;
+    if (!isAdmin) { toast.info("Chat activation requires administrator approval."); return; }
+    const { error } = await (supabase as any).rpc("activate_chat", { _thread_id: currentThreadId });
+    if (error) { toast.error(error.message); return; }
     setThreadStatus("active");
-    await persist("🤝 I'm interested in this property! Let's discuss further.", false);
-
-    const { data: adminRoles } = await supabase.from("user_roles").select("user_id").eq("role", "admin");
-    if (adminRoles) {
-      for (const role of adminRoles) {
-        await (supabase as any).from("notifications").insert({
-          user_id: role.user_id,
-          title: "🔥 New Active Deal",
-          message: `${profile.full_name} is interested in a property. Chat is now active.`,
-          type: "info",
-          link: `/admin`,
-        });
-      }
-    }
-    toast.success("Chat is now active! You can type freely (contact sharing still blocked).");
+    toast.success("Chat activated");
   };
 
   const isRestricted = threadStatus === "restricted";

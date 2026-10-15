@@ -28,7 +28,7 @@ SELECT p.oid::regprocedure AS signature,p.prosecdef,
  has_function_privilege('anon',p.oid,'EXECUTE') AS anon_execute,
  has_function_privilege('authenticated',p.oid,'EXECUTE') AS authenticated_execute
 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace
-WHERE n.nspname IN ('public','prop_connect_private') ORDER BY signature::text;
+WHERE n.nspname IN ('public','prop_connect_private') ORDER BY (p.oid::regprocedure)::text;
 SELECT schemaname,tablename,policyname,cmd,roles,qual,with_check FROM pg_policies
 WHERE schemaname IN ('public','storage') ORDER BY schemaname,tablename,policyname;
 SELECT pubname,schemaname,tablename FROM pg_publication_tables WHERE pubname='supabase_realtime';

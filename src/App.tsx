@@ -81,7 +81,7 @@ const App = () => (
             <Route path="/chat/new" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
             <Route path="/chat/:threadId" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
             <Route path="/announcements" element={<Announcements />} />
-            <Route path="/analytics" element={<Analytics />} />
+            <Route path="/analytics" element={<AdminRoute><Analytics /></AdminRoute>} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />

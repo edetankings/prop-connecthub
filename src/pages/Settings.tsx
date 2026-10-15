@@ -98,7 +98,7 @@ const Settings = () => {
     const file = e.target.files?.[0];
     if (!file || !user) return;
 
-    const allowed = ["image/jpeg", "image/png", "image/jpg"];
+    const allowed = ["image/jpeg", "image/png", "image/webp"];
     if (!allowed.includes(file.type)) {
       toast.error("Only JPG, JPEG, and PNG files are allowed");
       return;

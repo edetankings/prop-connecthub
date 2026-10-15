@@ -1,11 +1,7 @@
 // Shared, origin-restricted CORS helper for all PROP-CONNECT edge functions.
-const ALLOWED_PATTERNS: RegExp[] = [
-  /^https:\/\/prop-connecthub\.lovable\.app$/,
-  /^https:\/\/([a-z0-9-]+\.)*lovable\.app$/,
-  /^https:\/\/([a-z0-9-]+\.)*lovable\.dev$/,
-  /^http:\/\/localhost:\d+$/,
-  /^http:\/\/127\.0\.0\.1:\d+$/,
-];
+// Deployment must supply exact approved frontend origins; no provider wildcard.
+const configuredOrigins = (Deno.env.get("ALLOWED_ORIGINS") ?? "").split(",").map((s) => s.trim()).filter(Boolean);
+const localOrigin = /^http:\/\/(localhost|127\.0\.0\.1):\d+$/;
 
 const BASE_HEADERS: Record<string, string> = {
   "Access-Control-Allow-Headers":
@@ -17,7 +13,9 @@ const BASE_HEADERS: Record<string, string> = {
 
 export function isAllowedOrigin(origin: string | null): boolean {
   if (!origin) return false;
-  return ALLOWED_PATTERNS.some((re) => re.test(origin));
+  return localOrigin.test(origin) || configuredOrigins.some((value) => {
+    try { const allowed = new URL(value); return allowed.protocol === "https:" && allowed.origin === value && value === origin; } catch { return false; }
+  });
 }
 
 /** Returns CORS headers echoing the request origin only when it is allow-listed. */

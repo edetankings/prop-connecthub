@@ -7,7 +7,6 @@ import { supabase } from "@/integrations/supabase/client";
 
 export interface DBAgent {
   id: string;
-  user_id: string;
   full_name: string;
   avatar_url: string | null;
   trust_score: number;

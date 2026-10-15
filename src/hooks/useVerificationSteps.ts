@@ -54,8 +54,6 @@ export function useVerificationSteps() {
         step_name,
         status: "not_started",
       }));
-      if (profile?.phone_verified) inserts[0].status = "approved";
-      if (user.email_confirmed_at) inserts[1].status = "approved";
 
       const { data: created, error: insertErr } = await (supabase as any)
         .from("verification_steps")
@@ -65,40 +63,7 @@ export function useVerificationSteps() {
       if (insertErr) console.error("Error initializing steps:", insertErr);
       setSteps((created as VerificationStep[]) || []);
     } else {
-      const updates: Promise<any>[] = [];
-      const phoneStep = data.find((s: any) => s.step_name === "phone_otp");
-      const emailStep = data.find((s: any) => s.step_name === "email_auth");
-
-      if (phoneStep && phoneStep.status === "not_started" && profile?.phone_verified) {
-        updates.push(
-          (supabase as any)
-            .from("verification_steps")
-            .update({ status: "approved" })
-            .eq("id", phoneStep.id)
-            .then(() => {}),
-        );
-      }
-      if (emailStep && emailStep.status === "not_started" && user.email_confirmed_at) {
-        updates.push(
-          (supabase as any)
-            .from("verification_steps")
-            .update({ status: "approved" })
-            .eq("id", emailStep.id)
-            .then(() => {}),
-        );
-      }
-
-      if (updates.length > 0) {
-        await Promise.all(updates);
-        const { data: refreshed } = await (supabase as any)
-          .from("verification_steps")
-          .select("*")
-          .eq("user_id", user.id)
-          .order("created_at", { ascending: true });
-        setSteps((refreshed as VerificationStep[]) || []);
-      } else {
-        setSteps(data as VerificationStep[]);
-      }
+      setSteps(data as VerificationStep[]);
     }
     setLoading(false);
   }, [user, profile?.phone_verified]);
@@ -107,9 +72,14 @@ export function useVerificationSteps() {
     fetchSteps();
   }, [fetchSteps]);
 
-  const getStepByName = (name: StepName) => steps.find((s) => s.step_name === name);
+  // Display verified Auth/profile state without attempting privileged database writes.
+  const displaySteps = steps.map((step) =>
+    (step.step_name === "email_auth" && user?.email_confirmed_at) ||
+    (step.step_name === "phone_otp" && profile?.phone_verified)
+      ? { ...step, status: "approved" as const } : step);
+  const getStepByName = (name: StepName) => displaySteps.find((s) => s.step_name === name);
 
-  const completedCount = steps.filter((s) => s.status === "approved").length;
+  const completedCount = displaySteps.filter((s) => s.status === "approved").length;
   const totalSteps = STEP_ORDER.length;
   const progressPercent = totalSteps > 0 ? Math.round((completedCount / totalSteps) * 100) : 0;
 
@@ -148,7 +118,7 @@ export function useVerificationSteps() {
   };
 
   return {
-    steps,
+    steps: displaySteps,
     loading,
     completedCount,
     totalSteps,

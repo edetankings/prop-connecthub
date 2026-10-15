@@ -17,11 +17,13 @@ import ReferralTree from "@/components/ReferralTree";
 import { SignedBucketAsset } from "@/components/SignedBucketAsset";
 import logo from "@/assets/logo.jpg";
 import { toast } from "sonner";
+import { useFinancialAvailability } from "@/hooks/useFinancialAvailability";
 import { PieChart as RechartsPie, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
 type Tab = "dashboard" | "matrix" | "users" | "moderation" | "disputes" | "audit" | "verification" | "reservations" | "support" | "announcements" | "earnings" | "subscriptions" | "active-deals" | "withdrawals" | "referrals";
 
 const AdminDashboard = () => {
+  const finance = useFinancialAvailability();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [adminProfileId, setAdminProfileId] = useState<string | null>(null);
@@ -88,7 +90,7 @@ const AdminDashboard = () => {
 
     const { data: created, error } = await supabase
       .from("chat_threads")
-      .insert({ buyer_id: adminProfileId, agent_id: targetProfileId, status: "open" } as any)
+      .insert({ buyer_id: adminProfileId, agent_id: targetProfileId, status: "restricted" } as any)
       .select("id")
       .maybeSingle();
 
@@ -214,41 +216,12 @@ const AdminDashboard = () => {
   };
 
   const handleVerifyKyc = async (profileId: string) => {
-    // Update profile
-    const { error } = await supabase.from("profiles").update({ kyc_verified: true, trust_score: 80 }).eq("id", profileId);
-    if (error) { toast.error(error.message); return; }
-
-    // Get user_id from profile
     const targetProfile = profiles.find((p: any) => p.id === profileId);
-    if (targetProfile) {
-      // Update kyc_verifications status to verified
-      await (supabase as any).from("kyc_verifications").update({
-        kyc_status: "verified",
-        reviewed_by: user?.id,
-        reviewed_at: new Date().toISOString(),
-      }).eq("user_id", targetProfile.user_id);
-
-      // Also approve all pending verification steps
-      await (supabase as any).from("verification_steps").update({ status: "approved" })
-        .eq("user_id", targetProfile.user_id)
-        .neq("status", "approved");
-
-      // Send notification
-      await (supabase as any).from("notifications").insert({
-        user_id: targetProfile.user_id,
-        title: "Account Verified! ✅",
-        message: "Congratulations! Your identity verification has been approved. You now have full access to all platform features.",
-        type: "success",
-        link: "/dashboard",
-      });
-
-      // Log audit (server-side, admin-only RPC)
-      await (supabase as any).rpc("log_admin_action", {
-        _action: "verify_agent",
-        _details: { profile_id: profileId, agent_name: targetProfile.full_name },
-      });
-    }
-
+    if (!targetProfile) return;
+    const { data, error } = await (supabase as any).from("kyc_verifications")
+      .update({ kyc_status: "verified", rejection_reason: null }).eq("user_id", targetProfile.user_id).select("id");
+    if (error || !data?.length) { toast.error(error?.message || "No KYC submission exists to review"); return; }
+    // Canonical database triggers synchronize profile, trust and notifications.
     toast.success("Agent verified successfully!");
     loadData();
   };
@@ -268,14 +241,6 @@ const AdminDashboard = () => {
     }).eq("user_id", targetProfile.user_id);
     if (kycErr) { toast.error(kycErr.message); return; }
 
-    // Ensure profile is not marked verified
-    await supabase.from("profiles").update({ kyc_verified: false }).eq("id", profileId);
-
-    await (supabase as any).rpc("log_admin_action", {
-      _action: "reject_kyc",
-      _details: { profile_id: profileId, reason: reason.trim() },
-    });
-
     toast.success("KYC rejected and user notified");
     loadData();
   };
@@ -293,14 +258,6 @@ const AdminDashboard = () => {
       return;
     }
 
-    if (status === "approved" && doc?.user_id) {
-      const { error: profErr } = await supabase
-        .from("profiles")
-        .update({ kyc_verified: true, trust_score: 80 })
-        .eq("user_id", doc.user_id);
-      if (profErr) toast.error("Document approved, but failed to update KYC status");
-    }
-
     toast.success(`Document ${status}`);
     loadData();
   };
@@ -309,19 +266,6 @@ const AdminDashboard = () => {
     const prop = properties.find((p) => p.id === propertyId);
     const { error } = await supabase.from("properties").update({ status: "available", is_verified: true } as any).eq("id", propertyId);
     if (error) { toast.error(error.message); return; }
-    // Notify agent
-    if (prop) {
-      const agentProfile = profiles.find((p: any) => p.id === prop.agent_id);
-      if (agentProfile) {
-        await (supabase as any).from("notifications").insert({
-          user_id: agentProfile.user_id,
-          title: "Property Approved ✅",
-          message: `Your property "${prop.title}" has been approved and is now live.`,
-          type: "success",
-          link: `/property/${propertyId}`,
-        });
-      }
-    }
     toast.success("Property approved!");
     loadData();
   };
@@ -331,25 +275,14 @@ const AdminDashboard = () => {
     const reason = prompt("Enter decline reason (optional):");
     const { error } = await supabase.from("properties").update({ status: "draft" } as any).eq("id", propertyId);
     if (error) { toast.error(error.message); return; }
-    // Notify agent
-    if (prop) {
-      const agentProfile = profiles.find((p: any) => p.id === prop.agent_id);
-      if (agentProfile) {
-        await (supabase as any).from("notifications").insert({
-          user_id: agentProfile.user_id,
-          title: "Property Declined",
-          message: `Your property "${prop.title}" was declined. ${reason ? `Reason: ${reason}. ` : ""}Please review and re-upload.`,
-          type: "error",
-          link: "/add-property",
-        });
-      }
-    }
     toast.success("Property rejected");
     loadData();
   };
 
   const handleDisputeStatus = async (disputeId: string, status: string) => {
-    const { error } = await supabase.from("disputes").update({ status }).eq("id", disputeId);
+    const resolution = prompt("Resolution or review note:");
+    if (!resolution?.trim()) return;
+    const { error } = await supabase.rpc("resolve_dispute", { _dispute_id: disputeId, _status: status, _resolution: resolution.trim() });
     if (error) { toast.error(error.message); return; }
     toast.success("Dispute updated");
     loadData();
@@ -376,37 +309,7 @@ const AdminDashboard = () => {
       link: "/verification",
     });
 
-    // Check if all steps are now approved for this user
-    if (status === "approved") {
-      const { data: allSteps } = await (supabase as any)
-        .from("verification_steps")
-        .select("*")
-        .eq("user_id", stepUserId);
-      
-       if (allSteps && allSteps.every((s: any) => s.status === "approved")) {
-         // Mark profile as fully verified
-         const userProfile = profiles.find((p: any) => p.user_id === stepUserId);
-         if (userProfile) {
-           await supabase.from("profiles").update({ kyc_verified: true, trust_score: 80 }).eq("id", userProfile.id);
-         }
-         await (supabase as any).from("notifications").insert({
-           user_id: stepUserId,
-           title: "Account Fully Verified! ✅",
-           message: "Congratulations! Your account verification has been approved. You now have full access to all platform features.",
-           type: "success",
-           link: "/verification",
-         });
-       }
-    }
-
-    // If rejected, ensure profile is not marked as verified
-    if (status === "rejected") {
-      const userProfile = profiles.find((p: any) => p.user_id === stepUserId);
-      if (userProfile && userProfile.kyc_verified) {
-        await supabase.from("profiles").update({ kyc_verified: false }).eq("id", userProfile.id);
-      }
-    }
-
+    // Individual step review does not replace a KYC submission decision.
     toast.success(`Step ${status}`);
     loadData();
   };
@@ -437,33 +340,23 @@ const AdminDashboard = () => {
     }
   };
   const handleApproveSubscription = async (requestId: string, reqUserId: string) => {
-    await (supabase as any).from("subscription_requests").update({ status: "approved", reviewed_by: user?.id, reviewed_at: new Date().toISOString() }).eq("id", requestId);
-    const startDate = new Date();
-    const endDate = new Date();
-    endDate.setDate(endDate.getDate() + 30);
-    const existing = allSubscriptions.find((s: any) => s.user_id === reqUserId);
-    if (existing) {
-      await (supabase as any).from("subscriptions").update({ status: "active", start_date: startDate.toISOString(), end_date: endDate.toISOString(), updated_at: new Date().toISOString() }).eq("id", existing.id);
-    } else {
-      await (supabase as any).from("subscriptions").insert({ user_id: reqUserId, status: "active", start_date: startDate.toISOString(), end_date: endDate.toISOString() });
-    }
-    await (supabase as any).from("notifications").insert({
-      user_id: reqUserId, title: "Subscription Activated ✅",
-      message: "Your subscription has been approved. You now have full access to all agent features for 30 days.",
-      type: "success", link: "/payments",
+    if (!finance.enabled) { toast.error(finance.unavailableMessage); return; }
+    const reference = prompt("Verified provider-namespaced payment reference:");
+    const endDate = prompt("Approved subscription end date (ISO date/time):");
+    if (!reference?.trim() || !endDate || !Number.isFinite(Date.parse(endDate))) return;
+    const { error } = await (supabase as any).rpc("activate_subscription", {
+      _request_id: requestId, _end_date: new Date(endDate).toISOString(), _payment_reference: reference.trim(),
     });
+    if (error) { toast.error(error.message); return; }
     toast.success("Subscription approved!");
     loadData();
   };
 
   const handleRejectSubscription = async (requestId: string, reqUserId: string) => {
     const reason = prompt("Rejection reason (optional):");
-    await (supabase as any).from("subscription_requests").update({ status: "rejected", reviewed_by: user?.id, reviewed_at: new Date().toISOString() }).eq("id", requestId);
-    await (supabase as any).from("notifications").insert({
-      user_id: reqUserId, title: "Subscription Payment Rejected",
-      message: `Your subscription payment was rejected. ${reason ? `Reason: ${reason}. ` : ""}Please try again.`,
-      type: "error", link: "/payments",
-    });
+    if (reason === null) return;
+    const { error } = await (supabase as any).rpc("reject_subscription_request", { _request_id: requestId, _reason: reason });
+    if (error) { toast.error(error.message); return; }
     toast.success("Subscription rejected");
     loadData();
   };
@@ -523,6 +416,7 @@ const AdminDashboard = () => {
           <div>
             <h1 className="font-display text-2xl font-bold text-foreground">Admin Command Center</h1>
             <p className="text-sm text-muted-foreground">Platform overview & management</p>
+            {!finance.enabled && <p role="status" className="text-sm text-muted-foreground">{finance.unavailableMessage}</p>}
           </div>
         </div>
 
@@ -1479,17 +1373,8 @@ const AdminDashboard = () => {
                                           size="sm"
                                           className="bg-[hsl(var(--success))] text-[hsl(var(--success-foreground))] hover:bg-[hsl(var(--success))]/90 gap-1 text-xs"
                                           onClick={async () => {
-                                            await (supabase as any).from("reservations").update({ status: "confirmed" }).eq("id", r.id);
-                                            const bp = profiles.find((p: any) => p.id === r.buyer_id);
-                                            if (bp) {
-                                              await (supabase as any).from("notifications").insert({
-                                                user_id: bp.user_id,
-                                                title: "Reservation Approved ✅",
-                                                message: `Your reservation for "${r.properties?.title}" has been approved.`,
-                                                type: "success",
-                                                link: "/buyer-dashboard",
-                                              });
-                                            }
+                                            const { error } = await (supabase as any).rpc("agent_respond_inspection", { _id: r.id, _action: "confirm", _note: null, _date: null, _time: null });
+                                            if (error) { toast.error(error.message); return; }
                                             toast.success("Reservation approved");
                                             loadData();
                                           }}
@@ -1501,17 +1386,8 @@ const AdminDashboard = () => {
                                           variant="destructive"
                                           className="gap-1 text-xs"
                                           onClick={async () => {
-                                            await (supabase as any).from("reservations").update({ status: "rejected" }).eq("id", r.id);
-                                            const bp = profiles.find((p: any) => p.id === r.buyer_id);
-                                            if (bp) {
-                                              await (supabase as any).from("notifications").insert({
-                                                user_id: bp.user_id,
-                                                title: "Reservation Rejected",
-                                                message: `Your reservation for "${r.properties?.title}" was rejected.`,
-                                                type: "error",
-                                                link: "/buyer-dashboard",
-                                              });
-                                            }
+                                            const { error } = await (supabase as any).rpc("agent_respond_inspection", { _id: r.id, _action: "decline", _note: null, _date: null, _time: null });
+                                            if (error) { toast.error(error.message); return; }
                                             toast.success("Reservation rejected");
                                             loadData();
                                           }}
@@ -2071,7 +1947,7 @@ const AdminDashboard = () => {
                               <td className="px-4 py-3">
                                 <Badge className={`text-xs ${
                                   w.status === "pending" ? "bg-amber-100 text-amber-700" :
-                                  w.status === "approved" ? "bg-emerald-100 text-emerald-700" :
+                                  w.status === "paid" ? "bg-emerald-100 text-emerald-700" :
                                   "bg-red-100 text-red-700"
                                 }`}>{w.status}</Badge>
                               </td>
@@ -2081,20 +1957,12 @@ const AdminDashboard = () => {
                                     <Button
                                       size="sm"
                                       onClick={async () => {
-                                        const { error } = await (supabase as any).from("withdrawals").update({
-                                          status: "approved",
-                                          reviewed_by: user?.id,
-                                          reviewed_at: new Date().toISOString(),
-                                        }).eq("id", w.id);
+                                        if (!finance.enabled) { toast.error(finance.unavailableMessage); return; }
+                                        const reference = prompt("Verified provider-namespaced transfer reference:");
+                                        if (!reference?.trim()) return;
+                                        const { error } = await (supabase as any).rpc("approve_withdrawal", { _id: w.id, _note: reference.trim() });
                                         if (error) { toast.error(error.message); return; }
-                                        await (supabase as any).from("notifications").insert({
-                                          user_id: w.user_id,
-                                          title: "Withdrawal Approved ✅",
-                                          message: `Your withdrawal of ₦${w.amount.toLocaleString()} has been approved and is being processed.`,
-                                          type: "success",
-                                          link: "/earnings",
-                                        });
-                                        toast.success("Withdrawal approved");
+                                        toast.success("Withdrawal marked paid");
                                         loadData();
                                       }}
                                       className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1"
@@ -2107,20 +1975,8 @@ const AdminDashboard = () => {
                                       onClick={async () => {
                                         const reason = prompt("Reason for rejection:");
                                         if (!reason) return;
-                                        const { error } = await (supabase as any).from("withdrawals").update({
-                                          status: "rejected",
-                                          admin_note: reason,
-                                          reviewed_by: user?.id,
-                                          reviewed_at: new Date().toISOString(),
-                                        }).eq("id", w.id);
+                                        const { error } = await (supabase as any).rpc("reject_withdrawal", { _id: w.id, _note: reason });
                                         if (error) { toast.error(error.message); return; }
-                                        await (supabase as any).from("notifications").insert({
-                                          user_id: w.user_id,
-                                          title: "Withdrawal Rejected",
-                                          message: `Your withdrawal of ₦${w.amount.toLocaleString()} was rejected. Reason: ${reason}`,
-                                          type: "warning",
-                                          link: "/earnings",
-                                        });
                                         toast.success("Withdrawal rejected");
                                         loadData();
                                       }}

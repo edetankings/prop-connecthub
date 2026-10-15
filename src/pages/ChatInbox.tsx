@@ -86,11 +86,11 @@ const ChatInbox = () => {
         const otherId = thread.buyer_id === profile.id ? thread.agent_id : thread.buyer_id;
 
         const [{ data: otherProfile }, { data: lastMsg }, { count }, { data: property }] = await Promise.all([
-          (supabase as any)
-            .from("public_profiles")
-            .select("full_name, avatar_url, profile_type, kyc_verified")
-            .eq("id", otherId)
-            .maybeSingle(),
+          (supabase as any).rpc("get_chat_participants", { _thread_id: thread.id }).then(async ({ data, error }: any) => {
+            const participant = data?.find((p: any) => p.id === otherId);
+            const { data: directory } = await supabase.from("public_profiles").select("kyc_verified").eq("id", otherId).maybeSingle();
+            return { data: participant ? { ...participant, kyc_verified: directory?.kyc_verified === true } : null, error };
+          }),
           supabase
             .from("messages")
             .select("content, created_at")
@@ -118,7 +118,7 @@ const ChatInbox = () => {
           other_name: otherProfile?.full_name || "Unknown",
           other_avatar: otherProfile?.avatar_url ?? null,
           other_type: otherProfile?.profile_type ?? null,
-          other_verified: !!otherProfile?.kyc_verified,
+          other_verified: otherProfile?.kyc_verified === true,
           last_message: lastMsg?.content ? attachmentPreview(lastMsg.content) : null,
           last_kind: lastMsg?.content ? parseAttachment(lastMsg.content)?.kind ?? "text" : null,
           unread_count: count || 0,

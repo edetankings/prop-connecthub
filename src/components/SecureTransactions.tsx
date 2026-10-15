@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { useFinancialAvailability } from "@/hooks/useFinancialAvailability";
 import { ShieldCheck, AlertTriangle, CheckCircle } from "lucide-react";
 import TransactionTrace from "@/components/TransactionTrace";
 
@@ -21,6 +22,7 @@ const colors: Record<string, string> = {
 };
 
 const SecureTransactions = ({ role }: { role: "buyer" | "agent" }) => {
+  const finance = useFinancialAvailability();
   const { user } = useAuth();
   const [rows, setRows] = useState<any[]>([]);
   const [dispute, setDispute] = useState<any | null>(null);
@@ -40,6 +42,7 @@ const SecureTransactions = ({ role }: { role: "buyer" | "agent" }) => {
   useEffect(() => { load(); /* eslint-disable-next-line */ }, [user?.id]);
 
   const release = async (id: string) => {
+    if (!finance.enabled) { toast.error(finance.unavailableMessage); return; }
     if (!confirm("Confirm you have received the property/keys? This will release funds to the agent.")) return;
     const { error } = await (supabase as any).rpc("release_secure_payment", { _transaction_id: id });
     if (error) toast.error(error.message); else { toast.success("Funds released ✅"); load(); }
@@ -123,7 +126,7 @@ const SecureTransactions = ({ role }: { role: "buyer" | "agent" }) => {
                   <>
                     <Button
                       size="sm"
-                      onClick={() => release(tx.id)}
+                      disabled={!finance.enabled} onClick={() => release(tx.id)}
                       className="w-full gap-1 bg-[hsl(var(--success))] text-[hsl(var(--success-foreground))] hover:bg-[hsl(var(--success))]/90 sm:w-auto"
                     >
                       <CheckCircle className="h-4 w-4" /> Release Payment

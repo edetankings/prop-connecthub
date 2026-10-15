@@ -5,7 +5,7 @@ import { absoluteSiteUrl, resolveSiteUrl } from '../config/site-url.mjs';
 
 // Public static routes only; authentication and account routes are intentionally absent.
 export const publicRoutes = [
-  '/', '/properties', '/agents', '/announcements', '/analytics',
+  '/', '/properties', '/agents', '/announcements',
   '/guides/investing-in-nigeria', '/terms', '/privacy',
   '/trust/safety-center', '/trust/escrow-protection', '/trust/agent-verification',
   '/trust/property-verification', '/trust/fraud-prevention', '/trust/code-of-conduct',

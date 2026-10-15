@@ -11,15 +11,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { CreditCard, Upload, Clock, CheckCircle, XCircle, Building, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
-
-const BANK_DETAILS = {
-  bankName: "First Bank of Nigeria",
-  accountName: "PROP-CONNECT LTD",
-  accountNumber: "3082XXXXXX",
-};
+import { useFinancialAvailability } from "@/hooks/useFinancialAvailability";
 
 const Payments = () => {
   const { user } = useAuth();
+  const finance = useFinancialAvailability();
   const { subscription, pendingRequest, loading, isActive, daysRemaining, refetch } = useSubscription();
   const [open, setOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -36,6 +32,7 @@ const Payments = () => {
   const cfg = statusConfig[currentStatus] || statusConfig.expired;
 
   const handleSubmit = async () => {
+    if (!finance.enabled) { toast.error(finance.unavailableMessage); return; }
     if (!file || !user) return;
     setUploading(true);
     try {
@@ -88,7 +85,7 @@ const Payments = () => {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div>
                   <p className="text-xs text-muted-foreground">Plan</p>
-                  <p className="font-display font-bold text-foreground">₦7,500/month</p>
+                  <p className="font-display font-bold text-foreground">Pending business approval</p>
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Status</p>
@@ -120,17 +117,18 @@ const Payments = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-3 text-sm">
+              {!finance.enabled && <p role="status">{finance.unavailableMessage}</p>}
               <div className="flex justify-between items-center py-2 border-b border-border">
                 <span className="text-muted-foreground">Bank Name</span>
-                <span className="font-semibold text-foreground">{BANK_DETAILS.bankName}</span>
+                <span className="font-semibold text-foreground">{finance.details?.company_bank_name ?? "Unavailable"}</span>
               </div>
               <div className="flex justify-between items-center py-2 border-b border-border">
                 <span className="text-muted-foreground">Account Name</span>
-                <span className="font-semibold text-foreground">{BANK_DETAILS.accountName}</span>
+                <span className="font-semibold text-foreground">{finance.details?.company_account_name ?? "Unavailable"}</span>
               </div>
               <div className="flex justify-between items-center py-2">
                 <span className="text-muted-foreground">Account Number</span>
-                <span className="font-display font-bold text-foreground text-lg">{BANK_DETAILS.accountNumber}</span>
+                <span className="font-display font-bold text-foreground text-lg">{finance.details?.company_account_number ?? "Unavailable"}</span>
               </div>
             </div>
           </CardContent>
@@ -152,7 +150,7 @@ const Payments = () => {
         ) : (
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-              <Button size="lg" className="w-full gap-2 bg-secondary text-secondary-foreground hover:bg-secondary/90">
+              <Button disabled={!finance.enabled} size="lg" className="w-full gap-2 bg-secondary text-secondary-foreground hover:bg-secondary/90">
                 <Upload className="h-5 w-5" /> {isActive ? "Renew Subscription" : "I Have Made Payment"} 👉
               </Button>
             </DialogTrigger>
@@ -181,7 +179,7 @@ const Payments = () => {
                 </div>
                 <Button
                   onClick={handleSubmit}
-                  disabled={!file || uploading}
+                  disabled={!file || uploading || !finance.enabled}
                   className="w-full bg-primary text-primary-foreground"
                 >
                   {uploading ? "Submitting..." : "Submit Payment"}
@@ -196,7 +194,7 @@ const Payments = () => {
             <CardContent className="p-4 flex items-center gap-3">
               <AlertTriangle className="h-5 w-5 text-destructive shrink-0" />
               <p className="text-sm text-foreground">
-                Your subscription is inactive. Please complete payment to access features like Add Property and messaging.
+                Your subscription is inactive. Payment collection remains unavailable until platform configuration is approved.
               </p>
             </CardContent>
           </Card>

@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useRef, useState, ReactNode } from "react";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -37,6 +37,8 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const activeUserId = useRef<string | null>(null);
+  const authRevision = useRef(0);
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -49,7 +51,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       .select("*")
       .eq("user_id", userId)
       .maybeSingle();
-    setProfile(data as Profile | null);
+    if (activeUserId.current === userId) setProfile(data as Profile | null);
   };
 
   const checkAdmin = async (userId: string) => {
@@ -57,7 +59,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       _user_id: userId,
       _role: "admin",
     });
-    setIsAdmin(!!data);
+    if (activeUserId.current === userId) setIsAdmin(data === true);
   };
 
   const refreshProfile = async () => {
@@ -69,15 +71,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
+      (_event, session) => {
+        authRevision.current += 1;
+        const changed = activeUserId.current !== (session?.user.id ?? null);
+        activeUserId.current = session?.user.id ?? null;
+        if (changed) { setProfile(null); setIsAdmin(false); setLoading(!!session?.user); }
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
           // Use setTimeout to avoid deadlock with Supabase auth
           setTimeout(async () => {
+            if (activeUserId.current !== session.user.id) return;
             await fetchProfile(session.user.id);
             await checkAdmin(session.user.id);
-            setLoading(false);
+            if (activeUserId.current === session.user.id) setLoading(false);
           }, 0);
         } else {
           setProfile(null);
@@ -87,23 +94,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     );
 
+    const initialRevision = authRevision.current;
     supabase.auth.getSession().then(({ data: { session } }) => {
+      if (authRevision.current !== initialRevision) return;
+      activeUserId.current = session?.user.id ?? null;
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
         fetchProfile(session.user.id).then(() =>
-          checkAdmin(session.user.id).then(() => setLoading(false))
+          checkAdmin(session.user.id).then(() => { if (activeUserId.current === session.user.id) setLoading(false); })
         );
       } else {
         setLoading(false);
       }
-    });
+    }).catch(() => { if (authRevision.current === initialRevision) { setProfile(null); setIsAdmin(false); setLoading(false); } });
 
-    return () => subscription.unsubscribe();
+    return () => { authRevision.current += 1; activeUserId.current = null; subscription.unsubscribe(); };
   }, []);
 
   const signUp = async (email: string, password: string, fullName: string, profileType: string, phone: string, referralCode?: string) => {
-    const { error, data } = await supabase.auth.signUp({
+    if (!["buyer", "agent", "builder"].includes(profileType)) throw new Error("Select a valid account type.");
+    const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -127,7 +138,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
     setProfile(null);
     setIsAdmin(false);
     toast.info("Signed out successfully");

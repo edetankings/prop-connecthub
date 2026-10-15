@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -66,14 +67,15 @@ const TreeBranch = ({ node, level }: { node: Node; level: number }) => {
 };
 
 const ReferralTree = ({ rootProfileId, compact = false }: Props) => {
+  const { isAdmin } = useAuth();
   const [tree, setTree] = useState<Node | null>(null);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({ l1: 0, l2: 0, l3: 0, total: 0 });
 
   useEffect(() => {
-    if (!rootProfileId) return;
+    if (!rootProfileId || !isAdmin) { setLoading(false); return; }
     loadTree();
-  }, [rootProfileId]);
+  }, [rootProfileId, isAdmin]);
 
   const loadTree = async () => {
     setLoading(true);
@@ -90,7 +92,6 @@ const ReferralTree = ({ rootProfileId, compact = false }: Props) => {
       .from("profiles")
       .select("id, full_name, profile_type, kyc_verified, created_at, referral_position")
       .eq("referred_by", rootProfileId)
-      .eq("referral_level", 1)
       .order("referral_position");
 
     const l1Ids = (l1 || []).map((u: any) => u.id);
@@ -98,7 +99,6 @@ const ReferralTree = ({ rootProfileId, compact = false }: Props) => {
       .from("profiles")
       .select("id, full_name, profile_type, kyc_verified, created_at, referral_position, referred_by")
       .in("referred_by", l1Ids)
-      .eq("referral_level", 1)
       .order("referral_position") : { data: [] };
 
     const l2Ids = (l2 || []).map((u: any) => u.id);
@@ -106,7 +106,6 @@ const ReferralTree = ({ rootProfileId, compact = false }: Props) => {
       .from("profiles")
       .select("id, full_name, profile_type, kyc_verified, created_at, referral_position, referred_by")
       .in("referred_by", l2Ids)
-      .eq("referral_level", 1)
       .order("referral_position") : { data: [] };
 
     const buildTree = (parent: any): Node => ({
@@ -136,6 +135,7 @@ const ReferralTree = ({ rootProfileId, compact = false }: Props) => {
     setLoading(false);
   };
 
+  if (!isAdmin) return <p className="text-sm text-muted-foreground">Your invited members are listed below. Detailed matrix placement is available to administrators.</p>;
   if (loading) return <div className="p-8 text-center text-muted-foreground">Loading tree…</div>;
   if (!tree) return <div className="p-8 text-center text-muted-foreground">No data</div>;
 
@@ -148,15 +148,15 @@ const ReferralTree = ({ rootProfileId, compact = false }: Props) => {
           <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Total</p>
         </Card>
         <Card className="p-3 text-center border-emerald-300">
-          <p className="font-display text-xl font-bold text-emerald-700 dark:text-emerald-400">{stats.l1}<span className="text-xs text-muted-foreground">/3</span></p>
+          <p className="font-display text-xl font-bold text-emerald-700 dark:text-emerald-400">{stats.l1}<span className="text-xs text-muted-foreground">/2</span></p>
           <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Level 1</p>
         </Card>
         <Card className="p-3 text-center border-blue-300">
-          <p className="font-display text-xl font-bold text-blue-700 dark:text-blue-400">{stats.l2}<span className="text-xs text-muted-foreground">/9</span></p>
+          <p className="font-display text-xl font-bold text-blue-700 dark:text-blue-400">{stats.l2}<span className="text-xs text-muted-foreground">/4</span></p>
           <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Level 2</p>
         </Card>
         <Card className="p-3 text-center border-amber-300">
-          <p className="font-display text-xl font-bold text-amber-700 dark:text-amber-400">{stats.l3}<span className="text-xs text-muted-foreground">/27</span></p>
+          <p className="font-display text-xl font-bold text-amber-700 dark:text-amber-400">{stats.l3}<span className="text-xs text-muted-foreground">/8</span></p>
           <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Level 3</p>
         </Card>
       </div>

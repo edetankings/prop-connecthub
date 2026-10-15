@@ -30,6 +30,7 @@ const Properties = () => {
       const { data } = await supabase
         .from("properties")
         .select("*")
+        .eq("is_verified", true)
         .in("status", ["available", "for_sale", "for_rent"])
         .order("created_at", { ascending: false });
       setProperties((data as DBProperty[]) || []);
@@ -63,8 +64,8 @@ const Properties = () => {
     const ptype = (p.property_type || "").toLowerCase();
     const matchType =
       t === "all" ||
-      (t === "for_sale" && (p.status === "for_sale" || p.status === "available")) ||
-      (t === "for_rent" && p.status === "for_rent") ||
+      (t === "for_sale" && p.listing_type === "sale") ||
+      (t === "for_rent" && p.listing_type === "rental") ||
       (t === "hotel" && ptype === "hotel") ||
       (t === "apartment" && ptype === "apartment") ||
       (t === "estate" && ptype === "estate") ||

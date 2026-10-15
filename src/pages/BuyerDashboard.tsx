@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 import AuthenticatedLayout from "@/components/AuthenticatedLayout";
 import SecureTransactions from "@/components/SecureTransactions";
 import EmptyState from "@/components/buyer/EmptyState";
@@ -120,15 +121,20 @@ const BuyerDashboard = () => {
 
     supabase
       .from("chat_threads")
-      .select("*, messages(content, created_at, seen), agent:agent_id(full_name, avatar_url)")
+      .select("*, messages(content, created_at, seen, sender_id)")
       .eq("buyer_id", profile.id)
       .order("last_message_at", { ascending: false })
       .limit(5)
-      .then(({ data }) => {
-        setThreads(data || []);
+      .then(async ({ data, error }) => {
+        if (error) { toast.error(error.message); return; }
+        const enriched = await Promise.all((data || []).map(async (thread) => {
+          const { data: participants } = await supabase.rpc("get_chat_participants", { _thread_id: thread.id });
+          return { ...thread, agent: participants?.find((p) => p.id === thread.agent_id) };
+        }));
+        setThreads(enriched);
         const unread = (data || []).reduce((acc: number, t: any) => {
           const msgs = t.messages || [];
-          return acc + msgs.filter((m: any) => !m.seen).length;
+          return acc + msgs.filter((m: any) => !m.seen && m.sender_id !== profile.id).length;
         }, 0);
         setStats((s) => ({ ...s, messages: unread }));
       });

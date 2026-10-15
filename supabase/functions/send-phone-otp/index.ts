@@ -2,20 +2,14 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { corsFor } from "../_shared/cors.ts";
 
-let corsHeaders: Record<string, string> = {};
 
 
-function json(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
-  });
-}
-
-function randomOtp(len = 6) {
-  const min = 10 ** (len - 1);
-  const max = 10 ** len - 1;
-  return String(Math.floor(min + Math.random() * (max - min + 1)));
+function randomOtp() {
+  const range = 900000;
+  const limit = Math.floor(0x100000000 / range) * range;
+  const sample = new Uint32Array(1);
+  do { crypto.getRandomValues(sample); } while (sample[0] >= limit);
+  return String(100000 + sample[0] % range);
 }
 
 async function sha256(text: string) {
@@ -27,10 +21,15 @@ async function sha256(text: string) {
 }
 
 Deno.serve(async (req) => {
-  corsHeaders = corsFor(req);
+  const corsHeaders = corsFor(req);
+  const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), {
+    status, headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
+    if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
+    if (Deno.env.get("OTP_ENABLED") !== "true") return json({ error: "Phone verification is not configured yet." }, 503);
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
     const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -87,7 +86,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    const code = randomOtp(6);
+    const code = randomOtp();
     const otpHash = await sha256(`${normalized}:${code}:${SUPABASE_SERVICE_ROLE_KEY}`);
     const expiresAt = new Date(now + 5 * 60 * 1000).toISOString();
 
@@ -124,8 +123,9 @@ Deno.serve(async (req) => {
     );
 
     if (!smsRes.ok) {
-      const txt = await smsRes.text().catch(() => "");
-      return json({ error: `SMS failed: ${txt || smsRes.statusText}` }, 500);
+      await smsRes.body?.cancel();
+      console.error("SMS provider rejected request", smsRes.status);
+      return json({ error: "SMS delivery failed. Please try again later." }, 502);
     }
 
     return json({ ok: true, expires_in_sec: 300, resend_after_sec: 30 });

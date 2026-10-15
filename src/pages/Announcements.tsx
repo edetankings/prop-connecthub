@@ -30,6 +30,7 @@ const Announcements = () => {
       supabase
         .from("properties")
         .select("*")
+        .eq("is_verified", true)
         .in("status", ["available", "for_sale", "for_rent"])
         .order("created_at", { ascending: false })
         .limit(6),

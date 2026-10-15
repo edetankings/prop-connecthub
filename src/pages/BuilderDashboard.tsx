@@ -103,7 +103,7 @@ const BuilderDashboard = () => {
           <div className="rounded-xl border border-border bg-card p-4 shadow-card">
             <Wallet className="mb-1 h-5 w-5 text-secondary" />
             <p className="font-display text-2xl font-bold text-foreground">
-              ₦{((wallet?.balance ?? 0) / 100).toLocaleString()}
+              ₦{(wallet?.balance ?? 0).toLocaleString()}
             </p>
             <p className="text-xs text-muted-foreground">Wallet</p>
           </div>

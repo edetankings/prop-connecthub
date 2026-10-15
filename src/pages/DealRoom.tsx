@@ -39,7 +39,7 @@ const DealRoom = () => {
     const db = supabase as any;
     const { data: d } = await db
       .from("deal_requests")
-      .select("*, properties(id, title, price, city, state, address, image_url, status, agent_id, property_code)")
+      .select("*, properties(id, title, price, city, state, address, image_url, status, listing_type, agent_id, property_code)")
       .eq("id", id)
       .maybeSingle();
     setDeal(d);
@@ -49,7 +49,7 @@ const DealRoom = () => {
         db.from("deal_events").select("*").eq("deal_id", d.id).order("created_at", { ascending: true }),
         db.from("reservations").select("*").eq("property_id", d.property_id).order("created_at", { ascending: false }),
         db.from("property_documents").select("id, file_name, document_type, uploaded_at").eq("property_id", d.property_id),
-        db.from("public_profiles").select("user_id, full_name").in("user_id", [d.buyer_id, d.agent_user_id]),
+        db.rpc("get_deal_participants", { _deal_id: d.id }),
       ]);
       setTx(t.data);
       setEvents(e.data || []);
@@ -78,7 +78,7 @@ const DealRoom = () => {
 
   const p = deal.properties || {};
   const isBuyer = user?.id === deal.buyer_id;
-  const isRental = p.status === "for_rent" || p.status === "rented" || tx?.type === "rental";
+  const isRental = p.listing_type === "rental" || p.status === "rented" || tx?.type === "rental";
   const stage = deal.stage as string;
   const idx = DEAL_STAGES.findIndex((s) => s.key === stage);
   const active = deal.status === "accepted";

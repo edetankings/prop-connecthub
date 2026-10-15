@@ -7,27 +7,36 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { useFinancialAvailability } from "@/hooks/useFinancialAvailability";
 
-const TABS = ["pending", "approved", "paid", "rejected"] as const;
+const TABS = ["pending", "paid", "rejected"] as const;
 
 const AdminWithdrawals = () => {
+  const finance = useFinancialAvailability();
   const [tab, setTab] = useState<(typeof TABS)[number]>("pending");
   const [rows, setRows] = useState<any[]>([]);
   const [action, setAction] = useState<{ w: any; type: "approve" | "reject" } | null>(null);
   const [note, setNote] = useState("");
 
   const load = async () => {
-    const { data } = await (supabase as any)
+    const { data, error } = await (supabase as any)
       .from("withdrawals")
-      .select("*, profiles:user_id(full_name)")
+      .select("*")
       .eq("status", tab)
       .order("created_at", { ascending: false });
-    setRows(data || []);
+    if (error) { toast.error(error.message); return; }
+    const ids = [...new Set((data || []).map((row: { user_id: string }) => row.user_id))] as string[];
+    const { data: names, error: nameError } = ids.length
+      ? await supabase.from("profiles").select("user_id, full_name").in("user_id", ids)
+      : { data: [], error: null };
+    if (nameError) toast.error(nameError.message);
+    setRows((data || []).map((row: { user_id: string }) => ({ ...row, profiles: names?.find((p) => p.user_id === row.user_id) })));
   };
   useEffect(() => { load(); /* eslint-disable-next-line */ }, [tab]);
 
   const submit = async () => {
     if (!action) return;
+    if (action.type === "approve" && !finance.enabled) { toast.error(finance.unavailableMessage); return; }
     const fn = action.type === "approve" ? "approve_withdrawal" : "reject_withdrawal";
     const { error } = await (supabase as any).rpc(fn, { _id: action.w.id, _note: note });
     if (error) toast.error(error.message); else { toast.success("Done"); setAction(null); setNote(""); load(); }
@@ -37,6 +46,7 @@ const AdminWithdrawals = () => {
     <AuthenticatedLayout>
       <div className="container mx-auto px-4 py-8 max-w-5xl">
         <h1 className="font-display text-3xl font-bold mb-6">Withdrawals</h1>
+            {!finance.enabled && <p role="status" className="text-sm text-muted-foreground">{finance.unavailableMessage}</p>}
         <Tabs value={tab} onValueChange={(v) => setTab(v as any)}>
           <TabsList>{TABS.map((s) => <TabsTrigger key={s} value={s} className="capitalize">{s}</TabsTrigger>)}</TabsList>
           <TabsContent value={tab} className="mt-4 space-y-3">
@@ -53,7 +63,7 @@ const AdminWithdrawals = () => {
                 </div>
                 {w.status === "pending" && (
                   <div className="flex gap-2">
-                    <Button size="sm" onClick={() => { setAction({ w, type: "approve" }); setNote(""); }} className="bg-[hsl(var(--success))] text-[hsl(var(--success-foreground))] hover:bg-[hsl(var(--success))]/90">Mark Paid</Button>
+                    <Button size="sm" disabled={!finance.enabled} onClick={() => { setAction({ w, type: "approve" }); setNote(""); }} className="bg-[hsl(var(--success))] text-[hsl(var(--success-foreground))] hover:bg-[hsl(var(--success))]/90">Mark Paid</Button>
                     <Button size="sm" variant="destructive" onClick={() => { setAction({ w, type: "reject" }); setNote(""); }}>Reject</Button>
                   </div>
                 )}

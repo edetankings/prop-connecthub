@@ -31,35 +31,24 @@ const Admin = () => {
     const [p, pr, v, d, kyc] = await Promise.all([
       supabase.from("profiles").select("*").order("created_at", { ascending: false }),
       supabase.from("properties").select("*, profiles(full_name)").order("created_at", { ascending: false }),
-      supabase.from("verification_documents").select("*, profiles!verification_documents_user_id_fkey(full_name)").order("created_at", { ascending: false }),
+      supabase.from("verification_documents").select("*").order("created_at", { ascending: false }),
       supabase.from("disputes").select("*").order("created_at", { ascending: false }),
       (supabase as any).from("kyc_verifications").select("id").eq("kyc_status", "pending"),
     ]);
     setProfiles(p.data || []);
     setProperties(pr.data || []);
-    setVerifications(v.data || []);
+    setVerifications((v.data || []).map((row) => ({ ...row, profiles: p.data?.find((profile) => profile.user_id === row.user_id) })));
     setDisputes(d.data || []);
     setKycPendingCount(kyc.data?.length || 0);
     setLoading(false);
   };
 
   const handleVerifyKyc = async (profileId: string) => {
-    const { error } = await supabase.from("profiles").update({ kyc_verified: true, trust_score: 80 }).eq("id", profileId);
-    if (error) { toast.error(error.message); return; }
-
-    // Also update kyc_verifications
-    const targetProfile = profiles.find((p: any) => p.id === profileId);
-    if (targetProfile) {
-      await (supabase as any).from("kyc_verifications").update({
-        kyc_status: "verified",
-        reviewed_at: new Date().toISOString(),
-      }).eq("user_id", targetProfile.user_id);
-
-      await (supabase as any).from("verification_steps").update({ status: "approved" })
-        .eq("user_id", targetProfile.user_id)
-        .neq("status", "approved");
-    }
-
+    const targetProfile = profiles.find((p) => p.id === profileId);
+    if (!targetProfile) return;
+    const { data, error } = await supabase.from("kyc_verifications").update({ kyc_status: "verified" })
+      .eq("user_id", targetProfile.user_id).select("id");
+    if (error || !data?.length) { toast.error(error?.message || "No KYC submission exists to review"); return; }
     toast.success("Agent verified!");
     loadData();
   };
@@ -83,16 +72,14 @@ const Admin = () => {
       return;
     }
 
-    if (status === "approved" && doc?.user_id) {
-      await supabase.from("profiles").update({ kyc_verified: true, trust_score: 80 }).eq("user_id", doc.user_id);
-    }
-
     toast.success(`Document ${status}`);
     loadData();
   };
 
   const handleDisputeStatus = async (disputeId: string, status: string) => {
-    const { error } = await supabase.from("disputes").update({ status }).eq("id", disputeId);
+    const resolution = prompt("Resolution or review note:");
+    if (!resolution?.trim()) return;
+    const { error } = await supabase.rpc("resolve_dispute", { _dispute_id: disputeId, _status: status, _resolution: resolution.trim() });
     if (error) { toast.error(error.message); return; }
     toast.success("Dispute updated");
     loadData();

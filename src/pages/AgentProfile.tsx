@@ -25,7 +25,7 @@ const AgentProfile = () => {
     const load = async () => {
       const [agentRes, propsRes, ratingsRes] = await Promise.all([
         (supabase as any).from("public_profiles").select("*").eq("id", id).eq("profile_type", "agent").maybeSingle(),
-        supabase.from("properties").select("*").eq("agent_id", id!).neq("status", "draft"),
+        supabase.from("properties").select("*").eq("agent_id", id!).eq("is_verified", true).in("status", ["available", "for_sale", "for_rent"]),
         supabase.from("ratings").select("*, profiles!ratings_reviewer_id_fkey(full_name)").eq("agent_id", id!).order("created_at", { ascending: false }),
       ]);
       setAgent(agentRes.data as DBAgent | null);

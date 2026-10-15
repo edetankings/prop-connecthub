@@ -10,6 +10,7 @@ export interface DBProperty {
   price: number;
   property_type: string;
   status: string;
+  listing_type?: "sale" | "rental" | null;
   image_url: string | null;
   images: string[] | null;
   city: string | null;
@@ -27,7 +28,7 @@ const DBPropertyCard = ({ property }: { property: DBProperty }) => {
   const { user } = useAuth();
   const displayImage = property.image_url || property.images?.[0] || "/placeholder.svg";
   const location = [property.city, property.state].filter(Boolean).join(", ") || "Nigeria";
-  const isSale = property.status === "for_sale" || property.status === "available";
+  const isSale = property.listing_type === "sale";
 
   return (
     <div className="group overflow-hidden rounded-lg border border-border bg-card shadow-card transition-all duration-300 hover:shadow-elevated hover:-translate-y-1">

@@ -11,7 +11,7 @@ interface Props {
 
 /**
  * Renders a preview for a file stored in a (private) Supabase bucket.
- * Accepts either a storage path (new uploads) or a full URL (legacy data).
+ * Accepts owned relative object paths; absolute legacy URLs are rejected.
  * Shows an image preview when the file is an image; otherwise a "View" link.
  */
 export function SignedBucketAsset({ bucket, value, label = "document", imgClassName }: Props) {

@@ -8,6 +8,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { useFinancialAvailability } from "@/hooks/useFinancialAvailability";
 import { CheckCircle, XCircle, RotateCcw, FileText, RefreshCw, Clock } from "lucide-react";
 import TransactionTrace from "@/components/TransactionTrace";
 
@@ -25,6 +26,7 @@ const statusColor: Record<string, string> = {
 };
 
 const AdminSecurePayments = () => {
+  const finance = useFinancialAvailability();
   const [tab, setTab] = useState<Status>("under_review");
   const [rows, setRows] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -35,7 +37,7 @@ const AdminSecurePayments = () => {
     setLoading(true);
     const { data } = await (supabase as any)
       .from("transactions")
-      .select("*, properties(title, city, state, image_url, property_code), buyer:buyer_id(email), seller:seller_id(email)")
+      .select("*, properties(title, city, state, image_url, property_code)")
       .eq("payment_status", tab)
       .order("created_at", { ascending: false });
     setRows(data || []);
@@ -45,16 +47,21 @@ const AdminSecurePayments = () => {
   useEffect(() => { load(); /* eslint-disable-next-line */ }, [tab]);
 
   const approve = async (id: string) => {
-    const { error } = await (supabase as any).rpc("approve_secure_payment", { _transaction_id: id });
+    if (!finance.enabled) { toast.error(finance.unavailableMessage); return; }
+    const reference = prompt("Verified provider-namespaced payment reference:");
+    if (!reference?.trim()) return;
+    const { error } = await (supabase as any).rpc("approve_secure_payment", { _transaction_id: id, _payment_reference: reference.trim() });
     if (error) toast.error(error.message); else { toast.success("Approved & secured"); load(); }
   };
   const release = async (id: string) => {
+    if (!finance.enabled) { toast.error(finance.unavailableMessage); return; }
     if (!confirm("Release funds to the agent? This cannot be undone.")) return;
     const { error } = await (supabase as any).rpc("release_secure_payment", { _transaction_id: id });
     if (error) toast.error(error.message); else { toast.success("Funds released"); load(); }
   };
   const submitReason = async () => {
     if (!actionTx) return;
+    if (actionTx.type === "refund" && !finance.enabled) { toast.error(finance.unavailableMessage); return; }
     if (!reason.trim()) { toast.error("Reason required"); return; }
     const fn = actionTx.type === "reject" ? "reject_secure_payment" : "refund_secure_payment";
     const { error } = await (supabase as any).rpc(fn, { _transaction_id: actionTx.tx.id, _reason: reason });
@@ -81,6 +88,7 @@ const AdminSecurePayments = () => {
         <div className="mb-6 flex items-center justify-between flex-wrap gap-3">
           <div>
             <h1 className="font-display text-3xl font-bold">Secure Payments</h1>
+            {!finance.enabled && <p role="status" className="text-sm text-muted-foreground">{finance.unavailableMessage}</p>}
             <p className="text-muted-foreground text-sm">Review buyer payment proofs, secure funds, release to agents.</p>
           </div>
           <div className="flex gap-2">
@@ -143,7 +151,7 @@ const AdminSecurePayments = () => {
                         )}
                         {tx.payment_status === "under_review" && (
                           <div className="flex gap-2">
-                            <Button size="sm" onClick={() => approve(tx.id)} className="bg-[hsl(var(--success))] text-[hsl(var(--success-foreground))] hover:bg-[hsl(var(--success))]/90 gap-1">
+                            <Button size="sm" disabled={!finance.enabled} onClick={() => approve(tx.id)} className="bg-[hsl(var(--success))] text-[hsl(var(--success-foreground))] hover:bg-[hsl(var(--success))]/90 gap-1">
                               <CheckCircle className="h-4 w-4" /> Approve
                             </Button>
                             <Button size="sm" variant="destructive" onClick={() => { setActionTx({ tx, type: "reject" }); setReason(""); }} className="gap-1">
@@ -153,7 +161,7 @@ const AdminSecurePayments = () => {
                         )}
                         {tx.payment_status === "secured" && (
                           <div className="flex gap-2">
-                            <Button size="sm" onClick={() => release(tx.id)} className="gap-1">
+                            <Button size="sm" disabled={!finance.enabled} onClick={() => release(tx.id)} className="gap-1">
                               <CheckCircle className="h-4 w-4" /> Release Funds
                             </Button>
                             <Button size="sm" variant="outline" onClick={() => { setActionTx({ tx, type: "refund" }); setReason(""); }} className="gap-1">

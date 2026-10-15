@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { useFinancialAvailability } from "@/hooks/useFinancialAvailability";
 import { Handshake, CheckCircle2, XCircle, Clock, Loader2 } from "lucide-react";
 
 type Deal = {
@@ -35,6 +36,7 @@ const statusColors: Record<string, string> = {
 };
 
 const AgentDeals = () => {
+  const finance = useFinancialAvailability();
   const { user } = useAuth();
   const [deals, setDeals] = useState<Deal[]>([]);
   const [loading, setLoading] = useState(true);
@@ -53,15 +55,10 @@ const AgentDeals = () => {
 
     const rows = (data as Deal[]) || [];
     // Hydrate buyer names
-    const buyerIds = Array.from(new Set(rows.map((r) => r.buyer_id)));
-    if (buyerIds.length) {
-      const { data: profs } = await (supabase as any)
-        .from("public_profiles")
-        .select("user_id, full_name")
-        .in("user_id", buyerIds);
-      const map = new Map((profs || []).map((p: any) => [p.user_id, p.full_name]));
-      rows.forEach((r) => { r.buyer = { full_name: (map.get(r.buyer_id) as string) || "Buyer" }; });
-    }
+    await Promise.all(rows.map(async (row) => {
+      const { data: participants } = await (supabase as any).rpc("get_deal_participants", { _deal_id: row.id });
+      row.buyer = { full_name: participants?.find((p: any) => p.user_id === row.buyer_id)?.full_name || "Buyer" };
+    }));
     setDeals(rows);
     setLoading(false);
   };
@@ -69,6 +66,7 @@ const AgentDeals = () => {
   useEffect(() => { load(); /* eslint-disable-next-line */ }, [user?.id]);
 
   const accept = async (id: string) => {
+    if (!finance.enabled) { toast.error(finance.unavailableMessage); return; }
     setBusy(id);
     const { error } = await (supabase as any).rpc("accept_deal", { _request_id: id });
     setBusy(null);
@@ -103,6 +101,7 @@ const AgentDeals = () => {
           </div>
           <div>
             <h1 className="font-display text-2xl font-semibold sm:text-3xl">Deals</h1>
+            {!finance.enabled && <p role="status" className="text-sm text-muted-foreground">{finance.unavailableMessage}</p>}
             <p className="text-sm text-muted-foreground">
               Approve buyer requests to unlock the secure payment link.
             </p>
@@ -122,7 +121,7 @@ const AgentDeals = () => {
                     <Button
                       size="sm"
                       onClick={() => accept(d.id)}
-                      disabled={busy === d.id}
+                      disabled={busy === d.id || !finance.enabled}
                       className="w-full gap-1 bg-[hsl(var(--success))] text-[hsl(var(--success-foreground))] hover:bg-[hsl(var(--success))]/90 sm:w-auto"
                     >
                       <CheckCircle2 className="h-4 w-4" /> Accept Deal

@@ -2,15 +2,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { corsFor } from "../_shared/cors.ts";
 
-let corsHeaders: Record<string, string> = {};
 
-
-function json(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
-  });
-}
 
 async function sha256(text: string) {
   const data = new TextEncoder().encode(text);
@@ -21,10 +13,15 @@ async function sha256(text: string) {
 }
 
 Deno.serve(async (req) => {
-  corsHeaders = corsFor(req);
+  const corsHeaders = corsFor(req);
+  const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), {
+    status, headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
+    if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
+    if (Deno.env.get("OTP_ENABLED") !== "true") return json({ error: "Phone verification is not configured yet." }, 503);
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
     const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -65,16 +62,20 @@ Deno.serve(async (req) => {
       return json({ error: "Too many attempts. Please resend OTP." }, 429);
     }
 
+    // Reserve each attempt atomically before checking the code, including
+    // concurrent requests. Only one request can advance a given attempts value.
+    const nextAttempt = (challenge.attempts ?? 0) + 1;
+    const { data: reserved, error: reserveError } = await supabaseAdmin.from("phone_otp_challenges")
+      .update({ attempts: nextAttempt }).eq("id", challenge.id)
+      .eq("attempts", challenge.attempts ?? 0).gte("expires_at", new Date().toISOString()).select("id");
+    if (reserveError) return json({ error: "Could not verify code. Please retry." }, 500);
+    if (!reserved?.length) return json({ error: "Verification changed. Please retry." }, 409);
     const expected = await sha256(`${normalized}:${code}:${SUPABASE_SERVICE_ROLE_KEY}`);
-    if (expected !== challenge.otp_hash) {
-      await supabaseAdmin
-        .from("phone_otp_challenges")
-        .update({ attempts: (challenge.attempts ?? 0) + 1 })
-        .eq("id", challenge.id);
-
-      const remaining = Math.max(0, (challenge.max_attempts ?? 3) - ((challenge.attempts ?? 0) + 1));
-      return json({ error: `Invalid OTP. ${remaining} attempt(s) remaining.` }, 400);
-    }
+    if (expected !== challenge.otp_hash) return json({ error: "Invalid OTP." }, 400);
+    // Consume the successful challenge before making privileged profile writes.
+    const { data: consumed, error: consumeError } = await supabaseAdmin.from("phone_otp_challenges")
+      .delete().eq("id", challenge.id).eq("attempts", nextAttempt).select("id");
+    if (consumeError || !consumed?.length) return json({ error: "Code already used or changed. Please resend." }, 409);
 
     // Success: mark profile phone verified
     const { error: profErr } = await supabaseAdmin
@@ -89,14 +90,6 @@ Deno.serve(async (req) => {
       .update({ status: "approved" })
       .eq("user_id", userRes.user.id)
       .eq("step_name", "phone_otp");
-
-    // Cleanup
-    await supabaseAdmin
-      .from("phone_otp_challenges")
-      .delete()
-      .eq("phone", normalized)
-      .eq("purpose", "verify_phone")
-      .eq("user_id", userRes.user.id);
 
     return json({ ok: true });
   } catch (e: any) {

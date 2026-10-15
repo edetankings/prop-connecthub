@@ -5,9 +5,11 @@ Nigeria. The frontend is built with React, TypeScript, Vite, and Tailwind CSS.
 
 ## Architecture
 
-The diagram shows the current application and build pipeline. The existing
-Lovable Cloud backend remains connected; an independent Supabase project is
-not yet part of the deployed architecture.
+The diagram shows the prepared integration and build pipeline. Local development
+uses the independent Supabase configuration; production deployment settings have
+not been switched. The owner reports successful registration, email confirmation
+and profile creation. Additional live feature/security tests are pending.
+See [Phase 4 integration](database/PHASE-4-INTEGRATION.md) before changing targets.
 
 ```mermaid
 flowchart TB
@@ -29,20 +31,20 @@ flowchart TB
     React["React and React Router<br/>Public pages and protected dashboards"]
     Seo["SEO URL helpers and React Helmet<br/>Canonical, social, and structured-data URLs"]
     Client["Supabase JavaScript client"]
-    Preview["Session storage adapter<br/>localStorage or Lovable preview broker"]
+    Preview["Standard Supabase Auth<br/>Browser session storage"]
     React --> Seo
     React --> Client
     Client --- Preview
   end
 
-  subgraph Backend["Existing Lovable Cloud backend - Supabase"]
+  subgraph Backend["Configured Supabase project - no automatic cutover"]
     Auth["Authentication and registered users"]
     Database["PostgreSQL<br/>Application records, views, RPCs, and RLS"]
     Storage["Storage<br/>Property images, documents, and attachments"]
-    Functions["Edge Functions<br/>AI, phone OTP, and admin user deletion"]
+    Functions["Edge Functions<br/>AI and phone OTP; account deletion locked"]
   end
 
-  Gateway["Lovable AI gateway"]
+  Gateway["Approved AI-compatible provider - disabled by default"]
   Twilio["Twilio SMS"]
 
   Vite --> Static
@@ -108,16 +110,25 @@ npx --no-install tsc --noEmit -p tsconfig.node.json
 
 ## Backend configuration
 
-The app continues to use its existing Supabase project for authentication,
-database, storage, and Edge Functions. Configure the existing
-`VITE_SUPABASE_PROJECT_ID`, `VITE_SUPABASE_URL`, and
-`VITE_SUPABASE_PUBLISHABLE_KEY` variables in the local environment. Do not put
-service-role keys or other secrets in frontend environment variables.
+The frontend requires `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`.
+Use the independent project's public publishable key, never a service-role or
+secret key. `VITE_SUPABASE_PROJECT_ID` is not needed by the browser. Production settings have not been changed. The independent local target is
+configured in ignored `.env.local`, using the structure in `.env.example`; do
+not copy server secrets into any Vite variable. Restart Vite after changing it.
 
-The existing Lovable Cloud backend remains in use until the independent
-Supabase migration is complete. Preserve its configuration to retain access to
-registered users, application records, and stored files. A frontend domain
-change does not transfer users or data to another Supabase project.
+The client uses standard Supabase session handling. Browser sessions belong to
+the configured project; testing accounts from the old backend are not migrated.
+Keep the old backend intact until cutover has been separately approved and tested.
+The installed independent baseline is authoritative. Current TypeScript types
+were generated read-only from the confirmed independent project during Phase 4C.
+The compared public contract matches the baseline; see the
+[Phase 4C report](database/PHASE-4C-RESULTS.md). Type generation does not validate
+RLS, private schemas or runtime workflows.
+
+**Repository hygiene:** `.env` was already tracked before Phase 4. Ignore rules
+protect new environment files but do not untrack an existing file. Its contents
+were not changed. Exclude it from future commits and arrange a separate index-only
+cleanup before publishing changes; do not delete the owner's local configuration.
 
 ## Website URL and SEO
 
@@ -156,13 +167,13 @@ PROP-CONNECT logo, replacing the externally hosted editor preview screenshot.
 Production hosting, redirects, backend CORS, and authentication allowlists need
 separate review before switching traffic; this change does not alter them.
 
-The sitemap includes 14 public static pages, including trust pages. Authentication,
+The sitemap includes 13 public static pages, including trust pages. Authentication,
 account, chat, dashboard, and admin routes are excluded. Robots allows public
 crawling; exclusion from the sitemap does not prevent indexing or grant access.
 No speculative priority, change frequency, or last-modified dates are emitted.
 
 The included routes are `/`, `/properties`, `/agents`, `/announcements`,
-`/analytics`, `/guides/investing-in-nigeria`, `/terms`, `/privacy`, and the six
+`/guides/investing-in-nigeria`, `/terms`, `/privacy`, and the six
 public `/trust/` pages: `safety-center`, `escrow-protection`,
 `agent-verification`, `property-verification`, `fraud-prevention`, and
 `code-of-conduct`.
@@ -189,8 +200,8 @@ an authenticated user's session in a build. Then generate only
 same URL helper, and refresh the sitemap when public content changes. Keep the
 static sitemap available if the public feed is unavailable.
 
-This frontend upgrade does not create the feed, change database policies, or
-modify Supabase, authentication, Edge Functions, or migration history.
+The sitemap generator does not create a database feed or modify migration history.
+`/analytics` now requires administrator access and is excluded from the sitemap.
 
 ## Independent domain cutover
 
@@ -208,16 +219,18 @@ When the new production domain is available:
 ## Remaining Lovable integrations
 
 Lovable development tagging is absent from the active npm manifests and Vite
-plugins. The following integrations remain for the current environment:
+plugins. Runtime preview-session brokering and the hardcoded AI gateway have been
+removed from the prepared source. Edge Function changes are not deployed.
 
-| File | Remaining integration |
+| File | Remaining dependency or configuration |
 | --- | --- |
-| `config/site-url.mjs` | Temporary production URL fallback, also used in generated SEO files |
-| `src/integrations/supabase/previewAuthStorage.ts` | Preview session broker imported by the Supabase client |
-| `supabase/functions/_shared/cors.ts` | Existing production and preview origins |
-| `supabase/functions/prop-ai/index.ts` | Lovable AI gateway and server-side `LOVABLE_API_KEY` |
-| `drizzle.config.ts` | `LOVABLE_DB_MIGRATION_URL` for migration tooling |
+| `config/site-url.mjs`, generated SEO assets and initial HTML | Existing production website fallback, preserved until domain cutover |
+| `.env` | Existing backend configuration, unchanged; values are not documented here |
+| `supabase/config.toml` | Existing backend project binding; do not deploy using it for the new project |
+| `drizzle.config.ts` | `LOVABLE_DB_MIGRATION_URL` for historical migration tooling; do not run against the new baseline |
+| Historical SQL files and Drizzle metadata | Preserved provenance; never replay alongside the independent baseline |
 
-Preserve these integrations and the existing Supabase connection until their
-replacements are verified. Keep all SQL migrations, Drizzle snapshots, and the
-migration journal as database history.
+New Edge deployments require exact `ALLOWED_ORIGINS`. AI requires owner-approved
+`AI_ENABLED`, `AI_CHAT_COMPLETIONS_URL`, `AI_MODEL`, and server-only `AI_API_KEY`.
+OTP remains disabled unless `OTP_ENABLED=true` and the existing Twilio server
+configuration is supplied after review. No external service has been activated.

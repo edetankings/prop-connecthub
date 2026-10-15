@@ -34,6 +34,7 @@ type Property = {
   state: string | null;
   image_url: string | null;
   agent_id: string;
+  listing_type: "sale" | "rental" | null;
 };
 
 type Settings = {
@@ -85,7 +86,7 @@ const SecurePayment = () => {
       const [propRes, settingsRes, commRes, txRes] = await Promise.all([
         supabase
           .from("properties")
-          .select("id,title,price,property_code,status,city,state,image_url,agent_id")
+          .select("id,title,price,property_code,status,city,state,image_url,agent_id,listing_type")
           .eq("id", propertyId)
           .maybeSingle(),
         supabase.rpc("get_company_payment_details"),
@@ -125,6 +126,7 @@ const SecurePayment = () => {
   }, [propertyId, user]);
 
   const handleInitiate = async () => {
+    if (!settings) { toast.error("Payments are unavailable. Do not transfer funds."); return; }
     if (!propertyId) return;
     setInitiating(true);
     const { data, error } = await supabase.rpc("initiate_secure_payment", {
@@ -210,7 +212,7 @@ const SecurePayment = () => {
     );
   }
 
-  const isRent = property.status === "for_rent";
+  const isRent = property.listing_type === "rental";
   const rate = commission
     ? isRent
       ? commission.rental_percent
@@ -221,7 +223,7 @@ const SecurePayment = () => {
 
   const status = tx?.payment_status;
   const showAwaitingApproval = !tx;
-  const showProofUpload = !!tx && (status === "pending_payment" || status === "under_review");
+  const showProofUpload = !!settings && !!tx && (status === "pending_payment" || status === "under_review");
   const isUnderReview = status === "under_review";
   const isSecured = status === "secured" || status === "released";
 
@@ -327,14 +329,14 @@ const SecurePayment = () => {
                 <h3 className="font-display text-lg font-semibold">PROP-CONNECT Company Account</h3>
               </div>
               <p className="mt-1 text-xs text-muted-foreground">
-                Transfer the total amount to this account. Use your Property ID as the transfer narration.
+                {settings ? "Use the verified account details below only when payment collection is enabled." : "Payments are unavailable. Do not transfer funds."}
               </p>
               <div className="mt-4 space-y-3">
                 <AccountRow
                   label="Account Name"
-                  value={settings?.company_account_name || "PROP-CONNECT LTD"}
+                  value={settings?.company_account_name || "Unavailable"}
                   onCopy={() =>
-                    copyToClipboard(settings?.company_account_name || "PROP-CONNECT LTD", "Account name")
+                    copyToClipboard(settings?.company_account_name || "", "Account name")
                   }
                 />
                 <AccountRow

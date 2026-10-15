@@ -18,9 +18,9 @@ PROP-CONNECT knowledge you must use:
 - Verification/KYC: uploaded in Identity Verification; admins approve or reject with a reason.
 - Secure Payment / Escrow: buyer requests a deal -> agent accepts -> buyer pays into the Prop-Connect company account and uploads proof -> admin verifies -> funds held in escrow -> buyer confirms handover -> funds released to the agent's wallet minus commission. 72-hour payment window; disputes and refunds are handled by admins.
 - Commission: about 1% on sales and 5% on rentals (admin configurable).
-- Subscriptions: agents pay ₦7,500/month by manual bank transfer to unlock listing features.
+- Financial operations and subscriptions are unavailable until platform business rules and payment configuration are approved. Never instruct users to transfer funds while unavailable.
 - Wallet & Withdrawals: earnings land in the wallet; withdrawals are reviewed and paid by admins.
-- Referrals/Matrix: 15-level matrix with direct-referral and verification bonuses paid in Naira.
+- Referral allocations require approved rules. Verification bonuses are disabled. Never promise rewards or a subscription duration.
 - Reservations & chat: buyers start chats (agents cannot); contact details are blocked in messages for safety.
 - Useful pages: /properties, /agents, /messages, /verification, /earnings, /payments, /settings, /add-property, /dashboard/buyer/secure-payments.`;
 
@@ -69,9 +69,12 @@ async function searchListings(supabase: any, text: string) {
   const f = parseFilters(text);
   let q = supabase.from("properties")
     .select("id, title, price, city, state, bedrooms, bathrooms, property_type, status, property_code")
-    .in("status", f.rent && !f.sale ? ["for_rent"] : f.sale && !f.rent ? ["for_sale", "available"] : ["for_sale", "for_rent", "available"])
+    .eq("is_verified", true)
+    .in("status", ["for_sale", "for_rent", "available"])
     .order("created_at", { ascending: false })
     .limit(6);
+  if (f.rent && !f.sale) q = q.eq("listing_type", "rental");
+  if (f.sale && !f.rent) q = q.eq("listing_type", "sale");
   if (f.maxPrice) q = q.lte("price", f.maxPrice);
   if (f.beds) q = q.gte("bedrooms", f.beds);
   if (f.place) {
@@ -122,8 +125,18 @@ Deno.serve(async (req) => {
     }
 
 
-    const apiKey = Deno.env.get("LOVABLE_API_KEY");
-    if (!apiKey) return fail("AI is not configured", 500);
+    // Opt-in only. Provider/model and paid usage require an owner decision.
+    const apiKey = Deno.env.get("AI_API_KEY");
+    const endpoint = Deno.env.get("AI_CHAT_COMPLETIONS_URL");
+    const model = Deno.env.get("AI_MODEL");
+    if (Deno.env.get("AI_ENABLED") !== "true" || !apiKey || !endpoint || !model) {
+      return fail("The assistant is not configured yet. Please use property search or contact support.", 503);
+    }
+    let upstreamUrl: URL;
+    try { upstreamUrl = new URL(endpoint); } catch { return fail("AI configuration is invalid", 503); }
+    if (upstreamUrl.protocol !== "https:" || upstreamUrl.username || upstreamUrl.password || upstreamUrl.search || upstreamUrl.hash) {
+      return fail("AI configuration is invalid", 503);
+    }
 
     const body = await req.json().catch(() => null);
     if (!body || typeof body !== "object") return fail("Invalid request body", 400);
@@ -170,19 +183,21 @@ Deno.serve(async (req) => {
         : `\n\nA search of real PROP-CONNECT listings found NO matches for filters ${JSON.stringify(f)}. Say so honestly, suggest widening budget/location, and link to [browse all properties](/properties). Never invent listings.`;
     }
 
-    const upstream = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const upstream = await fetch(upstreamUrl, {
+      redirect: "error",
+      signal: AbortSignal.timeout(60000),
       method: "POST",
       headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "google/gemini-3.6-flash",
+        model,
         stream: true,
         messages: [{ role: "system", content: system + listingContext + "\nNever share agent phone numbers, emails or other users' data. Never guarantee legal title, returns or financial outcomes." }, ...messages],
       }),
     });
 
     if (!upstream.ok) {
-      const details = await upstream.text().catch(() => "");
-      console.error("AI gateway error", upstream.status, details);
+      await upstream.body?.cancel();
+      console.error("AI provider request failed", upstream.status);
       const msg =
         upstream.status === 429
           ? "Too many requests. Please wait a moment and try again."

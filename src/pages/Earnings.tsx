@@ -17,6 +17,8 @@ const Earnings = () => {
   const [referrals, setReferrals] = useState<any[]>([]);
   const [escrow, setEscrow] = useState<any[]>([]);
   const [subStatus, setSubStatus] = useState<{ status: string; end_date?: string } | null>(null);
+  const [walletBalance, setWalletBalance] = useState(0);
+  const [withdrawalReserved, setWithdrawalReserved] = useState(0);
   const [loading, setLoading] = useState(true);
   const [withdrawOpen, setWithdrawOpen] = useState(false);
 
@@ -27,13 +29,16 @@ const Earnings = () => {
 
   const loadData = async () => {
     setLoading(true);
-    const [earningsRes, refsRes, wdRes, escrowRes, subRes] = await Promise.all([
+    const [earningsRes, refsRes, wdRes, escrowRes, subRes, walletRes] = await Promise.all([
       (supabase as any).from("earnings").select("*").eq("user_id", user!.id).order("created_at", { ascending: false }),
-      (supabase as any).from("public_profiles").select("id, full_name, profile_type, kyc_verified, created_at").eq("referred_by", profile!.id).order("created_at", { ascending: false }),
+      (supabase as any).rpc("get_referral_summary"),
       (supabase as any).from("withdrawals").select("*").eq("user_id", user!.id).order("created_at", { ascending: false }),
       (supabase as any).from("escrow_holds").select("*").eq("intended_user_id", user!.id).eq("status", "held"),
       (supabase as any).from("subscriptions").select("status, end_date").eq("user_id", user!.id).maybeSingle(),
+      supabase.from("wallets").select("balance, withdrawal_reserved").eq("user_id", user!.id).maybeSingle(),
     ]);
+    setWalletBalance(Number(walletRes.data?.balance ?? 0));
+    setWithdrawalReserved(Number(walletRes.data?.withdrawal_reserved ?? 0));
     setEarnings(earningsRes.data || []);
     setReferrals(refsRes.data || []);
     setWithdrawals(wdRes.data || []);
@@ -50,7 +55,7 @@ const Earnings = () => {
   const totalCommittedWd = withdrawals
     .filter((w) => w.status === "approved" || w.status === "pending")
     .reduce((s, w) => s + (w.amount || 0), 0);
-  const availableBalance = Math.max(0, totalEarnings - totalCommittedWd);
+  const availableBalance = walletBalance;
 
   // Per-level breakdown (1-15)
   const levelBreakdown = Array.from({ length: 15 }, (_, i) => {
@@ -160,6 +165,7 @@ const Earnings = () => {
             <CardContent className="p-4">
               <Wallet className="h-5 w-5 text-emerald-600 mb-1" />
               <p className="font-display text-2xl font-bold text-emerald-700 dark:text-emerald-400">₦{availableBalance.toLocaleString()}</p>
+              <p className="text-xs text-muted-foreground">Reserved for withdrawals: ₦{withdrawalReserved.toLocaleString()}</p>
               <p className="text-xs text-muted-foreground">Available</p>
             </CardContent>
           </Card>

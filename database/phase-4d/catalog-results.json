@@ -1,0 +1,6714 @@
+{
+  "buckets": [
+    {
+      "bucket_size_limit": null,
+      "id": "avatars",
+      "mime_types": [
+        "image/jpeg",
+        "image/png",
+        "image/webp"
+      ],
+      "object_count": 0,
+      "public": true
+    },
+    {
+      "bucket_size_limit": null,
+      "id": "chat-attachments",
+      "mime_types": [
+        "image/jpeg",
+        "image/png",
+        "image/webp",
+        "audio/webm",
+        "audio/ogg",
+        "audio/mpeg",
+        "audio/mp4",
+        "application/pdf",
+        "application/octet-stream"
+      ],
+      "object_count": 0,
+      "public": false
+    },
+    {
+      "bucket_size_limit": null,
+      "id": "payment-screenshots",
+      "mime_types": [
+        "image/jpeg",
+        "image/png",
+        "image/webp",
+        "application/pdf"
+      ],
+      "object_count": 0,
+      "public": false
+    },
+    {
+      "bucket_size_limit": null,
+      "id": "property-documents",
+      "mime_types": [
+        "application/pdf",
+        "image/jpeg",
+        "image/png",
+        "image/webp"
+      ],
+      "object_count": 0,
+      "public": false
+    },
+    {
+      "bucket_size_limit": null,
+      "id": "property-images",
+      "mime_types": [
+        "image/jpeg",
+        "image/png",
+        "image/webp",
+        "video/mp4",
+        "video/webm"
+      ],
+      "object_count": 0,
+      "public": true
+    },
+    {
+      "bucket_size_limit": null,
+      "id": "verification-docs",
+      "mime_types": [
+        "image/jpeg",
+        "image/png",
+        "image/webp",
+        "application/pdf"
+      ],
+      "object_count": 0,
+      "public": false
+    }
+  ],
+  "column_grants": [
+    {
+      "column": "author_id",
+      "privilege": "INSERT",
+      "table": "announcements"
+    },
+    {
+      "column": "author_id",
+      "privilege": "SELECT",
+      "table": "announcements"
+    },
+    {
+      "column": "author_id",
+      "privilege": "UPDATE",
+      "table": "announcements"
+    },
+    {
+      "column": "content",
+      "privilege": "INSERT",
+      "table": "announcements"
+    },
+    {
+      "column": "content",
+      "privilege": "SELECT",
+      "table": "announcements"
+    },
+    {
+      "column": "content",
+      "privilege": "UPDATE",
+      "table": "announcements"
+    },
+    {
+      "column": "created_at",
+      "privilege": "INSERT",
+      "table": "announcements"
+    },
+    {
+      "column": "created_at",
+      "privilege": "SELECT",
+      "table": "announcements"
+    },
+    {
+      "column": "created_at",
+      "privilege": "UPDATE",
+      "table": "announcements"
+    },
+    {
+      "column": "id",
+      "privilege": "INSERT",
+      "table": "announcements"
+    },
+    {
+      "column": "id",
+      "privilege": "SELECT",
+      "table": "announcements"
+    },
+    {
+      "column": "id",
+      "privilege": "UPDATE",
+      "table": "announcements"
+    },
+    {
+      "column": "title",
+      "privilege": "INSERT",
+      "table": "announcements"
+    },
+    {
+      "column": "title",
+      "privilege": "SELECT",
+      "table": "announcements"
+    },
+    {
+      "column": "title",
+      "privilege": "UPDATE",
+      "table": "announcements"
+    },
+    {
+      "column": "type",
+      "privilege": "INSERT",
+      "table": "announcements"
+    },
+    {
+      "column": "type",
+      "privilege": "SELECT",
+      "table": "announcements"
+    },
+    {
+      "column": "type",
+      "privilege": "UPDATE",
+      "table": "announcements"
+    },
+    {
+      "column": "action",
+      "privilege": "SELECT",
+      "table": "audit_logs"
+    },
+    {
+      "column": "created_at",
+      "privilege": "SELECT",
+      "table": "audit_logs"
+    },
+    {
+      "column": "details",
+      "privilege": "SELECT",
+      "table": "audit_logs"
+    },
+    {
+      "column": "id",
+      "privilege": "SELECT",
+      "table": "audit_logs"
+    },
+    {
+      "column": "user_id",
+      "privilege": "SELECT",
+      "table": "audit_logs"
+    },
+    {
+      "column": "agent_id",
+      "privilege": "INSERT",
+      "table": "chat_threads"
+    },
+    {
+      "column": "agent_id",
+      "privilege": "SELECT",
+      "table": "chat_threads"
+    },
+    {
+      "column": "buyer_id",
+      "privilege": "INSERT",
+      "table": "chat_threads"
+    },
+    {
+      "column": "buyer_id",
+      "privilege": "SELECT",
+      "table": "chat_threads"
+    },
+    {
+      "column": "created_at",
+      "privilege": "INSERT",
+      "table": "chat_threads"
+    },
+    {
+      "column": "created_at",
+      "privilege": "SELECT",
+      "table": "chat_threads"
+    },
+    {
+      "column": "id",
+      "privilege": "INSERT",
+      "table": "chat_threads"
+    },
+    {
+      "column": "id",
+      "privilege": "SELECT",
+      "table": "chat_threads"
+    },
+    {
+      "column": "last_message_at",
+      "privilege": "INSERT",
+      "table": "chat_threads"
+    },
+    {
+      "column": "last_message_at",
+      "privilege": "SELECT",
+      "table": "chat_threads"
+    },
+    {
+      "column": "last_message_at",
+      "privilege": "UPDATE",
+      "table": "chat_threads"
+    },
+    {
+      "column": "property_id",
+      "privilege": "INSERT",
+      "table": "chat_threads"
+    },
+    {
+      "column": "property_id",
+      "privilege": "SELECT",
+      "table": "chat_threads"
+    },
+    {
+      "column": "status",
+      "privilege": "INSERT",
+      "table": "chat_threads"
+    },
+    {
+      "column": "status",
+      "privilege": "SELECT",
+      "table": "chat_threads"
+    },
+    {
+      "column": "id",
+      "privilege": "SELECT",
+      "table": "commission_settings"
+    },
+    {
+      "column": "id",
+      "privilege": "UPDATE",
+      "table": "commission_settings"
+    },
+    {
+      "column": "rental_percent",
+      "privilege": "SELECT",
+      "table": "commission_settings"
+    },
+    {
+      "column": "rental_percent",
+      "privilege": "UPDATE",
+      "table": "commission_settings"
+    },
+    {
+      "column": "reservation_flat",
+      "privilege": "SELECT",
+      "table": "commission_settings"
+    },
+    {
+      "column": "reservation_flat",
+      "privilege": "UPDATE",
+      "table": "commission_settings"
+    },
+    {
+      "column": "sales_percent",
+      "privilege": "SELECT",
+      "table": "commission_settings"
+    },
+    {
+      "column": "sales_percent",
+      "privilege": "UPDATE",
+      "table": "commission_settings"
+    },
+    {
+      "column": "singleton",
+      "privilege": "SELECT",
+      "table": "commission_settings"
+    },
+    {
+      "column": "singleton",
+      "privilege": "UPDATE",
+      "table": "commission_settings"
+    },
+    {
+      "column": "updated_at",
+      "privilege": "SELECT",
+      "table": "commission_settings"
+    },
+    {
+      "column": "updated_at",
+      "privilege": "UPDATE",
+      "table": "commission_settings"
+    },
+    {
+      "column": "updated_by",
+      "privilege": "SELECT",
+      "table": "commission_settings"
+    },
+    {
+      "column": "updated_by",
+      "privilege": "UPDATE",
+      "table": "commission_settings"
+    },
+    {
+      "column": "balance",
+      "privilege": "SELECT",
+      "table": "company_wallet"
+    },
+    {
+      "column": "id",
+      "privilege": "SELECT",
+      "table": "company_wallet"
+    },
+    {
+      "column": "singleton",
+      "privilege": "SELECT",
+      "table": "company_wallet"
+    },
+    {
+      "column": "total_earned",
+      "privilege": "SELECT",
+      "table": "company_wallet"
+    },
+    {
+      "column": "updated_at",
+      "privilege": "SELECT",
+      "table": "company_wallet"
+    },
+    {
+      "column": "actor_id",
+      "privilege": "SELECT",
+      "table": "deal_events"
+    },
+    {
+      "column": "created_at",
+      "privilege": "SELECT",
+      "table": "deal_events"
+    },
+    {
+      "column": "deal_id",
+      "privilege": "SELECT",
+      "table": "deal_events"
+    },
+    {
+      "column": "details",
+      "privilege": "SELECT",
+      "table": "deal_events"
+    },
+    {
+      "column": "event",
+      "privilege": "SELECT",
+      "table": "deal_events"
+    },
+    {
+      "column": "id",
+      "privilege": "SELECT",
+      "table": "deal_events"
+    },
+    {
+      "column": "accepted_at",
+      "privilege": "SELECT",
+      "table": "deal_requests"
+    },
+    {
+      "column": "agent_profile_id",
+      "privilege": "SELECT",
+      "table": "deal_requests"
+    },
+    {
+      "column": "agent_user_id",
+      "privilege": "SELECT",
+      "table": "deal_requests"
+    },
+    {
+      "column": "buyer_id",
+      "privilege": "SELECT",
+      "table": "deal_requests"
+    },
+    {
+      "column": "buyer_message",
+      "privilege": "SELECT",
+      "table": "deal_requests"
+    },
+    {
+      "column": "created_at",
+      "privilege": "SELECT",
+      "table": "deal_requests"
+    },
+    {
+      "column": "deal_number",
+      "privilege": "SELECT",
+      "table": "deal_requests"
+    },
+    {
+      "column": "decline_reason",
+      "privilege": "SELECT",
+      "table": "deal_requests"
+    },
+    {
+      "column": "declined_at",
+      "privilege": "SELECT",
+      "table": "deal_requests"
+    },
+    {
+      "column": "id",
+      "privilege": "SELECT",
+      "table": "deal_requests"
+    },
+    {
+      "column": "property_code",
+      "privilege": "SELECT",
+      "table": "deal_requests"
+    },
+    {
+      "column": "property_id",
+      "privilege": "SELECT",
+      "table": "deal_requests"
+    },
+    {
+      "column": "stage",
+      "privilege": "SELECT",
+      "table": "deal_requests"
+    },
+    {
+      "column": "status",
+      "privilege": "SELECT",
+      "table": "deal_requests"
+    },
+    {
+      "column": "transaction_id",
+      "privilege": "SELECT",
+      "table": "deal_requests"
+    },
+    {
+      "column": "updated_at",
+      "privilege": "SELECT",
+      "table": "deal_requests"
+    },
+    {
+      "column": "created_at",
+      "privilege": "SELECT",
+      "table": "disputes"
+    },
+    {
+      "column": "id",
+      "privilege": "SELECT",
+      "table": "disputes"
+    },
+    {
+      "column": "property_id",
+      "privilege": "SELECT",
+      "table": "disputes"
+    },
+    {
+      "column": "reason",
+      "privilege": "SELECT",
+      "table": "disputes"
+    },
+    {
+      "column": "reported_id",
+      "privilege": "SELECT",
+      "table": "disputes"
+    },
+    {
+      "column": "reporter_id",
+      "privilege": "SELECT",
+      "table": "disputes"
+    },
+    {
+      "column": "resolution",
+      "privilege": "SELECT",
+      "table": "disputes"
+    },
+    {
+      "column": "resolved_at",
+      "privilege": "SELECT",
+      "table": "disputes"
+    },
+    {
+      "column": "resolved_by",
+      "privilege": "SELECT",
+      "table": "disputes"
+    },
+    {
+      "column": "status",
+      "privilege": "SELECT",
+      "table": "disputes"
+    },
+    {
+      "column": "transaction_id",
+      "privilege": "SELECT",
+      "table": "disputes"
+    },
+    {
+      "column": "updated_at",
+      "privilege": "SELECT",
+      "table": "disputes"
+    },
+    {
+      "column": "amount",
+      "privilege": "SELECT",
+      "table": "earnings"
+    },
+    {
+      "column": "created_at",
+      "privilege": "SELECT",
+      "table": "earnings"
+    },
+    {
+      "column": "description",
+      "privilege": "SELECT",
+      "table": "earnings"
+    },
+    {
+      "column": "event_key",
+      "privilege": "SELECT",
+      "table": "earnings"
+    },
+    {
+      "column": "from_user_id",
+      "privilege": "SELECT",
+      "table": "earnings"
+    },
+    {
+      "column": "id",
+      "privilege": "SELECT",
+      "table": "earnings"
+    },
+    {
+      "column": "level",
+      "privilege": "SELECT",
+      "table": "earnings"
+    },
+    {
+      "column": "source",
+      "privilege": "SELECT",
+      "table": "earnings"
+    },
+    {
+      "column": "subscription_id",
+      "privilege": "SELECT",
+      "table": "earnings"
+    },
+    {
+      "column": "transaction_id",
+      "privilege": "SELECT",
+      "table": "earnings"
+    },
+    {
+      "column": "type",
+      "privilege": "SELECT",
+      "table": "earnings"
+    },
+    {
+      "column": "user_id",
+      "privilege": "SELECT",
+      "table": "earnings"
+    },
+    {
+      "column": "amount",
+      "privilege": "SELECT",
+      "table": "escrow_holds"
+    },
+    {
+      "column": "created_at",
+      "privilege": "SELECT",
+      "table": "escrow_holds"
+    },
+    {
+      "column": "event_key",
+      "privilege": "SELECT",
+      "table": "escrow_holds"
+    },
+    {
+      "column": "from_user_id",
+      "privilege": "SELECT",
+      "table": "escrow_holds"
+    },
+    {
+      "column": "hold_until",
+      "privilege": "SELECT",
+      "table": "escrow_holds"
+    },
+    {
+      "column": "id",
+      "privilege": "SELECT",
+      "table": "escrow_holds"
+    },
+    {
+      "column": "intended_user_id",
+      "privilege": "SELECT",
+      "table": "escrow_holds"
+    },
+    {
+      "column": "level",
+      "privilege": "SELECT",
+      "table": "escrow_holds"
+    },
+    {
+      "column": "resolved_at",
+      "privilege": "SELECT",
+      "table": "escrow_holds"
+    },
+    {
+      "column": "status",
+      "privilege": "SELECT",
+      "table": "escrow_holds"
+    },
+    {
+      "column": "subscription_id",
+      "privilege": "SELECT",
+      "table": "escrow_holds"
+    },
+    {
+      "column": "account_number",
+      "privilege": "INSERT",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "account_number",
+      "privilege": "SELECT",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "account_number",
+      "privilege": "UPDATE",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "bank_name",
+      "privilege": "INSERT",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "bank_name",
+      "privilege": "SELECT",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "bank_name",
+      "privilege": "UPDATE",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "created_at",
+      "privilege": "INSERT",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "created_at",
+      "privilege": "SELECT",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "created_at",
+      "privilege": "UPDATE",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "government_id_type",
+      "privilege": "INSERT",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "government_id_type",
+      "privilege": "SELECT",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "government_id_type",
+      "privilege": "UPDATE",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "government_id_url",
+      "privilege": "INSERT",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "government_id_url",
+      "privilege": "SELECT",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "government_id_url",
+      "privilege": "UPDATE",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "id",
+      "privilege": "INSERT",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "id",
+      "privilege": "SELECT",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "id",
+      "privilege": "UPDATE",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "kyc_status",
+      "privilege": "INSERT",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "kyc_status",
+      "privilege": "SELECT",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "kyc_status",
+      "privilege": "UPDATE",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "nin_bvn_type",
+      "privilege": "INSERT",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "nin_bvn_type",
+      "privilege": "SELECT",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "nin_bvn_type",
+      "privilege": "UPDATE",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "nin_or_bvn",
+      "privilege": "INSERT",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "nin_or_bvn",
+      "privilege": "SELECT",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "nin_or_bvn",
+      "privilege": "UPDATE",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "phone_verified",
+      "privilege": "INSERT",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "phone_verified",
+      "privilege": "SELECT",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "phone_verified",
+      "privilege": "UPDATE",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "proof_of_address_url",
+      "privilege": "INSERT",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "proof_of_address_url",
+      "privilege": "SELECT",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "proof_of_address_url",
+      "privilege": "UPDATE",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "rejection_reason",
+      "privilege": "INSERT",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "rejection_reason",
+      "privilege": "SELECT",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "rejection_reason",
+      "privilege": "UPDATE",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "residential_address",
+      "privilege": "INSERT",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "residential_address",
+      "privilege": "SELECT",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "residential_address",
+      "privilege": "UPDATE",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "reviewed_at",
+      "privilege": "INSERT",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "reviewed_at",
+      "privilege": "SELECT",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "reviewed_at",
+      "privilege": "UPDATE",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "reviewed_by",
+      "privilege": "INSERT",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "reviewed_by",
+      "privilege": "SELECT",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "reviewed_by",
+      "privilege": "UPDATE",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "selfie_url",
+      "privilege": "INSERT",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "selfie_url",
+      "privilege": "SELECT",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "selfie_url",
+      "privilege": "UPDATE",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "submitted_at",
+      "privilege": "INSERT",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "submitted_at",
+      "privilege": "SELECT",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "submitted_at",
+      "privilege": "UPDATE",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "updated_at",
+      "privilege": "INSERT",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "updated_at",
+      "privilege": "SELECT",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "updated_at",
+      "privilege": "UPDATE",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "user_id",
+      "privilege": "INSERT",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "user_id",
+      "privilege": "SELECT",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "user_id",
+      "privilege": "UPDATE",
+      "table": "kyc_verifications"
+    },
+    {
+      "column": "attachment_path",
+      "privilege": "INSERT",
+      "table": "messages"
+    },
+    {
+      "column": "attachment_path",
+      "privilege": "SELECT",
+      "table": "messages"
+    },
+    {
+      "column": "content",
+      "privilege": "INSERT",
+      "table": "messages"
+    },
+    {
+      "column": "content",
+      "privilege": "SELECT",
+      "table": "messages"
+    },
+    {
+      "column": "created_at",
+      "privilege": "INSERT",
+      "table": "messages"
+    },
+    {
+      "column": "created_at",
+      "privilege": "SELECT",
+      "table": "messages"
+    },
+    {
+      "column": "id",
+      "privilege": "INSERT",
+      "table": "messages"
+    },
+    {
+      "column": "id",
+      "privilege": "SELECT",
+      "table": "messages"
+    },
+    {
+      "column": "is_blocked",
+      "privilege": "INSERT",
+      "table": "messages"
+    },
+    {
+      "column": "is_blocked",
+      "privilege": "SELECT",
+      "table": "messages"
+    },
+    {
+      "column": "seen",
+      "privilege": "INSERT",
+      "table": "messages"
+    },
+    {
+      "column": "seen",
+      "privilege": "SELECT",
+      "table": "messages"
+    },
+    {
+      "column": "seen",
+      "privilege": "UPDATE",
+      "table": "messages"
+    },
+    {
+      "column": "sender_id",
+      "privilege": "INSERT",
+      "table": "messages"
+    },
+    {
+      "column": "sender_id",
+      "privilege": "SELECT",
+      "table": "messages"
+    },
+    {
+      "column": "thread_id",
+      "privilege": "INSERT",
+      "table": "messages"
+    },
+    {
+      "column": "thread_id",
+      "privilege": "SELECT",
+      "table": "messages"
+    },
+    {
+      "column": "created_at",
+      "privilege": "INSERT",
+      "table": "notifications"
+    },
+    {
+      "column": "created_at",
+      "privilege": "SELECT",
+      "table": "notifications"
+    },
+    {
+      "column": "id",
+      "privilege": "INSERT",
+      "table": "notifications"
+    },
+    {
+      "column": "id",
+      "privilege": "SELECT",
+      "table": "notifications"
+    },
+    {
+      "column": "is_read",
+      "privilege": "INSERT",
+      "table": "notifications"
+    },
+    {
+      "column": "is_read",
+      "privilege": "SELECT",
+      "table": "notifications"
+    },
+    {
+      "column": "is_read",
+      "privilege": "UPDATE",
+      "table": "notifications"
+    },
+    {
+      "column": "link",
+      "privilege": "INSERT",
+      "table": "notifications"
+    },
+    {
+      "column": "link",
+      "privilege": "SELECT",
+      "table": "notifications"
+    },
+    {
+      "column": "message",
+      "privilege": "INSERT",
+      "table": "notifications"
+    },
+    {
+      "column": "message",
+      "privilege": "SELECT",
+      "table": "notifications"
+    },
+    {
+      "column": "title",
+      "privilege": "INSERT",
+      "table": "notifications"
+    },
+    {
+      "column": "title",
+      "privilege": "SELECT",
+      "table": "notifications"
+    },
+    {
+      "column": "type",
+      "privilege": "INSERT",
+      "table": "notifications"
+    },
+    {
+      "column": "type",
+      "privilege": "SELECT",
+      "table": "notifications"
+    },
+    {
+      "column": "user_id",
+      "privilege": "INSERT",
+      "table": "notifications"
+    },
+    {
+      "column": "user_id",
+      "privilege": "SELECT",
+      "table": "notifications"
+    },
+    {
+      "column": "company_account_name",
+      "privilege": "SELECT",
+      "table": "platform_settings"
+    },
+    {
+      "column": "company_account_name",
+      "privilege": "UPDATE",
+      "table": "platform_settings"
+    },
+    {
+      "column": "company_account_number",
+      "privilege": "SELECT",
+      "table": "platform_settings"
+    },
+    {
+      "column": "company_account_number",
+      "privilege": "UPDATE",
+      "table": "platform_settings"
+    },
+    {
+      "column": "company_bank_name",
+      "privilege": "SELECT",
+      "table": "platform_settings"
+    },
+    {
+      "column": "company_bank_name",
+      "privilege": "UPDATE",
+      "table": "platform_settings"
+    },
+    {
+      "column": "id",
+      "privilege": "SELECT",
+      "table": "platform_settings"
+    },
+    {
+      "column": "id",
+      "privilege": "UPDATE",
+      "table": "platform_settings"
+    },
+    {
+      "column": "monetary_unit",
+      "privilege": "SELECT",
+      "table": "platform_settings"
+    },
+    {
+      "column": "monetary_unit",
+      "privilege": "UPDATE",
+      "table": "platform_settings"
+    },
+    {
+      "column": "money_rules_approved",
+      "privilege": "SELECT",
+      "table": "platform_settings"
+    },
+    {
+      "column": "money_rules_approved",
+      "privilege": "UPDATE",
+      "table": "platform_settings"
+    },
+    {
+      "column": "referral_policy",
+      "privilege": "SELECT",
+      "table": "platform_settings"
+    },
+    {
+      "column": "referral_policy",
+      "privilege": "UPDATE",
+      "table": "platform_settings"
+    },
+    {
+      "column": "referral_rules_approved",
+      "privilege": "SELECT",
+      "table": "platform_settings"
+    },
+    {
+      "column": "referral_rules_approved",
+      "privilege": "UPDATE",
+      "table": "platform_settings"
+    },
+    {
+      "column": "singleton",
+      "privilege": "SELECT",
+      "table": "platform_settings"
+    },
+    {
+      "column": "singleton",
+      "privilege": "UPDATE",
+      "table": "platform_settings"
+    },
+    {
+      "column": "subscription_amount",
+      "privilege": "SELECT",
+      "table": "platform_settings"
+    },
+    {
+      "column": "subscription_amount",
+      "privilege": "UPDATE",
+      "table": "platform_settings"
+    },
+    {
+      "column": "updated_at",
+      "privilege": "SELECT",
+      "table": "platform_settings"
+    },
+    {
+      "column": "updated_at",
+      "privilege": "UPDATE",
+      "table": "platform_settings"
+    },
+    {
+      "column": "updated_by",
+      "privilege": "SELECT",
+      "table": "platform_settings"
+    },
+    {
+      "column": "updated_by",
+      "privilege": "UPDATE",
+      "table": "platform_settings"
+    },
+    {
+      "column": "verification_bonus_policy",
+      "privilege": "SELECT",
+      "table": "platform_settings"
+    },
+    {
+      "column": "verification_bonus_policy",
+      "privilege": "UPDATE",
+      "table": "platform_settings"
+    },
+    {
+      "column": "avatar_url",
+      "privilege": "SELECT",
+      "table": "profiles"
+    },
+    {
+      "column": "avatar_url",
+      "privilege": "UPDATE",
+      "table": "profiles"
+    },
+    {
+      "column": "bio",
+      "privilege": "SELECT",
+      "table": "profiles"
+    },
+    {
+      "column": "bio",
+      "privilege": "UPDATE",
+      "table": "profiles"
+    },
+    {
+      "column": "completed_transactions",
+      "privilege": "SELECT",
+      "table": "profiles"
+    },
+    {
+      "column": "completed_transactions",
+      "privilege": "UPDATE",
+      "table": "profiles"
+    },
+    {
+      "column": "created_at",
+      "privilege": "SELECT",
+      "table": "profiles"
+    },
+    {
+      "column": "created_at",
+      "privilege": "UPDATE",
+      "table": "profiles"
+    },
+    {
+      "column": "full_name",
+      "privilege": "SELECT",
+      "table": "profiles"
+    },
+    {
+      "column": "full_name",
+      "privilege": "UPDATE",
+      "table": "profiles"
+    },
+    {
+      "column": "id",
+      "privilege": "SELECT",
+      "table": "profiles"
+    },
+    {
+      "column": "id",
+      "privilege": "UPDATE",
+      "table": "profiles"
+    },
+    {
+      "column": "invited_by",
+      "privilege": "SELECT",
+      "table": "profiles"
+    },
+    {
+      "column": "invited_by",
+      "privilege": "UPDATE",
+      "table": "profiles"
+    },
+    {
+      "column": "is_visible",
+      "privilege": "SELECT",
+      "table": "profiles"
+    },
+    {
+      "column": "is_visible",
+      "privilege": "UPDATE",
+      "table": "profiles"
+    },
+    {
+      "column": "kyc_trust_awarded",
+      "privilege": "SELECT",
+      "table": "profiles"
+    },
+    {
+      "column": "kyc_trust_awarded",
+      "privilege": "UPDATE",
+      "table": "profiles"
+    },
+    {
+      "column": "kyc_verified",
+      "privilege": "SELECT",
+      "table": "profiles"
+    },
+    {
+      "column": "kyc_verified",
+      "privilege": "UPDATE",
+      "table": "profiles"
+    },
+    {
+      "column": "last_login_at",
+      "privilege": "SELECT",
+      "table": "profiles"
+    },
+    {
+      "column": "last_login_at",
+      "privilege": "UPDATE",
+      "table": "profiles"
+    },
+    {
+      "column": "location",
+      "privilege": "SELECT",
+      "table": "profiles"
+    },
+    {
+      "column": "location",
+      "privilege": "UPDATE",
+      "table": "profiles"
+    },
+    {
+      "column": "phone",
+      "privilege": "SELECT",
+      "table": "profiles"
+    },
+    {
+      "column": "phone",
+      "privilege": "UPDATE",
+      "table": "profiles"
+    },
+    {
+      "column": "phone_verified",
+      "privilege": "SELECT",
+      "table": "profiles"
+    },
+    {
+      "column": "phone_verified",
+      "privilege": "UPDATE",
+      "table": "profiles"
+    },
+    {
+      "column": "phone_verified_at",
+      "privilege": "SELECT",
+      "table": "profiles"
+    },
+    {
+      "column": "phone_verified_at",
+      "privilege": "UPDATE",
+      "table": "profiles"
+    },
+    {
+      "column": "profile_type",
+      "privilege": "SELECT",
+      "table": "profiles"
+    },
+    {
+      "column": "profile_type",
+      "privilege": "UPDATE",
+      "table": "profiles"
+    },
+    {
+      "column": "properties_listed",
+      "privilege": "SELECT",
+      "table": "profiles"
+    },
+    {
+      "column": "properties_listed",
+      "privilege": "UPDATE",
+      "table": "profiles"
+    },
+    {
+      "column": "referral_code",
+      "privilege": "SELECT",
+      "table": "profiles"
+    },
+    {
+      "column": "referral_code",
+      "privilege": "UPDATE",
+      "table": "profiles"
+    },
+    {
+      "column": "referral_level",
+      "privilege": "SELECT",
+      "table": "profiles"
+    },
+    {
+      "column": "referral_level",
+      "privilege": "UPDATE",
+      "table": "profiles"
+    },
+    {
+      "column": "referral_position",
+      "privilege": "SELECT",
+      "table": "profiles"
+    },
+    {
+      "column": "referral_position",
+      "privilege": "UPDATE",
+      "table": "profiles"
+    },
+    {
+      "column": "referred_by",
+      "privilege": "SELECT",
+      "table": "profiles"
+    },
+    {
+      "column": "referred_by",
+      "privilege": "UPDATE",
+      "table": "profiles"
+    },
+    {
+      "column": "trust_score",
+      "privilege": "SELECT",
+      "table": "profiles"
+    },
+    {
+      "column": "trust_score",
+      "privilege": "UPDATE",
+      "table": "profiles"
+    },
+    {
+      "column": "updated_at",
+      "privilege": "SELECT",
+      "table": "profiles"
+    },
+    {
+      "column": "updated_at",
+      "privilege": "UPDATE",
+      "table": "profiles"
+    },
+    {
+      "column": "user_id",
+      "privilege": "SELECT",
+      "table": "profiles"
+    },
+    {
+      "column": "user_id",
+      "privilege": "UPDATE",
+      "table": "profiles"
+    },
+    {
+      "column": "welcome_seen",
+      "privilege": "SELECT",
+      "table": "profiles"
+    },
+    {
+      "column": "welcome_seen",
+      "privilege": "UPDATE",
+      "table": "profiles"
+    },
+    {
+      "column": "address",
+      "privilege": "INSERT",
+      "table": "properties"
+    },
+    {
+      "column": "address",
+      "privilege": "SELECT",
+      "table": "properties"
+    },
+    {
+      "column": "address",
+      "privilege": "UPDATE",
+      "table": "properties"
+    },
+    {
+      "column": "agent_id",
+      "privilege": "INSERT",
+      "table": "properties"
+    },
+    {
+      "column": "agent_id",
+      "privilege": "SELECT",
+      "table": "properties"
+    },
+    {
+      "column": "agent_id",
+      "privilege": "UPDATE",
+      "table": "properties"
+    },
+    {
+      "column": "amenities",
+      "privilege": "INSERT",
+      "table": "properties"
+    },
+    {
+      "column": "amenities",
+      "privilege": "SELECT",
+      "table": "properties"
+    },
+    {
+      "column": "amenities",
+      "privilege": "UPDATE",
+      "table": "properties"
+    },
+    {
+      "column": "bathrooms",
+      "privilege": "INSERT",
+      "table": "properties"
+    },
+    {
+      "column": "bathrooms",
+      "privilege": "SELECT",
+      "table": "properties"
+    },
+    {
+      "column": "bathrooms",
+      "privilege": "UPDATE",
+      "table": "properties"
+    },
+    {
+      "column": "bedrooms",
+      "privilege": "INSERT",
+      "table": "properties"
+    },
+    {
+      "column": "bedrooms",
+      "privilege": "SELECT",
+      "table": "properties"
+    },
+    {
+      "column": "bedrooms",
+      "privilege": "UPDATE",
+      "table": "properties"
+    },
+    {
+      "column": "city",
+      "privilege": "INSERT",
+      "table": "properties"
+    },
+    {
+      "column": "city",
+      "privilege": "SELECT",
+      "table": "properties"
+    },
+    {
+      "column": "city",
+      "privilege": "UPDATE",
+      "table": "properties"
+    },
+    {
+      "column": "created_at",
+      "privilege": "INSERT",
+      "table": "properties"
+    },
+    {
+      "column": "created_at",
+      "privilege": "SELECT",
+      "table": "properties"
+    },
+    {
+      "column": "created_at",
+      "privilege": "UPDATE",
+      "table": "properties"
+    },
+    {
+      "column": "description",
+      "privilege": "INSERT",
+      "table": "properties"
+    },
+    {
+      "column": "description",
+      "privilege": "SELECT",
+      "table": "properties"
+    },
+    {
+      "column": "description",
+      "privilege": "UPDATE",
+      "table": "properties"
+    },
+    {
+      "column": "id",
+      "privilege": "INSERT",
+      "table": "properties"
+    },
+    {
+      "column": "id",
+      "privilege": "SELECT",
+      "table": "properties"
+    },
+    {
+      "column": "id",
+      "privilege": "UPDATE",
+      "table": "properties"
+    },
+    {
+      "column": "image_url",
+      "privilege": "INSERT",
+      "table": "properties"
+    },
+    {
+      "column": "image_url",
+      "privilege": "SELECT",
+      "table": "properties"
+    },
+    {
+      "column": "image_url",
+      "privilege": "UPDATE",
+      "table": "properties"
+    },
+    {
+      "column": "images",
+      "privilege": "INSERT",
+      "table": "properties"
+    },
+    {
+      "column": "images",
+      "privilege": "SELECT",
+      "table": "properties"
+    },
+    {
+      "column": "images",
+      "privilege": "UPDATE",
+      "table": "properties"
+    },
+    {
+      "column": "is_verified",
+      "privilege": "INSERT",
+      "table": "properties"
+    },
+    {
+      "column": "is_verified",
+      "privilege": "SELECT",
+      "table": "properties"
+    },
+    {
+      "column": "is_verified",
+      "privilege": "UPDATE",
+      "table": "properties"
+    },
+    {
+      "column": "latitude",
+      "privilege": "INSERT",
+      "table": "properties"
+    },
+    {
+      "column": "latitude",
+      "privilege": "SELECT",
+      "table": "properties"
+    },
+    {
+      "column": "latitude",
+      "privilege": "UPDATE",
+      "table": "properties"
+    },
+    {
+      "column": "listing_type",
+      "privilege": "INSERT",
+      "table": "properties"
+    },
+    {
+      "column": "listing_type",
+      "privilege": "SELECT",
+      "table": "properties"
+    },
+    {
+      "column": "listing_type",
+      "privilege": "UPDATE",
+      "table": "properties"
+    },
+    {
+      "column": "longitude",
+      "privilege": "INSERT",
+      "table": "properties"
+    },
+    {
+      "column": "longitude",
+      "privilege": "SELECT",
+      "table": "properties"
+    },
+    {
+      "column": "longitude",
+      "privilege": "UPDATE",
+      "table": "properties"
+    },
+    {
+      "column": "price",
+      "privilege": "INSERT",
+      "table": "properties"
+    },
+    {
+      "column": "price",
+      "privilege": "SELECT",
+      "table": "properties"
+    },
+    {
+      "column": "price",
+      "privilege": "UPDATE",
+      "table": "properties"
+    },
+    {
+      "column": "property_code",
+      "privilege": "INSERT",
+      "table": "properties"
+    },
+    {
+      "column": "property_code",
+      "privilege": "SELECT",
+      "table": "properties"
+    },
+    {
+      "column": "property_code",
+      "privilege": "UPDATE",
+      "table": "properties"
+    },
+    {
+      "column": "property_type",
+      "privilege": "INSERT",
+      "table": "properties"
+    },
+    {
+      "column": "property_type",
+      "privilege": "SELECT",
+      "table": "properties"
+    },
+    {
+      "column": "property_type",
+      "privilege": "UPDATE",
+      "table": "properties"
+    },
+    {
+      "column": "sqft",
+      "privilege": "INSERT",
+      "table": "properties"
+    },
+    {
+      "column": "sqft",
+      "privilege": "SELECT",
+      "table": "properties"
+    },
+    {
+      "column": "sqft",
+      "privilege": "UPDATE",
+      "table": "properties"
+    },
+    {
+      "column": "state",
+      "privilege": "INSERT",
+      "table": "properties"
+    },
+    {
+      "column": "state",
+      "privilege": "SELECT",
+      "table": "properties"
+    },
+    {
+      "column": "state",
+      "privilege": "UPDATE",
+      "table": "properties"
+    },
+    {
+      "column": "status",
+      "privilege": "INSERT",
+      "table": "properties"
+    },
+    {
+      "column": "status",
+      "privilege": "SELECT",
+      "table": "properties"
+    },
+    {
+      "column": "status",
+      "privilege": "UPDATE",
+      "table": "properties"
+    },
+    {
+      "column": "title",
+      "privilege": "INSERT",
+      "table": "properties"
+    },
+    {
+      "column": "title",
+      "privilege": "SELECT",
+      "table": "properties"
+    },
+    {
+      "column": "title",
+      "privilege": "UPDATE",
+      "table": "properties"
+    },
+    {
+      "column": "updated_at",
+      "privilege": "INSERT",
+      "table": "properties"
+    },
+    {
+      "column": "updated_at",
+      "privilege": "SELECT",
+      "table": "properties"
+    },
+    {
+      "column": "updated_at",
+      "privilege": "UPDATE",
+      "table": "properties"
+    },
+    {
+      "column": "videos",
+      "privilege": "INSERT",
+      "table": "properties"
+    },
+    {
+      "column": "videos",
+      "privilege": "SELECT",
+      "table": "properties"
+    },
+    {
+      "column": "videos",
+      "privilege": "UPDATE",
+      "table": "properties"
+    },
+    {
+      "column": "zip_code",
+      "privilege": "INSERT",
+      "table": "properties"
+    },
+    {
+      "column": "zip_code",
+      "privilege": "SELECT",
+      "table": "properties"
+    },
+    {
+      "column": "zip_code",
+      "privilege": "UPDATE",
+      "table": "properties"
+    },
+    {
+      "column": "agent_id",
+      "privilege": "INSERT",
+      "table": "property_documents"
+    },
+    {
+      "column": "agent_id",
+      "privilege": "SELECT",
+      "table": "property_documents"
+    },
+    {
+      "column": "agent_id",
+      "privilege": "UPDATE",
+      "table": "property_documents"
+    },
+    {
+      "column": "document_type",
+      "privilege": "INSERT",
+      "table": "property_documents"
+    },
+    {
+      "column": "document_type",
+      "privilege": "SELECT",
+      "table": "property_documents"
+    },
+    {
+      "column": "document_type",
+      "privilege": "UPDATE",
+      "table": "property_documents"
+    },
+    {
+      "column": "file_name",
+      "privilege": "INSERT",
+      "table": "property_documents"
+    },
+    {
+      "column": "file_name",
+      "privilege": "SELECT",
+      "table": "property_documents"
+    },
+    {
+      "column": "file_name",
+      "privilege": "UPDATE",
+      "table": "property_documents"
+    },
+    {
+      "column": "file_size",
+      "privilege": "INSERT",
+      "table": "property_documents"
+    },
+    {
+      "column": "file_size",
+      "privilege": "SELECT",
+      "table": "property_documents"
+    },
+    {
+      "column": "file_size",
+      "privilege": "UPDATE",
+      "table": "property_documents"
+    },
+    {
+      "column": "file_url",
+      "privilege": "INSERT",
+      "table": "property_documents"
+    },
+    {
+      "column": "file_url",
+      "privilege": "SELECT",
+      "table": "property_documents"
+    },
+    {
+      "column": "file_url",
+      "privilege": "UPDATE",
+      "table": "property_documents"
+    },
+    {
+      "column": "id",
+      "privilege": "INSERT",
+      "table": "property_documents"
+    },
+    {
+      "column": "id",
+      "privilege": "SELECT",
+      "table": "property_documents"
+    },
+    {
+      "column": "id",
+      "privilege": "UPDATE",
+      "table": "property_documents"
+    },
+    {
+      "column": "property_id",
+      "privilege": "INSERT",
+      "table": "property_documents"
+    },
+    {
+      "column": "property_id",
+      "privilege": "SELECT",
+      "table": "property_documents"
+    },
+    {
+      "column": "property_id",
+      "privilege": "UPDATE",
+      "table": "property_documents"
+    },
+    {
+      "column": "uploaded_at",
+      "privilege": "INSERT",
+      "table": "property_documents"
+    },
+    {
+      "column": "uploaded_at",
+      "privilege": "SELECT",
+      "table": "property_documents"
+    },
+    {
+      "column": "uploaded_at",
+      "privilege": "UPDATE",
+      "table": "property_documents"
+    },
+    {
+      "column": "avatar_url",
+      "privilege": "SELECT",
+      "table": "public_profiles"
+    },
+    {
+      "column": "bio",
+      "privilege": "SELECT",
+      "table": "public_profiles"
+    },
+    {
+      "column": "completed_transactions",
+      "privilege": "SELECT",
+      "table": "public_profiles"
+    },
+    {
+      "column": "created_at",
+      "privilege": "SELECT",
+      "table": "public_profiles"
+    },
+    {
+      "column": "full_name",
+      "privilege": "SELECT",
+      "table": "public_profiles"
+    },
+    {
+      "column": "id",
+      "privilege": "SELECT",
+      "table": "public_profiles"
+    },
+    {
+      "column": "is_visible",
+      "privilege": "SELECT",
+      "table": "public_profiles"
+    },
+    {
+      "column": "kyc_verified",
+      "privilege": "SELECT",
+      "table": "public_profiles"
+    },
+    {
+      "column": "location",
+      "privilege": "SELECT",
+      "table": "public_profiles"
+    },
+    {
+      "column": "profile_type",
+      "privilege": "SELECT",
+      "table": "public_profiles"
+    },
+    {
+      "column": "properties_listed",
+      "privilege": "SELECT",
+      "table": "public_profiles"
+    },
+    {
+      "column": "trust_score",
+      "privilege": "SELECT",
+      "table": "public_profiles"
+    },
+    {
+      "column": "agent_id",
+      "privilege": "INSERT",
+      "table": "ratings"
+    },
+    {
+      "column": "agent_id",
+      "privilege": "SELECT",
+      "table": "ratings"
+    },
+    {
+      "column": "comment",
+      "privilege": "INSERT",
+      "table": "ratings"
+    },
+    {
+      "column": "comment",
+      "privilege": "SELECT",
+      "table": "ratings"
+    },
+    {
+      "column": "created_at",
+      "privilege": "INSERT",
+      "table": "ratings"
+    },
+    {
+      "column": "created_at",
+      "privilege": "SELECT",
+      "table": "ratings"
+    },
+    {
+      "column": "id",
+      "privilege": "INSERT",
+      "table": "ratings"
+    },
+    {
+      "column": "id",
+      "privilege": "SELECT",
+      "table": "ratings"
+    },
+    {
+      "column": "property_id",
+      "privilege": "INSERT",
+      "table": "ratings"
+    },
+    {
+      "column": "property_id",
+      "privilege": "SELECT",
+      "table": "ratings"
+    },
+    {
+      "column": "rating",
+      "privilege": "INSERT",
+      "table": "ratings"
+    },
+    {
+      "column": "rating",
+      "privilege": "SELECT",
+      "table": "ratings"
+    },
+    {
+      "column": "reviewer_id",
+      "privilege": "INSERT",
+      "table": "ratings"
+    },
+    {
+      "column": "reviewer_id",
+      "privilege": "SELECT",
+      "table": "ratings"
+    },
+    {
+      "column": "agent_id",
+      "privilege": "INSERT",
+      "table": "reservations"
+    },
+    {
+      "column": "agent_id",
+      "privilege": "SELECT",
+      "table": "reservations"
+    },
+    {
+      "column": "agent_note",
+      "privilege": "INSERT",
+      "table": "reservations"
+    },
+    {
+      "column": "agent_note",
+      "privilege": "SELECT",
+      "table": "reservations"
+    },
+    {
+      "column": "buyer_email",
+      "privilege": "INSERT",
+      "table": "reservations"
+    },
+    {
+      "column": "buyer_email",
+      "privilege": "SELECT",
+      "table": "reservations"
+    },
+    {
+      "column": "buyer_id",
+      "privilege": "INSERT",
+      "table": "reservations"
+    },
+    {
+      "column": "buyer_id",
+      "privilege": "SELECT",
+      "table": "reservations"
+    },
+    {
+      "column": "buyer_name",
+      "privilege": "INSERT",
+      "table": "reservations"
+    },
+    {
+      "column": "buyer_name",
+      "privilege": "SELECT",
+      "table": "reservations"
+    },
+    {
+      "column": "buyer_phone",
+      "privilege": "INSERT",
+      "table": "reservations"
+    },
+    {
+      "column": "buyer_phone",
+      "privilege": "SELECT",
+      "table": "reservations"
+    },
+    {
+      "column": "created_at",
+      "privilege": "INSERT",
+      "table": "reservations"
+    },
+    {
+      "column": "created_at",
+      "privilege": "SELECT",
+      "table": "reservations"
+    },
+    {
+      "column": "id",
+      "privilege": "INSERT",
+      "table": "reservations"
+    },
+    {
+      "column": "id",
+      "privilege": "SELECT",
+      "table": "reservations"
+    },
+    {
+      "column": "inspection_status",
+      "privilege": "INSERT",
+      "table": "reservations"
+    },
+    {
+      "column": "inspection_status",
+      "privilege": "SELECT",
+      "table": "reservations"
+    },
+    {
+      "column": "inspection_time",
+      "privilege": "INSERT",
+      "table": "reservations"
+    },
+    {
+      "column": "inspection_time",
+      "privilege": "SELECT",
+      "table": "reservations"
+    },
+    {
+      "column": "message",
+      "privilege": "INSERT",
+      "table": "reservations"
+    },
+    {
+      "column": "message",
+      "privilege": "SELECT",
+      "table": "reservations"
+    },
+    {
+      "column": "notes",
+      "privilege": "INSERT",
+      "table": "reservations"
+    },
+    {
+      "column": "notes",
+      "privilege": "SELECT",
+      "table": "reservations"
+    },
+    {
+      "column": "property_id",
+      "privilege": "INSERT",
+      "table": "reservations"
+    },
+    {
+      "column": "property_id",
+      "privilege": "SELECT",
+      "table": "reservations"
+    },
+    {
+      "column": "proposed_date",
+      "privilege": "INSERT",
+      "table": "reservations"
+    },
+    {
+      "column": "proposed_date",
+      "privilege": "SELECT",
+      "table": "reservations"
+    },
+    {
+      "column": "proposed_time",
+      "privilege": "INSERT",
+      "table": "reservations"
+    },
+    {
+      "column": "proposed_time",
+      "privilege": "SELECT",
+      "table": "reservations"
+    },
+    {
+      "column": "status",
+      "privilege": "INSERT",
+      "table": "reservations"
+    },
+    {
+      "column": "status",
+      "privilege": "SELECT",
+      "table": "reservations"
+    },
+    {
+      "column": "updated_at",
+      "privilege": "INSERT",
+      "table": "reservations"
+    },
+    {
+      "column": "updated_at",
+      "privilege": "SELECT",
+      "table": "reservations"
+    },
+    {
+      "column": "viewing_date",
+      "privilege": "INSERT",
+      "table": "reservations"
+    },
+    {
+      "column": "viewing_date",
+      "privilege": "SELECT",
+      "table": "reservations"
+    },
+    {
+      "column": "created_at",
+      "privilege": "SELECT",
+      "table": "subscription_requests"
+    },
+    {
+      "column": "id",
+      "privilege": "SELECT",
+      "table": "subscription_requests"
+    },
+    {
+      "column": "note",
+      "privilege": "INSERT",
+      "table": "subscription_requests"
+    },
+    {
+      "column": "note",
+      "privilege": "SELECT",
+      "table": "subscription_requests"
+    },
+    {
+      "column": "payment_reference",
+      "privilege": "SELECT",
+      "table": "subscription_requests"
+    },
+    {
+      "column": "review_note",
+      "privilege": "SELECT",
+      "table": "subscription_requests"
+    },
+    {
+      "column": "reviewed_at",
+      "privilege": "SELECT",
+      "table": "subscription_requests"
+    },
+    {
+      "column": "reviewed_by",
+      "privilege": "SELECT",
+      "table": "subscription_requests"
+    },
+    {
+      "column": "screenshot_url",
+      "privilege": "INSERT",
+      "table": "subscription_requests"
+    },
+    {
+      "column": "screenshot_url",
+      "privilege": "SELECT",
+      "table": "subscription_requests"
+    },
+    {
+      "column": "status",
+      "privilege": "SELECT",
+      "table": "subscription_requests"
+    },
+    {
+      "column": "user_id",
+      "privilege": "INSERT",
+      "table": "subscription_requests"
+    },
+    {
+      "column": "user_id",
+      "privilege": "SELECT",
+      "table": "subscription_requests"
+    },
+    {
+      "column": "activation_request_id",
+      "privilege": "SELECT",
+      "table": "subscriptions"
+    },
+    {
+      "column": "activation_version",
+      "privilege": "SELECT",
+      "table": "subscriptions"
+    },
+    {
+      "column": "created_at",
+      "privilege": "SELECT",
+      "table": "subscriptions"
+    },
+    {
+      "column": "distribution_version",
+      "privilege": "SELECT",
+      "table": "subscriptions"
+    },
+    {
+      "column": "end_date",
+      "privilege": "SELECT",
+      "table": "subscriptions"
+    },
+    {
+      "column": "id",
+      "privilege": "SELECT",
+      "table": "subscriptions"
+    },
+    {
+      "column": "paid_amount",
+      "privilege": "SELECT",
+      "table": "subscriptions"
+    },
+    {
+      "column": "start_date",
+      "privilege": "SELECT",
+      "table": "subscriptions"
+    },
+    {
+      "column": "status",
+      "privilege": "SELECT",
+      "table": "subscriptions"
+    },
+    {
+      "column": "updated_at",
+      "privilege": "SELECT",
+      "table": "subscriptions"
+    },
+    {
+      "column": "user_id",
+      "privilege": "SELECT",
+      "table": "subscriptions"
+    },
+    {
+      "column": "created_at",
+      "privilege": "SELECT",
+      "table": "support_tickets"
+    },
+    {
+      "column": "email",
+      "privilege": "INSERT",
+      "table": "support_tickets"
+    },
+    {
+      "column": "email",
+      "privilege": "SELECT",
+      "table": "support_tickets"
+    },
+    {
+      "column": "id",
+      "privilege": "SELECT",
+      "table": "support_tickets"
+    },
+    {
+      "column": "message",
+      "privilege": "INSERT",
+      "table": "support_tickets"
+    },
+    {
+      "column": "message",
+      "privilege": "SELECT",
+      "table": "support_tickets"
+    },
+    {
+      "column": "name",
+      "privilege": "INSERT",
+      "table": "support_tickets"
+    },
+    {
+      "column": "name",
+      "privilege": "SELECT",
+      "table": "support_tickets"
+    },
+    {
+      "column": "status",
+      "privilege": "SELECT",
+      "table": "support_tickets"
+    },
+    {
+      "column": "status",
+      "privilege": "UPDATE",
+      "table": "support_tickets"
+    },
+    {
+      "column": "subject",
+      "privilege": "INSERT",
+      "table": "support_tickets"
+    },
+    {
+      "column": "subject",
+      "privilege": "SELECT",
+      "table": "support_tickets"
+    },
+    {
+      "column": "user_id",
+      "privilege": "INSERT",
+      "table": "support_tickets"
+    },
+    {
+      "column": "user_id",
+      "privilege": "SELECT",
+      "table": "support_tickets"
+    },
+    {
+      "column": "amount",
+      "privilege": "SELECT",
+      "table": "transactions"
+    },
+    {
+      "column": "buyer_id",
+      "privilege": "SELECT",
+      "table": "transactions"
+    },
+    {
+      "column": "commission",
+      "privilege": "SELECT",
+      "table": "transactions"
+    },
+    {
+      "column": "commission_amount",
+      "privilege": "SELECT",
+      "table": "transactions"
+    },
+    {
+      "column": "created_at",
+      "privilege": "SELECT",
+      "table": "transactions"
+    },
+    {
+      "column": "expires_at",
+      "privilege": "SELECT",
+      "table": "transactions"
+    },
+    {
+      "column": "id",
+      "privilege": "SELECT",
+      "table": "transactions"
+    },
+    {
+      "column": "notes",
+      "privilege": "SELECT",
+      "table": "transactions"
+    },
+    {
+      "column": "payment_status",
+      "privilege": "SELECT",
+      "table": "transactions"
+    },
+    {
+      "column": "proof_uploaded_at",
+      "privilege": "SELECT",
+      "table": "transactions"
+    },
+    {
+      "column": "proof_url",
+      "privilege": "SELECT",
+      "table": "transactions"
+    },
+    {
+      "column": "property_code",
+      "privilege": "SELECT",
+      "table": "transactions"
+    },
+    {
+      "column": "property_id",
+      "privilege": "SELECT",
+      "table": "transactions"
+    },
+    {
+      "column": "receipt_reference",
+      "privilege": "SELECT",
+      "table": "transactions"
+    },
+    {
+      "column": "rejection_reason",
+      "privilege": "SELECT",
+      "table": "transactions"
+    },
+    {
+      "column": "released_at",
+      "privilege": "SELECT",
+      "table": "transactions"
+    },
+    {
+      "column": "seller_id",
+      "privilege": "SELECT",
+      "table": "transactions"
+    },
+    {
+      "column": "status",
+      "privilege": "SELECT",
+      "table": "transactions"
+    },
+    {
+      "column": "total_payable",
+      "privilege": "SELECT",
+      "table": "transactions"
+    },
+    {
+      "column": "type",
+      "privilege": "SELECT",
+      "table": "transactions"
+    },
+    {
+      "column": "updated_at",
+      "privilege": "SELECT",
+      "table": "transactions"
+    },
+    {
+      "column": "created_at",
+      "privilege": "INSERT",
+      "table": "user_preferences"
+    },
+    {
+      "column": "created_at",
+      "privilege": "SELECT",
+      "table": "user_preferences"
+    },
+    {
+      "column": "created_at",
+      "privilege": "UPDATE",
+      "table": "user_preferences"
+    },
+    {
+      "column": "email_notifications_enabled",
+      "privilege": "INSERT",
+      "table": "user_preferences"
+    },
+    {
+      "column": "email_notifications_enabled",
+      "privilege": "SELECT",
+      "table": "user_preferences"
+    },
+    {
+      "column": "email_notifications_enabled",
+      "privilege": "UPDATE",
+      "table": "user_preferences"
+    },
+    {
+      "column": "id",
+      "privilege": "INSERT",
+      "table": "user_preferences"
+    },
+    {
+      "column": "id",
+      "privilege": "SELECT",
+      "table": "user_preferences"
+    },
+    {
+      "column": "id",
+      "privilege": "UPDATE",
+      "table": "user_preferences"
+    },
+    {
+      "column": "push_enabled",
+      "privilege": "INSERT",
+      "table": "user_preferences"
+    },
+    {
+      "column": "push_enabled",
+      "privilege": "SELECT",
+      "table": "user_preferences"
+    },
+    {
+      "column": "push_enabled",
+      "privilege": "UPDATE",
+      "table": "user_preferences"
+    },
+    {
+      "column": "two_factor_enabled",
+      "privilege": "INSERT",
+      "table": "user_preferences"
+    },
+    {
+      "column": "two_factor_enabled",
+      "privilege": "SELECT",
+      "table": "user_preferences"
+    },
+    {
+      "column": "two_factor_enabled",
+      "privilege": "UPDATE",
+      "table": "user_preferences"
+    },
+    {
+      "column": "updated_at",
+      "privilege": "INSERT",
+      "table": "user_preferences"
+    },
+    {
+      "column": "updated_at",
+      "privilege": "SELECT",
+      "table": "user_preferences"
+    },
+    {
+      "column": "updated_at",
+      "privilege": "UPDATE",
+      "table": "user_preferences"
+    },
+    {
+      "column": "user_id",
+      "privilege": "INSERT",
+      "table": "user_preferences"
+    },
+    {
+      "column": "user_id",
+      "privilege": "SELECT",
+      "table": "user_preferences"
+    },
+    {
+      "column": "user_id",
+      "privilege": "UPDATE",
+      "table": "user_preferences"
+    },
+    {
+      "column": "id",
+      "privilege": "INSERT",
+      "table": "user_roles"
+    },
+    {
+      "column": "id",
+      "privilege": "SELECT",
+      "table": "user_roles"
+    },
+    {
+      "column": "role",
+      "privilege": "INSERT",
+      "table": "user_roles"
+    },
+    {
+      "column": "role",
+      "privilege": "SELECT",
+      "table": "user_roles"
+    },
+    {
+      "column": "user_id",
+      "privilege": "INSERT",
+      "table": "user_roles"
+    },
+    {
+      "column": "user_id",
+      "privilege": "SELECT",
+      "table": "user_roles"
+    },
+    {
+      "column": "created_at",
+      "privilege": "INSERT",
+      "table": "verification_documents"
+    },
+    {
+      "column": "created_at",
+      "privilege": "SELECT",
+      "table": "verification_documents"
+    },
+    {
+      "column": "created_at",
+      "privilege": "UPDATE",
+      "table": "verification_documents"
+    },
+    {
+      "column": "document_type",
+      "privilege": "INSERT",
+      "table": "verification_documents"
+    },
+    {
+      "column": "document_type",
+      "privilege": "SELECT",
+      "table": "verification_documents"
+    },
+    {
+      "column": "document_type",
+      "privilege": "UPDATE",
+      "table": "verification_documents"
+    },
+    {
+      "column": "file_url",
+      "privilege": "INSERT",
+      "table": "verification_documents"
+    },
+    {
+      "column": "file_url",
+      "privilege": "SELECT",
+      "table": "verification_documents"
+    },
+    {
+      "column": "file_url",
+      "privilege": "UPDATE",
+      "table": "verification_documents"
+    },
+    {
+      "column": "id",
+      "privilege": "INSERT",
+      "table": "verification_documents"
+    },
+    {
+      "column": "id",
+      "privilege": "SELECT",
+      "table": "verification_documents"
+    },
+    {
+      "column": "id",
+      "privilege": "UPDATE",
+      "table": "verification_documents"
+    },
+    {
+      "column": "reviewed_by",
+      "privilege": "INSERT",
+      "table": "verification_documents"
+    },
+    {
+      "column": "reviewed_by",
+      "privilege": "SELECT",
+      "table": "verification_documents"
+    },
+    {
+      "column": "reviewed_by",
+      "privilege": "UPDATE",
+      "table": "verification_documents"
+    },
+    {
+      "column": "status",
+      "privilege": "INSERT",
+      "table": "verification_documents"
+    },
+    {
+      "column": "status",
+      "privilege": "SELECT",
+      "table": "verification_documents"
+    },
+    {
+      "column": "status",
+      "privilege": "UPDATE",
+      "table": "verification_documents"
+    },
+    {
+      "column": "user_id",
+      "privilege": "INSERT",
+      "table": "verification_documents"
+    },
+    {
+      "column": "user_id",
+      "privilege": "SELECT",
+      "table": "verification_documents"
+    },
+    {
+      "column": "user_id",
+      "privilege": "UPDATE",
+      "table": "verification_documents"
+    },
+    {
+      "column": "created_at",
+      "privilege": "INSERT",
+      "table": "verification_steps"
+    },
+    {
+      "column": "created_at",
+      "privilege": "SELECT",
+      "table": "verification_steps"
+    },
+    {
+      "column": "created_at",
+      "privilege": "UPDATE",
+      "table": "verification_steps"
+    },
+    {
+      "column": "document_url",
+      "privilege": "INSERT",
+      "table": "verification_steps"
+    },
+    {
+      "column": "document_url",
+      "privilege": "SELECT",
+      "table": "verification_steps"
+    },
+    {
+      "column": "document_url",
+      "privilege": "UPDATE",
+      "table": "verification_steps"
+    },
+    {
+      "column": "id",
+      "privilege": "INSERT",
+      "table": "verification_steps"
+    },
+    {
+      "column": "id",
+      "privilege": "SELECT",
+      "table": "verification_steps"
+    },
+    {
+      "column": "id",
+      "privilege": "UPDATE",
+      "table": "verification_steps"
+    },
+    {
+      "column": "metadata",
+      "privilege": "INSERT",
+      "table": "verification_steps"
+    },
+    {
+      "column": "metadata",
+      "privilege": "SELECT",
+      "table": "verification_steps"
+    },
+    {
+      "column": "metadata",
+      "privilege": "UPDATE",
+      "table": "verification_steps"
+    },
+    {
+      "column": "rejection_reason",
+      "privilege": "INSERT",
+      "table": "verification_steps"
+    },
+    {
+      "column": "rejection_reason",
+      "privilege": "SELECT",
+      "table": "verification_steps"
+    },
+    {
+      "column": "rejection_reason",
+      "privilege": "UPDATE",
+      "table": "verification_steps"
+    },
+    {
+      "column": "status",
+      "privilege": "INSERT",
+      "table": "verification_steps"
+    },
+    {
+      "column": "status",
+      "privilege": "SELECT",
+      "table": "verification_steps"
+    },
+    {
+      "column": "status",
+      "privilege": "UPDATE",
+      "table": "verification_steps"
+    },
+    {
+      "column": "step_name",
+      "privilege": "INSERT",
+      "table": "verification_steps"
+    },
+    {
+      "column": "step_name",
+      "privilege": "SELECT",
+      "table": "verification_steps"
+    },
+    {
+      "column": "step_name",
+      "privilege": "UPDATE",
+      "table": "verification_steps"
+    },
+    {
+      "column": "updated_at",
+      "privilege": "INSERT",
+      "table": "verification_steps"
+    },
+    {
+      "column": "updated_at",
+      "privilege": "SELECT",
+      "table": "verification_steps"
+    },
+    {
+      "column": "updated_at",
+      "privilege": "UPDATE",
+      "table": "verification_steps"
+    },
+    {
+      "column": "user_id",
+      "privilege": "INSERT",
+      "table": "verification_steps"
+    },
+    {
+      "column": "user_id",
+      "privilege": "SELECT",
+      "table": "verification_steps"
+    },
+    {
+      "column": "user_id",
+      "privilege": "UPDATE",
+      "table": "verification_steps"
+    },
+    {
+      "column": "balance",
+      "privilege": "SELECT",
+      "table": "wallets"
+    },
+    {
+      "column": "created_at",
+      "privilege": "SELECT",
+      "table": "wallets"
+    },
+    {
+      "column": "escrow_balance",
+      "privilege": "SELECT",
+      "table": "wallets"
+    },
+    {
+      "column": "id",
+      "privilege": "SELECT",
+      "table": "wallets"
+    },
+    {
+      "column": "updated_at",
+      "privilege": "SELECT",
+      "table": "wallets"
+    },
+    {
+      "column": "user_id",
+      "privilege": "SELECT",
+      "table": "wallets"
+    },
+    {
+      "column": "withdrawal_reserved",
+      "privilege": "SELECT",
+      "table": "wallets"
+    },
+    {
+      "column": "account_name",
+      "privilege": "SELECT",
+      "table": "withdrawals"
+    },
+    {
+      "column": "account_number",
+      "privilege": "SELECT",
+      "table": "withdrawals"
+    },
+    {
+      "column": "admin_note",
+      "privilege": "SELECT",
+      "table": "withdrawals"
+    },
+    {
+      "column": "amount",
+      "privilege": "SELECT",
+      "table": "withdrawals"
+    },
+    {
+      "column": "bank_name",
+      "privilege": "SELECT",
+      "table": "withdrawals"
+    },
+    {
+      "column": "created_at",
+      "privilege": "SELECT",
+      "table": "withdrawals"
+    },
+    {
+      "column": "id",
+      "privilege": "SELECT",
+      "table": "withdrawals"
+    },
+    {
+      "column": "payment_reference",
+      "privilege": "SELECT",
+      "table": "withdrawals"
+    },
+    {
+      "column": "reviewed_at",
+      "privilege": "SELECT",
+      "table": "withdrawals"
+    },
+    {
+      "column": "reviewed_by",
+      "privilege": "SELECT",
+      "table": "withdrawals"
+    },
+    {
+      "column": "status",
+      "privilege": "SELECT",
+      "table": "withdrawals"
+    },
+    {
+      "column": "updated_at",
+      "privilege": "SELECT",
+      "table": "withdrawals"
+    },
+    {
+      "column": "user_id",
+      "privilege": "SELECT",
+      "table": "withdrawals"
+    }
+  ],
+  "constraints": [
+    {
+      "kind": "f",
+      "name": "announcements_author_id_fkey",
+      "table": "announcements",
+      "validated": true
+    },
+    {
+      "kind": "p",
+      "name": "announcements_pkey",
+      "table": "announcements",
+      "validated": true
+    },
+    {
+      "kind": "p",
+      "name": "audit_logs_pkey",
+      "table": "audit_logs",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "audit_logs_user_id_fkey",
+      "table": "audit_logs",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "chat_threads_agent_id_fkey",
+      "table": "chat_threads",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "chat_threads_buyer_id_fkey",
+      "table": "chat_threads",
+      "validated": true
+    },
+    {
+      "kind": "c",
+      "name": "chat_threads_check",
+      "table": "chat_threads",
+      "validated": true
+    },
+    {
+      "kind": "p",
+      "name": "chat_threads_pkey",
+      "table": "chat_threads",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "chat_threads_property_id_fkey",
+      "table": "chat_threads",
+      "validated": true
+    },
+    {
+      "kind": "c",
+      "name": "chat_threads_status_check",
+      "table": "chat_threads",
+      "validated": true
+    },
+    {
+      "kind": "c",
+      "name": "commission_limits",
+      "table": "commission_settings",
+      "validated": true
+    },
+    {
+      "kind": "p",
+      "name": "commission_settings_pkey",
+      "table": "commission_settings",
+      "validated": true
+    },
+    {
+      "kind": "c",
+      "name": "commission_settings_singleton_check",
+      "table": "commission_settings",
+      "validated": true
+    },
+    {
+      "kind": "u",
+      "name": "commission_settings_singleton_key",
+      "table": "commission_settings",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "commission_settings_updated_by_fkey",
+      "table": "commission_settings",
+      "validated": true
+    },
+    {
+      "kind": "c",
+      "name": "company_wallet_check",
+      "table": "company_wallet",
+      "validated": true
+    },
+    {
+      "kind": "p",
+      "name": "company_wallet_pkey",
+      "table": "company_wallet",
+      "validated": true
+    },
+    {
+      "kind": "c",
+      "name": "company_wallet_singleton_check",
+      "table": "company_wallet",
+      "validated": true
+    },
+    {
+      "kind": "u",
+      "name": "company_wallet_singleton_key",
+      "table": "company_wallet",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "deal_events_actor_id_fkey",
+      "table": "deal_events",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "deal_events_deal_id_fkey",
+      "table": "deal_events",
+      "validated": true
+    },
+    {
+      "kind": "p",
+      "name": "deal_events_pkey",
+      "table": "deal_events",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "deal_requests_agent_profile_id_fkey",
+      "table": "deal_requests",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "deal_requests_agent_user_id_fkey",
+      "table": "deal_requests",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "deal_requests_buyer_id_fkey",
+      "table": "deal_requests",
+      "validated": true
+    },
+    {
+      "kind": "u",
+      "name": "deal_requests_deal_number_key",
+      "table": "deal_requests",
+      "validated": true
+    },
+    {
+      "kind": "p",
+      "name": "deal_requests_pkey",
+      "table": "deal_requests",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "deal_requests_property_id_fkey",
+      "table": "deal_requests",
+      "validated": true
+    },
+    {
+      "kind": "c",
+      "name": "deal_requests_status_check",
+      "table": "deal_requests",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "deal_requests_transaction_id_fkey",
+      "table": "deal_requests",
+      "validated": true
+    },
+    {
+      "kind": "u",
+      "name": "deal_transaction_unique",
+      "table": "deal_requests",
+      "validated": true
+    },
+    {
+      "kind": "p",
+      "name": "disputes_pkey",
+      "table": "disputes",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "disputes_property_id_fkey",
+      "table": "disputes",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "disputes_reported_id_fkey",
+      "table": "disputes",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "disputes_reporter_id_fkey",
+      "table": "disputes",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "disputes_resolved_by_fkey",
+      "table": "disputes",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "disputes_transaction_id_fkey",
+      "table": "disputes",
+      "validated": true
+    },
+    {
+      "kind": "c",
+      "name": "earnings_amount_check",
+      "table": "earnings",
+      "validated": true
+    },
+    {
+      "kind": "c",
+      "name": "earnings_check",
+      "table": "earnings",
+      "validated": true
+    },
+    {
+      "kind": "u",
+      "name": "earnings_event_key_key",
+      "table": "earnings",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "earnings_from_user_id_fkey",
+      "table": "earnings",
+      "validated": true
+    },
+    {
+      "kind": "p",
+      "name": "earnings_pkey",
+      "table": "earnings",
+      "validated": true
+    },
+    {
+      "kind": "c",
+      "name": "earnings_source",
+      "table": "earnings",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "earnings_subscription_id_fkey",
+      "table": "earnings",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "earnings_transaction_id_fkey",
+      "table": "earnings",
+      "validated": true
+    },
+    {
+      "kind": "c",
+      "name": "earnings_type_check",
+      "table": "earnings",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "earnings_user_id_fkey",
+      "table": "earnings",
+      "validated": true
+    },
+    {
+      "kind": "c",
+      "name": "escrow_holds_amount_check",
+      "table": "escrow_holds",
+      "validated": true
+    },
+    {
+      "kind": "u",
+      "name": "escrow_holds_event_key_key",
+      "table": "escrow_holds",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "escrow_holds_from_user_id_fkey",
+      "table": "escrow_holds",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "escrow_holds_intended_user_id_fkey",
+      "table": "escrow_holds",
+      "validated": true
+    },
+    {
+      "kind": "p",
+      "name": "escrow_holds_pkey",
+      "table": "escrow_holds",
+      "validated": true
+    },
+    {
+      "kind": "c",
+      "name": "escrow_holds_status_check",
+      "table": "escrow_holds",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "escrow_holds_subscription_id_fkey",
+      "table": "escrow_holds",
+      "validated": true
+    },
+    {
+      "kind": "c",
+      "name": "kyc_verifications_kyc_status_check",
+      "table": "kyc_verifications",
+      "validated": true
+    },
+    {
+      "kind": "p",
+      "name": "kyc_verifications_pkey",
+      "table": "kyc_verifications",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "kyc_verifications_reviewed_by_fkey",
+      "table": "kyc_verifications",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "kyc_verifications_user_id_fkey",
+      "table": "kyc_verifications",
+      "validated": true
+    },
+    {
+      "kind": "u",
+      "name": "kyc_verifications_user_id_key",
+      "table": "kyc_verifications",
+      "validated": true
+    },
+    {
+      "kind": "p",
+      "name": "messages_pkey",
+      "table": "messages",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "messages_sender_id_fkey",
+      "table": "messages",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "messages_thread_id_fkey",
+      "table": "messages",
+      "validated": true
+    },
+    {
+      "kind": "p",
+      "name": "notifications_pkey",
+      "table": "notifications",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "notifications_user_id_fkey",
+      "table": "notifications",
+      "validated": true
+    },
+    {
+      "kind": "p",
+      "name": "phone_otp_challenges_pkey",
+      "table": "phone_otp_challenges",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "phone_otp_challenges_user_id_fkey",
+      "table": "phone_otp_challenges",
+      "validated": true
+    },
+    {
+      "kind": "c",
+      "name": "platform_settings_monetary_unit_check",
+      "table": "platform_settings",
+      "validated": true
+    },
+    {
+      "kind": "p",
+      "name": "platform_settings_pkey",
+      "table": "platform_settings",
+      "validated": true
+    },
+    {
+      "kind": "c",
+      "name": "platform_settings_singleton_check",
+      "table": "platform_settings",
+      "validated": true
+    },
+    {
+      "kind": "u",
+      "name": "platform_settings_singleton_key",
+      "table": "platform_settings",
+      "validated": true
+    },
+    {
+      "kind": "c",
+      "name": "platform_settings_subscription_amount_check",
+      "table": "platform_settings",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "platform_settings_updated_by_fkey",
+      "table": "platform_settings",
+      "validated": true
+    },
+    {
+      "kind": "c",
+      "name": "profiles_check",
+      "table": "profiles",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "profiles_invited_by_fkey",
+      "table": "profiles",
+      "validated": true
+    },
+    {
+      "kind": "p",
+      "name": "profiles_pkey",
+      "table": "profiles",
+      "validated": true
+    },
+    {
+      "kind": "u",
+      "name": "profiles_referral_code_key",
+      "table": "profiles",
+      "validated": true
+    },
+    {
+      "kind": "c",
+      "name": "profiles_referral_position_check",
+      "table": "profiles",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "profiles_referred_by_fkey",
+      "table": "profiles",
+      "validated": true
+    },
+    {
+      "kind": "c",
+      "name": "profiles_trust_score_check",
+      "table": "profiles",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "profiles_user_id_fkey",
+      "table": "profiles",
+      "validated": true
+    },
+    {
+      "kind": "u",
+      "name": "profiles_user_id_key",
+      "table": "profiles",
+      "validated": true
+    },
+    {
+      "kind": "c",
+      "name": "explicit_listing_type",
+      "table": "properties",
+      "validated": true
+    },
+    {
+      "kind": "c",
+      "name": "listing_type_status",
+      "table": "properties",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "properties_agent_id_fkey",
+      "table": "properties",
+      "validated": true
+    },
+    {
+      "kind": "c",
+      "name": "properties_listing_type_check",
+      "table": "properties",
+      "validated": true
+    },
+    {
+      "kind": "p",
+      "name": "properties_pkey",
+      "table": "properties",
+      "validated": true
+    },
+    {
+      "kind": "c",
+      "name": "properties_price_check",
+      "table": "properties",
+      "validated": true
+    },
+    {
+      "kind": "u",
+      "name": "properties_property_code_key",
+      "table": "properties",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "property_documents_agent_id_fkey",
+      "table": "property_documents",
+      "validated": true
+    },
+    {
+      "kind": "p",
+      "name": "property_documents_pkey",
+      "table": "property_documents",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "property_documents_property_id_fkey",
+      "table": "property_documents",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "ratings_agent_id_fkey",
+      "table": "ratings",
+      "validated": true
+    },
+    {
+      "kind": "p",
+      "name": "ratings_pkey",
+      "table": "ratings",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "ratings_property_id_fkey",
+      "table": "ratings",
+      "validated": true
+    },
+    {
+      "kind": "c",
+      "name": "ratings_rating_check",
+      "table": "ratings",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "ratings_reviewer_id_fkey",
+      "table": "ratings",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "reservations_agent_id_fkey",
+      "table": "reservations",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "reservations_buyer_id_fkey",
+      "table": "reservations",
+      "validated": true
+    },
+    {
+      "kind": "c",
+      "name": "reservations_inspection_status_check",
+      "table": "reservations",
+      "validated": true
+    },
+    {
+      "kind": "p",
+      "name": "reservations_pkey",
+      "table": "reservations",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "reservations_property_id_fkey",
+      "table": "reservations",
+      "validated": true
+    },
+    {
+      "kind": "c",
+      "name": "request_status",
+      "table": "subscription_requests",
+      "validated": true
+    },
+    {
+      "kind": "u",
+      "name": "subscription_receipt_unique",
+      "table": "subscription_requests",
+      "validated": true
+    },
+    {
+      "kind": "p",
+      "name": "subscription_requests_pkey",
+      "table": "subscription_requests",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "subscription_requests_reviewed_by_fkey",
+      "table": "subscription_requests",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "subscription_requests_user_id_fkey",
+      "table": "subscription_requests",
+      "validated": true
+    },
+    {
+      "kind": "c",
+      "name": "distribution_order",
+      "table": "subscriptions",
+      "validated": true
+    },
+    {
+      "kind": "c",
+      "name": "paid_activation",
+      "table": "subscriptions",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "subscriptions_activation_request_id_fkey",
+      "table": "subscriptions",
+      "validated": true
+    },
+    {
+      "kind": "u",
+      "name": "subscriptions_activation_request_id_key",
+      "table": "subscriptions",
+      "validated": true
+    },
+    {
+      "kind": "c",
+      "name": "subscriptions_activation_version_check",
+      "table": "subscriptions",
+      "validated": true
+    },
+    {
+      "kind": "c",
+      "name": "subscriptions_check",
+      "table": "subscriptions",
+      "validated": true
+    },
+    {
+      "kind": "c",
+      "name": "subscriptions_distribution_version_check",
+      "table": "subscriptions",
+      "validated": true
+    },
+    {
+      "kind": "c",
+      "name": "subscriptions_paid_amount_check",
+      "table": "subscriptions",
+      "validated": true
+    },
+    {
+      "kind": "p",
+      "name": "subscriptions_pkey",
+      "table": "subscriptions",
+      "validated": true
+    },
+    {
+      "kind": "c",
+      "name": "subscriptions_status_check",
+      "table": "subscriptions",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "subscriptions_user_id_fkey",
+      "table": "subscriptions",
+      "validated": true
+    },
+    {
+      "kind": "u",
+      "name": "subscriptions_user_id_key",
+      "table": "subscriptions",
+      "validated": true
+    },
+    {
+      "kind": "p",
+      "name": "support_tickets_pkey",
+      "table": "support_tickets",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "support_tickets_user_id_fkey",
+      "table": "support_tickets",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "transactions_buyer_id_fkey",
+      "table": "transactions",
+      "validated": true
+    },
+    {
+      "kind": "c",
+      "name": "transactions_check",
+      "table": "transactions",
+      "validated": true
+    },
+    {
+      "kind": "c",
+      "name": "transactions_check1",
+      "table": "transactions",
+      "validated": true
+    },
+    {
+      "kind": "c",
+      "name": "transactions_check2",
+      "table": "transactions",
+      "validated": true
+    },
+    {
+      "kind": "c",
+      "name": "transactions_check3",
+      "table": "transactions",
+      "validated": true
+    },
+    {
+      "kind": "p",
+      "name": "transactions_pkey",
+      "table": "transactions",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "transactions_property_id_fkey",
+      "table": "transactions",
+      "validated": true
+    },
+    {
+      "kind": "u",
+      "name": "transactions_receipt_unique",
+      "table": "transactions",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "transactions_seller_id_fkey",
+      "table": "transactions",
+      "validated": true
+    },
+    {
+      "kind": "c",
+      "name": "transactions_type_check",
+      "table": "transactions",
+      "validated": true
+    },
+    {
+      "kind": "p",
+      "name": "user_preferences_pkey",
+      "table": "user_preferences",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "user_preferences_user_id_fkey",
+      "table": "user_preferences",
+      "validated": true
+    },
+    {
+      "kind": "u",
+      "name": "user_preferences_user_id_key",
+      "table": "user_preferences",
+      "validated": true
+    },
+    {
+      "kind": "p",
+      "name": "user_roles_pkey",
+      "table": "user_roles",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "user_roles_user_id_fkey",
+      "table": "user_roles",
+      "validated": true
+    },
+    {
+      "kind": "u",
+      "name": "user_roles_user_id_role_key",
+      "table": "user_roles",
+      "validated": true
+    },
+    {
+      "kind": "p",
+      "name": "verification_documents_pkey",
+      "table": "verification_documents",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "verification_documents_reviewed_by_fkey",
+      "table": "verification_documents",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "verification_documents_user_id_fkey",
+      "table": "verification_documents",
+      "validated": true
+    },
+    {
+      "kind": "p",
+      "name": "verification_steps_pkey",
+      "table": "verification_steps",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "verification_steps_user_id_fkey",
+      "table": "verification_steps",
+      "validated": true
+    },
+    {
+      "kind": "u",
+      "name": "verification_steps_user_id_step_name_key",
+      "table": "verification_steps",
+      "validated": true
+    },
+    {
+      "kind": "c",
+      "name": "wallets_check",
+      "table": "wallets",
+      "validated": true
+    },
+    {
+      "kind": "p",
+      "name": "wallets_pkey",
+      "table": "wallets",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "wallets_user_id_fkey",
+      "table": "wallets",
+      "validated": true
+    },
+    {
+      "kind": "u",
+      "name": "wallets_user_id_key",
+      "table": "wallets",
+      "validated": true
+    },
+    {
+      "kind": "c",
+      "name": "wallets_withdrawal_reserved_check",
+      "table": "wallets",
+      "validated": true
+    },
+    {
+      "kind": "c",
+      "name": "withdrawals_amount_check",
+      "table": "withdrawals",
+      "validated": true
+    },
+    {
+      "kind": "p",
+      "name": "withdrawals_pkey",
+      "table": "withdrawals",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "withdrawals_reviewed_by_fkey",
+      "table": "withdrawals",
+      "validated": true
+    },
+    {
+      "kind": "c",
+      "name": "withdrawals_status_check",
+      "table": "withdrawals",
+      "validated": true
+    },
+    {
+      "kind": "f",
+      "name": "withdrawals_user_id_fkey",
+      "table": "withdrawals",
+      "validated": true
+    }
+  ],
+  "financial_gates": {
+    "bank_details_unconfigured": true,
+    "money_locked": true,
+    "referrals_locked": true,
+    "settings_records": 1,
+    "verification_bonus_disabled": true
+  },
+  "functions": [
+    {
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "body_md5": "ce1564b09a27c5ea65ff6d499715b13e",
+      "name": "assert_admin",
+      "owner": "postgres",
+      "schema": "prop_connect_private",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "prop_connect_private.assert_admin()",
+      "volatility": "s"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "body_md5": "37caa0b11f58ea6bdf973e86a7b14dba",
+      "name": "assert_finance_ready",
+      "owner": "postgres",
+      "schema": "prop_connect_private",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "prop_connect_private.assert_finance_ready()",
+      "volatility": "s"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "body_md5": "398adfcdc711add4274863496e8a3510",
+      "name": "can_chat",
+      "owner": "postgres",
+      "schema": "prop_connect_private",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "prop_connect_private.can_chat(uuid)",
+      "volatility": "s"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "body_md5": "8a7ed314502285e9811e9affc069552c",
+      "name": "can_list",
+      "owner": "postgres",
+      "schema": "prop_connect_private",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "prop_connect_private.can_list(uuid)",
+      "volatility": "s"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "body_md5": "8e82ac84079855d834a18d44b88b9a32",
+      "name": "can_read_chat_file",
+      "owner": "postgres",
+      "schema": "prop_connect_private",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "prop_connect_private.can_read_chat_file(text)",
+      "volatility": "s"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "body_md5": "297358d695cb43f4980de462d96f1670",
+      "name": "can_read_document",
+      "owner": "postgres",
+      "schema": "prop_connect_private",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "prop_connect_private.can_read_document(uuid)",
+      "volatility": "s"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "body_md5": "fef24e57e4eeeb8e766c54874af8ec62",
+      "name": "credit_earning",
+      "owner": "postgres",
+      "schema": "prop_connect_private",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "prop_connect_private.credit_earning(text,uuid,bigint,text,text,integer,uuid,uuid,uuid,text)",
+      "volatility": "v"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "body_md5": "785a8ca3b85b74403e75fb8a3897b8a3",
+      "name": "guard_kyc",
+      "owner": "postgres",
+      "schema": "prop_connect_private",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": false,
+      "signature": "prop_connect_private.guard_kyc()",
+      "volatility": "v"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "body_md5": "208507b44838ceaee7c12c65b71f43fb",
+      "name": "guard_property",
+      "owner": "postgres",
+      "schema": "prop_connect_private",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": false,
+      "signature": "prop_connect_private.guard_property()",
+      "volatility": "v"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "body_md5": "0b2029c66fd28190288911abbef7c964",
+      "name": "guard_verification",
+      "owner": "postgres",
+      "schema": "prop_connect_private",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": false,
+      "signature": "prop_connect_private.guard_verification()",
+      "volatility": "v"
+    },
+    {
+      "anon_execute": true,
+      "authenticated_execute": true,
+      "body_md5": "9d96acffca5b9d87cad01d2f81d8ac1a",
+      "name": "public_agent_rows",
+      "owner": "postgres",
+      "schema": "prop_connect_private",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "prop_connect_private.public_agent_rows()",
+      "volatility": "s"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "body_md5": "8566d9704e98febb24df90eba9b7f376",
+      "name": "accept_deal",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "accept_deal(uuid)",
+      "volatility": "v"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "body_md5": "e293eec995c1448c01e6dc1c91b589ce",
+      "name": "activate_chat",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "activate_chat(uuid)",
+      "volatility": "v"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "body_md5": "ce8de52f41b86aea7bbd3c9c52c68edd",
+      "name": "activate_subscription",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "activate_subscription(uuid,timestamp with time zone,text)",
+      "volatility": "v"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "body_md5": "531cdbf67ff3c59615a5ca0801643e0b",
+      "name": "advance_deal_stage",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "advance_deal_stage(uuid,text)",
+      "volatility": "v"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "body_md5": "7326017cc95b0034302ffb917f33a77b",
+      "name": "agent_respond_inspection",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "agent_respond_inspection(uuid,text,text,date,text)",
+      "volatility": "v"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "body_md5": "51f50d955422cf3e79e94419aed97f01",
+      "name": "approve_secure_payment",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "approve_secure_payment(uuid,text)",
+      "volatility": "v"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "body_md5": "d4d588fc493f09b022967fa875fe24eb",
+      "name": "approve_withdrawal",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "approve_withdrawal(uuid,text)",
+      "volatility": "v"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "body_md5": "74ed1cac9bb01692198148bbc6a3d6dd",
+      "name": "assign_deal_number",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "assign_deal_number()",
+      "volatility": "v"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "body_md5": "5bd049303c410d6c34ee49503f55fbf4",
+      "name": "auto_assign_property_code",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "auto_assign_property_code()",
+      "volatility": "v"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "body_md5": "f3c7f621a8fd1aaf457c2e76623ec7e5",
+      "name": "auto_assign_referral_code",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "auto_assign_referral_code()",
+      "volatility": "v"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "body_md5": "6e38e20dc88517ba3ed432fd609dcde2",
+      "name": "auto_place_referral",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "auto_place_referral()",
+      "volatility": "v"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "body_md5": "a814f2b7c311b9d0d76d78ae9490a7ba",
+      "name": "buyer_respond_inspection",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "buyer_respond_inspection(uuid,text)",
+      "volatility": "v"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "body_md5": "471e7cc9bdaf3a7d3b595e1cc6b9dfd8",
+      "name": "clamp_profile_trust_score",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": false,
+      "signature": "clamp_profile_trust_score()",
+      "volatility": "v"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "body_md5": "279cf3c929b52471458e224ab6dd213f",
+      "name": "decline_deal",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "decline_deal(uuid,text)",
+      "volatility": "v"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "body_md5": "a526b039ef0738c97edb2889ddc93693",
+      "name": "distribute_subscription_payment",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "distribute_subscription_payment(uuid)",
+      "volatility": "v"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "body_md5": "724b368df7c8b7f2b91fa37482df603d",
+      "name": "ensure_wallet",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "ensure_wallet(uuid)",
+      "volatility": "v"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "body_md5": "bd49249b639b44c466f932c3c98e642c",
+      "name": "expire_stale_transactions",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "expire_stale_transactions()",
+      "volatility": "v"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "body_md5": "1279abfb63cebf54f9b72c58464038b0",
+      "name": "generate_property_code",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "generate_property_code(uuid,text)",
+      "volatility": "v"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "body_md5": "e29c92e759afbff594b48e8152cd9815",
+      "name": "generate_referral_code",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": false,
+      "signature": "generate_referral_code()",
+      "volatility": "v"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "body_md5": "c6ed91edb6dea1bc252946106417e86c",
+      "name": "get_chat_participants",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "get_chat_participants(uuid)",
+      "volatility": "s"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "body_md5": "21ef5e7c292f96297e34c8720b9e4bc0",
+      "name": "get_company_payment_details",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "get_company_payment_details()",
+      "volatility": "s"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "body_md5": "978ef47029d9badd496a22ee30fdc1cb",
+      "name": "get_deal_participants",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "get_deal_participants(uuid)",
+      "volatility": "s"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "body_md5": "f89bba1f8e35a81e6cff1283772c3349",
+      "name": "get_my_profile_id",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "get_my_profile_id()",
+      "volatility": "s"
+    },
+    {
+      "anon_execute": true,
+      "authenticated_execute": true,
+      "body_md5": "032b6c40c961d7cea4e263ffe94f3c22",
+      "name": "get_platform_stats",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "get_platform_stats()",
+      "volatility": "s"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "body_md5": "6fd412fc1d85114fae814ddaedd4ac97",
+      "name": "get_referral_summary",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "get_referral_summary()",
+      "volatility": "s"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "body_md5": "1615d6a4a9b31c304baa6e9123817bb0",
+      "name": "guard_chat_thread_update",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": false,
+      "signature": "guard_chat_thread_update()",
+      "volatility": "v"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "body_md5": "28881acb6423fade93ef31df8eb93d78",
+      "name": "guard_message_update",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": false,
+      "signature": "guard_message_update()",
+      "volatility": "v"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "body_md5": "96473c860cb385b53bf56aaeaa73dfcc",
+      "name": "guard_reservation_update",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": false,
+      "signature": "guard_reservation_update()",
+      "volatility": "v"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "body_md5": "87c5bd4691189b0fd69442447d3538f5",
+      "name": "handle_new_user",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "handle_new_user()",
+      "volatility": "v"
+    },
+    {
+      "anon_execute": true,
+      "authenticated_execute": true,
+      "body_md5": "533416410274501bae8177dd30eea72c",
+      "name": "has_role",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "has_role(uuid,app_role)",
+      "volatility": "s"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "body_md5": "9464399b161ded222c991e60c0109a6f",
+      "name": "initiate_secure_payment",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "initiate_secure_payment(uuid)",
+      "volatility": "v"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "body_md5": "72025e6dfec0f717e8673b9487994ce0",
+      "name": "log_admin_action",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "log_admin_action(text,jsonb)",
+      "volatility": "v"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "body_md5": "101bdcfdb7baf305ceaa447d39803280",
+      "name": "log_deal_status",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "log_deal_status()",
+      "volatility": "v"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "body_md5": "1c7225bda26ed731c284e804e7c06bcf",
+      "name": "notify_kyc_status_change",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "notify_kyc_status_change()",
+      "volatility": "v"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "body_md5": "da8a24819fa9c50cbb19074f90c74055",
+      "name": "notify_kyc_verification_status",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "notify_kyc_verification_status()",
+      "volatility": "v"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "body_md5": "64759288596ab70c5bc14b841e0ceba8",
+      "name": "notify_new_announcement",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "notify_new_announcement()",
+      "volatility": "v"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "body_md5": "156494ccf9ae5b750ae4290e50b444e9",
+      "name": "notify_new_inspection",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "notify_new_inspection()",
+      "volatility": "v"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "body_md5": "282e9336837527840d866f71088a23fb",
+      "name": "notify_property_status_change",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "notify_property_status_change()",
+      "volatility": "v"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "body_md5": "aa534f7638dee6834a2caabdd3bd50bf",
+      "name": "on_kyc_verified_pay_referral",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "on_kyc_verified_pay_referral()",
+      "volatility": "v"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "body_md5": "1782e090e28784e496062aa614360b41",
+      "name": "on_subscription_activated",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "on_subscription_activated()",
+      "volatility": "v"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "body_md5": "5c240a3f68d6eeefdc0c316003b1abee",
+      "name": "on_subscription_active_pay_referral",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "on_subscription_active_pay_referral()",
+      "volatility": "v"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "body_md5": "38320afa444de0273ef867fd40a8f9ed",
+      "name": "pay_verification_referral_bonus",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "pay_verification_referral_bonus(uuid)",
+      "volatility": "v"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "body_md5": "db8a473e05e07205d057d8d9602898cc",
+      "name": "place_in_matrix",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "place_in_matrix(uuid)",
+      "volatility": "v"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "body_md5": "761b8cb5b37e7fd50a3a2366e9b46e3a",
+      "name": "prevent_profile_sensitive_field_updates",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": false,
+      "signature": "prevent_profile_sensitive_field_updates()",
+      "volatility": "v"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "body_md5": "694d55e5f949a8fa3ef5dcb9424265f9",
+      "name": "raise_dispute",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "raise_dispute(uuid,text)",
+      "volatility": "v"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "body_md5": "6e701b92ea9d5e24c13f1fa7eb30b38c",
+      "name": "refund_secure_payment",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "refund_secure_payment(uuid,text)",
+      "volatility": "v"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "body_md5": "58329ffde6fd8b273fe3e6891d0f0fa8",
+      "name": "reject_secure_payment",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "reject_secure_payment(uuid,text)",
+      "volatility": "v"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "body_md5": "91ba38af2816c3b91d50a5b8f783df5f",
+      "name": "reject_subscription_request",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "reject_subscription_request(uuid,text)",
+      "volatility": "v"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "body_md5": "d4929b6e02ada6402209172703d4aa26",
+      "name": "reject_withdrawal",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "reject_withdrawal(uuid,text)",
+      "volatility": "v"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "body_md5": "c0fa04c7777887e5274328c78d864d99",
+      "name": "release_secure_payment",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "release_secure_payment(uuid)",
+      "volatility": "v"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "body_md5": "7bd408fd272fed1d2690843aa6cc8514",
+      "name": "request_deal",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "request_deal(uuid,text)",
+      "volatility": "v"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "body_md5": "f904e8ba508d329b961e9a268ff0f595",
+      "name": "request_withdrawal",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "request_withdrawal(bigint,text,text,text)",
+      "volatility": "v"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "body_md5": "195a2740827136c98a0e78559766cabe",
+      "name": "resolve_dispute",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "resolve_dispute(uuid,text,text)",
+      "volatility": "v"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "body_md5": "0ac70ceb1a1675a17a6162478b2f8bd6",
+      "name": "state_code_for",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": false,
+      "signature": "state_code_for(text)",
+      "volatility": "i"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "body_md5": "c3b099acf46f4cb201af16138306eaf2",
+      "name": "submit_payment_proof",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "submit_payment_proof(uuid,text)",
+      "volatility": "v"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "body_md5": "21ae28cf3afe8dbe3d3e46a2857c0b9e",
+      "name": "sync_deal_stage_from_tx",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "sync_deal_stage_from_tx()",
+      "volatility": "v"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "body_md5": "3eff0a361757975b1919cebca31ddd08",
+      "name": "touch_last_login",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": true,
+      "signature": "touch_last_login()",
+      "volatility": "v"
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "body_md5": "2ba807c58c6fd441edd07e7a130c9426",
+      "name": "update_updated_at",
+      "owner": "postgres",
+      "schema": "public",
+      "search_path": "search_path=public, pg_temp",
+      "security_definer": false,
+      "signature": "update_updated_at()",
+      "volatility": "v"
+    }
+  ],
+  "policies": [
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "admin_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "announcements",
+      "using": "has_role(auth.uid(), 'admin'::app_role)"
+    },
+    {
+      "check": null,
+      "command": "DELETE",
+      "name": "author_delete",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "announcements",
+      "using": "(has_role(auth.uid(), 'admin'::app_role) OR ((author_id = get_my_profile_id()) AND (EXISTS ( SELECT 1\n   FROM profiles p\n  WHERE ((p.id = announcements.author_id) AND (p.profile_type = 'agent'::profile_type) AND p.kyc_verified)))))"
+    },
+    {
+      "check": "(has_role(auth.uid(), 'admin'::app_role) OR ((author_id = get_my_profile_id()) AND (EXISTS ( SELECT 1\n   FROM profiles p\n  WHERE ((p.id = announcements.author_id) AND (p.profile_type = 'agent'::profile_type) AND p.kyc_verified)))))",
+      "command": "INSERT",
+      "name": "author_insert",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "announcements",
+      "using": null
+    },
+    {
+      "check": "(has_role(auth.uid(), 'admin'::app_role) OR ((author_id = get_my_profile_id()) AND (EXISTS ( SELECT 1\n   FROM profiles p\n  WHERE ((p.id = announcements.author_id) AND (p.profile_type = 'agent'::profile_type) AND p.kyc_verified)))))",
+      "command": "UPDATE",
+      "name": "author_update",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "announcements",
+      "using": "(has_role(auth.uid(), 'admin'::app_role) OR ((author_id = get_my_profile_id()) AND (EXISTS ( SELECT 1\n   FROM profiles p\n  WHERE ((p.id = announcements.author_id) AND (p.profile_type = 'agent'::profile_type) AND p.kyc_verified)))))"
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "public_read",
+      "roles": [
+        "anon",
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "announcements",
+      "using": "true"
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "admin_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "audit_logs",
+      "using": "has_role(auth.uid(), 'admin'::app_role)"
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "admin_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "chat_threads",
+      "using": "has_role(auth.uid(), 'admin'::app_role)"
+    },
+    {
+      "check": "(buyer_id = get_my_profile_id())",
+      "command": "INSERT",
+      "name": "owner_insert",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "chat_threads",
+      "using": null
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "party_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "chat_threads",
+      "using": "prop_connect_private.can_chat(id)"
+    },
+    {
+      "check": "prop_connect_private.can_chat(id)",
+      "command": "UPDATE",
+      "name": "party_update",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "chat_threads",
+      "using": "prop_connect_private.can_chat(id)"
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "admin_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "commission_settings",
+      "using": "has_role(auth.uid(), 'admin'::app_role)"
+    },
+    {
+      "check": "has_role(auth.uid(), 'admin'::app_role)",
+      "command": "UPDATE",
+      "name": "admin_update",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "commission_settings",
+      "using": "has_role(auth.uid(), 'admin'::app_role)"
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "admin_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "company_wallet",
+      "using": "has_role(auth.uid(), 'admin'::app_role)"
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "admin_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "deal_events",
+      "using": "has_role(auth.uid(), 'admin'::app_role)"
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "party_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "deal_events",
+      "using": "(EXISTS ( SELECT 1\n   FROM deal_requests d\n  WHERE ((d.id = deal_events.deal_id) AND ((auth.uid() = d.buyer_id) OR (auth.uid() = d.agent_user_id)))))"
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "admin_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "deal_requests",
+      "using": "has_role(auth.uid(), 'admin'::app_role)"
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "party_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "deal_requests",
+      "using": "((buyer_id = auth.uid()) OR (agent_user_id = auth.uid()))"
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "admin_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "disputes",
+      "using": "has_role(auth.uid(), 'admin'::app_role)"
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "party_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "disputes",
+      "using": "((reporter_id = get_my_profile_id()) OR (reported_id = get_my_profile_id()))"
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "admin_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "earnings",
+      "using": "has_role(auth.uid(), 'admin'::app_role)"
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "owner_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "earnings",
+      "using": "(user_id = auth.uid())"
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "admin_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "escrow_holds",
+      "using": "has_role(auth.uid(), 'admin'::app_role)"
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "owner_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "escrow_holds",
+      "using": "(intended_user_id = auth.uid())"
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "admin_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "kyc_verifications",
+      "using": "has_role(auth.uid(), 'admin'::app_role)"
+    },
+    {
+      "check": "has_role(auth.uid(), 'admin'::app_role)",
+      "command": "UPDATE",
+      "name": "admin_update",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "kyc_verifications",
+      "using": "has_role(auth.uid(), 'admin'::app_role)"
+    },
+    {
+      "check": "(user_id = auth.uid())",
+      "command": "INSERT",
+      "name": "owner_insert",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "kyc_verifications",
+      "using": null
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "owner_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "kyc_verifications",
+      "using": "(user_id = auth.uid())"
+    },
+    {
+      "check": "(user_id = auth.uid())",
+      "command": "UPDATE",
+      "name": "owner_update",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "kyc_verifications",
+      "using": "(user_id = auth.uid())"
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "admin_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "messages",
+      "using": "has_role(auth.uid(), 'admin'::app_role)"
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "party_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "messages",
+      "using": "(prop_connect_private.can_chat(thread_id) AND ((NOT is_blocked) OR (sender_id = get_my_profile_id())))"
+    },
+    {
+      "check": "prop_connect_private.can_chat(thread_id)",
+      "command": "UPDATE",
+      "name": "party_update",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "messages",
+      "using": "prop_connect_private.can_chat(thread_id)"
+    },
+    {
+      "check": "(prop_connect_private.can_chat(thread_id) AND (sender_id = get_my_profile_id()))",
+      "command": "INSERT",
+      "name": "sender_insert",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "messages",
+      "using": null
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "admin_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "notifications",
+      "using": "has_role(auth.uid(), 'admin'::app_role)"
+    },
+    {
+      "check": "((user_id = auth.uid()) OR has_role(auth.uid(), 'admin'::app_role))",
+      "command": "INSERT",
+      "name": "owner_insert",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "notifications",
+      "using": null
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "owner_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "notifications",
+      "using": "(user_id = auth.uid())"
+    },
+    {
+      "check": "(user_id = auth.uid())",
+      "command": "UPDATE",
+      "name": "owner_update",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "notifications",
+      "using": "(user_id = auth.uid())"
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "admin_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "platform_settings",
+      "using": "has_role(auth.uid(), 'admin'::app_role)"
+    },
+    {
+      "check": "has_role(auth.uid(), 'admin'::app_role)",
+      "command": "UPDATE",
+      "name": "admin_update",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "platform_settings",
+      "using": "has_role(auth.uid(), 'admin'::app_role)"
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "admin_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "profiles",
+      "using": "has_role(auth.uid(), 'admin'::app_role)"
+    },
+    {
+      "check": "has_role(auth.uid(), 'admin'::app_role)",
+      "command": "UPDATE",
+      "name": "admin_update",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "profiles",
+      "using": "has_role(auth.uid(), 'admin'::app_role)"
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "owner_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "profiles",
+      "using": "(user_id = auth.uid())"
+    },
+    {
+      "check": "(user_id = auth.uid())",
+      "command": "UPDATE",
+      "name": "owner_update",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "profiles",
+      "using": "(user_id = auth.uid())"
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "admin_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "properties",
+      "using": "has_role(auth.uid(), 'admin'::app_role)"
+    },
+    {
+      "check": null,
+      "command": "DELETE",
+      "name": "agent_delete",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "properties",
+      "using": "(((agent_id = get_my_profile_id()) AND (status = 'draft'::property_status)) OR has_role(auth.uid(), 'admin'::app_role))"
+    },
+    {
+      "check": "((agent_id = get_my_profile_id()) OR has_role(auth.uid(), 'admin'::app_role))",
+      "command": "INSERT",
+      "name": "agent_insert",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "properties",
+      "using": null
+    },
+    {
+      "check": "((agent_id = get_my_profile_id()) OR has_role(auth.uid(), 'admin'::app_role))",
+      "command": "UPDATE",
+      "name": "agent_update",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "properties",
+      "using": "((agent_id = get_my_profile_id()) OR has_role(auth.uid(), 'admin'::app_role))"
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "owner_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "properties",
+      "using": "(agent_id = get_my_profile_id())"
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "public_listings",
+      "roles": [
+        "anon",
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "properties",
+      "using": "(is_verified AND (status = ANY (ARRAY['available'::property_status, 'for_sale'::property_status, 'for_rent'::property_status])))"
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "admin_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "property_documents",
+      "using": "has_role(auth.uid(), 'admin'::app_role)"
+    },
+    {
+      "check": null,
+      "command": "DELETE",
+      "name": "owner_delete",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "property_documents",
+      "using": "(has_role(auth.uid(), 'admin'::app_role) OR ((agent_id = get_my_profile_id()) AND (split_part(file_url, '/'::text, 1) = (auth.uid())::text) AND (EXISTS ( SELECT 1\n   FROM properties p\n  WHERE ((p.id = property_documents.property_id) AND (p.agent_id = get_my_profile_id()))))))"
+    },
+    {
+      "check": "(has_role(auth.uid(), 'admin'::app_role) OR ((agent_id = get_my_profile_id()) AND (split_part(file_url, '/'::text, 1) = (auth.uid())::text) AND (EXISTS ( SELECT 1\n   FROM properties p\n  WHERE ((p.id = property_documents.property_id) AND (p.agent_id = get_my_profile_id()))))))",
+      "command": "INSERT",
+      "name": "owner_insert",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "property_documents",
+      "using": null
+    },
+    {
+      "check": "(has_role(auth.uid(), 'admin'::app_role) OR ((agent_id = get_my_profile_id()) AND (split_part(file_url, '/'::text, 1) = (auth.uid())::text) AND (EXISTS ( SELECT 1\n   FROM properties p\n  WHERE ((p.id = property_documents.property_id) AND (p.agent_id = get_my_profile_id()))))))",
+      "command": "UPDATE",
+      "name": "owner_update",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "property_documents",
+      "using": "(has_role(auth.uid(), 'admin'::app_role) OR ((agent_id = get_my_profile_id()) AND (split_part(file_url, '/'::text, 1) = (auth.uid())::text) AND (EXISTS ( SELECT 1\n   FROM properties p\n  WHERE ((p.id = property_documents.property_id) AND (p.agent_id = get_my_profile_id()))))))"
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "party_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "property_documents",
+      "using": "prop_connect_private.can_read_document(property_id)"
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "admin_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "ratings",
+      "using": "has_role(auth.uid(), 'admin'::app_role)"
+    },
+    {
+      "check": "((reviewer_id = get_my_profile_id()) AND (agent_id <> reviewer_id) AND (EXISTS ( SELECT 1\n   FROM public_profiles p\n  WHERE (p.id = ratings.agent_id))))",
+      "command": "INSERT",
+      "name": "owner_insert",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "ratings",
+      "using": null
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "public_read",
+      "roles": [
+        "anon",
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "ratings",
+      "using": "true"
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "admin_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "reservations",
+      "using": "has_role(auth.uid(), 'admin'::app_role)"
+    },
+    {
+      "check": "(buyer_id = get_my_profile_id())",
+      "command": "INSERT",
+      "name": "buyer_insert",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "reservations",
+      "using": null
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "party_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "reservations",
+      "using": "((buyer_id = get_my_profile_id()) OR (agent_id = get_my_profile_id()))"
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "admin_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "subscription_requests",
+      "using": "has_role(auth.uid(), 'admin'::app_role)"
+    },
+    {
+      "check": "((user_id = auth.uid()) AND (status = 'pending'::text) AND (reviewed_by IS NULL) AND (reviewed_at IS NULL) AND (split_part(screenshot_url, '/'::text, 1) = (auth.uid())::text))",
+      "command": "INSERT",
+      "name": "owner_insert",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "subscription_requests",
+      "using": null
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "owner_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "subscription_requests",
+      "using": "(user_id = auth.uid())"
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "admin_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "subscriptions",
+      "using": "has_role(auth.uid(), 'admin'::app_role)"
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "owner_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "subscriptions",
+      "using": "(user_id = auth.uid())"
+    },
+    {
+      "check": null,
+      "command": "DELETE",
+      "name": "admin_delete",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "support_tickets",
+      "using": "has_role(auth.uid(), 'admin'::app_role)"
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "admin_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "support_tickets",
+      "using": "has_role(auth.uid(), 'admin'::app_role)"
+    },
+    {
+      "check": "has_role(auth.uid(), 'admin'::app_role)",
+      "command": "UPDATE",
+      "name": "admin_update",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "support_tickets",
+      "using": "has_role(auth.uid(), 'admin'::app_role)"
+    },
+    {
+      "check": "((user_id = auth.uid()) AND (status = 'open'::text))",
+      "command": "INSERT",
+      "name": "owner_insert",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "support_tickets",
+      "using": null
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "owner_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "support_tickets",
+      "using": "(user_id = auth.uid())"
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "admin_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "transactions",
+      "using": "has_role(auth.uid(), 'admin'::app_role)"
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "party_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "transactions",
+      "using": "((buyer_id = auth.uid()) OR (seller_id = auth.uid()))"
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "admin_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "user_preferences",
+      "using": "has_role(auth.uid(), 'admin'::app_role)"
+    },
+    {
+      "check": "(user_id = auth.uid())",
+      "command": "INSERT",
+      "name": "owner_insert",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "user_preferences",
+      "using": null
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "owner_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "user_preferences",
+      "using": "(user_id = auth.uid())"
+    },
+    {
+      "check": "(user_id = auth.uid())",
+      "command": "UPDATE",
+      "name": "owner_update",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "user_preferences",
+      "using": "(user_id = auth.uid())"
+    },
+    {
+      "check": null,
+      "command": "DELETE",
+      "name": "admin_delete",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "user_roles",
+      "using": "(has_role(auth.uid(), 'admin'::app_role) AND (user_id <> auth.uid()))"
+    },
+    {
+      "check": "(has_role(auth.uid(), 'admin'::app_role) AND (user_id <> auth.uid()))",
+      "command": "INSERT",
+      "name": "admin_insert",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "user_roles",
+      "using": null
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "admin_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "user_roles",
+      "using": "has_role(auth.uid(), 'admin'::app_role)"
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "owner_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "user_roles",
+      "using": "(user_id = auth.uid())"
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "admin_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "verification_documents",
+      "using": "has_role(auth.uid(), 'admin'::app_role)"
+    },
+    {
+      "check": "has_role(auth.uid(), 'admin'::app_role)",
+      "command": "UPDATE",
+      "name": "admin_update",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "verification_documents",
+      "using": "has_role(auth.uid(), 'admin'::app_role)"
+    },
+    {
+      "check": "(user_id = auth.uid())",
+      "command": "INSERT",
+      "name": "owner_insert",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "verification_documents",
+      "using": null
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "owner_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "verification_documents",
+      "using": "(user_id = auth.uid())"
+    },
+    {
+      "check": "(user_id = auth.uid())",
+      "command": "UPDATE",
+      "name": "owner_update",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "verification_documents",
+      "using": "(user_id = auth.uid())"
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "admin_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "verification_steps",
+      "using": "has_role(auth.uid(), 'admin'::app_role)"
+    },
+    {
+      "check": "has_role(auth.uid(), 'admin'::app_role)",
+      "command": "UPDATE",
+      "name": "admin_update",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "verification_steps",
+      "using": "has_role(auth.uid(), 'admin'::app_role)"
+    },
+    {
+      "check": "(user_id = auth.uid())",
+      "command": "INSERT",
+      "name": "owner_insert",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "verification_steps",
+      "using": null
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "owner_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "verification_steps",
+      "using": "(user_id = auth.uid())"
+    },
+    {
+      "check": "(user_id = auth.uid())",
+      "command": "UPDATE",
+      "name": "owner_update",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "verification_steps",
+      "using": "(user_id = auth.uid())"
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "admin_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "wallets",
+      "using": "has_role(auth.uid(), 'admin'::app_role)"
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "owner_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "wallets",
+      "using": "(user_id = auth.uid())"
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "admin_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "withdrawals",
+      "using": "has_role(auth.uid(), 'admin'::app_role)"
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "owner_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "public",
+      "table": "withdrawals",
+      "using": "(user_id = auth.uid())"
+    },
+    {
+      "check": null,
+      "command": "DELETE",
+      "name": "avatars_delete",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "storage",
+      "table": "objects",
+      "using": "((bucket_id = 'avatars'::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))"
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "avatars_read",
+      "roles": [
+        "anon",
+        "authenticated"
+      ],
+      "schema": "storage",
+      "table": "objects",
+      "using": "(bucket_id = 'avatars'::text)"
+    },
+    {
+      "check": "((bucket_id = 'avatars'::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))",
+      "command": "UPDATE",
+      "name": "avatars_update",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "storage",
+      "table": "objects",
+      "using": "((bucket_id = 'avatars'::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))"
+    },
+    {
+      "check": "((bucket_id = 'avatars'::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))",
+      "command": "INSERT",
+      "name": "avatars_upload",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "storage",
+      "table": "objects",
+      "using": null
+    },
+    {
+      "check": null,
+      "command": "DELETE",
+      "name": "chat_attachments_delete",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "storage",
+      "table": "objects",
+      "using": "((bucket_id = 'chat-attachments'::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))"
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "chat_attachments_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "storage",
+      "table": "objects",
+      "using": "((bucket_id = 'chat-attachments'::text) AND prop_connect_private.can_read_chat_file(name))"
+    },
+    {
+      "check": "((bucket_id = 'chat-attachments'::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))",
+      "command": "INSERT",
+      "name": "chat_attachments_upload",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "storage",
+      "table": "objects",
+      "using": null
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "payment_screenshots_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "storage",
+      "table": "objects",
+      "using": "((bucket_id = 'payment-screenshots'::text) AND (((storage.foldername(name))[1] = (auth.uid())::text) OR has_role(auth.uid(), 'admin'::app_role)))"
+    },
+    {
+      "check": "((bucket_id = 'payment-screenshots'::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))",
+      "command": "INSERT",
+      "name": "payment_screenshots_upload",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "storage",
+      "table": "objects",
+      "using": null
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "property_documents_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "storage",
+      "table": "objects",
+      "using": "((bucket_id = 'property-documents'::text) AND (((storage.foldername(name))[1] = (auth.uid())::text) OR has_role(auth.uid(), 'admin'::app_role) OR (EXISTS ( SELECT 1\n   FROM property_documents d\n  WHERE ((d.file_url = objects.name) AND prop_connect_private.can_read_document(d.property_id))))))"
+    },
+    {
+      "check": "((bucket_id = 'property-documents'::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))",
+      "command": "INSERT",
+      "name": "property_documents_upload",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "storage",
+      "table": "objects",
+      "using": null
+    },
+    {
+      "check": null,
+      "command": "DELETE",
+      "name": "property_images_delete",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "storage",
+      "table": "objects",
+      "using": "((bucket_id = 'property-images'::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))"
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "property_images_read",
+      "roles": [
+        "anon",
+        "authenticated"
+      ],
+      "schema": "storage",
+      "table": "objects",
+      "using": "(bucket_id = 'property-images'::text)"
+    },
+    {
+      "check": "((bucket_id = 'property-images'::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))",
+      "command": "UPDATE",
+      "name": "property_images_update",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "storage",
+      "table": "objects",
+      "using": "((bucket_id = 'property-images'::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))"
+    },
+    {
+      "check": "((bucket_id = 'property-images'::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))",
+      "command": "INSERT",
+      "name": "property_images_upload",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "storage",
+      "table": "objects",
+      "using": null
+    },
+    {
+      "check": null,
+      "command": "SELECT",
+      "name": "verification_docs_read",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "storage",
+      "table": "objects",
+      "using": "((bucket_id = 'verification-docs'::text) AND (((storage.foldername(name))[1] = (auth.uid())::text) OR has_role(auth.uid(), 'admin'::app_role)))"
+    },
+    {
+      "check": "((bucket_id = 'verification-docs'::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))",
+      "command": "INSERT",
+      "name": "verification_docs_upload",
+      "roles": [
+        "authenticated"
+      ],
+      "schema": "storage",
+      "table": "objects",
+      "using": null
+    }
+  ],
+  "profile_integrity": {
+    "assigned_admin_roles": 0,
+    "auth_accounts": 1,
+    "auth_accounts_without_profile": 0,
+    "orphan_profiles": 0,
+    "profiles": 1
+  },
+  "public_view_columns": [
+    "id",
+    "full_name",
+    "avatar_url",
+    "bio",
+    "profile_type",
+    "trust_score",
+    "kyc_verified",
+    "is_visible",
+    "properties_listed",
+    "completed_transactions",
+    "location",
+    "created_at"
+  ],
+  "read_only": "on",
+  "realtime": [
+    {
+      "publication": "supabase_realtime",
+      "schema": "public",
+      "table": "chat_threads"
+    },
+    {
+      "publication": "supabase_realtime",
+      "schema": "public",
+      "table": "messages"
+    },
+    {
+      "publication": "supabase_realtime",
+      "schema": "public",
+      "table": "notifications"
+    }
+  ],
+  "tables": [
+    {
+      "anon_select": false,
+      "authenticated_delete": false,
+      "authenticated_insert": false,
+      "authenticated_select": false,
+      "authenticated_update": false,
+      "name": "installation_history",
+      "rls": false,
+      "schema": "prop_connect_private"
+    },
+    {
+      "anon_select": false,
+      "authenticated_delete": false,
+      "authenticated_insert": false,
+      "authenticated_select": false,
+      "authenticated_update": false,
+      "name": "payment_receipts",
+      "rls": false,
+      "schema": "prop_connect_private"
+    },
+    {
+      "anon_select": true,
+      "authenticated_delete": true,
+      "authenticated_insert": true,
+      "authenticated_select": true,
+      "authenticated_update": true,
+      "name": "announcements",
+      "rls": true,
+      "schema": "public"
+    },
+    {
+      "anon_select": false,
+      "authenticated_delete": false,
+      "authenticated_insert": false,
+      "authenticated_select": true,
+      "authenticated_update": false,
+      "name": "audit_logs",
+      "rls": true,
+      "schema": "public"
+    },
+    {
+      "anon_select": false,
+      "authenticated_delete": false,
+      "authenticated_insert": true,
+      "authenticated_select": true,
+      "authenticated_update": false,
+      "name": "chat_threads",
+      "rls": true,
+      "schema": "public"
+    },
+    {
+      "anon_select": false,
+      "authenticated_delete": false,
+      "authenticated_insert": false,
+      "authenticated_select": true,
+      "authenticated_update": true,
+      "name": "commission_settings",
+      "rls": true,
+      "schema": "public"
+    },
+    {
+      "anon_select": false,
+      "authenticated_delete": false,
+      "authenticated_insert": false,
+      "authenticated_select": true,
+      "authenticated_update": false,
+      "name": "company_wallet",
+      "rls": true,
+      "schema": "public"
+    },
+    {
+      "anon_select": false,
+      "authenticated_delete": false,
+      "authenticated_insert": false,
+      "authenticated_select": true,
+      "authenticated_update": false,
+      "name": "deal_events",
+      "rls": true,
+      "schema": "public"
+    },
+    {
+      "anon_select": false,
+      "authenticated_delete": false,
+      "authenticated_insert": false,
+      "authenticated_select": true,
+      "authenticated_update": false,
+      "name": "deal_requests",
+      "rls": true,
+      "schema": "public"
+    },
+    {
+      "anon_select": false,
+      "authenticated_delete": false,
+      "authenticated_insert": false,
+      "authenticated_select": true,
+      "authenticated_update": false,
+      "name": "disputes",
+      "rls": true,
+      "schema": "public"
+    },
+    {
+      "anon_select": false,
+      "authenticated_delete": false,
+      "authenticated_insert": false,
+      "authenticated_select": true,
+      "authenticated_update": false,
+      "name": "earnings",
+      "rls": true,
+      "schema": "public"
+    },
+    {
+      "anon_select": false,
+      "authenticated_delete": false,
+      "authenticated_insert": false,
+      "authenticated_select": true,
+      "authenticated_update": false,
+      "name": "escrow_holds",
+      "rls": true,
+      "schema": "public"
+    },
+    {
+      "anon_select": false,
+      "authenticated_delete": false,
+      "authenticated_insert": true,
+      "authenticated_select": true,
+      "authenticated_update": true,
+      "name": "kyc_verifications",
+      "rls": true,
+      "schema": "public"
+    },
+    {
+      "anon_select": false,
+      "authenticated_delete": false,
+      "authenticated_insert": true,
+      "authenticated_select": true,
+      "authenticated_update": false,
+      "name": "messages",
+      "rls": true,
+      "schema": "public"
+    },
+    {
+      "anon_select": false,
+      "authenticated_delete": false,
+      "authenticated_insert": true,
+      "authenticated_select": true,
+      "authenticated_update": false,
+      "name": "notifications",
+      "rls": true,
+      "schema": "public"
+    },
+    {
+      "anon_select": false,
+      "authenticated_delete": false,
+      "authenticated_insert": false,
+      "authenticated_select": false,
+      "authenticated_update": false,
+      "name": "phone_otp_challenges",
+      "rls": true,
+      "schema": "public"
+    },
+    {
+      "anon_select": false,
+      "authenticated_delete": false,
+      "authenticated_insert": false,
+      "authenticated_select": true,
+      "authenticated_update": true,
+      "name": "platform_settings",
+      "rls": true,
+      "schema": "public"
+    },
+    {
+      "anon_select": false,
+      "authenticated_delete": false,
+      "authenticated_insert": false,
+      "authenticated_select": true,
+      "authenticated_update": true,
+      "name": "profiles",
+      "rls": true,
+      "schema": "public"
+    },
+    {
+      "anon_select": true,
+      "authenticated_delete": true,
+      "authenticated_insert": true,
+      "authenticated_select": true,
+      "authenticated_update": true,
+      "name": "properties",
+      "rls": true,
+      "schema": "public"
+    },
+    {
+      "anon_select": false,
+      "authenticated_delete": true,
+      "authenticated_insert": true,
+      "authenticated_select": true,
+      "authenticated_update": true,
+      "name": "property_documents",
+      "rls": true,
+      "schema": "public"
+    },
+    {
+      "anon_select": true,
+      "authenticated_delete": false,
+      "authenticated_insert": true,
+      "authenticated_select": true,
+      "authenticated_update": false,
+      "name": "ratings",
+      "rls": true,
+      "schema": "public"
+    },
+    {
+      "anon_select": false,
+      "authenticated_delete": false,
+      "authenticated_insert": true,
+      "authenticated_select": true,
+      "authenticated_update": false,
+      "name": "reservations",
+      "rls": true,
+      "schema": "public"
+    },
+    {
+      "anon_select": false,
+      "authenticated_delete": false,
+      "authenticated_insert": false,
+      "authenticated_select": true,
+      "authenticated_update": false,
+      "name": "subscription_requests",
+      "rls": true,
+      "schema": "public"
+    },
+    {
+      "anon_select": false,
+      "authenticated_delete": false,
+      "authenticated_insert": false,
+      "authenticated_select": true,
+      "authenticated_update": false,
+      "name": "subscriptions",
+      "rls": true,
+      "schema": "public"
+    },
+    {
+      "anon_select": false,
+      "authenticated_delete": true,
+      "authenticated_insert": false,
+      "authenticated_select": true,
+      "authenticated_update": false,
+      "name": "support_tickets",
+      "rls": true,
+      "schema": "public"
+    },
+    {
+      "anon_select": false,
+      "authenticated_delete": false,
+      "authenticated_insert": false,
+      "authenticated_select": true,
+      "authenticated_update": false,
+      "name": "transactions",
+      "rls": true,
+      "schema": "public"
+    },
+    {
+      "anon_select": false,
+      "authenticated_delete": false,
+      "authenticated_insert": true,
+      "authenticated_select": true,
+      "authenticated_update": true,
+      "name": "user_preferences",
+      "rls": true,
+      "schema": "public"
+    },
+    {
+      "anon_select": false,
+      "authenticated_delete": true,
+      "authenticated_insert": true,
+      "authenticated_select": true,
+      "authenticated_update": false,
+      "name": "user_roles",
+      "rls": true,
+      "schema": "public"
+    },
+    {
+      "anon_select": false,
+      "authenticated_delete": false,
+      "authenticated_insert": true,
+      "authenticated_select": true,
+      "authenticated_update": true,
+      "name": "verification_documents",
+      "rls": true,
+      "schema": "public"
+    },
+    {
+      "anon_select": false,
+      "authenticated_delete": false,
+      "authenticated_insert": true,
+      "authenticated_select": true,
+      "authenticated_update": true,
+      "name": "verification_steps",
+      "rls": true,
+      "schema": "public"
+    },
+    {
+      "anon_select": false,
+      "authenticated_delete": false,
+      "authenticated_insert": false,
+      "authenticated_select": true,
+      "authenticated_update": false,
+      "name": "wallets",
+      "rls": true,
+      "schema": "public"
+    },
+    {
+      "anon_select": false,
+      "authenticated_delete": false,
+      "authenticated_insert": false,
+      "authenticated_select": true,
+      "authenticated_update": false,
+      "name": "withdrawals",
+      "rls": true,
+      "schema": "public"
+    }
+  ],
+  "triggers": [
+    {
+      "enabled": "O",
+      "function": "handle_new_user",
+      "function_schema": "public",
+      "name": "on_auth_user_created",
+      "schema": "auth",
+      "table": "users"
+    },
+    {
+      "enabled": "O",
+      "function": "notify_new_announcement",
+      "function_schema": "public",
+      "name": "announcement_notification",
+      "schema": "public",
+      "table": "announcements"
+    },
+    {
+      "enabled": "O",
+      "function": "guard_chat_thread_update",
+      "function_schema": "public",
+      "name": "chat_guard",
+      "schema": "public",
+      "table": "chat_threads"
+    },
+    {
+      "enabled": "O",
+      "function": "update_updated_at",
+      "function_schema": "public",
+      "name": "z_updated_at",
+      "schema": "public",
+      "table": "commission_settings"
+    },
+    {
+      "enabled": "O",
+      "function": "update_updated_at",
+      "function_schema": "public",
+      "name": "z_updated_at",
+      "schema": "public",
+      "table": "company_wallet"
+    },
+    {
+      "enabled": "O",
+      "function": "assign_deal_number",
+      "function_schema": "public",
+      "name": "a_deal_number",
+      "schema": "public",
+      "table": "deal_requests"
+    },
+    {
+      "enabled": "O",
+      "function": "log_deal_status",
+      "function_schema": "public",
+      "name": "deal_insert_event",
+      "schema": "public",
+      "table": "deal_requests"
+    },
+    {
+      "enabled": "O",
+      "function": "log_deal_status",
+      "function_schema": "public",
+      "name": "deal_update_event",
+      "schema": "public",
+      "table": "deal_requests"
+    },
+    {
+      "enabled": "O",
+      "function": "update_updated_at",
+      "function_schema": "public",
+      "name": "z_updated_at",
+      "schema": "public",
+      "table": "deal_requests"
+    },
+    {
+      "enabled": "O",
+      "function": "update_updated_at",
+      "function_schema": "public",
+      "name": "z_updated_at",
+      "schema": "public",
+      "table": "disputes"
+    },
+    {
+      "enabled": "O",
+      "function": "guard_kyc",
+      "function_schema": "prop_connect_private",
+      "name": "a_kyc_guard",
+      "schema": "public",
+      "table": "kyc_verifications"
+    },
+    {
+      "enabled": "O",
+      "function": "notify_kyc_verification_status",
+      "function_schema": "public",
+      "name": "kyc_decision",
+      "schema": "public",
+      "table": "kyc_verifications"
+    },
+    {
+      "enabled": "O",
+      "function": "update_updated_at",
+      "function_schema": "public",
+      "name": "z_updated_at",
+      "schema": "public",
+      "table": "kyc_verifications"
+    },
+    {
+      "enabled": "O",
+      "function": "guard_message_update",
+      "function_schema": "public",
+      "name": "message_guard",
+      "schema": "public",
+      "table": "messages"
+    },
+    {
+      "enabled": "O",
+      "function": "update_updated_at",
+      "function_schema": "public",
+      "name": "z_updated_at",
+      "schema": "public",
+      "table": "platform_settings"
+    },
+    {
+      "enabled": "O",
+      "function": "prevent_profile_sensitive_field_updates",
+      "function_schema": "public",
+      "name": "a_profile_guard",
+      "schema": "public",
+      "table": "profiles"
+    },
+    {
+      "enabled": "O",
+      "function": "auto_assign_referral_code",
+      "function_schema": "public",
+      "name": "b_profile_code",
+      "schema": "public",
+      "table": "profiles"
+    },
+    {
+      "enabled": "O",
+      "function": "auto_place_referral",
+      "function_schema": "public",
+      "name": "c_matrix_placement",
+      "schema": "public",
+      "table": "profiles"
+    },
+    {
+      "enabled": "O",
+      "function": "clamp_profile_trust_score",
+      "function_schema": "public",
+      "name": "d_trust_bounds",
+      "schema": "public",
+      "table": "profiles"
+    },
+    {
+      "enabled": "O",
+      "function": "on_kyc_verified_pay_referral",
+      "function_schema": "public",
+      "name": "kyc_bonus_gate",
+      "schema": "public",
+      "table": "profiles"
+    },
+    {
+      "enabled": "O",
+      "function": "notify_kyc_status_change",
+      "function_schema": "public",
+      "name": "kyc_profile_notification",
+      "schema": "public",
+      "table": "profiles"
+    },
+    {
+      "enabled": "O",
+      "function": "update_updated_at",
+      "function_schema": "public",
+      "name": "z_updated_at",
+      "schema": "public",
+      "table": "profiles"
+    },
+    {
+      "enabled": "O",
+      "function": "guard_property",
+      "function_schema": "prop_connect_private",
+      "name": "a_property_guard",
+      "schema": "public",
+      "table": "properties"
+    },
+    {
+      "enabled": "O",
+      "function": "auto_assign_property_code",
+      "function_schema": "public",
+      "name": "b_property_code",
+      "schema": "public",
+      "table": "properties"
+    },
+    {
+      "enabled": "O",
+      "function": "notify_property_status_change",
+      "function_schema": "public",
+      "name": "property_review_notification",
+      "schema": "public",
+      "table": "properties"
+    },
+    {
+      "enabled": "O",
+      "function": "update_updated_at",
+      "function_schema": "public",
+      "name": "z_updated_at",
+      "schema": "public",
+      "table": "properties"
+    },
+    {
+      "enabled": "O",
+      "function": "guard_reservation_update",
+      "function_schema": "public",
+      "name": "inspection_guard",
+      "schema": "public",
+      "table": "reservations"
+    },
+    {
+      "enabled": "O",
+      "function": "notify_new_inspection",
+      "function_schema": "public",
+      "name": "inspection_notification",
+      "schema": "public",
+      "table": "reservations"
+    },
+    {
+      "enabled": "O",
+      "function": "update_updated_at",
+      "function_schema": "public",
+      "name": "z_updated_at",
+      "schema": "public",
+      "table": "reservations"
+    },
+    {
+      "enabled": "O",
+      "function": "on_subscription_active_pay_referral",
+      "function_schema": "public",
+      "name": "subscription_bonus_gate",
+      "schema": "public",
+      "table": "subscriptions"
+    },
+    {
+      "enabled": "O",
+      "function": "on_subscription_activated",
+      "function_schema": "public",
+      "name": "subscription_distribution",
+      "schema": "public",
+      "table": "subscriptions"
+    },
+    {
+      "enabled": "O",
+      "function": "update_updated_at",
+      "function_schema": "public",
+      "name": "z_updated_at",
+      "schema": "public",
+      "table": "subscriptions"
+    },
+    {
+      "enabled": "O",
+      "function": "sync_deal_stage_from_tx",
+      "function_schema": "public",
+      "name": "payment_deal_sync",
+      "schema": "public",
+      "table": "transactions"
+    },
+    {
+      "enabled": "O",
+      "function": "update_updated_at",
+      "function_schema": "public",
+      "name": "z_updated_at",
+      "schema": "public",
+      "table": "transactions"
+    },
+    {
+      "enabled": "O",
+      "function": "update_updated_at",
+      "function_schema": "public",
+      "name": "z_updated_at",
+      "schema": "public",
+      "table": "user_preferences"
+    },
+    {
+      "enabled": "O",
+      "function": "guard_verification",
+      "function_schema": "prop_connect_private",
+      "name": "verification_guard",
+      "schema": "public",
+      "table": "verification_documents"
+    },
+    {
+      "enabled": "O",
+      "function": "guard_verification",
+      "function_schema": "prop_connect_private",
+      "name": "verification_guard",
+      "schema": "public",
+      "table": "verification_steps"
+    },
+    {
+      "enabled": "O",
+      "function": "update_updated_at",
+      "function_schema": "public",
+      "name": "z_updated_at",
+      "schema": "public",
+      "table": "verification_steps"
+    },
+    {
+      "enabled": "O",
+      "function": "update_updated_at",
+      "function_schema": "public",
+      "name": "z_updated_at",
+      "schema": "public",
+      "table": "wallets"
+    },
+    {
+      "enabled": "O",
+      "function": "update_updated_at",
+      "function_schema": "public",
+      "name": "z_updated_at",
+      "schema": "public",
+      "table": "withdrawals"
+    }
+  ]
+}

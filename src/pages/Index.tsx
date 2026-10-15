@@ -132,7 +132,8 @@ const Index = () => {
 
   useEffect(() => {
     supabase.from("properties").select("*")
-      .in("status", ["available", "for_sale", "for_rent"])
+      .eq("is_verified", true)
+        .in("status", ["available", "for_sale", "for_rent"])
       .order("created_at", { ascending: false }).limit(12)
       .then(({ data }) => setProperties((data as DBProperty[]) || []));
     (supabase as any).from("public_profiles").select("*")

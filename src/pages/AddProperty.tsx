@@ -105,15 +105,15 @@ const AddProperty = () => {
         contentType: "application/pdf",
       });
       if (upErr) { toast.error(`Doc upload failed: ${upErr.message}`); continue; }
-      const { data } = supabase.storage.from("property-documents").getPublicUrl(path);
-      await (supabase as any).from("property_documents").insert({
+      const { error: documentError } = await (supabase as any).from("property_documents").insert({
         property_id: propertyId,
         agent_id: profile.id,
-        file_url: data.publicUrl,
+        file_url: path,
         file_name: p.file.name,
         file_size: p.file.size,
         document_type: "other",
       });
+      if (documentError) throw documentError;
     }
   };
 
@@ -167,6 +167,7 @@ const AddProperty = () => {
           title: form.title.trim(),
           price: Number(form.price) || 0,
           property_type: form.property_type || "house",
+          listing_type: form.listing_type === "for_rent" ? "rental" : "sale",
           description: form.description.trim(),
           address: form.address.trim() || mapAddress,
           city: form.city.trim(),

@@ -83,14 +83,7 @@ const AdminKYCReview = () => {
     
     let query = (supabase as any)
       .from("kyc_verifications")
-      .select(`
-        *,
-        profile:profiles!kyc_verifications_user_id_fkey(
-          full_name,
-          profile_type,
-          phone
-        )
-      `)
+      .select("*")
       .order("submitted_at", { ascending: false });
 
     if (filter !== "all") {
@@ -99,19 +92,16 @@ const AdminKYCReview = () => {
 
     const { data, error } = await query;
 
-    if (error) {
-      console.error("Error fetching KYC submissions:", error);
-      // Fallback: fetch without join
-      const { data: fallbackData } = await (supabase as any)
-        .from("kyc_verifications")
-        .select("*")
-        .order("submitted_at", { ascending: false });
-      
-      setSubmissions(fallbackData || []);
-    } else {
-      setSubmissions(data || []);
+    if (error) { toast.error(error.message); setSubmissions([]); }
+    else {
+      const ids = [...new Set((data || []).map((row: KYCSubmission) => row.user_id))];
+      const { data: profiles, error: profileError } = ids.length
+        ? await supabase.from("profiles").select("user_id, full_name, profile_type, phone").in("user_id", ids as string[])
+        : { data: [], error: null };
+      if (profileError) toast.error(profileError.message);
+      setSubmissions((data || []).map((row: KYCSubmission) => ({ ...row, profile: profiles?.find((p) => p.user_id === row.user_id) })));
     }
-    
+
     setLoading(false);
   };
 
