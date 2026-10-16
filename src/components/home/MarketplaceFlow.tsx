@@ -1,63 +1,34 @@
 import { Link } from "react-router-dom";
-import { Search, MessageCircle, CalendarCheck, Handshake, BadgeCheck, Home, KeyRound, Trees, Building2, ArrowUpRight } from "lucide-react";
+import { Search, MessageCircle, CalendarCheck, Handshake, BadgeCheck, ArrowUpRight, Home, Building2, Trees, BriefcaseBusiness, Blocks } from "lucide-react";
+import homeImage from "@/assets/cinematic-2.jpg";
 
 const categories = [
-  { label: "Buy", desc: "Homes for sale", icon: Home, to: "/properties?type=for_sale" },
-  { label: "Rent", desc: "Yearly rentals", icon: KeyRound, to: "/properties?type=for_rent" },
-  { label: "Land", desc: "Plots & acreage", icon: Trees, to: "/properties?type=land" },
-  { label: "Commercial", desc: "Offices & retail", icon: Building2, to: "/properties?type=commercial" },
+  { label: "Houses", type: "house", icon: Home, text: "A little room to grow" },
+  { label: "Apartments", type: "apartment", icon: Building2, text: "A space of your own" },
+  { label: "Land", type: "land", icon: Trees, text: "Start with possibility" },
+  { label: "Commercial", type: "commercial", icon: BriefcaseBusiness, text: "Make your next move" },
+  { label: "New Developments", type: "estate", icon: Blocks, text: "Explore estate listings" },
 ];
+
+export function PropertyCategories() {
+  return <section data-home-section="categories" className="page-container home-section home-categories">
+    <div className="home-section-top"><div data-section-reveal className="home-section-intro"><p className="text-eyebrow">There is more than one way to feel at home</p><h2 className="home-section-heading">Room for the life you are building.</h2></div><span className="home-editorial-note">Find the space that fits your plans</span></div>
+    <div className="home-category-track">{categories.map((item,i)=><Link key={item.type} to={`/properties?type=${item.type}`} className="home-category-card" data-section-reveal>{i === 0 ? <img src={homeImage} alt="House architecture, shown for inspiration" loading="lazy" width={1280} height={1600} /> : <item.icon className="home-category-icon" aria-hidden="true" />}<span className="home-category-index">0{i+1}</span><div><p>{item.text}</p><h3>{item.label}</h3><ArrowUpRight /></div></Link>)}</div>
+  </section>;
+}
 
 const steps = [
-  { title: "Discover", text: "Browse admin-reviewed listings from KYC-verified agents.", icon: Search },
-  { title: "Connect", text: "Chat with the agent safely inside PROP-connect.", icon: MessageCircle },
-  { title: "Inspect", text: "Book an inspection time the agent confirms.", icon: CalendarCheck },
-  { title: "Deal", text: "Request to buy or rent and follow it in your Deal Room.", icon: Handshake },
-  { title: "Complete", text: "Pay through protected escrow and close with confidence.", icon: BadgeCheck },
+  { title: "Discover", text: "Explore properties and save the places that feel right.", icon: Search },
+  { title: "Connect", text: "Get to know the professional behind a listing.", icon: MessageCircle },
+  { title: "Inspect", text: "Request a viewing and see the property for yourself.", icon: CalendarCheck },
+  { title: "Deal", text: "Keep enquiries and agreed next steps in your Deal Room.", icon: Handshake },
+  { title: "Complete", text: "Review progress and confirm next steps. Financial operations remain locked.", icon: BadgeCheck },
 ];
 
-const MarketplaceFlow = () => (
-  <>
-    <section className="container mx-auto px-4 pt-20 md:pt-28">
-      <p className="text-eyebrow">Marketplace</p>
-      <h2 className="text-section mt-2">What are you looking for?</h2>
-      <div className="mt-8 grid grid-cols-2 gap-3 md:grid-cols-4">
-        {categories.map(({ label, desc, icon: Icon, to }) => (
-          <Link
-            key={label}
-            to={to}
-            className="group flex flex-col justify-between rounded-xl border border-border bg-card p-5 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-elevated"
-          >
-            <div className="flex items-start justify-between">
-              <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent text-primary"><Icon className="h-5 w-5" /></span>
-              <ArrowUpRight className="h-4 w-4 text-muted-foreground transition-colors group-hover:text-primary" />
-            </div>
-            <div className="mt-8">
-              <p className="font-display text-lg font-semibold text-foreground">{label}</p>
-              <p className="text-sm text-muted-foreground">{desc}</p>
-            </div>
-          </Link>
-        ))}
-      </div>
-    </section>
-
-    <section id="how-it-works" className="container mx-auto scroll-mt-20 px-4 py-20 md:py-28">
-      <p className="text-eyebrow">How PROP-connect works</p>
-      <h2 className="text-section mt-2 max-w-xl">From first search to keys in hand, every step in one place.</h2>
-      <ol className="mt-10 grid gap-px overflow-hidden rounded-xl border border-border bg-border sm:grid-cols-2 lg:grid-cols-5">
-        {steps.map(({ title, text, icon: Icon }, i) => (
-          <li key={title} className="bg-card p-6">
-            <div className="flex items-center gap-3">
-              <span className="font-display text-sm font-semibold tabular-nums text-secondary">0{i + 1}</span>
-              <Icon className="h-5 w-5 text-primary" />
-            </div>
-            <p className="mt-5 font-display text-lg font-semibold text-foreground">{title}</p>
-            <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{text}</p>
-          </li>
-        ))}
-      </ol>
-    </section>
-  </>
-);
-
-export default MarketplaceFlow;
+export default function MarketplaceFlow() {
+  return <section id="how-it-works" data-home-section="journey" className="home-journey home-section">
+    <div className="page-container"><div className="home-section-top"><div data-section-reveal className="home-section-intro"><p className="text-eyebrow">A clearer path forward</p><h2 className="home-section-heading">Your next move,<br />made clearer.</h2></div><p className="home-journey-description">Big decisions feel better with a clear next step. Keep your property journey connected, at your own pace.</p></div>
+    <ol className="home-journey-steps">{steps.map(({title,text,icon:Icon},i)=><li data-journey-step key={title}><span className="home-journey-node"><Icon aria-hidden="true" /></span><span className="home-step-index">0{i+1} /</span><div><h3>{title}</h3><p>{text}</p></div></li>)}</ol>
+    <div className="home-journey-bottom"><span>Every meaningful move begins with a look.</span><Link to="/properties">Begin your search <ArrowUpRight /></Link></div></div>
+  </section>;
+}

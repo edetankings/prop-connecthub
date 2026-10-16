@@ -1,0 +1,45 @@
+{
+  "typescript": {
+    "app": "passed",
+    "node": "passed"
+  },
+  "tests": {
+    "finalPassed": 71,
+    "finalFailed": 0,
+    "files": 15,
+    "requestedBaseline": 66,
+    "immediatelyPreviousBaseline": 68,
+    "initialRun": {
+      "passed": 67,
+      "failed": 1,
+      "reason": "unchanged search test exceeded 5000ms during concurrent checks"
+    },
+    "timeoutsChanged": false,
+    "assertionsWeakened": false,
+    "homepageTestsPassed": 3
+  },
+  "build": {
+    "status": "passed",
+    "modules": 3657,
+    "warnings": [
+      "stale Browserslist data",
+      "large JavaScript chunk"
+    ]
+  },
+  "eslint": {
+    "errors": 357,
+    "warnings": 31,
+    "newDiagnostics": 0
+  },
+  "routeDeclarations": 50,
+  "changedProtectedFiles": [],
+  "protectedFileCount": 102,
+  "gitDiffCheck": "passed",
+  "browserTestingPerformed": false,
+  "authenticatedLiveTestingPerformed": false,
+  "visualVerification": "pending at 320,375,390,768,1024,1440px",
+  "newPackages": [],
+  "deployed": false,
+  "committed": false,
+  "pushed": false
+}

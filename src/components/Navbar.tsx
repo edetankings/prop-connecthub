@@ -1,7 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
-import { Menu, LogOut, LayoutDashboard, ShieldCheck, Settings, MessageCircle, Search, Bot } from "lucide-react";
+import { Menu, LogOut, LayoutDashboard, ShieldCheck, Settings, MessageCircle } from "lucide-react";
 import logo from "@/assets/logo.jpg";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useEffect, useState } from "react";
@@ -13,16 +13,18 @@ const publicNavItems = [
   { label: "Rent", path: "/properties?type=for_rent" },
   { label: "Land", path: "/properties?type=land" },
   { label: "Commercial", path: "/properties?type=commercial" },
-  { label: "Agents", path: "/agents" },
-  { label: "How It Works", path: "/#how-it-works" },
+  { label: "Explore", path: "/#discover" },
 ];
 
-const Navbar = () => {
+const Navbar = ({ overlay = false }: { overlay?: boolean }) => {
   const location = useLocation();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { user, profile, isAdmin, signOut } = useAuth();
-  const current = location.pathname + location.search;
+  const current = location.pathname + location.search + location.hash;
+  const isActive = (path: string) => path.startsWith("/properties?")
+    ? location.pathname === "/properties" && new URLSearchParams(location.search).get("type") === new URLSearchParams(path.split("?")[1]).get("type")
+    : current === path;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -32,26 +34,30 @@ const Navbar = () => {
   }, []);
 
   return (
-    <nav
+    <>{location.pathname === "/" && <a href="#main-content" className="sr-only z-[100] rounded-full bg-primary px-5 py-3 text-white focus:not-sr-only focus:fixed focus:left-4 focus:top-4">Skip to content</a>}<nav data-home-section="navigation" aria-label="Main navigation"
       className={cn(
-        "sticky top-0 z-50 transition-all duration-300",
-        scrolled ? "border-b border-border bg-card/90 shadow-card backdrop-blur-md" : "border-b border-transparent bg-background"
+        "top-0 z-50 border-b transition-[background-color,box-shadow] duration-300",
+        overlay ? "fixed inset-x-0 home-navigation" : "sticky",
+        overlay && !scrolled ? "is-over-hero" : "",
+        scrolled ? "border-border bg-card/95 shadow-card backdrop-blur-md" : overlay ? "border-transparent bg-transparent" : "border-border/60 bg-background/95"
       )}
     >
-      <div className={cn("container mx-auto flex items-center justify-between gap-4 px-4 transition-all duration-300", scrolled ? "h-14" : "h-[72px]")}>
-        <Link to="/" className="flex shrink-0 items-center gap-2" aria-label="PROP-connect home">
-          <img src={logo} alt="PROP-connect" className={cn("rounded-lg object-contain transition-all", scrolled ? "h-11 w-11" : "h-14 w-14")} />
+      <div className="page-container site-nav-inner">
+        <Link to="/" className="site-brand flex items-center gap-2.5" aria-label="PROP-connect home">
+          <img src={logo} alt="" className="h-10 w-10 rounded-xl object-contain" />
+          <span className="font-display text-sm font-extrabold tracking-tight text-foreground sm:text-base">PROP-CONNECT<span className="mt-0.5 block text-[9px] font-medium uppercase tracking-[.2em] text-muted-foreground">Find your place</span></span>
         </Link>
 
         {!user && (
-          <div className="hidden items-center gap-0.5 lg:flex">
+          <div className="site-nav-links">
             {publicNavItems.map((item) => (
               <Link
                 key={item.path}
                 to={item.path}
+                aria-current={isActive(item.path) ? "page" : undefined}
                 className={cn(
-                  "rounded-md px-3 py-2 text-sm font-medium transition-colors",
-                  current === item.path ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                  "rounded-full px-3 py-2.5 text-sm font-medium transition-colors",
+                  isActive(item.path) ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
                 )}
               >
                 {item.label}
@@ -60,13 +66,13 @@ const Navbar = () => {
           </div>
         )}
 
-        <div className="hidden items-center gap-1.5 lg:flex">
-          <Link to="/properties" aria-label="Search properties">
-            <Button variant="ghost" size="icon"><Search className="h-4 w-4" /></Button>
-          </Link>
-          <Link to="/ai-assistant">
-            <Button variant="ghost" size="sm" className="gap-1.5"><Bot className="h-4 w-4" /> AI Assistant</Button>
-          </Link>
+        <div className="site-nav-actions">
+          <details className="relative">
+            <summary className="cursor-pointer rounded-full px-3 py-3 text-sm font-medium">More</summary>
+            <div className="absolute right-0 top-full z-50 grid w-52 gap-1 rounded-2xl border border-border bg-card p-2 shadow-elevated">
+              {[{ label: "All properties", path: "/properties" }, { label: "Agents", path: "/agents" }, { label: "How it works", path: "/#how-it-works" }, { label: "AI Assistant", path: "/ai-assistant" }].map(item => <Link key={item.path} to={item.path} className="rounded-xl px-3 py-3 text-sm hover:bg-accent" onClick={event => event.currentTarget.closest("details")?.removeAttribute("open")}>{item.label}</Link>)}
+            </div>
+          </details>
           <ThemeToggle />
           {user ? (
             <>
@@ -76,7 +82,7 @@ const Navbar = () => {
               <Link to="/messages"><Button variant="ghost" size="sm" className="gap-1"><MessageCircle className="h-4 w-4" /> Messages</Button></Link>
               <Link to="/dashboard"><Button variant="ghost" size="sm" className="gap-1"><LayoutDashboard className="h-4 w-4" /> Dashboard</Button></Link>
               <Link to="/settings" aria-label="Settings"><Button variant="ghost" size="icon"><Settings className="h-4 w-4" /></Button></Link>
-              <span className="max-w-[140px] truncate text-sm text-muted-foreground">{profile?.full_name || user.email}</span>
+              <span className="hidden max-w-[120px] truncate text-sm text-muted-foreground 2xl:block">{profile?.full_name || user.email}</span>
               <Button variant="ghost" size="icon" onClick={signOut} aria-label="Sign out"><LogOut className="h-4 w-4" /></Button>
             </>
           ) : (
@@ -87,13 +93,13 @@ const Navbar = () => {
           )}
         </div>
 
-        <div className="flex items-center gap-1 lg:hidden">
+        <div className="site-nav-mobile">
           <ThemeToggle />
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" aria-label="Open navigation menu"><Menu className="h-5 w-5" /></Button>
+              <Button variant="ghost" size="icon" aria-label="Open navigation menu" aria-expanded={open}><Menu className="h-5 w-5" /></Button>
             </SheetTrigger>
-            <SheetContent side="right" className="flex w-[85vw] max-w-sm flex-col">
+            <SheetContent side="right" className="flex w-[min(90vw,24rem)] flex-col overflow-y-auto" aria-describedby={undefined}>
               <SheetTitle className="text-eyebrow">Menu</SheetTitle>
               <div className="mt-4 flex flex-col">
                 {(user
@@ -105,7 +111,7 @@ const Navbar = () => {
                       { label: "Settings", path: "/settings" },
                       ...(isAdmin ? [{ label: "Admin", path: "/admin" }] : []),
                     ]
-                  : [...publicNavItems, { label: "AI Assistant", path: "/ai-assistant" }]
+                  : [...publicNavItems, { label: "Agents", path: "/agents" }, { label: "How it works", path: "/#how-it-works" }, { label: "AI Assistant", path: "/ai-assistant" }]
                 ).map((item) => (
                   <Link
                     key={item.path}
@@ -131,7 +137,7 @@ const Navbar = () => {
           </Sheet>
         </div>
       </div>
-    </nav>
+    </nav></>
   );
 };
 

@@ -13,6 +13,7 @@ const MotionReveal = () => {
   const { pathname } = useLocation();
 
   useEffect(() => {
+    if (pathname === "/") return; // Homepage owns its scoped, opt-in motion.
     if (PRIVATE.some((p) => pathname.startsWith(p))) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const mobile = window.innerWidth < 768;

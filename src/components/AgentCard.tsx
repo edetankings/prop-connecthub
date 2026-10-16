@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { MapPin, MessageCircle } from "lucide-react";
+import { MapPin, MessageCircle, ArrowUpRight, UserRound } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { DBAgent } from "@/pages/Agents";
@@ -23,10 +23,21 @@ const TrustScoreRing = ({ score }: { score: number }) => {
   );
 };
 
-const AgentCard = ({ agent }: { agent: DBAgent }) => {
+const AgentCard = ({ agent, editorial = false, profession = "Agent" }: { agent: DBAgent; editorial?: boolean; profession?: string }) => {
   const badge = getTrustBadge(agent.trust_score);
   const { user, profile } = useAuth();
   const showChat = user && profile && profile.id !== agent.id;
+
+  if (editorial) return <article className="home-professional-card">
+    <div className="home-professional-top"><span>{profession}</span>{agent.kyc_verified && <VerifiedBadge size="sm" />}</div>
+    <Link to={`/agent/${agent.id}`} className="home-professional-profile">
+      {agent.avatar_url ? <img src={agent.avatar_url} alt={agent.full_name} loading="lazy" /> : <div className="home-professional-avatar" aria-hidden="true"><UserRound /></div>}
+      <h3>{agent.full_name}</h3>{agent.location && <p><MapPin /> {agent.location}</p>}
+      {agent.bio && <p className="home-professional-bio">{agent.bio}</p>}
+      <span className="home-professional-link">Meet {agent.full_name.split(" ")[0]} <ArrowUpRight /></span>
+    </Link>
+    {showChat && <Button asChild variant="outline" className="mt-4 w-full"><Link to={`/chat/new?agent=${agent.id}`}><MessageCircle /> Start a conversation</Link></Button>}
+  </article>;
 
   return (
     <div className="group overflow-hidden rounded-lg border border-border bg-card p-5 shadow-card transition-all duration-300 hover:shadow-elevated hover:-translate-y-1">

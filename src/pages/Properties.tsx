@@ -12,14 +12,19 @@ import { supabase } from "@/integrations/supabase/client";
 
 const Properties = () => {
   const [params] = useSearchParams();
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(params.get("q") || "");
+  const [kindFilter, setKindFilter] = useState(params.get("kind") || "all");
   const [typeFilter, setTypeFilter] = useState(params.get("type") || "all");
   useEffect(() => {
     setTypeFilter(params.get("type") || "all");
+    setKindFilter(params.get("kind") || "all");
+    setSearch(params.get("q") || "");
+    setPriceFilter(params.get("price") || "all");
+    setBedFilter(params.get("beds") || "all");
   }, [params]);
   const [stateFilter, setStateFilter] = useState("all");
-  const [priceFilter, setPriceFilter] = useState("all");
-  const [bedFilter, setBedFilter] = useState("all");
+  const [priceFilter, setPriceFilter] = useState(params.get("price") || "all");
+  const [bedFilter, setBedFilter] = useState(params.get("beds") || "all");
   const [sortBy, setSortBy] = useState("newest");
   const [visible, setVisible] = useState(12);
   const [properties, setProperties] = useState<DBProperty[]>([]);
@@ -88,7 +93,8 @@ const Properties = () => {
     const matchPrice = !range || (price >= range[0] && price < range[1]);
     const beds = Number((p as { bedrooms?: number }).bedrooms) || 0;
     const matchBeds = bedFilter === "all" || beds >= Number(bedFilter);
-    return matchSearch && matchType && matchState && matchPrice && matchBeds;
+    const matchKind = kindFilter === "all" || ptype === kindFilter;
+    return matchSearch && matchType && matchState && matchPrice && matchBeds && matchKind;
   });
 
   const created = (p: DBProperty) => (p as { created_at?: string }).created_at || "";
@@ -102,9 +108,10 @@ const Properties = () => {
 
   const shown = filtered.slice(0, visible);
   const hasFilters =
-    search !== "" || typeFilter !== "all" || stateFilter !== "all" || priceFilter !== "all" || bedFilter !== "all";
+    search !== "" || kindFilter !== "all" || typeFilter !== "all" || stateFilter !== "all" || priceFilter !== "all" || bedFilter !== "all";
   const resetFilters = () => {
     setSearch("");
+    setKindFilter("all");
     setTypeFilter("all");
     setStateFilter("all");
     setPriceFilter("all");
@@ -202,6 +209,7 @@ const Properties = () => {
                 <span className="font-semibold text-foreground">{filtered.length}</span>{" "}
                 {filtered.length === 1 ? "property" : "properties"}
               </p>
+              {kindFilter !== "all" && <Button variant="outline" size="sm" onClick={() => setKindFilter("all")}>{kindFilter} <X className="h-3 w-3" /><span className="sr-only">Remove property type filter</span></Button>}
               {hasFilters && (
                 <Button variant="ghost" size="sm" className="gap-1" onClick={resetFilters}>
                   <X className="h-4 w-4" /> Clear filters

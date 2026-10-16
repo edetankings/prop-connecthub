@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import logo from "@/assets/logo.jpg";
-import { Instagram, Facebook, Phone, Mail } from "lucide-react";
+import { Instagram, Phone, Mail, ArrowUpRight } from "lucide-react";
 
 const TikTokIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -12,7 +12,7 @@ const platformLinks = [
   { to: "/properties", label: "Browse Properties" },
   { to: "/agents", label: "Find an Agent" },
   { to: "/add-property", label: "List a Property" },
-  { to: "/payments", label: "Secure Transactions" },
+  { to: "/payments", label: "Payments" },
   { to: "/messages", label: "Messages" },
   { to: "/ai-assistant", label: "Prop-Connect AI" },
   { to: "/announcements", label: "Announcements" },
@@ -28,68 +28,22 @@ const trustLinks = [
   { to: "/privacy", label: "NDPR & Privacy" },
 ];
 
-const Footer = () => (
-  <footer className="border-t border-border bg-primary text-primary-foreground" role="contentinfo">
-    <div className="container mx-auto px-4 py-12">
-      <div className="grid gap-8 md:grid-cols-4">
-        <div>
-          <Link to="/" className="mb-4 flex items-center gap-2">
-            <img src={logo} alt="PROP-connect" className="h-12 w-12 rounded-lg object-contain" />
-          </Link>
-          <p className="text-sm text-primary-foreground/70">
-            Nigeria's most secure digital property marketplace with escrow protection and trust verification.
-          </p>
-          <div className="mt-4 flex gap-3">
-            <a href="https://instagram.com/propconnect2" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="rounded-full bg-white/10 p-2 hover:bg-white/20 transition-colors">
-              <Instagram className="h-4 w-4 text-primary-foreground" />
-            </a>
-            <a href="https://tiktok.com/@prop.connect" target="_blank" rel="noopener noreferrer" aria-label="TikTok" className="rounded-full bg-white/10 p-2 hover:bg-white/20 transition-colors">
-              <TikTokIcon />
-            </a>
-            <a href="https://facebook.com/Prop Connect" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="rounded-full bg-white/10 p-2 hover:bg-white/20 transition-colors">
-              <Facebook className="h-4 w-4 text-primary-foreground" />
-            </a>
-          </div>
-        </div>
-        <div>
-          <h4 className="mb-3 font-display text-sm font-semibold uppercase tracking-wider text-secondary">Platform</h4>
-          <div className="flex flex-col gap-2">
-            {platformLinks.map((l) => (
-              <Link key={l.to} to={l.to} className="text-sm text-primary-foreground/70 hover:text-primary-foreground">
-                {l.label}
-              </Link>
-            ))}
-          </div>
-        </div>
-        <div>
-          <h4 className="mb-3 font-display text-sm font-semibold uppercase tracking-wider text-secondary">Trust & Safety</h4>
-          <div className="flex flex-col gap-2">
-            {trustLinks.map((l) => (
-              <Link key={l.to} to={l.to} className="text-sm text-primary-foreground/70 hover:text-primary-foreground">
-                {l.label}
-              </Link>
-            ))}
-          </div>
-        </div>
-        <div>
-          <h4 className="mb-3 font-display text-sm font-semibold uppercase tracking-wider text-secondary">Contact Us</h4>
-          <div className="flex flex-col gap-2">
-            <a href="mailto:propconnect0@gmail.com" className="flex items-center gap-2 text-sm text-primary-foreground/70 hover:text-primary-foreground">
-              <Mail className="h-3.5 w-3.5 text-secondary" /> propconnect0@gmail.com
-            </a>
-            <a href="tel:+2348144954576" className="flex items-center gap-2 text-sm text-primary-foreground/70 hover:text-primary-foreground">
-              <Phone className="h-3.5 w-3.5 text-secondary" /> 08144954576
-            </a>
-            <Link to="/terms" className="text-sm text-primary-foreground/70 hover:text-primary-foreground">Terms of Service</Link>
-            <Link to="/privacy" className="text-sm text-primary-foreground/70 hover:text-primary-foreground">Privacy Policy</Link>
-          </div>
-        </div>
-      </div>
-      <div className="mt-8 border-t border-primary-foreground/20 pt-6 text-center text-xs text-primary-foreground/50">
-        © 2026 Prop Connect. All rights reserved. Secured with end-to-end encryption.
-      </div>
-    </div>
-  </footer>
-);
+const categoryLinks = [
+  {to:"/properties?type=house",label:"Houses"},{to:"/properties?type=apartment",label:"Apartments"},
+  {to:"/properties?type=land",label:"Land"},{to:"/properties?type=commercial",label:"Commercial"},
+  {to:"/properties?type=estate",label:"Estate listings"},
+];
+const companyLinks = [{to:"/#how-it-works",label:"How it works"},{to:"/register",label:"For agents & builders"},{to:"/announcements",label:"Announcements"},{to:"/guides/investing-in-nigeria",label:"Property guide"}];
 
-export default Footer;
+export default function Footer() {
+  return <footer data-home-section="footer" className="home-premium-footer" role="contentinfo">
+    <div className="page-container">
+      <div className="home-footer-masthead"><Link to="/" aria-label="PROP-CONNECT home"><img src={logo} alt="" /><span>PROP-CONNECT<span>Find your place. Move with confidence.</span></span></Link><a href="mailto:propconnect0@gmail.com" className="home-footer-hello">Let's talk property. <ArrowUpRight /></a></div>
+      <div className="home-footer-columns">
+        {[{title:"Explore",links:platformLinks},{title:"Find your place",links:categoryLinks},{title:"Our platform",links:companyLinks},{title:"Trust & support",links:trustLinks}].map(group=><nav key={group.title} aria-label={`Footer ${group.title}`}><h2>{group.title}</h2>{group.links.map(item=><Link key={item.to} to={item.to}>{item.label}</Link>)}</nav>)}
+      </div>
+      <div className="home-footer-contact"><div><a href="mailto:propconnect0@gmail.com"><Mail /> propconnect0@gmail.com</a><a href="tel:+2348144954576"><Phone /> 08144954576</a></div><div className="home-footer-socials"><a href="https://instagram.com/propconnect2" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><Instagram /></a><a href="https://tiktok.com/@prop.connect" target="_blank" rel="noopener noreferrer" aria-label="TikTok"><TikTokIcon /></a></div></div>
+      <div className="home-footer-bottom"><p>Copyright {new Date().getFullYear()} PROP-CONNECT. All rights reserved.</p><div><Link to="/privacy">Privacy</Link><Link to="/terms">Terms</Link><a href="mailto:propconnect0@gmail.com">Help & support</a></div><span>Made for your next move.</span></div>
+    </div>
+  </footer>;
+}

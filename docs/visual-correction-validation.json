@@ -1,0 +1,40 @@
+{
+  "typescript": {
+    "app": "passed",
+    "node": "passed"
+  },
+  "tests": {
+    "passed": 68,
+    "files": 14,
+    "baselinePassed": 66,
+    "affectedTestsRerun": 10,
+    "affectedTestsPassed": 10
+  },
+  "build": {
+    "status": "passed",
+    "heroAssetBytes": 596739,
+    "warnings": [
+      "stale Browserslist data",
+      "large JavaScript chunk"
+    ]
+  },
+  "eslint": {
+    "errors": 357,
+    "warnings": 31,
+    "newDiagnostics": 0
+  },
+  "routeDeclarations": 50,
+  "protectedFilesUnchanged": 102,
+  "localHttpSmoke": {
+    "/": 200,
+    "/properties": 200,
+    "/src/assets/architecture-forest-v2.jpg": 200
+  },
+  "browserScreenshotTestingPerformed": false,
+  "authenticatedTestingPerformed": false,
+  "packagesInstalled": [],
+  "remoteDatabaseModified": false,
+  "deployed": false,
+  "committed": false,
+  "pushed": false
+}

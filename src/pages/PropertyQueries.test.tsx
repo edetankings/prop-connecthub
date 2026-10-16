@@ -12,8 +12,8 @@ vi.mock("@/components/Navbar", () => ({ default: () => null }));
 vi.mock("@/components/PropertyMapPreview", () => ({ default: () => null }));
 import Properties from "./Properties";
 import PropertyDetail from "./PropertyDetail";
-function open(detail = false) {
-  return render(<HelmetProvider><MemoryRouter initialEntries={[detail ? "/property/p1" : "/properties"]}
+function open(detail = false, query = "") {
+  return render(<HelmetProvider><MemoryRouter initialEntries={[detail ? "/property/p1" : `/properties${query}`]}
     future={{ v7_startTransition: true, v7_relativeSplatPath: true }}><Routes>
     <Route path="/properties" element={<Properties />} /><Route path="/property/:id" element={<PropertyDetail />} />
   </Routes></MemoryRouter></HelmetProvider>);
@@ -21,6 +21,35 @@ function open(detail = false) {
 beforeEach(() => { vi.clearAllMocks(); });
 afterEach(cleanup);
 describe("real marketplace query states", () => {
+  it("combines rental intent, property kind and minimum bedroom filters", async () => {
+    mocks.result.mockResolvedValue({ data: [
+      { id: "fit", title: "Three-bedroom rental", price: 100, listing_type: "rental", property_type: "apartment", bedrooms: 3 },
+      { id: "small", title: "One-bedroom rental", price: 100, listing_type: "rental", property_type: "apartment", bedrooms: 1 },
+      { id: "sale", title: "Three-bedroom sale", price: 100, listing_type: "sale", property_type: "apartment", bedrooms: 3 },
+      { id: "house", title: "House rental", price: 100, listing_type: "rental", property_type: "house", bedrooms: 3 },
+    ], error: null });
+    open(false, "?type=for_rent&kind=apartment&beds=3");
+    await screen.findByRole("heading", { name: "Three-bedroom rental" });
+    expect(screen.queryByRole("heading", { name: "One-bedroom rental" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Three-bedroom sale" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "House rental" })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Clear filters" }));
+    expect(screen.getByRole("heading", { name: "House rental" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "One-bedroom rental" })).toBeInTheDocument();
+  });
+
+  it("applies homepage location and budget parameters to real returned listings", async () => {
+    mocks.result.mockResolvedValue({ data: [
+      { id: "matching", title: "Abuja budget match", city: "Abuja", price: 9000000, listing_type: "sale", property_type: "house", is_verified: true },
+      { id: "other-city", title: "Lagos alternative", city: "Lagos", price: 9000000, listing_type: "sale", property_type: "house", is_verified: true },
+      { id: "too-costly", title: "Abuja above budget", city: "Abuja", price: 40000000, listing_type: "sale", property_type: "house", is_verified: true },
+    ], error: null });
+    open(false, "?type=for_sale&q=Abuja&price=5m-20m");
+    await screen.findByRole("heading", { name: "Abuja budget match" });
+    expect(screen.queryByRole("heading", { name: "Lagos alternative" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Abuja above budget" })).not.toBeInTheDocument();
+  });
+
   it("renders an empty state for a successful empty discovery query", async () => {
     mocks.result.mockResolvedValue({ data: [], error: null });
     open(); await screen.findByText("No properties yet. Check back soon.");
