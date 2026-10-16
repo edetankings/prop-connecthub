@@ -1,0 +1,9 @@
+{
+  "unresolvedLocalImports": [],
+  "nonliteralDynamicLoaders": [],
+  "unreachableSourceFiles": [],
+  "unreferencedSourceAssets": [],
+  "lovableReferencesInRuntime": [],
+  "lovableInNpmManifestOrLock": false,
+  "localStackIdentifier": "prop-connect"
+}

@@ -84,6 +84,7 @@ export function useKYCVerification() {
     accountNumber: string;
     residentialAddress: string;
   }) => {
+    if (submitting) return false;
     if (!user) {
       toast.error("You must be logged in");
       return false;
@@ -162,7 +163,7 @@ export function useKYCVerification() {
       }
 
       // Create notification for user
-      await (supabase as any).from("notifications").insert({
+      const { error: notificationError } = await supabase.from("notifications").insert({
         user_id: user.id,
         title: "KYC Submission Received",
         message: "Your KYC documents have been submitted for admin review. You will be notified once the verification is complete.",
@@ -170,14 +171,17 @@ export function useKYCVerification() {
         link: "/identity-verification",
       });
 
-      toast.success("KYC documents submitted successfully! Awaiting admin review.");
+      if (notificationError) toast.error("KYC was saved, but its notification could not be sent.");
+      else toast.success("KYC documents submitted successfully! Awaiting admin review.");
       await fetchKYC();
       setSubmitting(false);
       return true;
-    } catch (error: any) {
-      toast.error("An error occurred: " + error.message);
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : "Could not submit KYC. Please retry.");
       setSubmitting(false);
       return false;
+    } finally {
+      setSubmitting(false);
     }
   };
 

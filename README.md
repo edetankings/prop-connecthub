@@ -7,8 +7,9 @@ Nigeria. The frontend is built with React, TypeScript, Vite, and Tailwind CSS.
 
 The diagram shows the prepared integration and build pipeline. Local development
 uses the independent Supabase configuration; production deployment settings have
-not been switched. The owner reports successful registration, email confirmation
-and profile creation. Additional live feature/security tests are pending.
+not been switched. The owner reports successful registration, email confirmation, profile creation
+and manual testing of exercised functionality. Case-specific automated
+authenticated feature/security acceptance remains pending.
 See [Phase 4 integration](database/PHASE-4-INTEGRATION.md) before changing targets.
 
 ```mermaid
@@ -216,7 +217,7 @@ When the new production domain is available:
 5. Verify public pages, property and agent links, login, and Edge Function calls
    on the new host before retiring the old host.
 
-## Remaining Lovable integrations
+## Backend independence and retained hosting references
 
 Lovable development tagging is absent from the active npm manifests and Vite
 plugins. Runtime preview-session brokering and the hardcoded AI gateway have been
@@ -225,12 +226,18 @@ removed from the prepared source. Edge Function changes are not deployed.
 | File | Remaining dependency or configuration |
 | --- | --- |
 | `config/site-url.mjs`, generated SEO assets and initial HTML | Existing production website fallback, preserved until domain cutover |
-| `.env` | Existing backend configuration, unchanged; values are not documented here |
-| `supabase/config.toml` | Existing backend project binding; do not deploy using it for the new project |
-| `drizzle.config.ts` | `LOVABLE_DB_MIGRATION_URL` for historical migration tooling; do not run against the new baseline |
+| `.env.local` | Ignored local independent Supabase configuration; no credentials belong in source control |
+| `supabase/config.toml` | Neutral local stack identifier only; remote operations require explicit verified `--project-ref prtrpywkwmnpowrthppg` and separate authorization |
+| `drizzle.config.ts` | Historical tooling, disabled without `PROP_CONNECT_LEGACY_DATABASE_URL`; never use its empty legacy schema against the independent database |
+| `database/legacy-backend-inventory.json` | Retired backend identifiers used only for migration provenance and regression scans |
 | Historical SQL files and Drizzle metadata | Preserved provenance; never replay alongside the independent baseline |
 
 New Edge deployments require exact `ALLOWED_ORIGINS`. AI requires owner-approved
 `AI_ENABLED`, `AI_CHAT_COMPLETIONS_URL`, `AI_MODEL`, and server-only `AI_API_KEY`.
 OTP remains disabled unless `OTP_ENABLED=true` and the existing Twilio server
 configuration is supplied after review. No external service has been activated.
+
+The current website fallback remains on its existing host until an independent
+domain is approved. It is a hosting/SEO reference, not the Supabase API target.
+See the [repository cleanup report](database/repository-cleanup/REPORT.md) for
+removed files, dependency changes, preserved migration history and validation.

@@ -1,0 +1,17 @@
+{
+  "project": "prtrpywkwmnpowrthppg",
+  "credentialsPrinted": false,
+  "applicationSessionAvailable": false,
+  "checks": [
+    {
+      "name": "Local Vite configuration targets the verified independent project",
+      "status": "PASS",
+      "evidence": "Exact HTTPS origin and public-key prefix verified internally; optional project ID matches."
+    },
+    {
+      "name": "Served Vite client matches independent local configuration",
+      "status": "PASS",
+      "evidence": "Compared in memory; no browser interaction or network trace claimed."
+    }
+  ]
+}

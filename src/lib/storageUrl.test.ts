@@ -22,4 +22,8 @@ describe("private storage links", () => {
     mocks.sign.mockResolvedValue({ data: null, error: { message: "Denied" } });
     expect(await resolveSignedUrl("verification-docs", "owner/id.pdf")).toBeNull();
   });
+  it("handles a rejected signing request without leaking a public fallback", async () => {
+    mocks.sign.mockRejectedValue(new Error("Network unavailable"));
+    expect(await resolveSignedUrl("verification-docs", "owner/id.pdf")).toBeNull();
+  });
 });

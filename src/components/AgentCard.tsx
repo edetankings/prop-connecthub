@@ -3,7 +3,7 @@ import { MapPin, MessageCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { DBAgent } from "@/pages/Agents";
-import { getTrustBadge } from "@/lib/mockData";
+import { getTrustBadge } from "@/lib/presentation";
 import { useAuth } from "@/hooks/useAuth";
 import VerifiedBadge from "@/components/VerifiedBadge";
 

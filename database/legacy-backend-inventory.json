@@ -1,0 +1,6 @@
+{
+  "purpose": "Historical backend identifiers retained solely for migration provenance and regression scanning; never deployment targets.",
+  "retired_supabase_project_refs": [
+    "nawvucejoclhqlpfqxlt"
+  ]
+}

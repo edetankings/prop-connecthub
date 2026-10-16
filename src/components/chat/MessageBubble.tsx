@@ -28,14 +28,20 @@ interface Props {
 
 const SignedMedia = ({ path, name, mime }: { path?: string; name?: string; mime?: string }) => {
   const [url, setUrl] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
     let active = true;
-    if (path) resolveSignedUrl(CHAT_BUCKET, path).then((u) => active && setUrl(u));
+    setUrl(null);
+    setLoading(true);
+    resolveSignedUrl(CHAT_BUCKET, path).then((u) => {
+      if (active) { setUrl(u); setLoading(false); }
+    });
     return () => {
       active = false;
     };
   }, [path]);
 
+  if (!loading && !url) return <span role="alert" className="text-xs text-destructive">Unable to load attachment</span>;
   if (mime?.startsWith("image/")) {
     return url ? (
       <a href={url} target="_blank" rel="noopener noreferrer">

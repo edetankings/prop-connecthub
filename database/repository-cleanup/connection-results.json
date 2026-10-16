@@ -1,0 +1,21 @@
+{
+  "localIndependentUrl": true,
+  "publicPublishableKey": true,
+  "credentialsPrinted": false,
+  "applicationSessionTested": false,
+  "remoteDatabaseRequestsMade": false,
+  "ports": [
+    {
+      "port": 8080,
+      "httpStatus": 200,
+      "matchingIndependentUrl": true,
+      "matchingPublicKey": true
+    },
+    {
+      "port": 8081,
+      "httpStatus": 200,
+      "matchingIndependentUrl": true,
+      "matchingPublicKey": true
+    }
+  ]
+}

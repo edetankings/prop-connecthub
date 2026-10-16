@@ -1,0 +1,10 @@
+{
+  "servedClientStatus": 200,
+  "independentUrlPresent": true,
+  "servedClientTargetsIndependentProject": true,
+  "servedKeyMatchesLocalPublicKey": true,
+  "servedKeyIsPublicPublishable": true,
+  "previewBrokerActive": false,
+  "credentialsPrinted": false,
+  "browserSessionInspected": false
+}

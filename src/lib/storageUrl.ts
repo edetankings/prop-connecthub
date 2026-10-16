@@ -15,9 +15,13 @@ export async function resolveSignedUrl(
   // Private objects are represented by relative paths. Never trust a legacy
   // public URL or an arbitrary external URL for sensitive documents.
   if (/^[a-z][a-z0-9+.-]*:/i.test(value) || value.startsWith("/") || value.split("/").includes("..")) return null;
-  const { data, error } = await supabase.storage
-    .from(bucket)
-    .createSignedUrl(value, expiresInSeconds);
-  if (error || !data) return null;
-  return data.signedUrl;
+  try {
+    const { data, error } = await supabase.storage
+      .from(bucket)
+      .createSignedUrl(value, expiresInSeconds);
+    if (error || !data) return null;
+    return data.signedUrl || null;
+  } catch {
+    return null;
+  }
 }

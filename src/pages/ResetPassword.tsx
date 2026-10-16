@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, CheckCircle } from "lucide-react";
 import logo from "@/assets/logo.jpg";
@@ -17,25 +17,55 @@ const ResetPassword = () => {
   const [success, setSuccess] = useState(false);
   const [isValidSession, setIsValidSession] = useState<boolean | null>(null);
   const navigate = useNavigate();
+  const submitLock = useRef(false);
+  const sessionValid = useRef(false);
+  const redirectTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    // Check if user arrived via a recovery link
-    const hashParams = new URLSearchParams(window.location.hash.substring(1));
-    const type = hashParams.get("type");
-
-    if (type === "recovery") {
-      setIsValidSession(true);
-      return;
-    }
-
-    // Also check if there's an active session (user may already be authenticated via the link)
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setIsValidSession(!!session);
+    let active = true;
+    let revision = 0;
+    const linkParams = new URLSearchParams(window.location.hash.slice(1));
+    const queryParams = new URLSearchParams(window.location.search);
+    const linkError = linkParams.has("error") || linkParams.has("error_code") || queryParams.has("error") || queryParams.has("error_code");
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!active) return;
+      if (event === "PASSWORD_RECOVERY" && session && !linkError) {
+        revision++;
+        sessionValid.current = true;
+        setIsValidSession(true);
+      } else if (event === "SIGNED_OUT" || !session) {
+        revision++;
+        sessionValid.current = false;
+        setIsValidSession(false);
+      }
     });
+    // URL processing may finish before this page subscribes. Validate the SDK session
+    // with Auth rather than trusting a fragment or requiring an event we may have missed.
+    const initialRevision = revision;
+    void (async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        const identity = session && !error && !linkError ? await supabase.auth.getUser() : null;
+        if (!active || revision !== initialRevision) return;
+        const valid = !!session && !!identity?.data.user && !identity.error && identity.data.user.id === session.user.id;
+        sessionValid.current = valid;
+        setIsValidSession(valid);
+      } catch {
+        if (active && revision === initialRevision) { sessionValid.current = false; setIsValidSession(false); }
+      }
+    })();
+    return () => {
+      active = false;
+      sessionValid.current = false;
+      subscription.unsubscribe();
+      if (redirectTimer.current) clearTimeout(redirectTimer.current);
+    };
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitLock.current || success) return;
+    if (!isValidSession || !sessionValid.current) { setError("Please request a valid recovery link."); return; }
     setError("");
 
     if (password.length < 8) {
@@ -47,15 +77,19 @@ const ResetPassword = () => {
       return;
     }
 
+    submitLock.current = true;
     setLoading(true);
     try {
-      const { error: updateError } = await supabase.auth.updateUser({ password });
+      const { data, error: updateError } = await supabase.auth.updateUser({ password });
       if (updateError) throw updateError;
+      if (!data.user) throw new Error("Password update was not confirmed. Please try again.");
+      if (!sessionValid.current) return;
       setSuccess(true);
-      setTimeout(() => navigate("/login"), 3000);
-    } catch (err: any) {
-      setError(err.message || "Failed to update password.");
+      redirectTimer.current = setTimeout(() => navigate("/login"), 3000);
+    } catch (err: unknown) {
+      setError(err instanceof Error || (err && typeof err === "object" && "message" in err) ? String(err.message) : "Failed to update password.");
     } finally {
+      submitLock.current = false;
       setLoading(false);
     }
   };
@@ -121,6 +155,7 @@ const ResetPassword = () => {
                     type={showPw ? "text" : "password"}
                     placeholder="••••••••"
                     value={password}
+                    disabled={loading}
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     minLength={8}
@@ -143,6 +178,7 @@ const ResetPassword = () => {
                     type={showConfirmPw ? "text" : "password"}
                     placeholder="••••••••"
                     value={confirmPassword}
+                    disabled={loading}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
                     minLength={8}

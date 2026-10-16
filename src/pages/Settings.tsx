@@ -96,7 +96,7 @@ const Settings = () => {
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !user) return;
+    if (!file || !user || uploadingAvatar) return;
 
     const allowed = ["image/jpeg", "image/png", "image/webp"];
     if (!allowed.includes(file.type)) {
@@ -109,36 +109,40 @@ const Settings = () => {
     }
 
     setUploadingAvatar(true);
-    const ext = file.name.split(".").pop();
-    const filePath = `${user.id}/avatar.${ext}`;
+    try {
+      const ext = file.name.split(".").pop();
+      const filePath = `${user.id}/avatar.${ext}`;
 
-    const { error: uploadError } = await supabase.storage
-      .from("avatars")
-      .upload(filePath, file, { upsert: true });
+      const { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(filePath, file, { upsert: true });
 
-    if (uploadError) {
-      toast.error("Failed to upload image");
+      if (uploadError) {
+        toast.error("Failed to upload image");
+        return;
+      }
+
+      const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(filePath);
+      const avatarUrl = `${urlData.publicUrl}?t=${Date.now()}`;
+
+      const { error: updateError } = await supabase
+        .from("profiles")
+        .update({ avatar_url: avatarUrl })
+        .eq("user_id", user.id);
+
+      if (updateError) {
+        toast.error("Failed to save avatar");
+      } else {
+        toast.success("Profile picture updated!");
+        await refreshProfile();
+      }
+    } catch {
+      toast.error("Failed to update profile picture. Please retry.");
+    } finally {
       setUploadingAvatar(false);
-      return;
+      // Reset on failure as well, so the same file can be selected again.
+      if (fileInputRef.current) fileInputRef.current.value = "";
     }
-
-    const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(filePath);
-    const avatarUrl = `${urlData.publicUrl}?t=${Date.now()}`;
-
-    const { error: updateError } = await supabase
-      .from("profiles")
-      .update({ avatar_url: avatarUrl })
-      .eq("user_id", user.id);
-
-    setUploadingAvatar(false);
-    if (updateError) {
-      toast.error("Failed to save avatar");
-    } else {
-      toast.success("Profile picture updated!");
-      await refreshProfile();
-    }
-    // Reset input so same file can be re-selected
-    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const handleAvatarRemove = async () => {

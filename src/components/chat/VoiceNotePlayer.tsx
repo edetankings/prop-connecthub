@@ -22,6 +22,10 @@ export function VoiceNotePlayer({ path, localUrl, duration = 0, mine }: Props) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
+    setUrl(localUrl || null);
+    setPlaying(false);
+    setProgress(0);
+    setLoading(!localUrl && !!path);
     if (localUrl || !path) return;
     let active = true;
     resolveSignedUrl(CHAT_BUCKET, path).then((u) => {
@@ -69,6 +73,8 @@ export function VoiceNotePlayer({ path, localUrl, duration = 0, mine }: Props) {
     el.currentTime = pct * el.duration;
     setProgress(pct);
   };
+
+  if (!loading && !url) return <span role="alert" className="text-xs text-destructive">Unable to load voice note</span>;
 
   const played = Math.round(progress * BARS);
 

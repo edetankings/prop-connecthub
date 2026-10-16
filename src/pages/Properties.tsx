@@ -25,19 +25,29 @@ const Properties = () => {
   const [properties, setProperties] = useState<DBProperty[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const [queryError, setQueryError] = useState(false);
+  const [retry, setRetry] = useState(0);
   useEffect(() => {
+    let active = true;
     const load = async () => {
-      const { data } = await supabase
-        .from("properties")
-        .select("*")
-        .eq("is_verified", true)
-        .in("status", ["available", "for_sale", "for_rent"])
-        .order("created_at", { ascending: false });
-      setProperties((data as DBProperty[]) || []);
-      setLoading(false);
+      setLoading(true);
+      setQueryError(false);
+      setProperties([]);
+      try {
+        const { data, error } = await supabase.from("properties").select("*")
+          .eq("is_verified", true).in("status", ["available", "for_sale", "for_rent"])
+          .order("created_at", { ascending: false });
+        if (error) throw error;
+        if (active) setProperties((data as DBProperty[]) || []);
+      } catch {
+        if (active) setQueryError(true);
+      } finally {
+        if (active) setLoading(false);
+      }
     };
-    load();
-  }, []);
+    void load();
+    return () => { active = false; };
+  }, [retry]);
 
   const states = useMemo(
     () => Array.from(new Set(properties.map((p) => p.state).filter(Boolean) as string[])).sort(),
@@ -178,7 +188,9 @@ const Properties = () => {
           </Select>
         </div>
 
-        {loading ? (
+        {queryError ? (
+          <div role="alert" className="py-16 text-center"><p>Unable to load properties.</p><Button className="mt-4" onClick={() => setRetry((n) => n + 1)}>Retry</Button></div>
+        ) : loading ? (
           <div className="flex justify-center py-16">
             <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
           </div>
@@ -211,7 +223,7 @@ const Properties = () => {
             {filtered.length === 0 && (
               <div className="py-16 text-center">
                 <SlidersHorizontal className="mx-auto h-12 w-12 text-muted-foreground/50" />
-                <p className="mt-3 text-lg text-muted-foreground">No properties match your filters</p>
+                <p className="mt-3 text-lg text-muted-foreground">{properties.length === 0 && !hasFilters ? "No properties yet. Check back soon." : "No properties match your filters"}</p>
               </div>
             )}
           </>

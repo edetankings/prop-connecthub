@@ -9,7 +9,7 @@ import Navbar from "@/components/Navbar";
 import { TrustScoreRing } from "@/components/AgentCard";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { getTrustBadge } from "@/lib/mockData";
+import { getTrustBadge } from "@/lib/presentation";
 import type { DBAgent } from "@/pages/Agents";
 import VerifiedBadge from "@/components/VerifiedBadge";
 
@@ -19,22 +19,36 @@ const AgentProfile = () => {
   const [agent, setAgent] = useState<DBAgent | null>(null);
   const [loading, setLoading] = useState(true);
   const [agentProperties, setAgentProperties] = useState<any[]>([]);
+  const [queryError, setQueryError] = useState(false);
+  const [retry, setRetry] = useState(0);
   const [ratings, setRatings] = useState<any[]>([]);
 
   useEffect(() => {
+    let active = true;
     const load = async () => {
-      const [agentRes, propsRes, ratingsRes] = await Promise.all([
-        (supabase as any).from("public_profiles").select("*").eq("id", id).eq("profile_type", "agent").maybeSingle(),
-        supabase.from("properties").select("*").eq("agent_id", id!).eq("is_verified", true).in("status", ["available", "for_sale", "for_rent"]),
-        supabase.from("ratings").select("*, profiles!ratings_reviewer_id_fkey(full_name)").eq("agent_id", id!).order("created_at", { ascending: false }),
-      ]);
-      setAgent(agentRes.data as DBAgent | null);
-      setAgentProperties(propsRes.data || []);
-      setRatings(ratingsRes.data || []);
-      setLoading(false);
+      setLoading(true);
+      setQueryError(false);
+      setAgentProperties([]);
+      try {
+        const [agentRes, propsRes, ratingsRes] = await Promise.all([
+          (supabase as any).from("public_profiles").select("*").eq("id", id).eq("profile_type", "agent").maybeSingle(),
+          supabase.from("properties").select("*").eq("agent_id", id!).eq("is_verified", true).in("status", ["available", "for_sale", "for_rent"]),
+          supabase.from("ratings").select("*, profiles!ratings_reviewer_id_fkey(full_name)").eq("agent_id", id!).order("created_at", { ascending: false }),
+        ]);
+        if (agentRes.error || propsRes.error) throw agentRes.error || propsRes.error;
+        if (!active) return;
+        setAgent(agentRes.data as DBAgent | null);
+        setAgentProperties(propsRes.data || []);
+        setRatings(ratingsRes.data || []);
+      } catch {
+        if (active) setQueryError(true);
+      } finally {
+        if (active) setLoading(false);
+      }
     };
-    if (id) load();
-  }, [id]);
+    void load();
+    return () => { active = false; };
+  }, [id, retry]);
 
   if (loading) {
     return (
@@ -46,6 +60,8 @@ const AgentProfile = () => {
       </div>
     );
   }
+
+  if (queryError) return <div className="min-h-screen bg-background"><Navbar /><div role="alert" className="py-20 text-center"><p>Unable to load agent listings.</p><Button className="mt-4" onClick={() => setRetry((n) => n + 1)}>Retry</Button></div></div>;
 
   if (!agent) {
     return (

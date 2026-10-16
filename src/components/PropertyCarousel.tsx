@@ -24,7 +24,7 @@ const CarouselCard = ({ p }: { p: DBProperty }) => {
   const saved = favorites.includes(p.id);
   const img = p.image_url || p.images?.[0] || "/placeholder.svg";
   const loc = [p.city, p.state].filter(Boolean).join(", ") || "Nigeria";
-  const isRent = p.status === "for_rent";
+  const isRent = p.listing_type === "rental";
 
   const toggle = (e: React.MouseEvent) => {
     e.preventDefault();

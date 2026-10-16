@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -31,6 +31,10 @@ const AddProperty = () => {
   const { isActive, loading: subLoading, isAgent } = useSubscription();
   const [videos, setVideos] = useState<VideoFile[]>([]);
   const navigate = useNavigate();
+  const submitLock = useRef(false);
+  const savedPropertyId = useRef<string | null>(null);
+  const uploadedFiles = useRef(new Map<File, string>());
+  const savedDocuments = useRef(new Set<File>());
   const [submitting, setSubmitting] = useState(false);
   const [images, setImages] = useState<{ file: File; preview: string }[]>([]);
   const [dragOver, setDragOver] = useState(false);
@@ -99,32 +103,40 @@ const AddProperty = () => {
   const uploadPdfs = async (propertyId: string): Promise<void> => {
     if (!profile) return;
     for (const p of pdfs) {
+      if (savedDocuments.current.has(p.file)) continue;
       const safeName = p.file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
       const path = `${profile.user_id}/${propertyId}/${Date.now()}-${safeName}`;
-      const { error: upErr } = await supabase.storage.from("property-documents").upload(path, p.file, {
+      const cachedPath = uploadedFiles.current.get(p.file);
+      const { error: upErr } = cachedPath ? { error: null } : await supabase.storage.from("property-documents").upload(path, p.file, {
         contentType: "application/pdf",
       });
-      if (upErr) { toast.error(`Doc upload failed: ${upErr.message}`); continue; }
-      const { error: documentError } = await (supabase as any).from("property_documents").insert({
+      if (upErr) throw new Error(`Document upload failed: ${upErr.message}`);
+      const confirmedPath = cachedPath || path;
+      uploadedFiles.current.set(p.file, confirmedPath);
+      const { error: documentError } = await supabase.from("property_documents").insert({
         property_id: propertyId,
         agent_id: profile.id,
-        file_url: path,
+        file_url: confirmedPath,
         file_name: p.file.name,
         file_size: p.file.size,
         document_type: "other",
       });
       if (documentError) throw documentError;
+      savedDocuments.current.add(p.file);
     }
   };
 
   const uploadImages = async (): Promise<string[]> => {
     const urls: string[] = [];
     for (const img of images) {
+      const cached = uploadedFiles.current.get(img.file);
+      if (cached) { urls.push(cached); continue; }
       const ext = img.file.name.split(".").pop();
       const path = `${profile!.user_id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
       const { error } = await supabase.storage.from("property-images").upload(path, img.file);
-      if (error) { toast.error(`Upload failed: ${error.message}`); continue; }
+      if (error) throw new Error(`Image upload failed: ${error.message}`);
       const { data } = supabase.storage.from("property-images").getPublicUrl(path);
+      uploadedFiles.current.set(img.file, data.publicUrl);
       urls.push(data.publicUrl);
     }
     return urls;
@@ -133,17 +145,21 @@ const AddProperty = () => {
   const uploadVideos = async (): Promise<string[]> => {
     const urls: string[] = [];
     for (const v of videos) {
+      const cached = uploadedFiles.current.get(v.file);
+      if (cached) { urls.push(cached); continue; }
       const ext = v.file.name.split(".").pop();
       const path = `${profile!.user_id}/videos/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
       const { error } = await supabase.storage.from("property-images").upload(path, v.file, { contentType: v.file.type });
-      if (error) { toast.error(`Video upload failed: ${error.message}`); continue; }
+      if (error) throw new Error(`Video upload failed: ${error.message}`);
       const { data } = supabase.storage.from("property-images").getPublicUrl(path);
+      uploadedFiles.current.set(v.file, data.publicUrl);
       urls.push(data.publicUrl);
     }
     return urls;
   };
 
   const handleSubmit = async (status: "draft" | "for_sale") => {
+    if (submitLock.current) return;
     if (status === "for_sale" && !validate()) return;
     if (status === "draft" && !form.title.trim()) { toast.error("Title is required even for drafts"); return; }
     if (!profile) { toast.error("Please log in first"); return; }
@@ -153,21 +169,21 @@ const AddProperty = () => {
       return;
     }
 
+    submitLock.current = true;
     setSubmitting(true);
     try {
-      const [imageUrls, videoUrls] = await Promise.all([uploadImages(), uploadVideos()]);
+      const imageUrls = await uploadImages();
+      const videoUrls = await uploadVideos();
       // Admins auto-approve their listings; agents go through review
       const finalStatus =
-        status === "draft" ? "draft" :
-        isAdmin ? "available" : "under_verification";
+        status === "draft" ? "draft" as const :
+        isAdmin ? "available" as const : "under_verification" as const;
 
-      const { data: inserted, error } = await supabase
-        .from("properties")
-        .insert({
+      const payload = {
           title: form.title.trim(),
           price: Number(form.price) || 0,
           property_type: form.property_type || "house",
-          listing_type: form.listing_type === "for_rent" ? "rental" : "sale",
+          listing_type: form.listing_type === "for_rent" ? "rental" as const : "sale" as const,
           description: form.description.trim(),
           address: form.address.trim() || mapAddress,
           city: form.city.trim(),
@@ -183,13 +199,18 @@ const AddProperty = () => {
           image_url: imageUrls[0] || null,
           videos: videoUrls,
           agent_id: profile.id,
-          status: finalStatus as any,
+          status: finalStatus,
           is_verified: isAdmin ? true : false,
-        } as any)
-        .select("id")
-        .single();
+        };
+      // Retain a confirmed record across document failures so retry does not insert a duplicate.
+      const query = savedPropertyId.current
+        ? supabase.from("properties").update(payload).eq("id", savedPropertyId.current)
+        : supabase.from("properties").insert(payload);
+      const { data: inserted, error } = await query.select("id").single();
 
       if (error) throw error;
+      if (!inserted?.id) throw new Error("Property save was not confirmed. Please retry.");
+      savedPropertyId.current = inserted.id;
       if (inserted?.id && pdfs.length > 0) {
         await uploadPdfs(inserted.id);
       }
@@ -198,9 +219,11 @@ const AddProperty = () => {
         isAdmin ? "Property published!" : "Property submitted for admin approval!"
       );
       navigate(isAdmin ? "/admin" : "/dashboard");
-    } catch (err: any) {
-      toast.error(err.message || "Failed to save property");
+    } catch (err: unknown) {
+      const message = err instanceof Error || (err && typeof err === "object" && "message" in err) ? String(err.message) : "Failed to save property";
+      toast.error(savedPropertyId.current ? `${message}. The listing was saved but is incomplete; retry here to finish it.` : message);
     } finally {
+      submitLock.current = false;
       setSubmitting(false);
     }
   };
@@ -340,7 +363,7 @@ const AddProperty = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="text-sm font-medium text-foreground mb-1 block">Listing Type *</label>
-                <Select value={form.listing_type} onValueChange={(v) => setForm(f => ({ ...f, listing_type: v as any }))}>
+                <Select value={form.listing_type} onValueChange={(v) => setForm(f => ({ ...f, listing_type: v as "for_sale" | "for_rent" }))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="for_sale">For Sale</SelectItem>

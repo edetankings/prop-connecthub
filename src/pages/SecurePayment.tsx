@@ -148,7 +148,7 @@ const SecurePayment = () => {
   };
 
   const handleUpload = async () => {
-    if (!file || !tx || !user) return;
+    if (!file || !tx || !user || uploading) return;
     const valid = ["image/jpeg", "image/png", "application/pdf"];
     if (!valid.includes(file.type)) {
       toast.error("Only JPG, PNG or PDF are accepted");
@@ -159,27 +159,31 @@ const SecurePayment = () => {
       return;
     }
     setUploading(true);
-    const ext = file.name.split(".").pop() || "bin";
-    const path = `${user.id}/${tx.id}/proof.${ext}`;
-    const { error: upErr } = await supabase.storage
-      .from("payment-screenshots")
-      .upload(path, file, { upsert: true, contentType: file.type });
-    if (upErr) {
+    try {
+      const ext = file.name.split(".").pop() || "bin";
+      const path = `${user.id}/${tx.id}/proof.${ext}`;
+      const { error: upErr } = await supabase.storage
+        .from("payment-screenshots")
+        .upload(path, file, { upsert: true, contentType: file.type });
+      if (upErr) {
+        toast.error(upErr.message);
+        return;
+      }
+      const { error: rpcErr } = await supabase.rpc("submit_payment_proof", {
+        _transaction_id: tx.id,
+        _proof_url: path,
+      });
+      if (rpcErr) {
+        toast.error(rpcErr.message);
+        return;
+      }
+      toast.success("Payment proof submitted — PROP-CONNECT is reviewing.");
+      setTx({ ...tx, payment_status: "under_review", proof_url: path });
+    } catch {
+      toast.error("Could not submit payment proof. Please retry.");
+    } finally {
       setUploading(false);
-      toast.error(upErr.message);
-      return;
     }
-    const { error: rpcErr } = await supabase.rpc("submit_payment_proof", {
-      _transaction_id: tx.id,
-      _proof_url: path,
-    });
-    setUploading(false);
-    if (rpcErr) {
-      toast.error(rpcErr.message);
-      return;
-    }
-    toast.success("Payment proof submitted — PROP-CONNECT is reviewing.");
-    setTx({ ...tx, payment_status: "under_review", proof_url: path });
   };
 
   const copyToClipboard = (text: string, label: string) => {

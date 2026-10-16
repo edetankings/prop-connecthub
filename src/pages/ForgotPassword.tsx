@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Mail } from "lucide-react";
 import logo from "@/assets/logo.jpg";
@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 
 const ForgotPassword = () => {
+  const submitLock = useRef(false);
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
@@ -15,6 +16,7 @@ const ForgotPassword = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitLock.current || sent) return;
     setError("");
 
     const trimmed = email.trim();
@@ -23,6 +25,7 @@ const ForgotPassword = () => {
       return;
     }
 
+    submitLock.current = true;
     setLoading(true);
     try {
       const { error: resetError } = await supabase.auth.resetPasswordForEmail(trimmed, {
@@ -30,9 +33,10 @@ const ForgotPassword = () => {
       });
       if (resetError) throw resetError;
       setSent(true);
-    } catch (err: any) {
-      setError(err.message || "Something went wrong. Please try again.");
+    } catch (err: unknown) {
+      setError(err instanceof Error || (err && typeof err === "object" && "message" in err) ? String(err.message) : "Something went wrong. Please try again.");
     } finally {
+      submitLock.current = false;
       setLoading(false);
     }
   };
@@ -57,7 +61,7 @@ const ForgotPassword = () => {
             <p className="mt-4 text-xs text-muted-foreground">
               Didn't receive the email? Check your spam folder or try again.
             </p>
-            <Button variant="outline" className="mt-6 w-full" onClick={() => setSent(false)}>
+            <Button variant="outline" className="mt-6 w-full" onClick={() => { setSent(false); setError(""); }}>
               Try Another Email
             </Button>
             <Link to="/login" className="mt-3 inline-block text-sm font-medium text-secondary hover:underline">
@@ -84,6 +88,7 @@ const ForgotPassword = () => {
                   placeholder="you@example.com"
                   className="mt-1"
                   value={email}
+                  disabled={loading}
                   onChange={(e) => setEmail(e.target.value)}
                   required
                 />

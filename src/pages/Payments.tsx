@@ -33,7 +33,7 @@ const Payments = () => {
 
   const handleSubmit = async () => {
     if (!finance.enabled) { toast.error(finance.unavailableMessage); return; }
-    if (!file || !user) return;
+    if (!file || !user || uploading) return;
     setUploading(true);
     try {
       const ext = file.name.split(".").pop();

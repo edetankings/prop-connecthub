@@ -1,1 +1,3 @@
-project_id = "nawvucejoclhqlpfqxlt"
+# Local development stack identifier only; not a remote project link.
+# Remote CLI commands must explicitly use the owner-verified independent project.
+project_id = "prop-connect"

@@ -1,0 +1,669 @@
+{
+  "scope": "Read-only installed metadata and aggregate checks; no authenticated actor simulation",
+  "checks": [
+    {
+      "name": "Read-only transaction enforced",
+      "passed": true
+    },
+    {
+      "name": "All 30 public tables present",
+      "passed": true
+    },
+    {
+      "name": "All public tables have RLS",
+      "passed": true
+    },
+    {
+      "name": "110 policy identities match baseline",
+      "passed": true
+    },
+    {
+      "name": "40 trigger identities match baseline",
+      "passed": true
+    },
+    {
+      "name": "All triggers enabled",
+      "passed": true
+    },
+    {
+      "name": "All 69 function identities match baseline",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.has_role",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.has_role",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.get_my_profile_id",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.get_my_profile_id",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: prop_connect_private.assert_admin",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: prop_connect_private.assert_admin",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: prop_connect_private.assert_finance_ready",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: prop_connect_private.assert_finance_ready",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.update_updated_at",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.update_updated_at",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.log_admin_action",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.log_admin_action",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.touch_last_login",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.touch_last_login",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.generate_referral_code",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.generate_referral_code",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.auto_assign_referral_code",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.auto_assign_referral_code",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.place_in_matrix",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.place_in_matrix",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.auto_place_referral",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.auto_place_referral",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.handle_new_user",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.handle_new_user",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.prevent_profile_sensitive_field_updates",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.prevent_profile_sensitive_field_updates",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.clamp_profile_trust_score",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.clamp_profile_trust_score",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: prop_connect_private.public_agent_rows",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: prop_connect_private.public_agent_rows",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.get_platform_stats",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.get_platform_stats",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.get_company_payment_details",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.get_company_payment_details",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: prop_connect_private.can_list",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: prop_connect_private.can_list",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: prop_connect_private.guard_property",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: prop_connect_private.guard_property",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: prop_connect_private.guard_kyc",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: prop_connect_private.guard_kyc",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.guard_chat_thread_update",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.guard_chat_thread_update",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.guard_message_update",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.guard_message_update",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.guard_reservation_update",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.guard_reservation_update",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: prop_connect_private.guard_verification",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: prop_connect_private.guard_verification",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.notify_kyc_status_change",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.notify_kyc_status_change",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.notify_kyc_verification_status",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.notify_kyc_verification_status",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.notify_property_status_change",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.notify_property_status_change",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.notify_new_announcement",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.notify_new_announcement",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.notify_new_inspection",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.notify_new_inspection",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.ensure_wallet",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.ensure_wallet",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: prop_connect_private.credit_earning",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: prop_connect_private.credit_earning",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.approve_secure_payment",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.approve_secure_payment",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.submit_payment_proof",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.submit_payment_proof",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.reject_secure_payment",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.reject_secure_payment",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.release_secure_payment",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.release_secure_payment",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.refund_secure_payment",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.refund_secure_payment",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.expire_stale_transactions",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.expire_stale_transactions",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.raise_dispute",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.raise_dispute",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.resolve_dispute",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.resolve_dispute",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.request_withdrawal",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.request_withdrawal",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.approve_withdrawal",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.approve_withdrawal",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.reject_withdrawal",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.reject_withdrawal",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.distribute_subscription_payment",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.distribute_subscription_payment",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.activate_subscription",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.activate_subscription",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.pay_verification_referral_bonus",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.pay_verification_referral_bonus",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.reject_subscription_request",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.reject_subscription_request",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.on_kyc_verified_pay_referral",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.on_kyc_verified_pay_referral",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.on_subscription_active_pay_referral",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.on_subscription_active_pay_referral",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.on_subscription_activated",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.on_subscription_activated",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.state_code_for",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.state_code_for",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.generate_property_code",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.generate_property_code",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.auto_assign_property_code",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.auto_assign_property_code",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.assign_deal_number",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.assign_deal_number",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.request_deal",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.request_deal",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.accept_deal",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.accept_deal",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.initiate_secure_payment",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.initiate_secure_payment",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.decline_deal",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.decline_deal",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.log_deal_status",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.log_deal_status",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.sync_deal_stage_from_tx",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.sync_deal_stage_from_tx",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.advance_deal_stage",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.advance_deal_stage",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.agent_respond_inspection",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.agent_respond_inspection",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.buyer_respond_inspection",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.buyer_respond_inspection",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.activate_chat",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.activate_chat",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.get_deal_participants",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.get_deal_participants",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.get_referral_summary",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.get_referral_summary",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: public.get_chat_participants",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: public.get_chat_participants",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: prop_connect_private.can_chat",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: prop_connect_private.can_chat",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: prop_connect_private.can_read_document",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: prop_connect_private.can_read_document",
+      "passed": true
+    },
+    {
+      "name": "Security mode matches: prop_connect_private.can_read_chat_file",
+      "passed": true
+    },
+    {
+      "name": "Trusted owner/search path: prop_connect_private.can_read_chat_file",
+      "passed": true
+    },
+    {
+      "name": "Function body hashes match reviewed baseline",
+      "passed": true,
+      "detail": {
+        "matches": {
+          "CRLF": 69
+        },
+        "explanation": "Windows CRLF versus LF is checked explicitly; no database function was modified."
+      }
+    },
+    {
+      "name": "All constraints validated",
+      "passed": true
+    },
+    {
+      "name": "Only intended Realtime table membership",
+      "passed": true
+    },
+    {
+      "name": "One Auth account maps to one profile; no orphan/missing profiles",
+      "passed": true
+    },
+    {
+      "name": "No administrator bootstrapped",
+      "passed": true
+    },
+    {
+      "name": "Financial gates remain locked",
+      "passed": true
+    },
+    {
+      "name": "No direct financial/inspection table-wide client writes: wallets",
+      "passed": true
+    },
+    {
+      "name": "No direct financial/inspection table-wide client writes: transactions",
+      "passed": true
+    },
+    {
+      "name": "No direct financial/inspection table-wide client writes: earnings",
+      "passed": true
+    },
+    {
+      "name": "No direct financial/inspection table-wide client writes: withdrawals",
+      "passed": true
+    },
+    {
+      "name": "No direct financial/inspection table-wide client writes: subscriptions",
+      "passed": true
+    },
+    {
+      "name": "No direct financial/inspection table-wide client writes: escrow_holds",
+      "passed": true
+    },
+    {
+      "name": "Reservations allow requested inserts; direct update/delete denied",
+      "passed": true
+    },
+    {
+      "name": "Internal money helper not client-executable: public.ensure_wallet",
+      "passed": true
+    },
+    {
+      "name": "Internal money helper not client-executable: public.distribute_subscription_payment",
+      "passed": true
+    },
+    {
+      "name": "Internal money helper not client-executable: public.pay_verification_referral_bonus",
+      "passed": true
+    },
+    {
+      "name": "Internal money helper not client-executable: prop_connect_private.credit_earning",
+      "passed": true
+    },
+    {
+      "name": "Six buckets and correct public/private flags",
+      "passed": true
+    },
+    {
+      "name": "No sensitive columns in public directory",
+      "passed": true
+    }
+  ],
+  "failures": [],
+  "runtime_user_workflows_tested": false
+}

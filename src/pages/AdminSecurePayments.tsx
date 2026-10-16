@@ -1,3 +1,4 @@
+import { resolveSignedUrl } from "@/lib/storageUrl";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -71,8 +72,8 @@ const AdminSecurePayments = () => {
 
   const viewReceipt = async (path: string) => {
     if (!path) return;
-    const { data } = await (supabase as any).storage.from("payment-screenshots").createSignedUrl(path, 300);
-    if (data?.signedUrl) window.open(data.signedUrl, "_blank");
+    const url = await resolveSignedUrl("payment-screenshots", path, 300);
+    if (url) window.open(url, "_blank", "noopener,noreferrer");
     else toast.error("Could not load receipt");
   };
 

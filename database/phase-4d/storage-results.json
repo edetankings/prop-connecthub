@@ -1,0 +1,8 @@
+{
+  "anon_table_select": true,
+  "authenticated_table_insert": true,
+  "authenticated_table_select": true,
+  "read_only": "on",
+  "storage_objects_rls": true,
+  "storage_policy_count": 17
+}

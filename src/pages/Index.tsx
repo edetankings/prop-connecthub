@@ -5,10 +5,9 @@ import { useEffect, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { motion, useScroll, useTransform, useInView } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
-  Search, Shield, ChevronDown, MapPin, Bed, Bath, ArrowRight,
+  Search, Shield, ChevronDown, MapPin, ArrowRight,
   Sparkles, Lock, BadgeCheck, Building2, Users, TrendingUp,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
@@ -60,67 +59,13 @@ const Reveal = ({ children, delay = 0, className = "" }: { children: React.React
   );
 };
 
-const CinematicCard = ({ p, index }: { p: DBProperty; index: number }) => {
-  const img = p.image_url || p.images?.[0] || cine2;
-  const loc = [p.city, p.state].filter(Boolean).join(", ") || "Nigeria";
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-60px" });
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 60 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.9, delay: (index % 3) * 0.12, ease: [0.22, 1, 0.36, 1] }}
-    >
-      <Link to={`/property/${p.id}`} className="group relative block overflow-hidden rounded-2xl bg-card shadow-card">
-        <div className="relative aspect-[4/5] overflow-hidden">
-          <motion.img
-            src={img}
-            alt={p.title}
-            loading="lazy"
-            className="absolute inset-0 h-full w-full object-cover"
-            whileHover={{ scale: 1.08 }}
-            transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
-          <div className="absolute left-4 top-4 flex gap-2">
-            {p.is_verified && (
-              <Badge className="bg-secondary text-secondary-foreground gap-1 backdrop-blur"><BadgeCheck className="h-3 w-3" /> Verified</Badge>
-            )}
-            <Badge variant="outline" className="border-white/30 bg-white/10 text-white backdrop-blur-md">
-              {p.status === "for_rent" ? "For Rent" : "For Sale"}
-            </Badge>
-          </div>
-          <div className="absolute inset-x-0 bottom-0 p-5 text-white">
-            <p className="text-xs uppercase tracking-[0.2em] opacity-70 flex items-center gap-1.5">
-              <MapPin className="h-3 w-3" /> {loc}
-            </p>
-            <h3 className="mt-1 font-display text-xl font-semibold leading-tight line-clamp-2">{p.title}</h3>
-            <div className="mt-3 flex items-end justify-between gap-3">
-              <div>
-                <p className="text-[10px] uppercase tracking-widest opacity-60">From</p>
-                <p className="font-display text-2xl font-bold">₦{p.price?.toLocaleString()}</p>
-              </div>
-              <div className="flex gap-3 text-xs opacity-90">
-                {(p.bedrooms ?? 0) > 0 && <span className="flex items-center gap-1"><Bed className="h-3.5 w-3.5" />{p.bedrooms}</span>}
-                {(p.bathrooms ?? 0) > 0 && <span className="flex items-center gap-1"><Bath className="h-3.5 w-3.5" />{p.bathrooms}</span>}
-              </div>
-            </div>
-            <div className="mt-4 flex items-center gap-2 text-sm font-medium opacity-0 -translate-y-2 transition-all duration-500 group-hover:opacity-100 group-hover:translate-y-0">
-              <span>Discover home</span>
-              <ArrowRight className="h-4 w-4" />
-            </div>
-          </div>
-        </div>
-      </Link>
-    </motion.div>
-  );
-};
-
 const Index = () => {
   const navigate = useNavigate();
   const [agents, setAgents] = useState<DBAgent[]>([]);
   const [properties, setProperties] = useState<DBProperty[]>([]);
+  const [propertiesLoading, setPropertiesLoading] = useState(true);
+  const [propertiesError, setPropertiesError] = useState(false);
+  const [propertyRetry, setPropertyRetry] = useState(0);
   const [search, setSearch] = useState({ location: "", type: "any", price: "any" });
   const [stats, setStats] = useState<{ buyers: number; verified_agents: number; live_listings: number; secured_escrow: number } | null>(null);
 
@@ -131,11 +76,6 @@ const Index = () => {
   const heroScale = useTransform(scrollYProgress, [0, 1], [1, 1.15]);
 
   useEffect(() => {
-    supabase.from("properties").select("*")
-      .eq("is_verified", true)
-        .in("status", ["available", "for_sale", "for_rent"])
-      .order("created_at", { ascending: false }).limit(12)
-      .then(({ data }) => setProperties((data as DBProperty[]) || []));
     (supabase as any).from("public_profiles").select("*")
       .eq("profile_type", "agent")
       .order("trust_score", { ascending: false }).limit(3)
@@ -144,6 +84,28 @@ const Index = () => {
       if (data?.[0]) setStats(data[0]);
     });
   }, []);
+
+  useEffect(() => {
+    let active = true;
+    setPropertiesLoading(true);
+    setPropertiesError(false);
+    setProperties([]);
+    const load = async () => {
+      try {
+        const { data, error } = await supabase.from("properties").select("*")
+          .eq("is_verified", true).in("status", ["available", "for_sale", "for_rent"])
+          .order("created_at", { ascending: false }).limit(12);
+        if (error) throw error;
+        if (active) setProperties((data as DBProperty[]) || []);
+      } catch {
+        if (active) setPropertiesError(true);
+      } finally {
+        if (active) setPropertiesLoading(false);
+      }
+    };
+    void load();
+    return () => { active = false; };
+  }, [propertyRetry]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -306,7 +268,9 @@ const Index = () => {
           </Reveal>
         </div>
 
-        {properties.length > 0 ? (
+        {propertiesLoading ? <p role="status" className="py-16 text-center text-muted-foreground">Loading properties...</p> : propertiesError ? (
+          <div role="alert" className="py-16 text-center"><p>Unable to load properties.</p><Button className="mt-4" onClick={() => setPropertyRetry((n) => n + 1)}>Retry</Button></div>
+        ) : properties.length > 0 ? (
           <PropertyCarousel properties={properties} />
         ) : (
           <p className="py-16 text-center text-muted-foreground">No properties yet. Check back soon.</p>

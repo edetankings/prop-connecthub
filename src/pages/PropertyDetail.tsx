@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import Navbar from "@/components/Navbar";
 import { TrustScoreRing } from "@/components/AgentCard";
-import { properties, formatPrice, getTrustBadge } from "@/lib/mockData";
+import { formatPrice, getTrustBadge } from "@/lib/presentation";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -66,8 +66,8 @@ const PropertyDetail = () => {
   const [dealMessage, setDealMessage] = useState("");
   const [dealId, setDealId] = useState<string | null>(null);
 
-  // Try mock data as fallback
-  const mockProperty = properties.find((p) => p.id === id);
+  const [queryError, setQueryError] = useState(false);
+  const [retry, setRetry] = useState(0);
 
   useEffect(() => {
     if (profile) {
@@ -78,31 +78,43 @@ const PropertyDetail = () => {
     }
   }, [profile]);
 
-  // Fetch property from DB
+  // Discard stale responses after route changes; never replace missing rows with demo data.
   useEffect(() => {
-    if (!id) return;
+    let active = true;
+    setDbProperty(null);
+    setQueryError(false);
     setLoading(true);
-    supabase
-      .from("properties")
-      .select("*")
-      .eq("id", id)
-      .maybeSingle()
-      .then(({ data, error }) => {
-        if (!error) setDbProperty(data as DBPropertyDetail | null);
-        setLoading(false);
-      });
-  }, [id]);
+    const load = async () => {
+      try {
+        if (!id) return;
+        const { data, error } = await supabase.from("properties").select("*").eq("id", id).maybeSingle();
+        if (error) throw error;
+        if (active) setDbProperty(data as DBPropertyDetail | null);
+      } catch {
+        if (active) setQueryError(true);
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+    void load();
+    return () => { active = false; };
+  }, [id, retry]);
 
   // Fetch agent profile
-  const agentId = dbProperty?.agent_id || mockProperty?.agentId;
+  const agentId = dbProperty?.agent_id;
   useEffect(() => {
+    let active = true;
+    setAgent(null);
     if (!agentId) return;
-    supabase
-      .from("public_profiles")
-      .select("*")
-      .eq("id", agentId)
-      .maybeSingle()
-      .then(({ data }) => setAgent(data as DBAgent | null));
+    void (async () => {
+      try {
+        const { data, error } = await supabase.from("public_profiles").select("*").eq("id", agentId).maybeSingle();
+        if (active && !error) setAgent(data as DBAgent | null);
+      } catch {
+        // Keep the agent unavailable rather than showing a stale or fabricated profile.
+      }
+    })();
+    return () => { active = false; };
   }, [agentId]);
 
   const [alreadyReserved, setAlreadyReserved] = useState(false);
@@ -153,7 +165,7 @@ const PropertyDetail = () => {
 
 
   const isRental = dbProperty?.listing_type === "rental";
-  const isOwner = profile?.id === (dbProperty?.agent_id || mockProperty?.agentId);
+  const isOwner = profile?.id === (dbProperty?.agent_id);
 
   const handleReserve = async () => {
     if (!user || !profile) {
@@ -164,8 +176,8 @@ const PropertyDetail = () => {
       toast.error("You cannot reserve your own property");
       return;
     }
-    const propId = dbProperty?.id || mockProperty?.id;
-    const propAgentId = dbProperty?.agent_id || mockProperty?.agentId;
+    const propId = dbProperty?.id;
+    const propAgentId = dbProperty?.agent_id;
     if (!propId || !propAgentId) return;
 
     if (!form.buyer_name.trim()) {
@@ -233,7 +245,7 @@ const PropertyDetail = () => {
   };
 
   // Loading state
-  if (loading && !mockProperty) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
@@ -253,13 +265,14 @@ const PropertyDetail = () => {
   }
 
   // Not found
-  if (!loading && !dbProperty && !mockProperty) {
+  if (!dbProperty) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-background">
         <Navbar />
         <div className="mt-20 text-center">
-          <h1 className="font-display text-2xl font-bold text-foreground">Property not found.</h1>
-          <p className="mt-2 text-muted-foreground">This listing may have been removed or doesn't exist.</p>
+          <h1 className="font-display text-2xl font-bold text-foreground">{queryError ? "Unable to load property." : "Property not found."}</h1>
+          <p className="mt-2 text-muted-foreground">{queryError ? "Please try again." : "This listing may have been removed or does not exist."}</p>
+          {queryError && <Button className="mt-4" onClick={() => setRetry((n) => n + 1)}>Retry</Button>}
           <Link to="/properties">
             <Button className="mt-4 bg-primary text-primary-foreground hover:bg-primary/90">Browse Properties</Button>
           </Link>
@@ -268,29 +281,28 @@ const PropertyDetail = () => {
     );
   }
 
-  // Normalize data — prefer DB, fallback to mock
-  const title = dbProperty?.title || mockProperty?.title || "";
-  const price = dbProperty?.price || mockProperty?.price || 0;
+  // Only confirmed database records are rendered.
+  const title = dbProperty?.title || "";
+  const price = dbProperty?.price || 0;
   const location = dbProperty
     ? [dbProperty.address, dbProperty.city, dbProperty.state].filter(Boolean).join(", ") || "Nigeria"
-    : mockProperty?.location || "";
-  const description = dbProperty?.description || mockProperty?.description || "No description available.";
-  const bedrooms = dbProperty?.bedrooms ?? mockProperty?.bedrooms ?? 0;
-  const bathrooms = dbProperty?.bathrooms ?? mockProperty?.bathrooms ?? 0;
-  const sqft = dbProperty?.sqft ?? mockProperty?.sqft ?? 0;
+    : "";
+  const description = dbProperty?.description || "No description available.";
+  const bedrooms = dbProperty?.bedrooms ?? 0;
+  const bathrooms = dbProperty?.bathrooms ?? 0;
+  const sqft = dbProperty?.sqft ?? 0;
   const isSale = dbProperty
     ? dbProperty.listing_type === "sale"
-    : mockProperty?.type === "sale";
+    : false;
   const isVerified = dbProperty?.is_verified ?? false;
-  const features = dbProperty?.amenities ?? mockProperty?.features ?? [];
-  const propertyId = dbProperty?.id || mockProperty?.id || "";
-  const propertyAgentId = dbProperty?.agent_id || mockProperty?.agentId || "";
+  const features = dbProperty?.amenities ?? [];
+  const propertyId = dbProperty?.id || "";
+  const propertyAgentId = dbProperty?.agent_id || "";
 
   // Images
   const allImages: string[] = [];
   if (dbProperty?.image_url) allImages.push(dbProperty.image_url);
   if (dbProperty?.images?.length) allImages.push(...dbProperty.images.filter((img) => img !== dbProperty.image_url));
-  if (!allImages.length && mockProperty?.image) allImages.push(mockProperty.image);
   if (!allImages.length) allImages.push("/placeholder.svg");
 
   const badge = agent ? getTrustBadge(agent.trust_score) : null;
@@ -298,7 +310,7 @@ const PropertyDetail = () => {
   return (
     <div className="min-h-screen overflow-x-hidden bg-background">
       {(() => {
-        const p = dbProperty || (mockProperty as any);
+        const p = dbProperty;
         if (!p) return null;
         const pUrl = siteUrl(`/property/${p.id}`);
         const loc = [p?.city, p?.state].filter(Boolean).join(", ");
@@ -325,7 +337,9 @@ const PropertyDetail = () => {
                 "@type": "Offer",
                 price: p.price,
                 priceCurrency: "NGN",
-                availability: "https://schema.org/InStock",
+                availability: ["available", "for_sale", "for_rent"].includes(p.status)
+                  ? "https://schema.org/InStock"
+                  : ["sold", "rented"].includes(p.status) ? "https://schema.org/SoldOut" : undefined,
                 url: pUrl,
               },
             })}</script>

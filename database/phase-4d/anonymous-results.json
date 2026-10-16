@@ -134,6 +134,12 @@
       "status": 401,
       "code": "42501",
       "passed": true
+    },
+    {
+      "name": "Private infrastructure schema is not exposed by REST",
+      "status": 406,
+      "code": "PGRST106",
+      "passed": true
     }
   ],
   "requests": [
@@ -246,6 +252,11 @@
       "method": "GET",
       "origin": "https://prtrpywkwmnpowrthppg.supabase.co",
       "path": "/rest/v1/rpc/get_company_payment_details"
+    },
+    {
+      "method": "GET",
+      "origin": "https://prtrpywkwmnpowrthppg.supabase.co",
+      "path": "/rest/v1/installation_history"
     }
   ],
   "sourceChecks": {

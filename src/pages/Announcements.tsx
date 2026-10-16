@@ -19,25 +19,35 @@ const Announcements = () => {
   const [announcements, setAnnouncements] = useState<any[]>([]);
   const [latestProperties, setLatestProperties] = useState<PropertyWithDate[]>([]);
   const [loading, setLoading] = useState(true);
+  const [queryError, setQueryError] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
 
   const loadData = async () => {
-    const [annRes, propRes] = await Promise.all([
-      (supabase as any)
-        .from("announcements")
-        .select("*, profiles!announcements_author_id_fkey(full_name)")
-        .order("created_at", { ascending: false }),
-      supabase
-        .from("properties")
-        .select("*")
-        .eq("is_verified", true)
-        .in("status", ["available", "for_sale", "for_rent"])
-        .order("created_at", { ascending: false })
-        .limit(6),
-    ]);
-    setAnnouncements(annRes.data || []);
-    setLatestProperties((propRes.data as PropertyWithDate[]) || []);
-    setLoading(false);
+    setLoading(true);
+    setQueryError(false);
+    setLatestProperties([]);
+    try {
+      const [annRes, propRes] = await Promise.all([
+        (supabase as any)
+          .from("announcements")
+          .select("*, profiles!announcements_author_id_fkey(full_name)")
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("properties")
+          .select("*")
+          .eq("is_verified", true)
+          .in("status", ["available", "for_sale", "for_rent"])
+          .order("created_at", { ascending: false })
+          .limit(6),
+      ]);
+      if (annRes.error || propRes.error) throw annRes.error || propRes.error;
+      setAnnouncements(annRes.data || []);
+      setLatestProperties((propRes.data as PropertyWithDate[]) || []);
+    } catch {
+      setQueryError(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -76,12 +86,13 @@ const Announcements = () => {
         <h1 className="font-display text-3xl font-bold text-foreground">Announcements</h1>
         <p className="mt-1 text-muted-foreground">Latest property listings & platform updates</p>
 
-        {loading ? (
+        {queryError ? <div role="alert" className="py-16 text-center"><p>Unable to load announcements and properties.</p><Button className="mt-4" onClick={() => void loadData()}>Retry</Button></div> : loading ? (
           <div className="flex justify-center py-16">
             <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
           </div>
         ) : (
           <>
+            {latestProperties.length === 0 && <p className="mt-8 text-muted-foreground">No properties yet. Check back soon.</p>}
             {/* Newly Listed Properties - Text only */}
             {latestProperties.length > 0 && (
               <section className="mt-8">

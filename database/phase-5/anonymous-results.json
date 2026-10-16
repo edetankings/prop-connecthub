@@ -1,0 +1,272 @@
+{
+  "project": "prtrpywkwmnpowrthppg",
+  "frontendOrigin": "https://prtrpywkwmnpowrthppg.supabase.co",
+  "credentialsPrinted": false,
+  "authMode": "anonymous public publishable key; no browser sessions read",
+  "results": [
+    {
+      "name": "Public listing discovery",
+      "status": 200,
+      "passed": true,
+      "returnedRows": 0
+    },
+    {
+      "name": "Unapproved listings excluded from anonymous reads",
+      "status": 200,
+      "passed": true,
+      "returnedRows": 0
+    },
+    {
+      "name": "Draft and pending listings excluded from anonymous reads",
+      "status": 200,
+      "passed": true,
+      "returnedRows": 0
+    },
+    {
+      "name": "Public search query accepted",
+      "status": 200,
+      "passed": true,
+      "returnedRows": 0
+    },
+    {
+      "name": "Rental listing filter accepted",
+      "status": 200,
+      "passed": true,
+      "returnedRows": 0
+    },
+    {
+      "name": "Public agent directory",
+      "status": 200,
+      "passed": true,
+      "returnedRows": 0
+    },
+    {
+      "name": "Auth UUID omitted from public directory",
+      "status": 400,
+      "code": "42703",
+      "passed": true
+    },
+    {
+      "name": "Anonymous access denied: profiles",
+      "status": 401,
+      "code": "42501",
+      "passed": true
+    },
+    {
+      "name": "Anonymous access denied: user_roles",
+      "status": 401,
+      "code": "42501",
+      "passed": true
+    },
+    {
+      "name": "Anonymous access denied: kyc_verifications",
+      "status": 401,
+      "code": "42501",
+      "passed": true
+    },
+    {
+      "name": "Anonymous access denied: verification_documents",
+      "status": 401,
+      "code": "42501",
+      "passed": true
+    },
+    {
+      "name": "Anonymous access denied: messages",
+      "status": 401,
+      "code": "42501",
+      "passed": true
+    },
+    {
+      "name": "Anonymous access denied: chat_threads",
+      "status": 401,
+      "code": "42501",
+      "passed": true
+    },
+    {
+      "name": "Anonymous access denied: reservations",
+      "status": 401,
+      "code": "42501",
+      "passed": true
+    },
+    {
+      "name": "Anonymous access denied: wallets",
+      "status": 401,
+      "code": "42501",
+      "passed": true
+    },
+    {
+      "name": "Anonymous access denied: transactions",
+      "status": 401,
+      "code": "42501",
+      "passed": true
+    },
+    {
+      "name": "Anonymous access denied: earnings",
+      "status": 401,
+      "code": "42501",
+      "passed": true
+    },
+    {
+      "name": "Anonymous access denied: withdrawals",
+      "status": 401,
+      "code": "42501",
+      "passed": true
+    },
+    {
+      "name": "Anonymous access denied: phone_otp_challenges",
+      "status": 401,
+      "code": "42501",
+      "passed": true
+    },
+    {
+      "name": "Anonymous access denied: subscription_requests",
+      "status": 401,
+      "code": "42501",
+      "passed": true
+    },
+    {
+      "name": "Auth user endpoint requires a session",
+      "status": 401,
+      "passed": true
+    },
+    {
+      "name": "Gated bank-details RPC denies anonymous execution",
+      "status": 401,
+      "code": "42501",
+      "passed": true
+    },
+    {
+      "name": "Private infrastructure schema is not exposed by REST",
+      "status": 406,
+      "code": "PGRST106",
+      "passed": true
+    }
+  ],
+  "requests": [
+    {
+      "method": "GET",
+      "origin": "https://prtrpywkwmnpowrthppg.supabase.co",
+      "path": "/rest/v1/properties"
+    },
+    {
+      "method": "GET",
+      "origin": "https://prtrpywkwmnpowrthppg.supabase.co",
+      "path": "/rest/v1/properties"
+    },
+    {
+      "method": "GET",
+      "origin": "https://prtrpywkwmnpowrthppg.supabase.co",
+      "path": "/rest/v1/properties"
+    },
+    {
+      "method": "GET",
+      "origin": "https://prtrpywkwmnpowrthppg.supabase.co",
+      "path": "/rest/v1/properties"
+    },
+    {
+      "method": "GET",
+      "origin": "https://prtrpywkwmnpowrthppg.supabase.co",
+      "path": "/rest/v1/properties"
+    },
+    {
+      "method": "GET",
+      "origin": "https://prtrpywkwmnpowrthppg.supabase.co",
+      "path": "/rest/v1/public_profiles"
+    },
+    {
+      "method": "GET",
+      "origin": "https://prtrpywkwmnpowrthppg.supabase.co",
+      "path": "/rest/v1/public_profiles"
+    },
+    {
+      "method": "GET",
+      "origin": "https://prtrpywkwmnpowrthppg.supabase.co",
+      "path": "/rest/v1/profiles"
+    },
+    {
+      "method": "GET",
+      "origin": "https://prtrpywkwmnpowrthppg.supabase.co",
+      "path": "/rest/v1/user_roles"
+    },
+    {
+      "method": "GET",
+      "origin": "https://prtrpywkwmnpowrthppg.supabase.co",
+      "path": "/rest/v1/kyc_verifications"
+    },
+    {
+      "method": "GET",
+      "origin": "https://prtrpywkwmnpowrthppg.supabase.co",
+      "path": "/rest/v1/verification_documents"
+    },
+    {
+      "method": "GET",
+      "origin": "https://prtrpywkwmnpowrthppg.supabase.co",
+      "path": "/rest/v1/messages"
+    },
+    {
+      "method": "GET",
+      "origin": "https://prtrpywkwmnpowrthppg.supabase.co",
+      "path": "/rest/v1/chat_threads"
+    },
+    {
+      "method": "GET",
+      "origin": "https://prtrpywkwmnpowrthppg.supabase.co",
+      "path": "/rest/v1/reservations"
+    },
+    {
+      "method": "GET",
+      "origin": "https://prtrpywkwmnpowrthppg.supabase.co",
+      "path": "/rest/v1/wallets"
+    },
+    {
+      "method": "GET",
+      "origin": "https://prtrpywkwmnpowrthppg.supabase.co",
+      "path": "/rest/v1/transactions"
+    },
+    {
+      "method": "GET",
+      "origin": "https://prtrpywkwmnpowrthppg.supabase.co",
+      "path": "/rest/v1/earnings"
+    },
+    {
+      "method": "GET",
+      "origin": "https://prtrpywkwmnpowrthppg.supabase.co",
+      "path": "/rest/v1/withdrawals"
+    },
+    {
+      "method": "GET",
+      "origin": "https://prtrpywkwmnpowrthppg.supabase.co",
+      "path": "/rest/v1/phone_otp_challenges"
+    },
+    {
+      "method": "GET",
+      "origin": "https://prtrpywkwmnpowrthppg.supabase.co",
+      "path": "/rest/v1/subscription_requests"
+    },
+    {
+      "method": "GET",
+      "origin": "https://prtrpywkwmnpowrthppg.supabase.co",
+      "path": "/auth/v1/user"
+    },
+    {
+      "method": "GET",
+      "origin": "https://prtrpywkwmnpowrthppg.supabase.co",
+      "path": "/rest/v1/rpc/get_company_payment_details"
+    },
+    {
+      "method": "GET",
+      "origin": "https://prtrpywkwmnpowrthppg.supabase.co",
+      "path": "/rest/v1/installation_history"
+    }
+  ],
+  "sourceChecks": {
+    "oldBackendApiReferences": 0,
+    "oldPreviewBrokerReferences": 0,
+    "builtOldBackendApiReferences": 0
+  },
+  "limitations": [
+    "No connected browser or authenticated application session was available.",
+    "Empty results do not prove visibility controls against positive/negative fixtures.",
+    "No mutating RPCs, uploads, account creation, emails or operational writes were attempted."
+  ]
+}
