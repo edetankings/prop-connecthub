@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useCallback, useEffect, useState, useRef } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import AuthenticatedLayout from "@/components/AuthenticatedLayout";
@@ -13,6 +13,13 @@ import {
   CalendarCheck, Trash2, MessageSquare, Mail, MailOpen, Megaphone, Edit3, Plus, CreditCard, Network
 } from "lucide-react";
 import { MessageCircle } from "lucide-react";
+import OperationsOverview from "@/components/admin/OperationsOverview";
+import UserDirectory from "@/components/admin/UserDirectory";
+import Inspections from "@/pages/Inspections";
+import DealsList from "@/pages/DealsList";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import ReferralTree from "@/components/ReferralTree";
 import { SignedBucketAsset } from "@/components/SignedBucketAsset";
 import logo from "@/assets/logo.jpg";
@@ -24,10 +31,29 @@ type Tab = "dashboard" | "matrix" | "users" | "moderation" | "disputes" | "audit
 
 const AdminDashboard = () => {
   const finance = useFinancialAvailability();
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [adminProfileId, setAdminProfileId] = useState<string | null>(null);
   const [tab, setTab] = useState<Tab>("dashboard");
+  const [loadError, setLoadError] = useState(false);
+  const [roles, setRoles] = useState<{ user_id: string; role: string }[]>([]);
+  const [propertyFilter, setPropertyFilter] = useState("pending");
+  const [decision, setDecision] = useState<{ title: string; description: string; reasonRequired: boolean; action: (reason: string) => Promise<void> } | null>(null);
+  const [decisionReason, setDecisionReason] = useState("");
+  const [decisionError, setDecisionError] = useState("");
+  const [decisionBusy, setDecisionBusy] = useState(false);
+  const decisionLock = useRef(false);
+  const askDecision = (title: string, description: string, action: (reason: string) => Promise<void>, reasonRequired = false) => {
+    setDecisionReason(""); setDecisionError(""); setDecision({ title, description, action, reasonRequired });
+  };
+  const confirmDecision = async () => {
+    if (!decision || decisionLock.current || decision.reasonRequired && !decisionReason.trim()) return;
+    decisionLock.current = true; setDecisionBusy(true); setDecisionError("");
+    try { await decision.action(decisionReason.trim()); setDecision(null); toast.success("Review saved"); void loadData(); }
+    catch { setDecisionError("Unable to save this decision. No successful update was confirmed. Please retry."); }
+    finally { decisionLock.current = false; setDecisionBusy(false); }
+  };
   const [profiles, setProfiles] = useState<any[]>([]);
   const [properties, setProperties] = useState<any[]>([]);
   const [verifications, setVerifications] = useState<any[]>([]);
@@ -56,13 +82,18 @@ const AdminDashboard = () => {
   const [escrowHolds, setEscrowHolds] = useState<any[]>([]);
   const [propertyDocs, setPropertyDocs] = useState<any[]>([]);
 
-  useEffect(() => { loadData(); }, []);
+  useEffect(() => {
+    const view = searchParams.get("view");
+    if (["users", "verification", "moderation", "audit", "reservations", "active-deals", "support", "announcements", "matrix", "referrals"].includes(view || "")) setTab(view as Tab);
+    else setTab("dashboard");
+    setSelectedUserId(null);
+  }, [searchParams]);
 
   useEffect(() => {
-    if (!user?.id) return;
+    if (!user?.id || !isAdmin) return;
     supabase.from("profiles").select("id").eq("user_id", user.id).maybeSingle()
       .then(({ data }) => setAdminProfileId(data?.id ?? null));
-  }, [user?.id]);
+  }, [user?.id, isAdmin]);
 
   const handleAdminChat = async (targetProfileId: string) => {
     if (!adminProfileId) {
@@ -74,7 +105,7 @@ const AdminDashboard = () => {
       return;
     }
     // Try find existing thread either direction
-    const { data: existing } = await supabase
+    const { data: existing, error: existingError } = await supabase
       .from("chat_threads")
       .select("id")
       .or(
@@ -82,6 +113,8 @@ const AdminDashboard = () => {
       )
       .limit(1)
       .maybeSingle();
+
+    if (existingError) { toast.error("Unable to find your conversation. Please retry."); return; }
 
     if (existing?.id) {
       navigate(`/chat/${existing.id}`);
@@ -101,8 +134,10 @@ const AdminDashboard = () => {
     navigate(`/chat/${created.id}`);
   };
 
-  const loadData = async () => {
-    setLoading(true);
+  const loadData = useCallback(async () => {
+    if (!isAdmin) return;
+    setLoading(true); setLoadError(false);
+    try {
     const [p, pr, v, d, a, t, ks] = await Promise.all([
       supabase.from("profiles").select("*").order("created_at", { ascending: false }),
       supabase.from("properties").select("*, profiles(full_name)").order("created_at", { ascending: false }),
@@ -112,6 +147,10 @@ const AdminDashboard = () => {
       supabase.from("transactions").select("*").order("created_at", { ascending: false }),
       (supabase as any).from("verification_steps").select("*").order("created_at", { ascending: true }),
     ]);
+    if ([p, pr, v, d, a, t, ks].some(result => result.error)) throw new Error("Operations unavailable");
+    const roleResult = await supabase.from("user_roles").select("user_id, role");
+    if (roleResult.error) throw roleResult.error;
+    setRoles(roleResult.data || []);
     setProfiles(p.data || []);
     setProperties(pr.data || []);
     setVerifications(v.data || []);
@@ -121,204 +160,150 @@ const AdminDashboard = () => {
     setKycSteps(ks.data || []);
 
     // Fetch all reservations for admin
-    const { data: resData } = await (supabase as any)
+    const { data: resData, error: resDataError } = await (supabase as any)
       .from("reservations")
       .select("*, properties(title, city, state)")
       .order("created_at", { ascending: false });
+    if (resDataError) throw resDataError;
     setAllReservations(resData || []);
 
-    const { data: ticketsData } = await (supabase as any)
+    const { data: ticketsData, error: ticketsDataError } = await (supabase as any)
       .from("support_tickets")
       .select("*")
       .order("created_at", { ascending: false });
+    if (ticketsDataError) throw ticketsDataError;
     setSupportTickets(ticketsData || []);
 
-    const { data: annData } = await (supabase as any)
+    const { data: annData, error: annDataError } = await (supabase as any)
       .from("announcements")
       .select("*, profiles!announcements_author_id_fkey(full_name)")
       .order("created_at", { ascending: false });
+    if (annDataError) throw annDataError;
     setDbAnnouncements(annData || []);
 
-    const { data: earningsData } = await (supabase as any)
+    const { data: earningsData, error: earningsDataError } = await (supabase as any)
       .from("earnings")
       .select("*")
       .order("created_at", { ascending: false });
+    if (earningsDataError) throw earningsDataError;
     setAllEarnings(earningsData || []);
 
-    const { data: docsData } = await (supabase as any)
+    const { data: docsData, error: docsDataError } = await (supabase as any)
       .from("property_documents")
       .select("*")
       .order("uploaded_at", { ascending: false });
+    if (docsDataError) throw docsDataError;
     setPropertyDocs(docsData || []);
 
-    const { data: subReqData } = await (supabase as any)
+    const { data: subReqData, error: subReqDataError } = await (supabase as any)
       .from("subscription_requests")
       .select("*")
       .order("created_at", { ascending: false });
+    if (subReqDataError) throw subReqDataError;
     setSubRequests(subReqData || []);
 
-    const { data: subsData } = await (supabase as any)
+    const { data: subsData, error: subsDataError } = await (supabase as any)
       .from("subscriptions")
       .select("*")
       .order("updated_at", { ascending: false });
+    if (subsDataError) throw subsDataError;
     setAllSubscriptions(subsData || []);
 
-    // Active deal threads
-    const { data: dealThreads } = await (supabase as any)
-      .from("chat_threads")
-      .select("*")
-      .eq("status", "active")
-      .order("last_message_at", { ascending: false });
-    if (dealThreads) {
-      const enriched = await Promise.all(
-        dealThreads.map(async (t: any) => {
-          const [buyerRes, agentRes, propRes, msgRes] = await Promise.all([
-            supabase.from("profiles").select("full_name").eq("id", t.buyer_id).maybeSingle(),
-            supabase.from("profiles").select("full_name").eq("id", t.agent_id).maybeSingle(),
-            t.property_id ? supabase.from("properties").select("title").eq("id", t.property_id).maybeSingle() : { data: null },
-            supabase.from("messages").select("*", { count: "exact", head: true }).eq("thread_id", t.id),
-          ]);
-          return { ...t, buyer_name: buyerRes.data?.full_name || "Unknown", agent_name: agentRes.data?.full_name || "Unknown", property_title: propRes.data?.title || "N/A", message_count: msgRes.count || 0 };
-        })
-      );
-      setActiveDealThreads(enriched);
-    }
-
-    // Withdrawals
-    const { data: wdData } = await (supabase as any)
+    const { data: wdData, error: wdDataError } = await (supabase as any)
       .from("withdrawals")
       .select("*")
       .order("created_at", { ascending: false });
+    if (wdDataError) throw wdDataError;
     setWithdrawals(wdData || []);
 
     // KYC submissions (full documents)
-    const { data: kycData } = await (supabase as any)
+    const { data: kycData, error: kycDataError } = await (supabase as any)
       .from("kyc_verifications")
       .select("*")
       .order("submitted_at", { ascending: false });
+    if (kycDataError) throw kycDataError;
     setKycSubmissions(kycData || []);
 
     // Company wallet
-    const { data: cwData } = await (supabase as any)
+    const { data: cwData, error: cwDataError } = await (supabase as any)
       .from("company_wallet")
       .select("balance, total_earned")
       .maybeSingle();
+    if (cwDataError) throw cwDataError;
     setCompanyWallet(cwData || null);
 
     // Escrow holds
-    const { data: escData } = await (supabase as any)
+    const { data: escData, error: escDataError } = await (supabase as any)
       .from("escrow_holds")
       .select("*")
       .order("created_at", { ascending: false });
+    if (escDataError) throw escDataError;
     setEscrowHolds(escData || []);
 
-    setLoading(false);
-  };
+    } catch { setLoadError(true); }
+    finally { setLoading(false); }
+  }, [isAdmin]);
 
-  const handleVerifyKyc = async (profileId: string) => {
-    const targetProfile = profiles.find((p: any) => p.id === profileId);
-    if (!targetProfile) return;
-    const { data, error } = await (supabase as any).from("kyc_verifications")
-      .update({ kyc_status: "verified", rejection_reason: null }).eq("user_id", targetProfile.user_id).select("id");
-    if (error || !data?.length) { toast.error(error?.message || "No KYC submission exists to review"); return; }
-    // Canonical database triggers synchronize profile, trust and notifications.
-    toast.success("Agent verified successfully!");
-    loadData();
-  };
+  useEffect(() => { void loadData(); }, [loadData]);
 
-  const handleRejectKyc = async (profileId: string) => {
-    const reason = prompt("Enter reason for rejecting this KYC submission (will be sent to the user):");
-    if (!reason || !reason.trim()) { toast.error("Rejection reason is required"); return; }
-    const targetProfile = profiles.find((p: any) => p.id === profileId);
-    if (!targetProfile) { toast.error("Profile not found"); return; }
-
-    // Mark kyc_verifications row as rejected with reason (trigger sends notification)
-    const { error: kycErr } = await (supabase as any).from("kyc_verifications").update({
-      kyc_status: "rejected",
-      rejection_reason: reason.trim(),
-      reviewed_by: user?.id,
-      reviewed_at: new Date().toISOString(),
-    }).eq("user_id", targetProfile.user_id);
-    if (kycErr) { toast.error(kycErr.message); return; }
-
-    toast.success("KYC rejected and user notified");
-    loadData();
-  };
-
-  const handleDocumentReview = async (docId: string, status: "approved" | "rejected") => {
-    const { data: doc, error } = await supabase
-      .from("verification_documents")
-      .update({ status })
-      .eq("id", docId)
-      .select("*")
-      .maybeSingle();
-
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-
-    toast.success(`Document ${status}`);
-    loadData();
-  };
-
-  const handleApproveProperty = async (propertyId: string) => {
-    const prop = properties.find((p) => p.id === propertyId);
-    const { error } = await supabase.from("properties").update({ status: "available", is_verified: true } as any).eq("id", propertyId);
-    if (error) { toast.error(error.message); return; }
-    toast.success("Property approved!");
-    loadData();
-  };
-
-  const handleRejectProperty = async (propertyId: string) => {
-    const prop = properties.find((p) => p.id === propertyId);
-    const reason = prompt("Enter decline reason (optional):");
-    const { error } = await supabase.from("properties").update({ status: "draft" } as any).eq("id", propertyId);
-    if (error) { toast.error(error.message); return; }
-    toast.success("Property rejected");
-    loadData();
-  };
-
-  const handleDisputeStatus = async (disputeId: string, status: string) => {
-    const resolution = prompt("Resolution or review note:");
-    if (!resolution?.trim()) return;
-    const { error } = await supabase.rpc("resolve_dispute", { _dispute_id: disputeId, _status: status, _resolution: resolution.trim() });
-    if (error) { toast.error(error.message); return; }
-    toast.success("Dispute updated");
-    loadData();
-  };
-
-  const handleKycStepReview = async (stepId: string, stepUserId: string, stepName: string, status: "approved" | "rejected", reason?: string) => {
-    const updateData: any = { status };
-    if (reason) updateData.rejection_reason = reason;
-    const { error } = await (supabase as any).from("verification_steps").update(updateData).eq("id", stepId);
-    if (error) { toast.error(error.message); return; }
-
-    // Send notification to user
-    const notifTitle = status === "approved" ? "Verification Step Approved" : "Verification Step Declined";
-    const notifMessage = status === "approved"
-      ? `Your ${stepName.replace(/_/g, " ")} verification has been approved.`
-      : `Your ${stepName.replace(/_/g, " ")} verification was declined. ${reason ? `Reason: ${reason}. ` : ""}Please submit correct documents and try again.`;
-    const notifType = status === "approved" ? "success" : "error";
-
-    await (supabase as any).from("notifications").insert({
-      user_id: stepUserId,
-      title: notifTitle,
-      message: notifMessage,
-      type: notifType,
-      link: "/verification",
+  const handleVerifyKyc = (profileId: string) => {
+    const target = profiles.find(profile => profile.id === profileId);
+    if (!target) return;
+    askDecision("Approve KYC submission", "Review the applicant's private documents before confirming. Existing database triggers and authorization remain authoritative.", async () => {
+      const { data, error } = await supabase.from("kyc_verifications").update({ kyc_status: "verified", rejection_reason: null }).eq("user_id", target.user_id).select("id");
+      if (error || !data?.length) throw new Error("Review not saved");
     });
-
-    // Individual step review does not replace a KYC submission decision.
-    toast.success(`Step ${status}`);
-    loadData();
+  };
+  const handleRejectKyc = (profileId: string) => {
+    const target = profiles.find(profile => profile.id === profileId);
+    if (!target) return;
+    askDecision("Reject KYC submission", "The recorded reason will be available to the applicant through the existing review workflow.", async reason => {
+      const { data, error } = await supabase.from("kyc_verifications").update({ kyc_status: "rejected", rejection_reason: reason, reviewed_by: user?.id, reviewed_at: new Date().toISOString() }).eq("user_id", target.user_id).select("id");
+      if (error || !data?.length) throw new Error("Review not saved");
+    }, true);
+  };
+  const handleDocumentReview = (docId: string, status: "approved" | "rejected") => {
+    askDecision(`${status === "approved" ? "Approve" : "Reject"} verification document`, "This updates only the existing document review status.", async () => {
+      const { data, error } = await supabase.from("verification_documents").update({ status }).eq("id", docId).select("id");
+      if (error || !data?.length) throw new Error("Review not saved");
+    });
+  };
+  const handleApproveProperty = (propertyId: string) => {
+    askDecision("Approve property listing", "Confirm the listing meets the existing moderation requirements. Database eligibility checks still apply; approval does not enable payments.", async () => {
+      const { data, error } = await supabase.from("properties").update({ status: "available", is_verified: true }).eq("id", propertyId).select("id");
+      if (error || !data?.length) throw new Error("Review not saved");
+    });
+  };
+  const handleRejectProperty = (propertyId: string) => {
+    askDecision("Return listing to draft", "The existing workflow returns the listing to draft. A persisted property rejection-reason field is not supported, so no reason is requested or promised.", async () => {
+      const { data, error } = await supabase.from("properties").update({ status: "draft" }).eq("id", propertyId).select("id");
+      if (error || !data?.length) throw new Error("Review not saved");
+    });
   };
 
-  const handleToggleVisibility = async (profileId: string, currentlyVisible: boolean) => {
-    const { error } = await supabase.from("profiles").update({ is_visible: !currentlyVisible }).eq("id", profileId);
-    if (error) { toast.error(error.message); return; }
-    toast.success(currentlyVisible ? "Agent hidden" : "Agent visible");
-    loadData();
+  const handleDisputeStatus = (disputeId: string, status: "resolved" | "rejected") => {
+    askDecision("Record dispute review", "This records a non-financial resolution only. It does not refund, release or transfer funds.", async reason => {
+      const { error } = await supabase.rpc("resolve_dispute", { _dispute_id: disputeId, _status: status, _resolution: reason });
+      if (error) throw error;
+    }, true);
+  };
+
+  const handleKycStepReview = (stepId: string, stepUserId: string, stepName: string, status: "approved" | "rejected") => {
+    askDecision(`${status === "approved" ? "Approve" : "Reject"} verification step`, "This reviews the submitted step only. It does not replace an overall KYC decision.", async reason => {
+      const { data, error } = await supabase.from("verification_steps").update({ status, ...(reason ? { rejection_reason: reason } : {}) }).eq("id", stepId).select("id");
+      if (error || !data?.length) throw new Error("Review not saved");
+      try {
+        const notification = await supabase.from("notifications").insert({ user_id: stepUserId, title: status === "approved" ? "Verification Step Approved" : "Verification Step Declined", message: `Your ${stepName.replace(/_/g, " ")} verification was ${status}.${reason ? ` Reason: ${reason}` : ""}`, type: status === "approved" ? "success" : "error", link: "/verification" });
+        if (notification.error) toast.warning("The review was saved, but its notification could not be confirmed.");
+      } catch { toast.warning("The review was saved, but its notification could not be confirmed."); }
+    }, status === "rejected");
+  };
+
+  const handleToggleVisibility = (profileId: string, currentlyVisible: boolean) => {
+    askDecision(currentlyVisible ? "Hide directory entry" : "Show directory entry", "This changes the existing public agent-directory visibility preference only, not account access or roles.", async () => {
+      const { data, error } = await supabase.from("profiles").update({ is_visible: !currentlyVisible }).eq("id", profileId).select("id");
+      if (error || !data?.length) throw new Error("Visibility not saved");
+    });
   };
 
   const handleDeleteUser = async (profileUserId: string, profileName: string) => {
@@ -389,12 +374,12 @@ const AdminDashboard = () => {
   const tabs = [
     { id: "dashboard" as Tab, label: "Dashboard", icon: LayoutDashboard },
     { id: "matrix" as Tab, label: "Matrix Overview", icon: Network },
-    { id: "verification" as Tab, label: "Verification Requests", icon: ShieldCheck, count: pendingKycSteps.length },
+    { id: "verification" as Tab, label: "Verification Requests", icon: ShieldCheck, count: pendingVerificationUsers.length },
     { id: "users" as Tab, label: "Users", icon: Users },
     { id: "moderation" as Tab, label: "Properties", icon: FileText, count: pendingProperties },
     { id: "disputes" as Tab, label: "Disputes", icon: Gavel, count: openDisputes },
     { id: "audit" as Tab, label: "Audit Logs", icon: ScrollText },
-    { id: "reservations" as Tab, label: "Reservations", icon: CalendarCheck, count: allReservations.filter((r: any) => r.status === "pending").length },
+    { id: "reservations" as Tab, label: "Reservations", icon: CalendarCheck, count: allReservations.filter((r: any) => r.inspection_status === "requested").length },
     { id: "support" as Tab, label: "Support Messages", icon: MessageSquare, count: supportTickets.filter((t: any) => t.status === "open").length },
     { id: "announcements" as Tab, label: "Announcements", icon: Megaphone, count: dbAnnouncements.length },
     { id: "earnings" as Tab, label: "Earnings", icon: DollarSign },
@@ -408,23 +393,26 @@ const AdminDashboard = () => {
   const selectedUserProfile = selectedUserId ? profiles.find((p: any) => p.user_id === selectedUserId) : null;
   const selectedUserSteps = selectedUserId ? kycSteps.filter((s: any) => s.user_id === selectedUserId) : [];
 
+  if (!isAdmin) return null;
+
   return (
     <AuthenticatedLayout>
-      <div className="container mx-auto px-4 py-8">
+      <div className="operations-page">
         <div className="flex items-center gap-3 mb-6">
           <img src={logo} alt="PROP-connect" className="h-12 w-12 rounded-xl object-contain" />
           <div>
-            <h1 className="font-display text-2xl font-bold text-foreground">Admin Command Center</h1>
-            <p className="text-sm text-muted-foreground">Platform overview & management</p>
+            <h1 className="font-display text-2xl font-bold text-foreground">Operations console</h1>
+            <p className="text-sm text-muted-foreground">Review people, properties and platform activity.</p>
             {!finance.enabled && <p role="status" className="text-sm text-muted-foreground">{finance.unavailableMessage}</p>}
           </div>
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-1.5 mb-6 overflow-x-auto pb-1">
-          {tabs.map((t) => (
+        <nav aria-label="Operation sections" className="operations-tabs">
+          {tabs.filter(t => !["earnings", "subscriptions", "withdrawals"].includes(t.id)).map((t) => (
             <Button
               key={t.id}
+              aria-current={tab === t.id ? "page" : undefined}
               variant={tab === t.id ? "default" : "ghost"}
               size="sm"
               onClick={() => { setTab(t.id); setSelectedUserId(null); }}
@@ -439,114 +427,15 @@ const AdminDashboard = () => {
               ) : null}
             </Button>
           ))}
-        </div>
+        </nav>
 
-        {loading ? (
+        {loadError ? <div role="alert" className="buyer-empty"><h2>Operations unavailable</h2><p>Some authorized records could not be retrieved. Incomplete results are not shown.</p><Button variant="outline" onClick={() => void loadData()}>Retry operations</Button></div> : loading ? (
           <div className="flex justify-center py-16">
             <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
           </div>
         ) : (
           <>
-            {/* DASHBOARD TAB */}
-            {tab === "dashboard" && (
-              <div className="space-y-6">
-                <div className="grid gap-4 md:grid-cols-4">
-                  <GlassCard icon={Users} label="Total Users" value={profiles.length} />
-                  <GlassCard icon={ShieldCheck} label="Verified Agents" value={verifiedAgents} />
-                  <GlassCard icon={CheckCircle} label="Completed Transactions" value={completedTx} />
-                  <GlassCard icon={TrendingUp} label="Escrow Success Rate" value={completedTx > 0 ? `${Math.round((completedTx / Math.max(transactions.length, 1)) * 100)}%` : "—"} />
-                </div>
-
-                <div className="grid gap-4 md:grid-cols-2">
-                  <Card className="border-border/50 shadow-card bg-card/80 backdrop-blur-sm">
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-base font-semibold flex items-center gap-2">
-                        <DollarSign className="h-4 w-4 text-secondary" /> Revenue Overview
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      <div className="flex justify-between items-center p-3 rounded-lg bg-muted/50">
-                        <span className="text-sm text-muted-foreground">Total Revenue</span>
-                        <span className="font-display font-bold text-foreground">₦{totalRevenue.toLocaleString()}</span>
-                      </div>
-                      <div className="flex justify-between items-center p-3 rounded-lg bg-muted/50">
-                        <span className="text-sm text-muted-foreground">Commission Earned</span>
-                        <span className="font-display font-bold text-secondary">₦{totalCommission.toLocaleString()}</span>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="border-border/50 shadow-card bg-card/80 backdrop-blur-sm">
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-base font-semibold flex items-center gap-2">
-                        <PieChart className="h-4 w-4 text-secondary" /> Trust Score Distribution
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="flex items-center gap-4">
-                        <div className="w-32 h-32">
-                          <ResponsiveContainer width="100%" height="100%">
-                            <RechartsPie>
-                              <Pie data={trustData} cx="50%" cy="50%" innerRadius={30} outerRadius={55} dataKey="value" strokeWidth={0}>
-                                {trustData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
-                              </Pie>
-                              <Tooltip />
-                            </RechartsPie>
-                          </ResponsiveContainer>
-                        </div>
-                        <div className="space-y-2 flex-1">
-                          {trustData.map((d) => (
-                            <div key={d.name} className="flex items-center justify-between text-sm">
-                              <span className="flex items-center gap-2">
-                                <span className="h-2 w-2 rounded-full" style={{ background: d.color }} />
-                                {d.name}
-                              </span>
-                              <span className="font-medium text-foreground">{d.value}</span>
-                            </div>
-                          ))}
-                          <div className="pt-1 border-t border-border text-sm flex justify-between">
-                            <span className="text-muted-foreground">Avg Score</span>
-                            <span className="font-bold text-foreground">{avgTrust}/100</span>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-
-                {/* Priority Activity */}
-                <Card className="border-border/50 shadow-card bg-card/80 backdrop-blur-sm">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-base font-semibold flex items-center gap-2">
-                      <Activity className="h-4 w-4 text-secondary" /> Priority Activity
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-2">
-                    {pendingKycSteps.length > 0 && (
-                      <button onClick={() => setTab("verification")} className="w-full flex items-center justify-between p-3 rounded-lg bg-[hsl(var(--warning))]/5 hover:bg-[hsl(var(--warning))]/10 transition-colors text-left">
-                        <span className="flex items-center gap-2 text-sm">
-                          <ShieldCheck className="h-4 w-4 text-[hsl(var(--warning))]" />
-                          <span className="text-foreground">{pendingKycSteps.length} Pending Verification Step{pendingKycSteps.length > 1 ? "s" : ""}</span>
-                        </span>
-                        <Badge className="bg-[hsl(var(--warning))]/10 text-[hsl(var(--warning))] border-0 text-xs">Review</Badge>
-                      </button>
-                    )}
-                    {openDisputes > 0 && (
-                      <button onClick={() => setTab("disputes")} className="w-full flex items-center justify-between p-3 rounded-lg bg-destructive/5 hover:bg-destructive/10 transition-colors text-left">
-                        <span className="flex items-center gap-2 text-sm">
-                          <AlertTriangle className="h-4 w-4 text-destructive" />
-                          <span className="text-foreground">{openDisputes} Open Dispute{openDisputes > 1 ? "s" : ""}</span>
-                        </span>
-                        <Badge variant="destructive" className="text-xs">Urgent</Badge>
-                      </button>
-                    )}
-                    {pendingKycSteps.length === 0 && openDisputes === 0 && (
-                      <p className="text-center text-muted-foreground text-sm py-4">No priority items</p>
-                    )}
-                  </CardContent>
-                </Card>
-              </div>
-            )}
+            {tab === "dashboard" && <OperationsOverview />}
 
             {/* MATRIX OVERVIEW TAB */}
             {tab === "matrix" && (() => {
@@ -735,23 +624,23 @@ const AdminDashboard = () => {
 
                           return (
                             <tr key={userId} className="border-t border-border hover:bg-muted/20 transition-colors">
-                              <td className="px-4 py-3 font-medium text-foreground">{userProfile?.full_name || "Unknown"}</td>
-                              <td className="px-4 py-3">
+                              <td data-label="User Name" className="px-4 py-3 font-medium text-foreground">{userProfile?.full_name || "Unknown"}</td>
+                              <td data-label="Role" className="px-4 py-3">
                                 <Badge variant="outline" className="capitalize">{userProfile?.profile_type || "—"}</Badge>
                               </td>
-                              <td className="px-4 py-3">
+                              <td data-label="Progress" className="px-4 py-3">
                                 <span className="text-foreground font-medium">{approved}/{userSteps.length}</span>
                                 <span className="text-muted-foreground ml-1">steps</span>
                               </td>
-                              <td className="px-4 py-3">
+                              <td data-label="Pending" className="px-4 py-3">
                                 {pending > 0 ? (
                                   <Badge className="bg-[hsl(var(--warning))]/10 text-[hsl(var(--warning))] border-0">{pending} pending</Badge>
                                 ) : (
                                   <span className="text-muted-foreground">0</span>
                                 )}
                               </td>
-                              <td className="px-4 py-3">
-                                {approved === userSteps.length ? (
+                              <td data-label="Status" className="px-4 py-3">
+                                {userProfile?.kyc_verified ? (
                                   <Badge className="bg-[hsl(var(--success))]/10 text-[hsl(var(--success))] border-0">Verified</Badge>
                                 ) : pending > 0 ? (
                                   <Badge className="bg-[hsl(var(--info))]/10 text-[hsl(var(--info))] border-0">Pending Review</Badge>
@@ -759,10 +648,10 @@ const AdminDashboard = () => {
                                   <Badge variant="outline">In Progress</Badge>
                                 )}
                               </td>
-                              <td className="px-4 py-3 text-xs text-muted-foreground">
+                              <td data-label="Date" className="px-4 py-3 text-xs text-muted-foreground">
                                 {latestStep ? new Date(latestStep.updated_at).toLocaleDateString() : "—"}
                               </td>
-                              <td className="px-4 py-3">
+                              <td data-label="Actions" className="px-4 py-3">
                                 <Button size="sm" variant="outline" className="gap-1" onClick={() => setSelectedUserId(userId)}>
                                   <Eye className="h-3.5 w-3.5" /> Review
                                 </Button>
@@ -773,7 +662,7 @@ const AdminDashboard = () => {
                       </tbody>
                     </table>
                   </div>
-                  {kycSteps.length === 0 && <p className="p-8 text-center text-muted-foreground">No verification data</p>}
+                  {kycSteps.length === 0 && kycSubmissions.length === 0 && <p className="p-8 text-center text-muted-foreground">No verification data</p>}
                 </div>
               </div>
             )}
@@ -939,10 +828,7 @@ const AdminDashboard = () => {
                                 size="sm"
                                 variant="destructive"
                                 className="gap-1"
-                                onClick={() => {
-                                  const reason = prompt("Enter decline reason:");
-                                  if (reason) handleKycStepReview(step.id, step.user_id, step.step_name, "rejected", reason);
-                                }}
+                                onClick={() => handleKycStepReview(step.id, step.user_id, step.step_name, "rejected")}
                               >
                                 <XCircle className="h-4 w-4" /> Decline
                               </Button>
@@ -960,79 +846,7 @@ const AdminDashboard = () => {
               </div>
             )}
 
-            {/* USERS TAB */}
-            {tab === "users" && (
-              <div className="rounded-xl border border-border bg-card overflow-hidden shadow-card">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead className="bg-muted/60">
-                      <tr>
-                        <th className="px-4 py-3 text-left font-medium text-muted-foreground">Name</th>
-                        <th className="px-4 py-3 text-left font-medium text-muted-foreground">Type</th>
-                        <th className="px-4 py-3 text-left font-medium text-muted-foreground">Trust</th>
-                        <th className="px-4 py-3 text-left font-medium text-muted-foreground">KYC</th>
-                        <th className="px-4 py-3 text-left font-medium text-muted-foreground">Visible</th>
-                        <th className="px-4 py-3 text-left font-medium text-muted-foreground">Last Login</th>
-                        <th className="px-4 py-3 text-left font-medium text-muted-foreground">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {profiles.map((p) => (
-                        <tr key={p.id} className="border-t border-border hover:bg-muted/20 transition-colors">
-                          <td className="px-4 py-3 font-medium text-foreground">{p.full_name || "—"}</td>
-                          <td className="px-4 py-3"><Badge variant="outline">{p.profile_type}</Badge></td>
-                          <td className="px-4 py-3 text-foreground">{p.trust_score}/100</td>
-                          <td className="px-4 py-3">
-                            {p.kyc_verified ? (
-                              <Badge className="bg-[hsl(var(--success))]/10 text-[hsl(var(--success))] border-0">Verified</Badge>
-                            ) : (
-                              <Badge variant="outline" className="text-[hsl(var(--warning))]">Pending</Badge>
-                            )}
-                          </td>
-                          <td className="px-4 py-3">
-                            {p.profile_type === "agent" ? (
-                              <Badge className={p.is_visible ? "bg-[hsl(var(--success))]/10 text-[hsl(var(--success))] border-0" : "bg-muted text-muted-foreground"}>
-                                {p.is_visible ? "Yes" : "No"}
-                              </Badge>
-                            ) : "—"}
-                          </td>
-                          <td className="px-4 py-3 text-xs text-muted-foreground whitespace-nowrap">
-                            {p.last_login_at ? new Date(p.last_login_at).toLocaleString() : "Never"}
-                          </td>
-                          <td className="px-4 py-3">
-                            <div className="flex gap-2 flex-wrap">
-                              <Button size="sm" variant="outline" className="gap-1" onClick={() => { setTab("verification"); setSelectedUserId(p.user_id); }}>
-                                <Eye className="h-3.5 w-3.5" /> View
-                              </Button>
-                              <Button size="sm" variant="outline" className="gap-1" onClick={() => handleAdminChat(p.id)}>
-                                <MessageCircle className="h-3.5 w-3.5" /> Chat
-                              </Button>
-                              {!p.kyc_verified && p.profile_type === "agent" && (
-                                <Button size="sm" variant="outline" onClick={() => handleVerifyKyc(p.id)}>Verify</Button>
-                              )}
-                              {p.profile_type === "agent" && (
-                                <Button size="sm" variant="outline" onClick={() => handleToggleVisibility(p.id, p.is_visible)}>
-                                  {p.is_visible ? "Hide" : "Show"}
-                                </Button>
-                              )}
-                              <Button
-                                size="sm"
-                                variant="destructive"
-                                className="gap-1"
-                                onClick={() => handleDeleteUser(p.user_id, p.full_name || "Unknown")}
-                              >
-                                <Trash2 className="h-3.5 w-3.5" /> Delete
-                              </Button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-                {profiles.length === 0 && <p className="p-8 text-center text-muted-foreground">No users yet</p>}
-              </div>
-            )}
+            {tab === "users" && <UserDirectory profiles={profiles} roles={roles} onReview={userId => { setTab("verification"); setSelectedUserId(userId); }} onVisibility={handleToggleVisibility} onChat={profileId => void handleAdminChat(profileId)} />}
 
             {/* MODERATION / PROPERTY MONITORING TAB */}
             {tab === "moderation" && (() => {
@@ -1042,11 +856,8 @@ const AdminDashboard = () => {
               const rejected = properties.filter((p) => p.status === "draft").length;
               const sold = properties.filter((p) => ["sold", "rented"].includes(p.status)).length;
 
-              const statusFilter = (window as any).__adminPropFilter || "pending";
-              const setStatusFilter = (v: string) => {
-                (window as any).__adminPropFilter = v;
-                setTab("moderation"); // force re-render
-              };
+              const statusFilter = propertyFilter;
+              const setStatusFilter = setPropertyFilter;
 
               const filtered = properties.filter((p) => {
                 if (statusFilter === "all") return true;
@@ -1073,7 +884,7 @@ const AdminDashboard = () => {
                       { label: "Total", value: total, key: "all", icon: Building, color: "text-foreground" },
                       { label: "Pending", value: pending, key: "pending", icon: AlertTriangle, color: "text-[hsl(var(--warning))]" },
                       { label: "Approved", value: approved, key: "approved", icon: CheckCircle, color: "text-[hsl(var(--success))]" },
-                      { label: "Rejected", value: rejected, key: "rejected", icon: XCircle, color: "text-destructive" },
+                      { label: "Draft", value: rejected, key: "rejected", icon: XCircle, color: "text-destructive" },
                       { label: "Sold/Rented", value: sold, key: "sold", icon: TrendingUp, color: "text-primary" },
                     ].map((s) => (
                       <button
@@ -1110,7 +921,7 @@ const AdminDashboard = () => {
                     const statusBadge = isPending
                       ? { label: "Pending Approval", cls: "text-[hsl(var(--warning))] border-[hsl(var(--warning))]/40" }
                       : p.status === "draft"
-                      ? { label: "Rejected", cls: "text-destructive border-destructive/40" }
+                      ? { label: "Draft", cls: "text-destructive border-destructive/40" }
                       : ["sold", "rented"].includes(p.status)
                       ? { label: p.status === "sold" ? "Sold" : "Rented", cls: "text-primary border-primary/40" }
                       : { label: "Approved · Live", cls: "text-[hsl(var(--success))] border-[hsl(var(--success))]/40" };
@@ -1284,7 +1095,7 @@ const AdminDashboard = () => {
                       {d.status === "open" && (
                         <div className="flex gap-2">
                           <Button size="sm" variant="outline" onClick={() => handleDisputeStatus(d.id, "resolved")}>Resolve</Button>
-                          <Button size="sm" variant="destructive" onClick={() => handleDisputeStatus(d.id, "dismissed")}>Dismiss</Button>
+                          <Button size="sm" variant="destructive" onClick={() => handleDisputeStatus(d.id, "rejected")}>Reject</Button>
                         </div>
                       )}
                     </div>
@@ -1309,10 +1120,10 @@ const AdminDashboard = () => {
                     <tbody>
                       {auditLogs.map((log) => (
                         <tr key={log.id} className="border-t border-border hover:bg-muted/20">
-                          <td className="px-4 py-3 font-medium text-foreground">{log.action}</td>
-                          <td className="px-4 py-3 text-muted-foreground text-xs">{log.user_id?.slice(0, 8) || "—"}</td>
-                          <td className="px-4 py-3 text-muted-foreground text-xs">{new Date(log.created_at).toLocaleString()}</td>
-                          <td className="px-4 py-3 text-xs text-muted-foreground max-w-[200px] truncate">{JSON.stringify(log.details)}</td>
+                          <td data-label="Action" className="px-4 py-3 font-medium text-foreground">{log.action}</td>
+                          <td data-label="User" className="px-4 py-3 text-muted-foreground text-xs">{log.user_id?.slice(0, 8) || "—"}</td>
+                          <td data-label="Date" className="px-4 py-3 text-muted-foreground text-xs">{new Date(log.created_at).toLocaleString()}</td>
+                          <td data-label="Details" className="px-4 py-3 text-xs text-muted-foreground max-w-[200px] truncate">{JSON.stringify(log.details)}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -1322,107 +1133,8 @@ const AdminDashboard = () => {
               </div>
             )}
 
-            {/* RESERVATIONS TAB */}
-            {tab === "reservations" && (
-              <div className="space-y-4">
-                <h2 className="font-display text-lg font-semibold text-foreground">Reservation Management</h2>
-                {allReservations.length === 0 ? (
-                  <p className="p-8 text-center text-muted-foreground">No reservations</p>
-                ) : (
-                  <div className="rounded-xl border border-border bg-card overflow-hidden shadow-card">
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-sm">
-                        <thead className="bg-muted/60">
-                          <tr>
-                            <th className="px-4 py-3 text-left font-medium text-muted-foreground">Property</th>
-                            <th className="px-4 py-3 text-left font-medium text-muted-foreground">Buyer</th>
-                            <th className="px-4 py-3 text-left font-medium text-muted-foreground">Agent</th>
-                            <th className="px-4 py-3 text-left font-medium text-muted-foreground">Viewing Date</th>
-                            <th className="px-4 py-3 text-left font-medium text-muted-foreground">Status</th>
-                            <th className="px-4 py-3 text-left font-medium text-muted-foreground">Created</th>
-                            <th className="px-4 py-3 text-left font-medium text-muted-foreground">Actions</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {allReservations.map((r: any) => {
-                            const buyerProfile = profiles.find((p: any) => p.id === r.buyer_id);
-                            const agentProfile = profiles.find((p: any) => p.id === r.agent_id);
-                            const resColors: Record<string, string> = {
-                              pending: "bg-[hsl(var(--warning)/0.15)] text-[hsl(var(--warning))]",
-                              confirmed: "bg-[hsl(var(--success)/0.15)] text-[hsl(var(--success))]",
-                              rejected: "bg-destructive/10 text-destructive",
-                              cancelled: "bg-muted text-muted-foreground",
-                            };
-                            return (
-                              <tr key={r.id} className="border-t border-border hover:bg-muted/20 transition-colors">
-                                <td className="px-4 py-3 font-medium text-foreground">{r.properties?.title || "—"}</td>
-                                <td className="px-4 py-3 text-foreground">{r.buyer_name || buyerProfile?.full_name || "—"}</td>
-                                <td className="px-4 py-3 text-foreground">{agentProfile?.full_name || "—"}</td>
-                                <td className="px-4 py-3 text-muted-foreground">{r.viewing_date ? new Date(r.viewing_date).toLocaleDateString() : "—"}</td>
-                                <td className="px-4 py-3">
-                                  <Badge className={`text-xs ${resColors[r.status] || "bg-muted text-muted-foreground"}`}>
-                                    {r.status?.toUpperCase()}
-                                  </Badge>
-                                </td>
-                                <td className="px-4 py-3 text-xs text-muted-foreground">{new Date(r.created_at).toLocaleDateString()}</td>
-                                <td className="px-4 py-3">
-                                  <div className="flex gap-1">
-                                    {r.status === "pending" && (
-                                      <>
-                                        <Button
-                                          size="sm"
-                                          className="bg-[hsl(var(--success))] text-[hsl(var(--success-foreground))] hover:bg-[hsl(var(--success))]/90 gap-1 text-xs"
-                                          onClick={async () => {
-                                            const { error } = await (supabase as any).rpc("agent_respond_inspection", { _id: r.id, _action: "confirm", _note: null, _date: null, _time: null });
-                                            if (error) { toast.error(error.message); return; }
-                                            toast.success("Reservation approved");
-                                            loadData();
-                                          }}
-                                        >
-                                          <CheckCircle className="h-3.5 w-3.5" /> Approve
-                                        </Button>
-                                        <Button
-                                          size="sm"
-                                          variant="destructive"
-                                          className="gap-1 text-xs"
-                                          onClick={async () => {
-                                            const { error } = await (supabase as any).rpc("agent_respond_inspection", { _id: r.id, _action: "decline", _note: null, _date: null, _time: null });
-                                            if (error) { toast.error(error.message); return; }
-                                            toast.success("Reservation rejected");
-                                            loadData();
-                                          }}
-                                        >
-                                          <XCircle className="h-3.5 w-3.5" /> Reject
-                                        </Button>
-                                      </>
-                                    )}
-                                    <Button
-                                      size="sm"
-                                      variant="ghost"
-                                      className="text-destructive hover:bg-destructive/10 text-xs gap-1"
-                                      onClick={async () => {
-                                        if (!confirm("Delete this reservation?")) return;
-                                        await (supabase as any).from("reservations").delete().eq("id", r.id);
-                                        toast.success("Reservation deleted");
-                                        loadData();
-                                      }}
-                                    >
-                                      <Trash2 className="h-3.5 w-3.5" /> Delete
-                                    </Button>
-                                  </div>
-                                </td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
+            {tab === "reservations" && <Inspections mode="admin" embedded />}
 
-            {/* SUPPORT MESSAGES TAB */}
             {tab === "support" && (
               <div className="space-y-4">
                 <h2 className="font-display text-xl font-bold text-foreground">Support Messages</h2>
@@ -1547,7 +1259,7 @@ const AdminDashboard = () => {
                           onClick={async () => {
                             if (!user) return;
                             // Get admin's profile id
-                            const { data: adminProfile } = await supabase.from("profiles").select("id").eq("user_id", user.id).maybeSingle();
+                            const { data: adminProfile, error: adminProfileError } = await supabase.from("profiles").select("id").eq("user_id", user.id).maybeSingle();
                             if (!adminProfile) { toast.error("Profile not found"); return; }
 
                             if (editingAnnId) {
@@ -1770,13 +1482,13 @@ const AdminDashboard = () => {
                               const p = profiles.find((pr: any) => pr.user_id === e.user_id);
                               return (
                                 <tr key={e.id} className="border-b border-border/50">
-                                  <td className="py-2 px-3">{new Date(e.created_at).toLocaleDateString()}</td>
-                                  <td className="py-2 px-3">{p?.full_name || "Unknown"}</td>
-                                  <td className="py-2 px-3">
+                                  <td data-label="Date" className="py-2 px-3">{new Date(e.created_at).toLocaleDateString()}</td>
+                                  <td data-label="Agent" className="py-2 px-3">{p?.full_name || "Unknown"}</td>
+                                  <td data-label="Type" className="py-2 px-3">
                                     <Badge variant="outline" className="text-xs">{e.type?.replace(/_/g, " ")}</Badge>
                                   </td>
-                                  <td className="py-2 px-3 text-muted-foreground">{e.description || "—"}</td>
-                                  <td className="py-2 px-3 text-right font-bold">₦{(e.amount || 0).toLocaleString()}</td>
+                                  <td data-label="Description" className="py-2 px-3 text-muted-foreground">{e.description || "—"}</td>
+                                  <td data-label="Amount" className="py-2 px-3 text-right font-bold">₦{(e.amount || 0).toLocaleString()}</td>
                                 </tr>
                               );
                             })}
@@ -1845,72 +1557,8 @@ const AdminDashboard = () => {
               </div>
             )}
             {/* ACTIVE DEALS TAB */}
-            {tab === "active-deals" && (
-              <div className="space-y-4">
-                <Card className="border-border/50">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-base">
-                      <MessageCircle className="h-4 w-4 text-primary" /> Active Deal Chats
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    {activeDealThreads.length === 0 ? (
-                      <p className="text-center text-muted-foreground py-8">No active deal chats yet</p>
-                    ) : (
-                      <div className="space-y-3">
-                        {activeDealThreads.map((t: any) => (
-                          <div key={t.id} className="border border-border rounded-xl p-4">
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                              <div>
-                                <p className="font-semibold text-foreground">
-                                  {t.buyer_name} ↔ {t.agent_name}
-                                </p>
-                                <p className="text-xs text-muted-foreground">Property: {t.property_title}</p>
-                                <p className="text-xs text-muted-foreground">Messages: {t.message_count} • Started: {new Date(t.created_at).toLocaleDateString()}</p>
-                              </div>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="gap-1"
-                                onClick={async () => {
-                                  setSelectedDealId(t.id);
-                                  const { data } = await supabase
-                                    .from("messages")
-                                    .select("*")
-                                    .eq("thread_id", t.id)
-                                    .order("created_at", { ascending: true });
-                                  setSelectedDealMessages(data || []);
-                                }}
-                              >
-                                <Eye className="h-3 w-3" /> View Chat
-                              </Button>
-                            </div>
-                            {selectedDealId === t.id && selectedDealMessages.length > 0 && (
-                              <div className="mt-4 border-t border-border pt-3 max-h-64 overflow-y-auto space-y-2">
-                                {selectedDealMessages.map((msg: any) => {
-                                  const senderProfile = profiles.find((p: any) => p.id === msg.sender_id);
-                                  return (
-                                    <div key={msg.id} className={`text-sm p-2 rounded-lg ${msg.is_blocked ? "bg-destructive/10 text-destructive" : "bg-muted"}`}>
-                                      <span className="font-medium text-foreground">{senderProfile?.full_name || "Unknown"}: </span>
-                                      <span>{msg.content}</span>
-                                      <span className="text-xs text-muted-foreground ml-2">
-                                        {new Date(msg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                                      </span>
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </div>
-            )}
+            {tab === "active-deals" && <DealsList mode="admin" embedded />}
 
-            {/* WITHDRAWALS TAB */}
             {tab === "withdrawals" && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
@@ -1933,25 +1581,25 @@ const AdminDashboard = () => {
                       </thead>
                       <tbody>
                         {withdrawals.length === 0 && (
-                          <tr><td colSpan={7} className="p-8 text-center text-muted-foreground">No withdrawal requests yet</td></tr>
+                          <tr><td data-label="Date" colSpan={7} className="p-8 text-center text-muted-foreground">No withdrawal requests yet</td></tr>
                         )}
                         {withdrawals.map((w: any) => {
                           const wUser = profiles.find((p: any) => p.user_id === w.user_id);
                           return (
                             <tr key={w.id} className="border-t border-border hover:bg-muted/20">
-                              <td className="px-4 py-3 text-xs text-muted-foreground">{new Date(w.created_at).toLocaleDateString()}</td>
-                              <td className="px-4 py-3 font-medium text-foreground">{wUser?.full_name || "Unknown"}</td>
-                              <td className="px-4 py-3 font-bold text-emerald-600">₦{(w.amount || 0).toLocaleString()}</td>
-                              <td className="px-4 py-3 text-foreground">{w.bank_name}</td>
-                              <td className="px-4 py-3 text-foreground text-xs">{w.account_number}<br/><span className="text-muted-foreground">{w.account_name}</span></td>
-                              <td className="px-4 py-3">
+                              <td data-label="User" className="px-4 py-3 text-xs text-muted-foreground">{new Date(w.created_at).toLocaleDateString()}</td>
+                              <td data-label="Amount" className="px-4 py-3 font-medium text-foreground">{wUser?.full_name || "Unknown"}</td>
+                              <td data-label="Bank" className="px-4 py-3 font-bold text-emerald-600">₦{(w.amount || 0).toLocaleString()}</td>
+                              <td data-label="Account" className="px-4 py-3 text-foreground">{w.bank_name}</td>
+                              <td data-label="Status" className="px-4 py-3 text-foreground text-xs">{w.account_number}<br/><span className="text-muted-foreground">{w.account_name}</span></td>
+                              <td data-label="Actions" className="px-4 py-3">
                                 <Badge className={`text-xs ${
                                   w.status === "pending" ? "bg-amber-100 text-amber-700" :
                                   w.status === "paid" ? "bg-emerald-100 text-emerald-700" :
                                   "bg-red-100 text-red-700"
                                 }`}>{w.status}</Badge>
                               </td>
-                              <td className="px-4 py-3">
+                              <td data-label="Date" className="px-4 py-3">
                                 {w.status === "pending" && (
                                   <div className="flex gap-2">
                                     <Button
@@ -2028,11 +1676,11 @@ const AdminDashboard = () => {
                             const directs = profiles.filter((x: any) => x.referred_by === p.id).length;
                             return (
                               <tr key={p.id} className="border-t border-border hover:bg-muted/20">
-                                <td className="px-4 py-3 font-medium text-foreground">{p.full_name || "—"}</td>
-                                <td className="px-4 py-3"><Badge variant="outline" className="capitalize text-xs">{p.profile_type}</Badge></td>
-                                <td className="px-4 py-3 text-xs font-mono text-muted-foreground">{p.referral_code || "—"}</td>
-                                <td className="px-4 py-3 font-bold text-foreground">{directs}</td>
-                                <td className="px-4 py-3">
+                                <td data-label="User" className="px-4 py-3 font-medium text-foreground">{p.full_name || "—"}</td>
+                                <td data-label="Type" className="px-4 py-3"><Badge variant="outline" className="capitalize text-xs">{p.profile_type}</Badge></td>
+                                <td data-label="Referral Code" className="px-4 py-3 text-xs font-mono text-muted-foreground">{p.referral_code || "—"}</td>
+                                <td data-label="Direct Referrals" className="px-4 py-3 font-bold text-foreground">{directs}</td>
+                                <td data-label="Action" className="px-4 py-3">
                                   <Button size="sm" variant="outline" className="gap-1" onClick={() => setSelectedReferralUserId(p.id)}>
                                     <Network className="h-3.5 w-3.5" /> View Tree
                                   </Button>
@@ -2061,6 +1709,7 @@ const AdminDashboard = () => {
           </>
         )}
       </div>
+      <Dialog open={!!decision} onOpenChange={open => { if (!open && !decisionLock.current) setDecision(null); }}><DialogContent className="operations-dialog" onEscapeKeyDown={event => { if (decisionBusy) event.preventDefault(); }} onPointerDownOutside={event => { if (decisionBusy) event.preventDefault(); }}><DialogHeader><DialogTitle>{decision?.title}</DialogTitle><DialogDescription>{decision?.description}</DialogDescription></DialogHeader>{decision?.reasonRequired && <div><Label htmlFor="review-reason">Rejection reason</Label><Textarea id="review-reason" value={decisionReason} disabled={decisionBusy} onChange={event => setDecisionReason(event.target.value)} /></div>}{decisionError && <p role="alert">{decisionError}</p>}<DialogFooter><Button variant="outline" disabled={decisionBusy} onClick={() => setDecision(null)}>Cancel</Button><Button disabled={decisionBusy || decision?.reasonRequired && !decisionReason.trim()} onClick={() => void confirmDecision()}>{decisionBusy ? "Saving review…" : "Confirm decision"}</Button></DialogFooter></DialogContent></Dialog>
     </AuthenticatedLayout>
   );
 };

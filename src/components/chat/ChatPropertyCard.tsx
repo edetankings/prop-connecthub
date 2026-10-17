@@ -17,13 +17,11 @@ export interface ChatProperty {
 interface Props {
   property: ChatProperty;
   compact?: boolean;
-  canPay?: boolean;
   isBuyer?: boolean;
   onReserve?: () => void;
-  onSecurePayment?: () => void;
 }
 
-export function ChatPropertyCard({ property, compact, canPay, isBuyer, onReserve, onSecurePayment }: Props) {
+export function ChatPropertyCard({ property, compact, isBuyer, onReserve }: Props) {
   const location = [property.city, property.state].filter(Boolean).join(", ");
 
   return (
@@ -68,14 +66,7 @@ export function ChatPropertyCard({ property, compact, canPay, isBuyer, onReserve
               <Button size="sm" variant="outline" className="rounded-full gap-1.5" onClick={onReserve}>
                 <CalendarCheck className="h-3.5 w-3.5" /> Reserve
               </Button>
-              <Button
-                size="sm"
-                onClick={onSecurePayment}
-                className="rounded-full gap-1.5 bg-primary text-primary-foreground"
-              >
-                {canPay ? <ShieldCheck className="h-3.5 w-3.5" /> : <Lock className="h-3.5 w-3.5" />}
-                {canPay ? "Secure Payment" : "Initiate Secure Payment"}
-              </Button>
+              <Button size="sm" disabled className="rounded-full gap-1.5" aria-label="Financial operations locked"><Lock className="h-3.5 w-3.5" /> Financial operations locked</Button>
             </>
           )}
         </div>

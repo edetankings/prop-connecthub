@@ -1,63 +1,42 @@
-import { useEffect, useState } from "react";
+import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { Helmet } from "react-helmet-async";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Handshake, Loader2 } from "lucide-react";
+import AuthenticatedLayout from "@/components/AuthenticatedLayout";
 import { stageLabel } from "./DealRoom";
-
-/** Buyer "My deals" and admin "All deals" overview. */
-const DealsList = ({ mode }: { mode: "buyer" | "admin" }) => {
-  const { user } = useAuth();
-  const [rows, setRows] = useState<any[]>([]);
+import type { Tables } from "@/integrations/supabase/types";
+type Deal = Tables<"deal_requests"> & { properties: Pick<Tables<"properties">, "title" | "price" | "city" | "state"> | null };
+export default function DealsList({ mode, embedded = false }: { mode: "buyer" | "admin"; embedded?: boolean }) {
+  const { user, isAdmin } = useAuth();
+  const [rows, setRows] = useState<Deal[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [filter, setFilter] = useState("all");
-
-  useEffect(() => {
-    if (!user) return;
-    let q = (supabase as any).from("deal_requests").select("*, properties(title, price, city, state)").order("created_at", { ascending: false });
-    if (mode === "buyer") q = q.eq("buyer_id", user.id);
-    q.then(({ data }: any) => { setRows(data || []); setLoading(false); });
-  }, [user?.id, mode]);
-
-  const stages = ["all", "pending_agent", "payment_pending", "payment_under_review", "payment_confirmed", "completed", "declined", "cancelled", "disputed"];
-  const shown = rows.filter((r) => filter === "all" || r.stage === filter);
-
-  return (
-    <div className="min-h-screen bg-background">
-      <Helmet><title>{mode === "admin" ? "All deals" : "My deals"} · Prop-Connect</title></Helmet>
-      <div className="container mx-auto max-w-5xl px-4 py-8 sm:px-6">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary"><Handshake className="h-5 w-5" /></div>
-          <h1 className="font-display text-2xl font-semibold sm:text-3xl">{mode === "admin" ? "All deals" : "My deals"}</h1>
-        </div>
-        <div className="mt-6 flex flex-wrap gap-2">
-          {stages.map((s) => (
-            <Button key={s} size="sm" variant={filter === s ? "default" : "outline"} onClick={() => setFilter(s)}>{s === "all" ? "All" : stageLabel(s)}</Button>
-          ))}
-        </div>
-        {loading ? <div className="flex justify-center py-16"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div> : (
-          <div className="mt-4 space-y-3">
-            {shown.length === 0 && <div className="rounded-xl border bg-card p-6 text-center text-sm text-muted-foreground">No deals yet.</div>}
-            {shown.map((d) => (
-              <Link key={d.id} to={`/deal/${d.id}`} className="block rounded-xl border bg-card p-4 shadow-card transition-shadow hover:shadow-elevated">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div className="min-w-0">
-                    <p className="font-mono text-xs text-muted-foreground">#{d.deal_number}</p>
-                    <p className="font-semibold">{d.properties?.title || "Property"}</p>
-                    <p className="text-sm text-muted-foreground">₦{Number(d.properties?.price || 0).toLocaleString()} · {new Date(d.created_at).toLocaleDateString()}</p>
-                  </div>
-                  <Badge variant="outline">{stageLabel(d.stage)}</Badge>
-                </div>
-              </Link>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
-export default DealsList;
+  const revision = useRef(0);
+  const invalidate = useCallback(() => { revision.current++; }, []);
+  const load = useCallback(async () => {
+    const request = ++revision.current;
+    setRows([]); setLoading(true); setError(false);
+    if (!user || mode === "admin" && !isAdmin) { setLoading(false); return; }
+    try {
+      let query = supabase.from("deal_requests").select("*, properties(title, price, city, state)").order("created_at", { ascending: false });
+      if (mode === "buyer") query = query.eq("buyer_id", user.id);
+      const { data, error: queryError } = await query;
+      if (queryError) throw queryError;
+      if (revision.current === request) setRows(data || []);
+    } catch { if (revision.current === request) setError(true); }
+    finally { if (revision.current === request) setLoading(false); }
+  }, [user, mode, isAdmin]);
+  useEffect(() => { void load(); return invalidate; }, [load, invalidate]);
+  const shown = rows.filter(row => filter === "all" || row.stage === filter);
+  const stages = Array.from(new Set(rows.map(row => row.stage)));
+  const Layout = embedded ? Fragment : AuthenticatedLayout;
+  const Heading = embedded ? "h2" : "h1";
+  if (mode === "admin" && !isAdmin) return null;
+  return <Layout><section className="operations-page deal-records"><header className="operations-heading"><p className="buyer-eyebrow">Recorded activity</p><Heading>{mode === "admin" ? "Platform deal records" : "My deal records"}</Heading><p>Read-only tracking. Financial operations and transaction completion remain locked.</p></header>
+    <div className="operations-section-heading"><label className="operations-select-label">Recorded stage<select value={filter} onChange={event => setFilter(event.target.value)}><option value="all">All stages</option>{stages.map(stage => <option key={stage} value={stage}>{stageLabel(stage)}</option>)}</select></label><Button variant="outline" disabled={loading} onClick={() => void load()}>Refresh deals</Button></div>
+    {error ? <div className="buyer-empty" role="alert"><h2>Unable to load deal records</h2><Button variant="outline" onClick={() => void load()}>Retry deals</Button></div> : loading ? <div role="status" className="operations-loading">Loading authorized deal records…</div> : <div className="operations-record-grid">{shown.length === 0 && <div className="buyer-empty"><h3>No matching deal records</h3><p>No deal data is invented when records are unavailable.</p></div>}{shown.map(deal => <Link key={deal.id} to={`/deal/${deal.id}`} className="operations-record"><div className="operations-section-heading"><span className="buyer-eyebrow">Deal #{deal.deal_number}</span><Badge variant="outline">{stageLabel(deal.stage)}</Badge></div><h3>{deal.properties?.title || "Property details unavailable"}</h3><p>{[deal.properties?.city, deal.properties?.state].filter(Boolean).join(", ") || "Location not recorded"}</p><p>{deal.properties?.price != null ? `Listing price: ₦${Number(deal.properties.price).toLocaleString()}` : "Listing price not available"}</p><small>Opened {new Date(deal.created_at).toLocaleDateString()}</small><span>View recorded activity →</span></Link>)}</div>}
+  </section></Layout>;
+}

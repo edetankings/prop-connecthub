@@ -25,7 +25,15 @@ function SectionHeading({ eyebrow, title, description }: { eyebrow: string; titl
   return <div data-section-reveal className="home-section-intro"><p className="text-eyebrow">{eyebrow}</p><h2 className="home-section-heading">{title}</h2>{description && <p>{description}</p>}</div>;
 }
 
+const heroCategories = {
+  Homes: { title: "A home for your", emphasis: "next chapter.", description: "Explore houses to buy or rent across Nigeria. Compare locations, prices, bedrooms and listing photographs, then connect with the listing professional to ask questions or request an inspection." },
+  Apartments: { title: "Your own space.", emphasis: "Your kind of living.", description: "Discover apartments that suit your location, budget and everyday routine. Review the rooms and listed amenities, ask the professional about building facilities and charges, and arrange an inspection before deciding." },
+  Land: { title: "Room for your", emphasis: "next big idea.", description: "Explore land listings and compare their location, advertised plot size, price and available information. Ask the listing professional about the site and supporting documents, and request a visit to understand the space." },
+};
+
 const Index = () => {
+  const [heroCategory, setHeroCategory] = useState<keyof typeof heroCategories | null>(null);
+  const heroDetail = heroCategory ? heroCategories[heroCategory] : null;
   const [agents, setAgents] = useState<(DBAgent & { profession: string })[]>([]);
   const [agentsLoading, setAgentsLoading] = useState(true);
   const [agentsError, setAgentsError] = useState(false);
@@ -100,13 +108,16 @@ const Index = () => {
         <div className="premium-hero-overlay" />
         <PageContainer className="hero-content">
           <div className="hero-editorial">
-            <div data-hero-reveal className="hero-category-links"><Link to="/properties?type=house">Homes</Link><Link to="/properties?type=apartment">Apartments</Link><Link to="/properties?type=land">Land</Link></div>
-            <h1 id="hero-title" data-hero-reveal className="hero-headline">Find your place.<br /><strong>Move with confidence.</strong></h1>
-            <p data-hero-reveal className="hero-description">A home for your next chapter. Explore properties across Nigeria, connect with property professionals and find a place that feels like you.</p>
+            <div data-hero-reveal className="hero-category-links" role="group" aria-label="Explore property categories">{(Object.keys(heroCategories) as (keyof typeof heroCategories)[]).map(category => <button key={category} type="button" aria-pressed={heroCategory === category} aria-controls="hero-category-explanation" onClick={() => setHeroCategory(category)}>{category}</button>)}</div>
+            <div id="hero-category-explanation" aria-live="polite" aria-atomic="true">
+              <div key={heroCategory || "intro"} className={heroCategory ? "hero-category-transition" : undefined}>
+              <h1 id="hero-title" data-hero-reveal className="hero-headline">{heroDetail ? <>{heroDetail.title}<br /><strong>{heroDetail.emphasis}</strong></> : <>Find your place.<br /><strong>Move with confidence.</strong></>}</h1>
+              <p data-hero-reveal className="hero-description">{heroDetail?.description || "A home for your next chapter. Explore properties across Nigeria, connect with property professionals and find a place that feels like you."}</p>
+              </div>
+            </div>
           </div>
           <div className="hero-visual"><img src={heroImg} alt="Architectural concept: a contemporary home within tropical woodland" data-architecture-reveal {...{ fetchpriority: "high" }} width={1672} height={941} /></div>
           <div data-hero-reveal className="hero-search-wrap"><PropertySearch /></div>
-          <p className="mt-4 text-right text-[11px] text-white/70">Architectural inspiration · Explore current availability below</p>
         </PageContainer>
       </section>
       <PropertyCategories />
@@ -138,7 +149,7 @@ const Index = () => {
         <div className="mt-8">{propertiesLoading ? <p role="status">Loading estate listings...</p> : propertiesError ? <div role="alert" className="home-empty"><h3>Estate listings are temporarily unavailable.</h3><Button onClick={()=>setPropertyRetry(n=>n+1)}>Retry estate listings</Button></div> : estates.length > 0 ? <PropertyCarousel properties={estates} /> : <div className="home-development-empty"><Building2 /><div><h3>A new perspective is taking shape.</h3><p>No estate listings in the latest collection. Explore the full estate search for current availability.</p></div></div>}</div><Button asChild variant="outline" className="mt-6"><Link to="/properties?type=estate">Explore estate listings <ArrowUpRight /></Link></Button></PageContainer>
       </section>
 
-      <section data-home-section="experience" className="page-container home-section">
+      <section id="about" data-home-section="experience" className="page-container home-section">
         <div className="home-experience"><div className="home-experience-photo" data-image-mask><img data-soft-parallax src={cine3} alt="Architectural inspiration for your next home" loading="lazy" /><div><span>A place to begin.</span><p>A little more room<br />to be you.</p></div></div><div><SectionHeading eyebrow="For buyers. For renters. For you." title="Your search, with room to breathe." description="From a saved favourite to a confirmed inspection, keep the important details together." /><ul className="home-experience-list">{[{icon:Search,title:"Search your way",text:"Narrow your search by location, budget and property type.",to:"/properties"},{icon:Heart,title:"Keep your favourites close",text:"Save a listing on this device with the heart button. Local saves stay in this browser.",to:"/#discover"},{icon:MessageCircle,title:"Start a conversation",text:"Sign in to message a property professional.",to:"/messages"},{icon:CalendarCheck,title:"See it for yourself",text:"Request an inspection through an available listing.",to:"/properties"},{icon:ClipboardList,title:"Follow your enquiries",text:"Check messages, inspections and deal updates in your dashboard.",to:"/dashboard"}].map(item=><li data-section-reveal key={item.title}><item.icon /><div><Link to={item.to}><h3>{item.title} <ArrowUpRight /></h3></Link><p>{item.text}</p></div></li>)}</ul></div></div>
       </section>
 

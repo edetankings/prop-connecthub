@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import AuthenticatedLayout from "@/components/AuthenticatedLayout";
@@ -40,20 +40,27 @@ const AdminPropertyMonitoring = () => {
   const [loading, setLoading] = useState(false);
   const [q, setQ] = useState("");
 
-  const load = async () => {
-    setLoading(true);
+  const [error, setError] = useState(false);
+  const revision = useRef(0);
+  const invalidate = useCallback(() => { revision.current++; }, []);
+  const load = useCallback(async () => {
+    const request = ++revision.current;
+    setRows([]); setLoading(true); setError(false);
+    try {
     let query = (supabase as any)
       .from("properties")
       .select("id,title,property_code,city,state,price,status,image_url,created_at,agent_id,profiles:agent_id(full_name)")
       .order("created_at", { ascending: false })
       .limit(200);
     if (tab !== "all") query = query.eq("status", tab);
-    const { data } = await query;
-    setRows(data || []);
-    setLoading(false);
-  };
+    const { data, error: queryError } = await query;
+    if (queryError) throw queryError;
+    if (request === revision.current) setRows(data || []);
+    } catch { if (request === revision.current) setError(true); }
+    finally { if (request === revision.current) setLoading(false); }
+  }, [tab]);
 
-  useEffect(() => { load(); /* eslint-disable-next-line */ }, [tab]);
+  useEffect(() => { void load(); return invalidate; }, [load, invalidate]);
 
   const filtered = useMemo(() => {
     const s = q.trim().toLowerCase();
@@ -70,15 +77,16 @@ const AdminPropertyMonitoring = () => {
 
   return (
     <AuthenticatedLayout>
-      <div className="container mx-auto max-w-6xl px-4 py-8">
+      <div className="operations-page">
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
           <div>
             <h1 className="font-display text-3xl font-bold">Property Monitoring</h1>
             <p className="text-sm text-muted-foreground">
-              Track every listing through its full lifecycle — from submission to sale.
+              Search up to 200 authorized listings in the selected status. Moderation uses the existing review queue.
             </p>
           </div>
-          <Button variant="outline" size="sm" onClick={load} className="gap-2">
+          <Link to="/admin?view=moderation" className="text-sm underline">Open moderation queue</Link>
+          <Button variant="outline" size="sm" disabled={loading} onClick={load} className="gap-2">
             <RefreshCw className="h-4 w-4" /> Refresh
           </Button>
         </div>
@@ -88,6 +96,7 @@ const AdminPropertyMonitoring = () => {
           <Input
             value={q}
             onChange={(e) => setQ(e.target.value)}
+            aria-label="Search monitored properties"
             placeholder="Search by code, title, city, agent…"
             className="border-0 shadow-none focus-visible:ring-0"
           />
@@ -103,7 +112,7 @@ const AdminPropertyMonitoring = () => {
           </TabsList>
 
           <TabsContent value={tab} className="mt-4">
-            {loading ? (
+            {error ? <div role="alert" className="buyer-empty"><h2>Property records unavailable</h2><Button variant="outline" onClick={() => void load()}>Retry properties</Button></div> : loading ? (
               <div className="rounded-xl border bg-card p-10 text-center text-muted-foreground">Loading…</div>
             ) : filtered.length === 0 ? (
               <div className="rounded-xl border bg-card p-10 text-center text-muted-foreground">No properties.</div>
@@ -120,7 +129,7 @@ const AdminPropertyMonitoring = () => {
                           loading="lazy"
                         />
                       )}
-                      <div className="min-w-[200px] flex-1">
+                      <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-center gap-2">
                           <p className="font-semibold break-words">{p.title}</p>
                           <Badge className={`text-xs ${statusColor[p.status] || ""}`}>

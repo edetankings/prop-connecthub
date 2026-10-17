@@ -309,27 +309,6 @@ const Chat = () => {
 
   const shareContact = () => toast.error("Contact sharing is not allowed on this platform.");
 
-  /* ---------------- secure payment flow ---------------- */
-  const canPay = dealStatus === "accepted";
-
-  const handleSecurePayment = async () => {
-    if (!property) return;
-    if (canPay) {
-      navigate(`/secure-payment/${property.id}`);
-      return;
-    }
-    const { error } = await (supabase as any).rpc("request_deal", {
-      _property_id: property.id,
-      _message: "Buyer requested to proceed with a secure payment from chat.",
-    });
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-    setDealStatus("pending");
-    toast.success("Request sent. The agent must approve before payment unlocks.");
-  };
-
   const handleInterested = async () => {
     if (!currentThreadId) return;
     if (!isAdmin) { toast.info("Chat activation requires administrator approval."); return; }
@@ -395,7 +374,7 @@ const Chat = () => {
                   </span>
                 ) : (
                   <span className="flex items-center gap-1 font-medium text-[hsl(var(--success))]">
-                    <Heart className="h-3 w-3" /> Active Deal
+                    <Heart className="h-3 w-3" /> Active conversation
                   </span>
                 )}
               </p>
@@ -428,6 +407,7 @@ const Chat = () => {
                 autoFocus
                 value={msgQuery}
                 onChange={(e) => setMsgQuery(e.target.value)}
+                aria-label="Search messages in conversation"
                 placeholder="Search in this conversation…"
                 className="h-10 rounded-2xl bg-muted"
               />
@@ -441,11 +421,9 @@ const Chat = () => {
             <ChatPropertyCard
               property={property}
               isBuyer={isBuyer}
-              canPay={canPay}
               onReserve={() => navigate(`/property/${property.id}`)}
-              onSecurePayment={handleSecurePayment}
             />
-            {isBuyer && !canPay && (
+            {isBuyer && (
               <p className="mt-1.5 flex items-center gap-1 text-[11px] text-muted-foreground">
                 <ShieldCheck className="h-3 w-3" /> Financial operations remain locked. Approval does not enable payment.
               </p>
@@ -480,6 +458,7 @@ const Chat = () => {
               <p className="py-10 text-center text-sm text-muted-foreground">No messages yet. Say hello! 👋</p>
             )}
 
+            {!messagesError && !messagesLoading && msgQuery.trim() && visible.length === 0 && <p role="status" className="buyer-empty">No messages match your search.</p>}
             {visible.map((msg, i) => {
               const prev = visible[i - 1];
               const dayLabel = new Date(msg.created_at).toDateString();

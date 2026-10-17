@@ -3,17 +3,15 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { Menu, LogOut, LayoutDashboard, ShieldCheck, Settings, MessageCircle } from "lucide-react";
 import logo from "@/assets/logo.jpg";
-import ThemeToggle from "@/components/ThemeToggle";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 
 const publicNavItems = [
-  { label: "Buy", path: "/properties?type=for_sale" },
-  { label: "Rent", path: "/properties?type=for_rent" },
-  { label: "Land", path: "/properties?type=land" },
+  { label: "About", path: "/#about" },
   { label: "Commercial", path: "/properties?type=commercial" },
-  { label: "Explore", path: "/#discover" },
+  { label: "Agents", path: "/agents" },
+  { label: "How it works", path: "/#how-it-works" },
 ];
 
 const Navbar = ({ overlay = false }: { overlay?: boolean }) => {
@@ -33,13 +31,18 @@ const Navbar = ({ overlay = false }: { overlay?: boolean }) => {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  useEffect(() => {
+    if (location.pathname !== "/" || !["#about", "#how-it-works"].includes(location.hash)) return;
+    document.getElementById(location.hash.slice(1))?.scrollIntoView?.({ behavior: "instant", block: "start" });
+  }, [location.pathname, location.hash]);
+
   return (
     <>{location.pathname === "/" && <a href="#main-content" className="sr-only z-[100] rounded-full bg-primary px-5 py-3 text-white focus:not-sr-only focus:fixed focus:left-4 focus:top-4">Skip to content</a>}<nav data-home-section="navigation" aria-label="Main navigation"
       className={cn(
-        "top-0 z-50 border-b transition-[background-color,box-shadow] duration-300",
+        "public-navigation top-0 z-50",
         overlay ? "fixed inset-x-0 home-navigation" : "sticky",
         overlay && !scrolled ? "is-over-hero" : "",
-        scrolled ? "border-border bg-card/95 shadow-card backdrop-blur-md" : overlay ? "border-transparent bg-transparent" : "border-border/60 bg-background/95"
+        scrolled ? "is-scrolled" : overlay ? "bg-transparent" : "bg-background/95"
       )}
     >
       <div className="page-container site-nav-inner">
@@ -56,8 +59,8 @@ const Navbar = ({ overlay = false }: { overlay?: boolean }) => {
                 to={item.path}
                 aria-current={isActive(item.path) ? "page" : undefined}
                 className={cn(
-                  "rounded-full px-3 py-2.5 text-sm font-medium transition-colors",
-                  isActive(item.path) ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+                  "site-nav-link",
+                  isActive(item.path) ? "text-foreground" : "text-muted-foreground hover:text-foreground"
                 )}
               >
                 {item.label}
@@ -67,13 +70,6 @@ const Navbar = ({ overlay = false }: { overlay?: boolean }) => {
         )}
 
         <div className="site-nav-actions">
-          <details className="relative">
-            <summary className="cursor-pointer rounded-full px-3 py-3 text-sm font-medium">More</summary>
-            <div className="absolute right-0 top-full z-50 grid w-52 gap-1 rounded-2xl border border-border bg-card p-2 shadow-elevated">
-              {[{ label: "All properties", path: "/properties" }, { label: "Agents", path: "/agents" }, { label: "How it works", path: "/#how-it-works" }, { label: "AI Assistant", path: "/ai-assistant" }].map(item => <Link key={item.path} to={item.path} className="rounded-xl px-3 py-3 text-sm hover:bg-accent" onClick={event => event.currentTarget.closest("details")?.removeAttribute("open")}>{item.label}</Link>)}
-            </div>
-          </details>
-          <ThemeToggle />
           {user ? (
             <>
               {isAdmin && (
@@ -87,14 +83,13 @@ const Navbar = ({ overlay = false }: { overlay?: boolean }) => {
             </>
           ) : (
             <>
-              <Link to="/login"><Button variant="ghost" size="sm">Log In</Button></Link>
-              <Link to="/register"><Button size="sm" className="rounded-full px-5">Get Started</Button></Link>
+              <Link to="/login" className="site-nav-link">Log In</Link>
+              <Link to="/register" className="site-nav-link">Get Started</Link>
             </>
           )}
         </div>
 
         <div className="site-nav-mobile">
-          <ThemeToggle />
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" aria-label="Open navigation menu" aria-expanded={open}><Menu className="h-5 w-5" /></Button>
@@ -111,7 +106,7 @@ const Navbar = ({ overlay = false }: { overlay?: boolean }) => {
                       { label: "Settings", path: "/settings" },
                       ...(isAdmin ? [{ label: "Admin", path: "/admin" }] : []),
                     ]
-                  : [...publicNavItems, { label: "Agents", path: "/agents" }, { label: "How it works", path: "/#how-it-works" }, { label: "AI Assistant", path: "/ai-assistant" }]
+                  : publicNavItems
                 ).map((item) => (
                   <Link
                     key={item.path}

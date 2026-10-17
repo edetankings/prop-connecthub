@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Home, Heart, CalendarCheck, MessageCircle, UserRound, Search, Menu, LogOut, ReceiptText, Building2 } from "lucide-react";
+import { Home, Heart, CalendarCheck, MessageCircle, UserRound, Search, Menu, LogOut, ReceiptText, Building2, ShieldCheck, Users, ScrollText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet";
 import NotificationBell from "@/components/NotificationBell";
@@ -16,11 +16,22 @@ const items = [
   { label: "Transaction records", to: "/dashboard/buyer?view=transactions", icon: ReceiptText },
   { label: "Profile & settings", to: "/settings", icon: UserRound },
 ];
-export default function WorkspaceShell({ children, role = "buyer" }: { children: ReactNode; role?: "buyer" | "agent" | "builder" }) {
+export default function WorkspaceShell({ children, role = "buyer" }: { children: ReactNode; role?: "buyer" | "agent" | "builder" | "admin" }) {
   const { profile, user, signOut } = useAuth();
-  const professional = role !== "buyer";
+  const professional = role === "agent" || role === "builder";
+  const admin = role === "admin";
   const base = `/dashboard/${role}`;
-  const menu = professional ? [
+  const menu = admin ? [
+    { label: "Operations overview", to: "/admin", icon: Home },
+    { label: "User directory", to: "/admin?view=users", icon: Users },
+    { label: "Verification review", to: "/admin?view=verification", icon: ShieldCheck },
+    { label: "Property moderation", to: "/admin?view=moderation", icon: Building2 },
+    { label: "Inspections", to: "/admin/inspections", icon: CalendarCheck },
+    { label: "Deal records", to: "/admin/deals", icon: ReceiptText },
+    { label: "My messages", to: "/messages", icon: MessageCircle },
+    { label: "Audit log", to: "/admin/audit", icon: ScrollText },
+    { label: "Account settings", to: "/settings", icon: UserRound },
+  ] : professional ? [
     { label: role === "builder" ? "Developer overview" : "Agent overview", to: base, icon: Home },
     { label: "My listings", to: `${base}?view=listings`, icon: Building2 },
     { label: "Inquiries", to: `${base}?view=inquiries`, icon: MessageCircle },
@@ -29,7 +40,7 @@ export default function WorkspaceShell({ children, role = "buyer" }: { children:
     { label: "Profile & settings", to: "/settings", icon: UserRound },
     { label: "Identity verification", to: "/verification", icon: UserRound },
   ] : items;
-  const workspaceLabel = role === "builder" ? "Developer workspace" : role === "agent" ? "Agent workspace" : "Buyer workspace";
+  const workspaceLabel = admin ? "Admin operations" : role === "builder" ? "Developer workspace" : role === "agent" ? "Agent workspace" : "Buyer workspace";
   const location = useLocation();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
@@ -44,8 +55,8 @@ export default function WorkspaceShell({ children, role = "buyer" }: { children:
   };
   const links = <><nav aria-label={workspaceLabel}>{menu.map(({ label, to, icon: Icon }) => {
     const destination = new URL(to, window.location.origin);
-    const active = (location.pathname === destination.pathname || to === "/messages" && location.pathname.startsWith("/chat/")) && (destination.searchParams.get("view") || "overview") === (new URLSearchParams(location.search).get("view") || "overview");
+    const active = (location.pathname === destination.pathname || to === "/admin" && location.pathname === "/admin/overview" || to === "/messages" && location.pathname.startsWith("/chat/")) && (destination.searchParams.get("view") || "overview") === (new URLSearchParams(location.search).get("view") || "overview");
     return <Link key={to} to={to} aria-current={active ? "page" : undefined} onClick={() => setOpen(false)}><Icon aria-hidden="true" />{label}</Link>;
-  })}</nav><div className="buyer-nav-foot"><Link to="/properties" onClick={() => setOpen(false)}><Search />Explore properties</Link><p>Financial operations remain locked.</p>{error && <p role="alert">{error}</p>}<button type="button" disabled={leaving} onClick={() => void logout()}><LogOut />{leaving ? "Signing out…" : "Sign out"}</button></div></>;
-  return <div className={`buyer-workspace ${professional ? "professional-workspace" : ""}`}><aside className="buyer-desktop-sidebar"><Link to="/" className="buyer-brand"><img src={logo} alt="" />PROP-CONNECT</Link><p className="buyer-eyebrow">{professional ? workspaceLabel : "Your property workspace"}</p>{links}</aside><div className="buyer-workspace-body"><header className="buyer-topbar"><Button className="buyer-menu-button" variant="outline" size="icon" aria-label={professional ? "Open professional navigation" : "Open buyer navigation"} onClick={() => setOpen(true)}><Menu /></Button><Link to="/properties" className="buyer-market-link"><Search />Explore properties</Link><div><ThemeToggle /><NotificationBell /><Link to="/settings" className="buyer-account"><span aria-hidden="true">{profile?.full_name?.[0] || user?.email?.[0] || "U"}</span><span>{profile?.full_name || "Your account"}</span></Link></div></header><main className="buyer-workspace-main">{children}</main></div><Sheet open={open} onOpenChange={setOpen}><SheetContent side="left" className="buyer-navigation-sheet"><SheetTitle>{workspaceLabel}</SheetTitle><SheetDescription>Your properties, conversations and account.</SheetDescription>{links}</SheetContent></Sheet></div>;
+  })}</nav><div className="buyer-nav-foot"><Link to="/properties" onClick={() => setOpen(false)}><Search />Explore properties</Link><p>Financial operations remain locked.</p>{error && <p role="alert">{error}</p>}<button type="button" disabled={leaving} onClick={() => void logout()}><LogOut />{leaving ? "Signing outâ€¦" : "Sign out"}</button></div></>;
+  return <div className={`buyer-workspace ${admin ? "admin-workspace" : professional ? "professional-workspace" : ""}`}><aside className="buyer-desktop-sidebar"><Link to="/" className="buyer-brand"><img src={logo} alt="" />PROP-CONNECT</Link><p className="buyer-eyebrow">{admin || professional ? workspaceLabel : "Your property workspace"}</p>{links}</aside><div className="buyer-workspace-body"><header className="buyer-topbar"><Button className="buyer-menu-button" variant="outline" size="icon" aria-label={admin ? "Open admin navigation" : professional ? "Open professional navigation" : "Open buyer navigation"} onClick={() => setOpen(true)}><Menu /></Button><Link to="/properties" className="buyer-market-link"><Search />Explore properties</Link><div><ThemeToggle /><NotificationBell /><Link to="/settings" className="buyer-account"><span aria-hidden="true">{profile?.full_name?.[0] || user?.email?.[0] || "U"}</span><span>{profile?.full_name || "Your account"}</span></Link></div></header><main className="buyer-workspace-main">{children}</main></div><Sheet open={open} onOpenChange={setOpen}><SheetContent side="left" className="buyer-navigation-sheet"><SheetTitle>{workspaceLabel}</SheetTitle><SheetDescription>Your properties, conversations and account.</SheetDescription>{links}</SheetContent></Sheet></div>;
 }

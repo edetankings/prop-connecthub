@@ -36,7 +36,7 @@ type Tab = "all" | "buyers" | "agents";
 const TABS: { id: Tab; label: string }[] = [
   { id: "all", label: "All" },
   { id: "buyers", label: "Buyers" },
-  { id: "agents", label: "Agents" },
+  { id: "agents", label: "Professionals" },
 ];
 
 
@@ -53,7 +53,7 @@ const ChatInbox = () => {
   const invalidate = useCallback(() => { revision.current++; }, []);
 
   useEffect(() => {
-    if (!profile) return;
+    if (!profile) { setThreads([]); setLoading(false); return; }
     fetchThreads();
 
     const channel = supabase
@@ -151,6 +151,7 @@ const ChatInbox = () => {
         t.other_name.toLowerCase().includes(q) ||
         (t.last_message || "").toLowerCase().includes(q) ||
         (t.property_code || "").toLowerCase().includes(q) ||
+        (t.property_title || "").toLowerCase().includes(q) ||
         t.id.toLowerCase().includes(q) ||
         (t.property_id || "").toLowerCase().includes(q)
       );
@@ -171,6 +172,8 @@ const ChatInbox = () => {
   return (
     <AuthenticatedLayout>
       <div className="buyer-inbox container mx-auto max-w-3xl flex-1 px-4 py-5">
+        <p className="buyer-eyebrow">Your conversations</p>
+        <p className="operations-caption">Only your participating conversations. Delivery and access depend on the existing service permissions.</p>
         {/* Title row */}
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-2">

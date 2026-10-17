@@ -18,6 +18,8 @@ const AuthenticatedLayout = ({ children }: AuthenticatedLayoutProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { profile, isAdmin } = useAuth();
 
+  if (isAdmin) return <WorkspaceShell role="admin">{children}</WorkspaceShell>;
+
   if (profile?.profile_type === "buyer" && !isAdmin) return <BuyerWorkspaceShell>{children}</BuyerWorkspaceShell>;
 
   if (!isAdmin && (profile?.profile_type === "agent" || profile?.profile_type === "builder")) return <WorkspaceShell role={profile.profile_type}>{children}</WorkspaceShell>;
@@ -53,7 +55,7 @@ const AuthenticatedLayout = ({ children }: AuthenticatedLayoutProps) => {
       {/* Verification Banner */}
       <VerificationBanner />
 
-      {/* Page Content — no footer */}
+      {/* Page Content â€” no footer */}
       <main>{children}</main>
     </div>
   );

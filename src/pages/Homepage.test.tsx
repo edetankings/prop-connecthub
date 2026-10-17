@@ -43,6 +43,23 @@ describe("complete homepage content and data boundaries (mocked backend)", () =>
     expect(mocks.eq).toHaveBeenCalledWith("public_profiles", "profile_type", "agent");
     expect(screen.queryByText(/guaranteed safe/i)).not.toBeInTheDocument();
   });
+  it("explains each hero category in place without changing the other sections or fetching again", async () => {
+    open();
+    await screen.findByText("A little room for possibility.");
+    await screen.findByText("Great connections are on their way.");
+    const hero = document.querySelector('[data-home-section="hero"]') as HTMLElement;
+    const rest = [...document.querySelectorAll('[data-home-section]:not([data-home-section="hero"]):not([data-home-section="navigation"])')];
+    const before = rest.map(section => section.innerHTML);
+    const calls = [mocks.properties.mock.calls.length, mocks.profiles.mock.calls.length];
+    for (const [category, explanation] of [["Homes", /Explore houses to buy or rent/], ["Apartments", /Discover apartments that suit/], ["Land", /Explore land listings and compare/]] as const) {
+      fireEvent.click(within(hero).getByRole("button", { name: category }));
+      expect(within(hero).getByText(explanation)).toBeInTheDocument();
+      expect(within(hero).getByRole("button", { name: category })).toHaveAttribute("aria-pressed", "true");
+      expect(within(within(hero).getByRole("group", { name: "Explore property categories" })).getAllByRole("button", { pressed: true })).toHaveLength(1);
+    }
+    expect(rest.map(section => section.innerHTML)).toEqual(before);
+    expect([mocks.properties.mock.calls.length, mocks.profiles.mock.calls.length]).toEqual(calls);
+  });
   it("renders only returned estate records in the developments collection", async () => {
     mocks.properties.mockResolvedValue({ data: [
       { id: "estate-row", title: "Returned estate listing", property_type: "estate", image_url: "/estate-image.jpg" },

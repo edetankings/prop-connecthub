@@ -81,7 +81,7 @@ const Inspections = ({ mode, embedded = false }: { mode: Mode; embedded?: boolea
   const shown = rows.filter((r) => filter === "all" || r.inspection_status === filter);
   const title = mode === "admin" ? "All inspections" : mode === "agent" ? "Inspection requests" : "My inspections";
 
-  const Layout = !embedded && mode !== "admin" ? AuthenticatedLayout : Fragment;
+  const Layout = !embedded ? AuthenticatedLayout : Fragment;
   const Heading = embedded ? "h2" : "h1";
   return (
     <Layout><div className="inspection-page min-h-screen bg-background">
