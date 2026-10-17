@@ -1,244 +1,86 @@
 import { siteUrl } from "@/lib/seo";
 import { useState, useEffect, useMemo } from "react";
 import { Helmet } from "react-helmet-async";
-import { useSearchParams } from "react-router-dom";
-import { Search, SlidersHorizontal, X } from "lucide-react";
+import { Link, useSearchParams } from "react-router-dom";
+import { Search, SlidersHorizontal, X, Grid2X2, List, ArrowUpRight, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Sheet, SheetContent, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import { ListingSkeleton } from "@/components/ui/page-container";
 import DBPropertyCard, { type DBProperty } from "@/components/DBPropertyCard";
 import { supabase } from "@/integrations/supabase/client";
 
-const Properties = () => {
-  const [params] = useSearchParams();
-  const [search, setSearch] = useState(params.get("q") || "");
-  const [kindFilter, setKindFilter] = useState(params.get("kind") || "all");
-  const [typeFilter, setTypeFilter] = useState(params.get("type") || "all");
-  useEffect(() => {
-    setTypeFilter(params.get("type") || "all");
-    setKindFilter(params.get("kind") || "all");
-    setSearch(params.get("q") || "");
-    setPriceFilter(params.get("price") || "all");
-    setBedFilter(params.get("beds") || "all");
-  }, [params]);
-  const [stateFilter, setStateFilter] = useState("all");
-  const [priceFilter, setPriceFilter] = useState(params.get("price") || "all");
-  const [bedFilter, setBedFilter] = useState(params.get("beds") || "all");
-  const [sortBy, setSortBy] = useState("newest");
-  const [visible, setVisible] = useState(12);
-  const [properties, setProperties] = useState<DBProperty[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  const [queryError, setQueryError] = useState(false);
-  const [retry, setRetry] = useState(0);
-  useEffect(() => {
-    let active = true;
-    const load = async () => {
-      setLoading(true);
-      setQueryError(false);
-      setProperties([]);
-      try {
-        const { data, error } = await supabase.from("properties").select("*")
-          .eq("is_verified", true).in("status", ["available", "for_sale", "for_rent"])
-          .order("created_at", { ascending: false });
-        if (error) throw error;
-        if (active) setProperties((data as DBProperty[]) || []);
-      } catch {
-        if (active) setQueryError(true);
-      } finally {
-        if (active) setLoading(false);
-      }
-    };
-    void load();
-    return () => { active = false; };
-  }, [retry]);
-
-  const states = useMemo(
-    () => Array.from(new Set(properties.map((p) => p.state).filter(Boolean) as string[])).sort(),
-    [properties]
-  );
-
-  const PRICE_RANGES: Record<string, [number, number]> = {
-    "0-5m": [0, 5_000_000],
-    "5m-20m": [5_000_000, 20_000_000],
-    "20m-50m": [20_000_000, 50_000_000],
-    "50m-100m": [50_000_000, 100_000_000],
-    "100m+": [100_000_000, Number.MAX_SAFE_INTEGER],
-  };
-
-  const filteredAll = properties.filter((p) => {
-    const q = search.toLowerCase();
-    const matchSearch =
-      !q ||
-      p.title.toLowerCase().includes(q) ||
-      (p.city || "").toLowerCase().includes(q) ||
-      (p.state || "").toLowerCase().includes(q) ||
-      (p.property_type || "").toLowerCase().includes(q);
-    const t = typeFilter;
-    const ptype = (p.property_type || "").toLowerCase();
-    const matchType =
-      t === "all" ||
-      (t === "for_sale" && p.listing_type === "sale") ||
-      (t === "for_rent" && p.listing_type === "rental") ||
-      (t === "hotel" && ptype === "hotel") ||
-      (t === "apartment" && ptype === "apartment") ||
-      (t === "estate" && ptype === "estate") ||
-      (t === "house" && ptype === "house") ||
-      (t === "land" && ptype === "land") ||
-      (t === "commercial" && ptype === "commercial");
-    const matchState = stateFilter === "all" || p.state === stateFilter;
-    const range = PRICE_RANGES[priceFilter];
-    const price = Number(p.price) || 0;
-    const matchPrice = !range || (price >= range[0] && price < range[1]);
-    const beds = Number((p as { bedrooms?: number }).bedrooms) || 0;
-    const matchBeds = bedFilter === "all" || beds >= Number(bedFilter);
-    const matchKind = kindFilter === "all" || ptype === kindFilter;
-    return matchSearch && matchType && matchState && matchPrice && matchBeds && matchKind;
-  });
-
-  const created = (p: DBProperty) => (p as { created_at?: string }).created_at || "";
-
-  const filtered = [...filteredAll].sort((a, b) => {
-    if (sortBy === "price_asc") return (Number(a.price) || 0) - (Number(b.price) || 0);
-    if (sortBy === "price_desc") return (Number(b.price) || 0) - (Number(a.price) || 0);
-    if (sortBy === "oldest") return created(a).localeCompare(created(b));
-    return created(b).localeCompare(created(a));
-  });
-
-  const shown = filtered.slice(0, visible);
-  const hasFilters =
-    search !== "" || kindFilter !== "all" || typeFilter !== "all" || stateFilter !== "all" || priceFilter !== "all" || bedFilter !== "all";
-  const resetFilters = () => {
-    setSearch("");
-    setKindFilter("all");
-    setTypeFilter("all");
-    setStateFilter("all");
-    setPriceFilter("all");
-    setBedFilter("all");
-  };
-
-  return (
-    <div className="min-h-screen bg-background">
-      <Helmet>
-        <title>Browse Verified Properties for Sale & Rent in Nigeria — Prop Connect</title>
-        <meta name="description" content="Search verified houses, apartments, and land for sale or rent across Nigeria. Every listing on Prop Connect is reviewed by our team and posted by a KYC-verified agent." />
-        <link rel="canonical" href={siteUrl("/properties")} />
-        <meta property="og:url" content={siteUrl("/properties")} />
-        <meta property="og:title" content="Browse Verified Properties for Sale & Rent in Nigeria — Prop Connect" />
-        <meta property="og:description" content="Search verified houses, apartments, and land for sale or rent across Nigeria." />
-      </Helmet>
-      <Navbar />
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="font-display text-3xl font-bold text-foreground">Browse Properties</h1>
-        <p className="mt-1 text-muted-foreground">Find your perfect property from verified agents</p>
-
-        <div className="mt-6 flex flex-col gap-3 md:flex-row">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input placeholder="Search hotel, apartment, estate, city..." value={search} onChange={(e) => { setSearch(e.target.value); setVisible(12); }} className="pl-10" />
-          </div>
-          <Select value={typeFilter} onValueChange={(v) => { setTypeFilter(v); setVisible(12); }}>
-            <SelectTrigger className="w-full md:w-44"><SelectValue placeholder="Type" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Types</SelectItem>
-              <SelectItem value="for_sale">For Sale</SelectItem>
-              <SelectItem value="for_rent">For Rent</SelectItem>
-              <SelectItem value="hotel">Hotel</SelectItem>
-              <SelectItem value="apartment">Apartment</SelectItem>
-              <SelectItem value="estate">Estate</SelectItem>
-              <SelectItem value="house">House</SelectItem>
-              <SelectItem value="land">Land</SelectItem>
-              <SelectItem value="commercial">Commercial</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="mt-3 grid grid-cols-2 gap-3 md:grid-cols-4">
-          <Select value={stateFilter} onValueChange={(v) => { setStateFilter(v); setVisible(12); }}>
-            <SelectTrigger><SelectValue placeholder="State" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All States</SelectItem>
-              {states.map((st) => <SelectItem key={st} value={st}>{st}</SelectItem>)}
-            </SelectContent>
-          </Select>
-          <Select value={priceFilter} onValueChange={(v) => { setPriceFilter(v); setVisible(12); }}>
-            <SelectTrigger><SelectValue placeholder="Price" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Any Price</SelectItem>
-              <SelectItem value="0-5m">Under ₦5M</SelectItem>
-              <SelectItem value="5m-20m">₦5M – ₦20M</SelectItem>
-              <SelectItem value="20m-50m">₦20M – ₦50M</SelectItem>
-              <SelectItem value="50m-100m">₦50M – ₦100M</SelectItem>
-              <SelectItem value="100m+">₦100M+</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={bedFilter} onValueChange={(v) => { setBedFilter(v); setVisible(12); }}>
-            <SelectTrigger><SelectValue placeholder="Bedrooms" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Any Bedrooms</SelectItem>
-              <SelectItem value="1">1+</SelectItem>
-              <SelectItem value="2">2+</SelectItem>
-              <SelectItem value="3">3+</SelectItem>
-              <SelectItem value="4">4+</SelectItem>
-              <SelectItem value="5">5+</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger><SelectValue placeholder="Sort" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="newest">Newest First</SelectItem>
-              <SelectItem value="oldest">Oldest First</SelectItem>
-              <SelectItem value="price_asc">Price: Low to High</SelectItem>
-              <SelectItem value="price_desc">Price: High to Low</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        {queryError ? (
-          <div role="alert" className="py-16 text-center"><p>Unable to load properties.</p><Button className="mt-4" onClick={() => setRetry((n) => n + 1)}>Retry</Button></div>
-        ) : loading ? (
-          <div className="flex justify-center py-16">
-            <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
-          </div>
-        ) : (
-          <>
-            <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
-              <p className="text-sm text-muted-foreground">
-                Showing <span className="font-semibold text-foreground">{shown.length}</span> of{" "}
-                <span className="font-semibold text-foreground">{filtered.length}</span>{" "}
-                {filtered.length === 1 ? "property" : "properties"}
-              </p>
-              {kindFilter !== "all" && <Button variant="outline" size="sm" onClick={() => setKindFilter("all")}>{kindFilter} <X className="h-3 w-3" /><span className="sr-only">Remove property type filter</span></Button>}
-              {hasFilters && (
-                <Button variant="ghost" size="sm" className="gap-1" onClick={resetFilters}>
-                  <X className="h-4 w-4" /> Clear filters
-                </Button>
-              )}
-            </div>
-
-            <div className="mt-4 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {shown.map((p) => <DBPropertyCard key={p.id} property={p} />)}
-            </div>
-
-            {visible < filtered.length && (
-              <div className="mt-10 flex justify-center">
-                <Button size="lg" variant="outline" onClick={() => setVisible((v) => v + 12)}>
-                  Load More Properties
-                </Button>
-              </div>
-            )}
-            {filtered.length === 0 && (
-              <div className="py-16 text-center">
-                <SlidersHorizontal className="mx-auto h-12 w-12 text-muted-foreground/50" />
-                <p className="mt-3 text-lg text-muted-foreground">{properties.length === 0 && !hasFilters ? "No properties yet. Check back soon." : "No properties match your filters"}</p>
-              </div>
-            )}
-          </>
-        )}
-      </div>
-    </div>
-  );
+const categories = [["all","All properties"],["for_sale","Buy"],["for_rent","Rent"],["land","Land"],["commercial","Commercial"],["house","Houses"],["apartment","Apartments"],["estate","Estates"],["hotel","Hotels"]];
+const kinds = [["all","Any property type"],["house","House"],["apartment","Apartment"],["land","Land"],["commercial","Commercial"],["estate","Estate"],["hotel","Hotel"]];
+const prices = [["all","Any budget"],["0-5m","Under ₦5 million"],["5m-20m","₦5–20 million"],["20m-50m","₦20–50 million"],["50m-100m","₦50–100 million"],["100m+","₦100 million and above"]];
+const ranges: Record<string,[number,number]> = {"0-5m":[0,5000000],"5m-20m":[5000000,20000000],"20m-50m":[20000000,50000000],"50m-100m":[50000000,100000000],"100m+":[100000000,Infinity]};
+const filterKeys = ["q","type","kind","state","price","beds","baths"];
+const contexts: Record<string,{title:string;copy:string}> = {
+ for_sale:{title:"A place to make your own.",copy:"Explore homes and spaces for sale across Nigeria."},
+ for_rent:{title:"Make room for your next move.",copy:"Find a rental that fits your life. Confirm rental periods and terms with the listing professional."},
+ land:{title:"Start with a little possibility.",copy:"Explore land by location, price and available size. Independently check ownership and title documents."},
+ commercial:{title:"Space for your next ambition.",copy:"Discover commercial properties from the current marketplace."},
 };
-
-export default Properties;
+export default function Properties() {
+ const [params,setParams] = useSearchParams();
+ const [draft,setDraft] = useState(params.get("q") || "");
+ const [filterOpen,setFilterOpen] = useState(false);
+ const [layout,setLayout] = useState<"grid"|"list">("grid");
+ const [visible,setVisible] = useState(12);
+ const [properties,setProperties] = useState<DBProperty[]>([]);
+ const [loading,setLoading] = useState(true);
+ const [queryError,setQueryError] = useState(false);
+ const [retry,setRetry] = useState(0);
+ const q = params.get("q") || "";
+ const type = params.get("type") || "all";
+ const kind = params.get("kind") || "all";
+ const state = params.get("state") || "all";
+ const price = params.get("price") || "all";
+ const beds = params.get("beds") || "all";
+ const baths = params.get("baths") || "all";
+ const sort = params.get("sort") || "newest";
+ const context = contexts[type] || {title:"Find somewhere that feels like you.",copy:"Explore current reviewed listings across Nigeria, at your own pace."};
+ useEffect(()=>{setDraft(q);setVisible(12);},[q,type,kind,state,price,beds,baths,sort]);
+ useEffect(()=>{
+  let active=true;
+  setLoading(true);setQueryError(false);setProperties([]);
+  void (async()=>{try {
+   const {data,error}=await supabase.from("properties").select("*").eq("is_verified",true).in("status",["available","for_sale","for_rent"]).order("created_at",{ascending:false});
+   if(error)throw error;
+   if(active)setProperties((data as DBProperty[])||[]);
+  }catch {if(active)setQueryError(true);}finally {if(active)setLoading(false);}})();
+  return ()=>{active=false;};
+ },[retry]);
+ const states = useMemo(()=>Array.from(new Set(properties.map(p=>p.state).filter((value):value is string=>!!value))).sort(),[properties]);
+ const update = (key:string,value:string)=>{const next=new URLSearchParams(params);if((key==="type"||key==="kind")&&value==="land"){next.delete("beds");next.delete("baths");if(key==="type")next.delete("kind");}if(!value||value==="all"||key==="sort"&&value==="newest")next.delete(key);else next.set(key,value);setParams(next);};
+ const clear=()=>{const next=new URLSearchParams(params);filterKeys.forEach(key=>next.delete(key));setParams(next);};
+ const filtered = useMemo(()=>properties.filter(p=>{
+  const propertyType=(p.property_type||"").toLowerCase();
+  const matchesQuery=!q||[p.title,p.city,p.state,p.property_type].some(value=>(value||"").toLowerCase().includes(q.toLowerCase()));
+  const matchesType=type==="all"||(type==="for_sale"?p.listing_type==="sale":type==="for_rent"?p.listing_type==="rental":propertyType===type);
+  const range=ranges[price];
+  return matchesQuery&&matchesType&&(kind==="all"||propertyType===kind)&&(state==="all"||p.state===state)&&(!range||p.price>=range[0]&&p.price<range[1])&&(beds==="all"||(p.bedrooms??0)>=Number(beds))&&(baths==="all"||(p.bathrooms??0)>=Number(baths));
+ }).sort((a,b)=>sort==="price_asc"?a.price-b.price:sort==="price_desc"?b.price-a.price:sort==="oldest"?(a.created_at||"").localeCompare(b.created_at||""):(b.created_at||"").localeCompare(a.created_at||"")),[properties,q,type,kind,state,price,beds,baths,sort]);
+ const activeFilters=filterKeys.filter(key=>!!params.get(key)&&params.get(key)!=="all");
+ const label=(key:string,value:string)=>key==="type"?categories.find(item=>item[0]===value)?.[1]||value:key==="kind"?kinds.find(item=>item[0]===value)?.[1]||value:key==="price"?prices.find(item=>item[0]===value)?.[1]||value:key==="beds"?`${value}+ bedrooms`:key==="baths"?`${value}+ bathrooms`:value;
+ const filters=(prefix:string)=><div className="marketplace-filter-fields">
+  <label htmlFor={`${prefix}-category`}>Listing category<select id={`${prefix}-category`} value={type} onChange={e=>update("type",e.target.value)}>{categories.map(([value,text])=><option key={value} value={value}>{text}</option>)}</select></label>
+  <label htmlFor={`${prefix}-kind`}>Property type<select id={`${prefix}-kind`} value={kind} onChange={e=>update("kind",e.target.value)}>{kinds.map(([value,text])=><option key={value} value={value}>{text}</option>)}</select></label>
+  <label htmlFor={`${prefix}-state`}>Location<select id={`${prefix}-state`} value={state} onChange={e=>update("state",e.target.value)}><option value="all">All states</option>{states.map(value=><option key={value} value={value}>{value}</option>)}</select></label>
+  <label htmlFor={`${prefix}-price`}>Budget<select id={`${prefix}-price`} value={price} onChange={e=>update("price",e.target.value)}>{prices.map(([value,text])=><option key={value} value={value}>{text}</option>)}</select></label>
+  {type!=="land"&&kind!=="land"&&<div className="marketplace-room-filters">{[["beds","Bedrooms",beds],["baths","Bathrooms",baths]].map(([key,text,value])=><label key={key} htmlFor={`${prefix}-${key}`}>{text}<select id={`${prefix}-${key}`} value={value} onChange={e=>update(key,e.target.value)}><option value="all">Any</option>{[1,2,3,4,5].map(n=><option key={n} value={n}>{n}+</option>)}</select></label>)}</div>}
+  <Button variant="outline" onClick={clear}><X /> Clear filters</Button>
+ </div>;
+ return <div className="marketplace-page"><Helmet><title>{q?`Results for ${q}`:type==="for_rent"?"Rental properties":type==="land"?"Land listings":type==="commercial"?"Commercial properties":"Discover properties"} | PROP-CONNECT</title><meta name="description" content={context.copy}/><link rel="canonical" href={siteUrl("/properties")}/><meta property="og:url" content={siteUrl("/properties")}/></Helmet><Navbar />
+ <main className="marketplace-container"><header className="marketplace-intro"><p className="text-eyebrow">PROP-CONNECT / Discover</p><div><h1>{context.title}</h1><p>{context.copy}</p></div><Link to="/add-property">List a property <ArrowUpRight /></Link></header>
+ <nav className="marketplace-category-nav" aria-label="Property categories">{categories.slice(0,5).map(([value,text])=><button type="button" key={value} aria-pressed={type===value} onClick={()=>update("type",value)}>{text}</button>)}</nav>
+ <div className="marketplace-layout"><aside className="marketplace-filters" aria-label="Property filters"><h2>A place that fits.</h2><p>Make the search your own.</p>{filters("desktop")}</aside><section className="marketplace-results" aria-label="Property search results">
+ <form className="marketplace-search" onSubmit={e=>{e.preventDefault();update("q",draft.trim());}}><Search aria-hidden="true"/><label className="sr-only" htmlFor="marketplace-query">Search properties</label><input id="marketplace-query" placeholder="Search city, neighbourhood or property" value={draft} onChange={e=>setDraft(e.target.value)}/><Button type="submit">Search</Button></form>
+ <div className="marketplace-toolbar"><div><Button variant="outline" className="marketplace-mobile-filter" onClick={()=>setFilterOpen(true)}><SlidersHorizontal /> Filters{activeFilters.length?` (${activeFilters.length})`:""}</Button><p role="status">{loading?"Finding your next place...":queryError?"Search unavailable":`${filtered.length} ${filtered.length===1?"property":"properties"}${q?` for “${q}”`:""}`}</p></div><div><label className="sr-only" htmlFor="marketplace-sort">Sort properties</label><select id="marketplace-sort" value={sort} onChange={e=>update("sort",e.target.value)}><option value="newest">Newest first</option><option value="oldest">Oldest first</option><option value="price_asc">Price: low to high</option><option value="price_desc">Price: high to low</option></select><div className="marketplace-view-switch" aria-label="Results layout"><Button variant="ghost" size="icon" aria-label="Grid view" aria-pressed={layout==="grid"} onClick={()=>setLayout("grid")}><Grid2X2 /></Button><Button variant="ghost" size="icon" aria-label="List view" aria-pressed={layout==="list"} onClick={()=>setLayout("list")}><List /></Button></div></div></div>
+ {!!activeFilters.length&&<div className="marketplace-active-filters" aria-label="Active filters">{activeFilters.map(key=><button key={key} type="button" onClick={()=>update(key,"")} aria-label={`Remove ${label(key,params.get(key)!)}`}>{label(key,params.get(key)!)}<X /></button>)}</div>}
+ {queryError?<div role="alert" className="marketplace-empty"><Building2 /><h2>Unable to load properties.</h2><p>Please try again. Your filters are preserved.</p><Button onClick={()=>setRetry(n=>n+1)}>Retry</Button></div>:loading?<ListingSkeleton />:filtered.length?<><div className={`marketplace-property-results marketplace-property-results-${layout}`}>{filtered.slice(0,visible).map(property=><DBPropertyCard key={property.id} property={property} layout={layout}/>)}</div><div className="marketplace-pagination"><p>Showing {Math.min(visible,filtered.length)} of {filtered.length} properties</p>{visible<filtered.length&&<Button variant="outline" onClick={()=>setVisible(n=>n+12)}>Load More Properties</Button>}</div></>:<div className="marketplace-empty"><Search /><h2>{properties.length===0&&!activeFilters.length?"No properties yet. Check back soon.":"No properties match your filters"}</h2><p>Try another location or adjust your search. New possibilities take a little space.</p>{!!activeFilters.length&&<Button variant="outline" onClick={clear}>Clear filters</Button>}</div>}
+ </section></div></main><Footer />
+ <Sheet open={filterOpen} onOpenChange={setFilterOpen}><SheetContent side="bottom" className="marketplace-filter-sheet"><SheetTitle>Filter properties</SheetTitle><SheetDescription>Changes update the results and URL immediately.</SheetDescription>{filters("mobile")}<Button onClick={()=>setFilterOpen(false)}>Show {filtered.length} results</Button></SheetContent></Sheet>
+ </div>;
+}

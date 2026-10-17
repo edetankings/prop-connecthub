@@ -21,6 +21,45 @@ function open(detail = false, query = "") {
 beforeEach(() => { vi.clearAllMocks(); });
 afterEach(cleanup);
 describe("real marketplace query states", () => {
+  it("submits search, combines bathrooms, sorts real results and switches layout", async () => {
+    mocks.result.mockResolvedValue({ data: [
+      { id: "a", title: "Synthetic Lagos expensive", city: "Lagos", price: 300, property_type: "house", bathrooms: 2 },
+      { id: "b", title: "Synthetic Lagos cheap", city: "Lagos", price: 100, property_type: "house", bathrooms: 2 },
+      { id: "c", title: "Synthetic Lagos small", city: "Lagos", price: 50, property_type: "house", bathrooms: 1 },
+      { id: "d", title: "Synthetic Abuja", city: "Abuja", price: 50, property_type: "house", bathrooms: 2 },
+    ], error: null });
+    open();
+    await screen.findByRole("heading", { name: "Synthetic Abuja" });
+    fireEvent.change(screen.getByLabelText("Search properties"), { target: { value: "Lagos" } });
+    fireEvent.click(screen.getByRole("button", { name: "Search" }));
+    fireEvent.change(screen.getByLabelText("Bathrooms"), { target: { value: "2" } });
+    fireEvent.change(screen.getByLabelText("Sort properties"), { target: { value: "price_asc" } });
+    expect(screen.queryByRole("heading", { name: "Synthetic Abuja" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Synthetic Lagos small" })).not.toBeInTheDocument();
+    const titles = screen.getAllByRole("heading", { name: /Synthetic Lagos/ });
+    expect(titles.map(node => node.textContent)).toEqual(["Synthetic Lagos cheap", "Synthetic Lagos expensive"]);
+    expect(screen.getByRole("button", { name: "Remove Lagos" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "List view" }));
+    expect(screen.getByRole("button", { name: "List view" })).toHaveAttribute("aria-pressed", "true");
+    expect(document.querySelectorAll(".marketplace-card-list")).toHaveLength(2);
+    fireEvent.click(screen.getByRole("button", { name: "Remove Lagos" }));
+    expect(screen.getByRole("heading", { name: "Synthetic Abuja" })).toBeInTheDocument();
+  });
+
+  it("separates land and commercial records without invented fields", async () => {
+    mocks.result.mockResolvedValue({ data: [
+      { id: "land", title: "Synthetic land", price: 100, property_type: "land", sqft: 600 },
+      { id: "office", title: "Synthetic commercial", price: 100, property_type: "commercial" },
+    ], error: null });
+    open(false, "?type=land");
+    await screen.findByRole("heading", { name: "Synthetic land" });
+    expect(screen.queryByLabelText("Bedrooms")).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Synthetic commercial" })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Commercial" }));
+    expect(screen.getByRole("heading", { name: "Synthetic commercial" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Synthetic land" })).not.toBeInTheDocument();
+  });
+
   it("combines rental intent, property kind and minimum bedroom filters", async () => {
     mocks.result.mockResolvedValue({ data: [
       { id: "fit", title: "Three-bedroom rental", price: 100, listing_type: "rental", property_type: "apartment", bedrooms: 3 },

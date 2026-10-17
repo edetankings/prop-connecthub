@@ -5,55 +5,21 @@ import { Link } from "react-router-dom";
 import { BadgeCheck, ChevronLeft, ChevronRight, Heart, MapPin, BedDouble, Bath, Maximize } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useLocalFavorites } from "@/hooks/useLocalFavorites";
 import type { DBProperty } from "@/components/DBPropertyCard";
 
 gsap.registerPlugin(ScrollTrigger);
-
-const FAV_KEY = "prop-connect-favorites";
-
-const readFavorites = (fallback: string[] = []): string[] => {
-  try {
-    const raw = localStorage.getItem(FAV_KEY);
-    const parsed: unknown = raw ? JSON.parse(raw) : fallback;
-    return Array.isArray(parsed) ? [...new Set(parsed.filter((id): id is string => typeof id === "string"))] : [];
-  } catch {
-    return fallback;
-  }
-};
 
 const typeLabel = (p: DBProperty) =>
   (p.property_type || "Property").replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 
 const CarouselCard = ({ p }: { p: DBProperty }) => {
   const [imageFailed, setImageFailed] = useState(false);
-  const [favorites, setFavorites] = useState<string[]>(readFavorites);
-  const saved = favorites.includes(p.id);
-  useEffect(() => {
-    const syncFavorites = () => setFavorites(readFavorites());
-    window.addEventListener("storage", syncFavorites);
-    window.addEventListener("prop-connect-favorites-changed", syncFavorites);
-    return () => {
-      window.removeEventListener("storage", syncFavorites);
-      window.removeEventListener("prop-connect-favorites-changed", syncFavorites);
-    };
-  }, []);
+  const { saved, toggle } = useLocalFavorites(p.id);
   const img = p.image_url || p.images?.[0] || "/placeholder.svg";
   const loc = [p.city, p.state].filter(Boolean).join(", ") || "Nigeria";
   const isRent = p.listing_type === "rental";
 
-  const toggle = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const current = readFavorites(favorites);
-    const next = current.includes(p.id) ? current.filter((id) => id !== p.id) : [...current, p.id];
-    setFavorites(next);
-    try {
-      localStorage.setItem(FAV_KEY, JSON.stringify(next));
-      window.dispatchEvent(new Event("prop-connect-favorites-changed"));
-    } catch {
-      /* storage unavailable */
-    }
-  };
 
   return (
     <article
@@ -92,7 +58,7 @@ const CarouselCard = ({ p }: { p: DBProperty }) => {
         </p>
         <p className="property-card-price font-display font-bold text-primary">
           ₦{p.price?.toLocaleString("en-NG")}
-          {isRent && <span className="text-xs font-normal text-muted-foreground">/yr</span>}
+          {isRent && <span className="text-xs font-normal text-muted-foreground"> Rental</span>}
         </p>
         <div className="property-card-facts">
           {p.bedrooms != null && p.bedrooms > 0 && <span><BedDouble aria-hidden="true" /> {p.bedrooms} <span className="sr-only">bedrooms</span></span>}
@@ -106,7 +72,7 @@ const CarouselCard = ({ p }: { p: DBProperty }) => {
       </Link>
         <button
           type="button"
-          onClick={toggle}
+          onClick={event => { event.preventDefault(); event.stopPropagation(); toggle(); }}
           aria-label={saved ? `Remove ${p.title} from saved` : `Save ${p.title}`}
           aria-pressed={saved}
           className="property-card-save"

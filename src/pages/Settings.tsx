@@ -80,18 +80,13 @@ const Settings = () => {
   const saveProfile = async () => {
     if (!profile) return;
     setSaving(true);
-    const { error } = await supabase
-      .from("profiles")
-      .update({ full_name: fullName, phone, bio, location })
-      .eq("user_id", user!.id);
-    setSaving(false);
-    if (error) {
-      toast.error("Failed to update profile");
-    } else {
-      toast.success("Profile updated!");
-      setEditingProfile(false);
-      await refreshProfile();
-    }
+    try {
+      const { error } = await supabase.from("profiles").update({ full_name: fullName, phone, bio, location }).eq("user_id", user!.id);
+      if (error) throw error;
+      toast.success("Profile updated!"); setEditingProfile(false);
+      try { await refreshProfile(); } catch { toast.warning("Profile saved. Reload to refresh your details."); }
+    } catch { toast.error("Failed to update profile"); }
+    finally { setSaving(false); }
   };
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -100,7 +95,7 @@ const Settings = () => {
 
     const allowed = ["image/jpeg", "image/png", "image/webp"];
     if (!allowed.includes(file.type)) {
-      toast.error("Only JPG, JPEG, and PNG files are allowed");
+      toast.error("Only JPG, JPEG, PNG and WebP files are allowed");
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
@@ -227,8 +222,8 @@ const Settings = () => {
   };
 
   const handleSignOut = async () => {
-    await signOut();
-    navigate("/login");
+    try { await signOut(); navigate("/login"); }
+    catch { toast.error("Unable to sign out. Please try again."); }
   };
 
   const navItems: { key: Section; icon: typeof User; label: string }[] = [
@@ -241,7 +236,7 @@ const Settings = () => {
 
   return (
     <AuthenticatedLayout>
-      <div className="container mx-auto max-w-5xl px-4 py-8">
+      <div className="buyer-settings container mx-auto max-w-5xl px-4 py-8">
         <h1 className="font-display text-3xl font-bold text-foreground mb-6">Settings</h1>
 
         <div className="grid gap-6 lg:grid-cols-4">
@@ -262,12 +257,12 @@ const Settings = () => {
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept="image/jpeg,image/png,image/jpg"
+                  accept="image/jpeg,image/png,image/jpg,image/webp"
                   className="hidden"
                   onChange={handleAvatarUpload}
                 />
                 <button
-                  onClick={() => fileInputRef.current?.click()}
+                  aria-label="Change profile photo" onClick={() => fileInputRef.current?.click()}
                   disabled={uploadingAvatar}
                   className="absolute bottom-0 right-0 h-7 w-7 rounded-full bg-secondary flex items-center justify-center shadow-md hover:bg-secondary/80 transition-colors"
                 >
@@ -295,7 +290,7 @@ const Settings = () => {
               )}
 
               <p className="text-xs text-muted-foreground mt-2">
-                Member since {user ? new Date(user.created_at ?? Date.now()).toLocaleDateString("en-NG", { month: "long", year: "numeric" }) : "—"}
+                Member since {user?.created_at ? new Date(user.created_at).toLocaleDateString("en-NG", { month: "long", year: "numeric" }) : "—"}
               </p>
             </div>
 
@@ -339,7 +334,7 @@ const Settings = () => {
                       </Button>
                     ) : (
                       <div className="flex gap-2">
-                        <Button size="sm" variant="ghost" onClick={() => setEditingProfile(false)}>
+                        <Button size="sm" variant="ghost" aria-label="Cancel profile changes" onClick={() => setEditingProfile(false)}>
                           <X className="h-4 w-4" />
                         </Button>
                         <Button size="sm" className="gap-2 bg-secondary text-secondary-foreground hover:bg-secondary/90" onClick={saveProfile} disabled={saving}>
@@ -350,25 +345,25 @@ const Settings = () => {
                   </div>
                   <div className="space-y-4">
                     <div>
-                      <Label>Full Name</Label>
-                      <Input value={fullName} onChange={e => setFullName(e.target.value)} disabled={!editingProfile} className="mt-1" />
+                      <Label htmlFor="settings-full-name">Full Name</Label>
+                      <Input id="settings-full-name" value={fullName} onChange={e => setFullName(e.target.value)} disabled={!editingProfile} className="mt-1" />
                     </div>
                     <div>
-                      <Label>Email</Label>
-                      <Input value={user?.email || ""} disabled className="mt-1 text-muted-foreground" />
-                      <p className="text-xs text-muted-foreground mt-1">Email cannot be changed here</p>
+                      <Label htmlFor="settings-email">Email</Label>
+                      <Input id="settings-email" value={user?.email || ""} disabled className="mt-1 text-muted-foreground" />
+                      <p className="text-xs text-muted-foreground mt-1">{user?.email_confirmed_at ? "Email verified. " : "Email not verified. "}Email cannot be changed here</p>
                     </div>
                     <div>
-                      <Label>Phone Number</Label>
-                      <Input value={phone} onChange={e => setPhone(e.target.value)} disabled={!editingProfile} className="mt-1" placeholder="+234..." />
+                      <Label htmlFor="settings-phone-number">Phone Number</Label>
+                      <Input id="settings-phone-number" value={phone} onChange={e => setPhone(e.target.value)} disabled={!editingProfile} className="mt-1" placeholder="+234..." />
                     </div>
                     <div>
-                      <Label>Location</Label>
-                      <Input value={location} onChange={e => setLocation(e.target.value)} disabled={!editingProfile} className="mt-1" placeholder="Lagos, Nigeria" />
+                      <Label htmlFor="settings-location">Location</Label>
+                      <Input id="settings-location" value={location} onChange={e => setLocation(e.target.value)} disabled={!editingProfile} className="mt-1" placeholder="Lagos, Nigeria" />
                     </div>
                     <div>
-                      <Label>Bio</Label>
-                      <Textarea value={bio} onChange={e => setBio(e.target.value)} disabled={!editingProfile} className="mt-1 resize-none" rows={3} placeholder="Tell us about yourself…" />
+                      <Label htmlFor="settings-bio">Bio</Label>
+                      <Textarea id="settings-bio" value={bio} onChange={e => setBio(e.target.value)} disabled={!editingProfile} className="mt-1 resize-none" rows={3} placeholder="Tell us about yourself…" />
                     </div>
                   </div>
                 </div>
@@ -410,14 +405,14 @@ const Settings = () => {
                     {[
                       {
                         label: "Push Notifications",
-                        desc: "Receive alerts on your device",
+                        desc: "Stored preference. Device push delivery is not configured here.",
                         value: pushEnabled,
                         key: "push_enabled",
                         set: setPushEnabled,
                       },
                       {
                         label: "Email Notifications",
-                        desc: "Get updates sent to your email",
+                        desc: "Stored preference. Email delivery depends on notification configuration.",
                         value: emailEnabled,
                         key: "email_notifications_enabled",
                         set: setEmailEnabled,
@@ -429,7 +424,7 @@ const Settings = () => {
                           <p className="text-xs text-muted-foreground">{desc}</p>
                         </div>
                         <Switch
-                          checked={value}
+                          aria-label={label} checked={value}
                           onCheckedChange={(v) => {
                             set(v);
                             savePreferences(key, v);
@@ -449,15 +444,9 @@ const Settings = () => {
                     <div className="flex items-center justify-between rounded-xl border border-border bg-muted/30 p-4">
                       <div>
                         <p className="font-medium text-foreground text-sm">Two-Factor Authentication</p>
-                        <p className="text-xs text-muted-foreground">Add an extra layer of security to your account</p>
+                        <p className="text-xs text-muted-foreground">Use only authentication factors actually enrolled through a supported Auth flow</p>
                       </div>
-                      <Switch
-                        checked={twoFactorEnabled}
-                        onCheckedChange={(v) => {
-                          setTwoFactorEnabled(v);
-                          savePreferences("two_factor_enabled", v);
-                        }}
-                      />
+                      <p className="text-xs text-muted-foreground">Not configured in this interface. A stored preference does not enable MFA.</p>
                     </div>
                     <div className="rounded-xl border border-border bg-muted/30 p-4">
                       <p className="font-medium text-foreground text-sm mb-1">Current Session</p>
@@ -501,21 +490,21 @@ const Settings = () => {
                       <div className="space-y-3">
                         <div className="grid gap-3 sm:grid-cols-2">
                           <div>
-                            <Label>Name</Label>
-                            <Input value={supportName} onChange={e => setSupportName(e.target.value)} className="mt-1" placeholder="Your full name" />
+                            <Label htmlFor="support-name">Name</Label>
+                            <Input id="support-name" value={supportName} onChange={e => setSupportName(e.target.value)} className="mt-1" placeholder="Your full name" />
                           </div>
                           <div>
-                            <Label>Email</Label>
-                            <Input value={supportEmail} onChange={e => setSupportEmail(e.target.value)} className="mt-1" placeholder="you@example.com" type="email" />
+                            <Label htmlFor="support-email">Email</Label>
+                            <Input id="support-email" value={supportEmail} onChange={e => setSupportEmail(e.target.value)} className="mt-1" placeholder="you@example.com" type="email" />
                           </div>
                         </div>
                         <div>
-                          <Label>Subject</Label>
-                          <Input value={subject} onChange={e => setSubject(e.target.value)} className="mt-1" placeholder="Brief description of your issue" />
+                          <Label htmlFor="support-subject">Subject</Label>
+                          <Input id="support-subject" value={subject} onChange={e => setSubject(e.target.value)} className="mt-1" placeholder="Brief description of your issue" />
                         </div>
                         <div>
-                          <Label>Message</Label>
-                          <Textarea value={message} onChange={e => setMessage(e.target.value)} className="mt-1 resize-none" rows={4} placeholder="Describe your problem in detail…" />
+                          <Label htmlFor="support-message">Message</Label>
+                          <Textarea id="support-message" value={message} onChange={e => setMessage(e.target.value)} className="mt-1 resize-none" rows={4} placeholder="Describe your problem in detail…" />
                         </div>
                         <div className="flex gap-3">
                           <Button

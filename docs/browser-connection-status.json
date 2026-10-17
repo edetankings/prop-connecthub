@@ -1,0 +1,15 @@
+{
+  "browser": "Google Chrome",
+  "installed": true,
+  "running": true,
+  "connection": "unavailable: app-side native connector missing",
+  "requiredExtensionDetectedInCheckedProfile": true,
+  "nativeConnectorManifestPresent": false,
+  "nativeConnectorRegistrationPresent": false,
+  "nativeHostRepaired": false,
+  "browserAutomationPerformed": false,
+  "screenshotsCaptured": false,
+  "requiredOwnerAction": "Reinstall the Browser plugin through the app plugin UI, then restart the app and Chrome. The Chrome extension is already installed and enabled.",
+  "extensionEnabled": true,
+  "extensionVersion": "1.26.1005.11759"
+}

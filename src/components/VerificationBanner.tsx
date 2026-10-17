@@ -6,10 +6,12 @@ import { Button } from "@/components/ui/button";
 
 const VerificationBanner = () => {
   const { profile } = useAuth();
-  const { kycStatus } = useKYCVerification();
+  const { kycStatus, loading } = useKYCVerification();
 
-  // Hide if verified or KYC submission is pending review
-  if (!profile || profile.kyc_verified || kycStatus === "pending" || kycStatus === "verified") return null;
+  if (!profile || loading) return null;
+  const verified = profile.kyc_verified || kycStatus === "verified";
+  const pending = kycStatus === "pending";
+  const rejected = kycStatus === "rejected";
 
   return (
     <div className="px-3 pt-3 sm:px-4">
@@ -19,14 +21,14 @@ const VerificationBanner = () => {
             <ShieldAlert className="h-5 w-5 text-[hsl(var(--warning))]" />
           </div>
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-foreground">Complete Identity Verification</p>
+            <p className="text-sm font-semibold text-foreground">{verified ? "Identity verified" : pending ? "Identity verification under review" : rejected ? "Verification needs your attention" : "Complete identity verification"}</p>
             <p className="text-xs text-muted-foreground">
-              Unlock secure payments, reservations and verified agents.
+              {verified ? "Your identity review is complete. Existing permissions still apply." : pending ? "Your submitted identity documents are awaiting review. No approval is implied." : rejected ? "Review the feedback on your verification page before submitting again." : "Review the required identity documents. Registration does not grant verification."} Financial operations remain locked.
             </p>
           </div>
         </div>
         <Button size="sm" className="shrink-0 rounded-full px-5" asChild>
-          <Link to="/verification">Verify Now</Link>
+          <Link to="/verification">{verified || pending ? "View verification" : rejected ? "Review feedback" : "View requirements"}</Link>
         </Button>
       </div>
     </div>

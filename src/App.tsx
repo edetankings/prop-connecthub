@@ -57,6 +57,7 @@ import DealsList from "./pages/DealsList";
 import Inspections from "./pages/Inspections";
 
 import WelcomeModal from "./components/WelcomeModal";
+import EmailConfirmationResult from "./components/auth/EmailConfirmationResult";
 
 const queryClient = new QueryClient();
 
@@ -69,6 +70,7 @@ const App = () => (
       <BrowserRouter>
         <SeoDefaults />
         <AuthProvider>
+          <EmailConfirmationResult />
           <WelcomeModal />
           <MotionReveal />
           <Routes>

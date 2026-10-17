@@ -25,8 +25,9 @@ const NotificationBell = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="relative">
+    <div className="relative" onKeyDown={event => { if (event.key === "Escape") setOpen(false); }}>
       <button
+        aria-label="Notifications" aria-expanded={open}
         onClick={() => setOpen(!open)}
         className="relative p-2 rounded-lg hover:bg-muted transition-colors"
       >
@@ -41,7 +42,7 @@ const NotificationBell = () => {
       {open && (
         <>
           <div className="fixed inset-0 z-[80]" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 top-full mt-2 w-80 max-h-96 overflow-y-auto rounded-xl border border-border bg-card shadow-elevated z-[90]">
+          <div role="region" aria-label="Notifications" className="notification-panel absolute right-0 top-full mt-2 w-80 max-h-96 overflow-y-auto rounded-xl border border-border bg-card shadow-elevated z-[90]">
             <div className="flex items-center justify-between p-3 border-b border-border">
               <p className="font-semibold text-sm text-foreground">Notifications</p>
               {unreadCount > 0 && (

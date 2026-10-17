@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Mail } from "lucide-react";
-import logo from "@/assets/logo.jpg";
+import AuthLayout from "@/components/auth/AuthLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -42,20 +42,16 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted px-4">
-      <div className="w-full max-w-md rounded-xl border border-border bg-card p-8 shadow-elevated">
-        <Link to="/" className="mb-6 flex justify-center">
-          <img src={logo} alt="PROP-connect" className="h-16 w-16 rounded-lg object-contain" />
-        </Link>
-
-        {sent ? (
+    <AuthLayout>
+      <div>
+{sent ? (
           <div className="text-center">
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
               <Mail className="h-8 w-8 text-primary" />
             </div>
             <h1 className="font-display text-xl font-bold text-foreground">Check Your Email</h1>
             <p className="mt-2 text-sm text-muted-foreground">
-              We've sent a password reset link to <strong className="text-foreground">{email}</strong>.
+              If an account is eligible for recovery, a reset link has been requested for <strong className="text-foreground">{email}</strong>.
               Please check your inbox and click the link to reset your password.
             </p>
             <p className="mt-4 text-xs text-muted-foreground">
@@ -76,15 +72,15 @@ const ForgotPassword = () => {
             </p>
 
             {error && (
-              <div className="mt-4 rounded-md bg-destructive/10 p-3 text-sm text-destructive">{error}</div>
+              <div id="auth-error" role="alert" className="mt-4 rounded-md bg-destructive/10 p-3 text-sm text-destructive">{error}</div>
             )}
 
-            <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
+            <form className="mt-6 space-y-4" aria-busy={loading} aria-describedby={error ? "auth-error" : undefined} onSubmit={handleSubmit}>
               <div>
                 <Label htmlFor="email">Email Address</Label>
-                <Input
+                <Input aria-invalid={!!error} aria-describedby={error ? "auth-error" : undefined}
                   id="email"
-                  type="email"
+                  type="email" autoComplete="email" autoCapitalize="none" spellCheck={false}
                   placeholder="you@example.com"
                   className="mt-1"
                   value={email}
@@ -107,7 +103,7 @@ const ForgotPassword = () => {
           </>
         )}
       </div>
-    </div>
+    </AuthLayout>
   );
 };
 

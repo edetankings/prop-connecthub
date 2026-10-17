@@ -1,8 +1,9 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { MapPin, Bed, Bath, Maximize, MessageCircle, CalendarCheck } from "lucide-react";
+import { MapPin, Bed, Bath, Maximize, MessageCircle, ArrowUpRight, Heart, BadgeCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
+import { useLocalFavorites } from "@/hooks/useLocalFavorites";
 
 export interface DBProperty {
   id: string;
@@ -22,75 +23,36 @@ export interface DBProperty {
   agent_id: string;
   description: string | null;
   is_verified: boolean;
+  created_at?: string;
 }
 
-const DBPropertyCard = ({ property }: { property: DBProperty }) => {
+const DBPropertyCard = ({ property, layout = "grid" }: { property: DBProperty; layout?: "grid" | "list" }) => {
   const { user } = useAuth();
-  const displayImage = property.image_url || property.images?.[0] || "/placeholder.svg";
-  const location = [property.city, property.state].filter(Boolean).join(", ") || "Nigeria";
-  const isSale = property.listing_type === "sale";
-
-  return (
-    <div className="group overflow-hidden rounded-lg border border-border bg-card shadow-card transition-all duration-300 hover:shadow-elevated hover:-translate-y-1">
-      <div className="relative overflow-hidden">
-        <img
-          src={displayImage}
-          alt={property.title}
-          className="h-52 w-full object-cover transition-transform duration-500 group-hover:scale-105"
-          loading="lazy"
-        />
-        <div className="absolute left-3 top-3 flex gap-2">
-          <Badge className={isSale ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"}>
-            {isSale ? "For Sale" : "For Rent"}
-          </Badge>
-          {property.is_verified && (
-            <Badge className="bg-success/90 text-success-foreground">Verified</Badge>
-          )}
-        </div>
-        <div className="absolute bottom-3 right-3">
-          <span className="rounded-md bg-card/90 px-3 py-1 font-display text-lg font-bold text-foreground backdrop-blur-sm">
-            ₦{property.price.toLocaleString()}
-          </span>
-        </div>
-      </div>
-      <div className="p-4">
-        <Link to={`/property/${property.id}`}>
-          <h3 className="font-display text-lg font-semibold text-foreground transition-colors hover:text-secondary">
-            {property.title}
-          </h3>
-        </Link>
-        <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
-          <MapPin className="h-3.5 w-3.5" />
-          {location}
-        </p>
-        <div className="mt-3 flex items-center gap-4 text-sm text-muted-foreground">
-          {(property.bedrooms ?? 0) > 0 && (
-            <span className="flex items-center gap-1"><Bed className="h-4 w-4" /> {property.bedrooms}</span>
-          )}
-          {(property.bathrooms ?? 0) > 0 && (
-            <span className="flex items-center gap-1"><Bath className="h-4 w-4" /> {property.bathrooms}</span>
-          )}
-          {(property.sqft ?? 0) > 0 && (
-            <span className="flex items-center gap-1"><Maximize className="h-4 w-4" /> {property.sqft} sqft</span>
-          )}
-        </div>
-        <div className="mt-4 flex gap-2">
-          {user && (
-            <Link to={`/chat/new?agent=${property.agent_id}&property=${property.id}`} className="flex-1">
-              <Button variant="outline" size="sm" className="w-full gap-1.5 border-primary/20 text-primary hover:bg-primary/5">
-                <MessageCircle className="h-4 w-4" /> Chat
-              </Button>
-            </Link>
-          )}
-          <Link to={`/property/${property.id}`} className="flex-1">
-            <Button size="sm" className="w-full gap-1.5 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-200 hover:scale-[1.02]">
-              <CalendarCheck className="h-4 w-4" /> View Property
-            </Button>
-          </Link>
-        </div>
-      </div>
+  const { saved, toggle } = useLocalFavorites(property.id);
+  const [imageFailed, setImageFailed] = useState(false);
+  const image = imageFailed ? "/placeholder.svg" : property.image_url || property.images?.[0] || "/placeholder.svg";
+  const location = [property.city, property.state].filter(Boolean).join(", ") || "Location not provided";
+  const isLand = property.property_type?.toLowerCase() === "land";
+  const intent = property.listing_type === "rental" ? "For rent" : property.listing_type === "sale" ? "For sale" : "Listing";
+  return <article className={`marketplace-card marketplace-card-${layout}`}>
+    <div className="marketplace-card-image"><Link to={`/property/${property.id}`} aria-label={`View ${property.title}`}><img src={image} alt={property.title} loading="lazy" width={960} height={720} onError={() => setImageFailed(true)} /></Link>
+      <div className="marketplace-card-labels"><span>{intent}</span>{property.is_verified && <span><BadgeCheck aria-hidden="true" /> Reviewed</span>}</div>
+      <button type="button" className="marketplace-save" aria-pressed={saved} aria-label={saved ? `Remove ${property.title} from saved` : `Save ${property.title}`} onClick={toggle}><Heart className={saved ? "fill-current" : ""} /></button>
     </div>
-  );
+    <div className="marketplace-card-copy"><p className="marketplace-card-kind">{property.property_type?.replace(/_/g," ") || "Property"}<span>{property.status?.replace(/_/g," ")}</span></p>
+      <Link to={`/property/${property.id}`}><h2>{property.title}</h2></Link>
+      <p className="marketplace-location"><MapPin aria-hidden="true" />{location}</p>
+      <p className="marketplace-card-price">{Number.isFinite(property.price) ? `₦${property.price.toLocaleString("en-NG")}` : "Price unavailable"}</p>
+      {property.listing_type === "rental" && <p className="marketplace-rental-note">Rental terms provided by the agent</p>}
+      <div className="marketplace-card-facts">
+        {isLand && (property.sqft ?? 0) > 0 && <span><Maximize />{property.sqft?.toLocaleString("en-NG")} sqft</span>}
+        {!isLand && (property.bedrooms ?? 0) > 0 && <span><Bed />{property.bedrooms} beds</span>}
+        {!isLand && (property.bathrooms ?? 0) > 0 && <span><Bath />{property.bathrooms} baths</span>}
+        {!isLand && (property.sqft ?? 0) > 0 && <span><Maximize />{property.sqft?.toLocaleString("en-NG")} sqft</span>}
+      </div>
+      {(layout === "list" || isLand) && property.description && <p className="marketplace-card-description">{property.description}</p>}
+      <div className="marketplace-card-actions"><Link to={`/property/${property.id}`}>View Property <ArrowUpRight /></Link>{user && <Button asChild variant="ghost" size="sm"><Link to={`/chat/new?agent=${property.agent_id}&property=${property.id}`}><MessageCircle />Message</Link></Button>}</div>
+    </div>
+  </article>;
 };
-
 export default DBPropertyCard;

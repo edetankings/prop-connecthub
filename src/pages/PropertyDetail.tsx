@@ -1,11 +1,11 @@
 import { siteUrl } from "@/lib/seo";
 import { useParams, Link } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Helmet } from "react-helmet-async";
-import { MapPin, Bed, Bath, Maximize, MessageCircle, CalendarCheck, ArrowLeft, CheckCircle, Bookmark, ShieldCheck, X, ChevronLeft, ChevronRight, Play, Lock } from "lucide-react";
+import { MapPin, Bed, Bath, Maximize, MessageCircle, CalendarCheck, ArrowLeft, CheckCircle, Bookmark, ShieldCheck, Play, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -18,6 +18,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import type { DBAgent } from "@/pages/Agents";
 import VerifiedBadge from "@/components/VerifiedBadge";
+import PropertyGallery from "@/components/PropertyGallery";
+import Footer from "@/components/Footer";
+import { useLocalFavorites } from "@/hooks/useLocalFavorites";
 import PropertyMapPreview from "@/components/PropertyMapPreview";
 
 interface DBPropertyDetail {
@@ -55,7 +58,8 @@ const PropertyDetail = () => {
   const [agent, setAgent] = useState<DBAgent | null>(null);
   const [showReserveModal, setShowReserveModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
+  const reservationPending = useRef(false);
+  const { saved, toggle: toggleSaved } = useLocalFavorites(id || "");
   const [form, setForm] = useState({
     buyer_name: "",
     viewing_date: "",
@@ -168,6 +172,7 @@ const PropertyDetail = () => {
   const isOwner = profile?.id === (dbProperty?.agent_id);
 
   const handleReserve = async () => {
+    if (reservationPending.current) return;
     if (!user || !profile) {
       toast.error("Please log in to book an inspection");
       return;
@@ -189,60 +194,41 @@ const PropertyDetail = () => {
       return;
     }
     // Validate future date
-    const selectedDate = new Date(form.viewing_date);
+    const [year, month, day] = form.viewing_date.split("-").map(Number);
+    const selectedDate = new Date(year, month - 1, day);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    if (selectedDate < today) {
+    if (!Number.isFinite(selectedDate.getTime()) || selectedDate < today) {
       toast.error("Viewing date must be today or in the future");
       return;
     }
+    reservationPending.current = true;
     setSubmitting(true);
-    const { error } = await supabase.from("reservations").insert({
-      property_id: propId,
-      buyer_id: profile.id,
-      agent_id: propAgentId,
-      buyer_name: form.buyer_name,
-      message: form.message || null,
-      viewing_date: form.viewing_date,
-      notes: form.message || null,
-      inspection_time: form.inspection_time || null,
-    } as any);
-
-    // Auto-create a chat thread between buyer and agent for this property
-    if (!error) {
-      // Check if a thread already exists
-      const { data: existingThread } = await supabase
-        .from("chat_threads")
-        .select("id")
-        .eq("buyer_id", profile.id)
-        .eq("agent_id", propAgentId)
-        .eq("property_id", propId)
-        .maybeSingle();
-
-      if (!existingThread) {
-        await supabase.from("chat_threads").insert({
-          buyer_id: profile.id,
-          agent_id: propAgentId,
-          property_id: propId,
-        });
-      }
-    }
-    setSubmitting(false);
-
-    if (error) {
-      toast.error("Failed to send inspection request");
-      console.error(error);
-      return;
-    }
-
-    toast.success("Inspection request sent to the agent.");
-    setAlreadyReserved(true);
-    setShowReserveModal(false);
+    try {
+      const { error } = await supabase.from("reservations").insert({
+        property_id: propId, buyer_id: profile.id, agent_id: propAgentId,
+        buyer_name: form.buyer_name, message: form.message || null, viewing_date: form.viewing_date,
+        notes: form.message || null, inspection_time: form.inspection_time || null,
+      });
+      if (error) { toast.error("Failed to send inspection request"); return; }
+      setAlreadyReserved(true);
+      setShowReserveModal(false);
+      toast.success("Inspection request sent to the agent.");
+      // Preserve the existing chat initialization; a chat failure must not misreport a saved request.
+      try {
+        const { data: existingThread } = await supabase.from("chat_threads").select("id")
+          .eq("buyer_id", profile.id).eq("agent_id", propAgentId).eq("property_id", propId).maybeSingle();
+        if (!existingThread) {
+          const { error: chatError } = await supabase.from("chat_threads").insert({ buyer_id: profile.id, agent_id: propAgentId, property_id: propId });
+          if (chatError) toast.warning("Your inspection request was sent. Open Messages to contact the agent.");
+        }
+      } catch { toast.warning("Your inspection request was sent. Open Messages to contact the agent."); }
+    } catch { toast.error("Failed to send inspection request. Please try again."); }
+    finally { reservationPending.current = false; setSubmitting(false); }
   };
 
-  const handleSave = () => {
-    toast.success("Property saved to your favorites!");
-  };
+
+  const handleSave = () => { toggleSaved(); };
 
   // Loading state
   if (loading) {
@@ -308,7 +294,7 @@ const PropertyDetail = () => {
   const badge = agent ? getTrustBadge(agent.trust_score) : null;
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-background">
+    <div className="property-detail-page min-h-screen bg-background">
       {(() => {
         const p = dbProperty;
         if (!p) return null;
@@ -347,31 +333,16 @@ const PropertyDetail = () => {
         );
       })()}
       <Navbar />
-      <div className="container mx-auto max-w-7xl px-3 py-4 sm:px-4 sm:py-6">
+      <main className="property-detail-container">
         <Link to="/properties" className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" /> Back to Properties
         </Link>
 
-        <div className="grid min-w-0 grid-cols-1 gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(18rem,1fr)] lg:gap-8">
+        <header className="property-detail-header"><div><p className="text-eyebrow">{(dbProperty.property_type || "Property").replace(/_/g," ")} / {isRental ? "For rent" : isSale ? "For sale" : "Listing"}</p><h1>{title}</h1><p className="marketplace-location"><MapPin />{location}</p><div className="property-header-badges">{isVerified && <Badge variant="outline">Platform reviewed</Badge>}<Badge variant="outline">{dbProperty.status.replace(/_/g," ")}</Badge>{dbProperty.property_code && <span>{dbProperty.property_code}</span>}</div></div><div className="property-header-price"><p>{formatPrice(price)}</p>{isRental && <span>Rental period and terms provided by the agent</span>}</div></header>
+        <div className="property-detail-layout">
           {/* Main Content */}
           <div className="min-w-0">
-            {/* Image Gallery */}
-            <div className="w-full overflow-hidden rounded-xl bg-muted cursor-zoom-in aspect-[4/3] sm:aspect-video max-h-[68vh]" onClick={() => setLightboxIdx(0)}>
-              <img src={allImages[0]} alt={title} className="block h-full w-full object-cover object-center transition-transform hover:scale-[1.02]" />
-            </div>
-            {allImages.length > 1 && (
-              <div className="mt-3 flex w-full max-w-full gap-2 overflow-x-auto overscroll-x-contain pb-2 -mx-1 px-1">
-                {allImages.slice(1, 8).map((img, i) => (
-                  <img
-                    key={i}
-                    src={img}
-                    alt={`${title} ${i + 2}`}
-                    onClick={() => setLightboxIdx(i + 1)}
-                    className="h-16 w-20 flex-shrink-0 cursor-pointer rounded-lg object-cover ring-1 ring-border hover:ring-secondary sm:h-20 sm:w-28"
-                  />
-                ))}
-              </div>
-            )}
+            <PropertyGallery images={allImages} title={title} />
 
             {/* Videos */}
             {dbProperty?.videos && dbProperty.videos.length > 0 && (
@@ -395,37 +366,10 @@ const PropertyDetail = () => {
               </div>
             )}
 
-            <div className="mt-6">
-              <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-start sm:justify-between gap-3">
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h1 className="font-display text-xl sm:text-2xl md:text-3xl font-bold text-foreground break-words">{title}</h1>
-                    {isVerified && <Badge className="bg-success/90 text-success-foreground">Verified</Badge>}
-                  </div>
-                  {dbProperty?.property_code && (
-                    <p className="mt-1 inline-flex items-center gap-1.5 rounded-md border border-border bg-muted/40 px-2 py-0.5 font-mono text-[11px] text-muted-foreground">
-                      <Lock className="h-3 w-3" /> {dbProperty.property_code}
-                    </p>
-                  )}
-                  <p className="mt-1 flex items-start gap-1 text-sm sm:text-base text-muted-foreground break-words"><MapPin className="h-4 w-4 mt-0.5 flex-shrink-0" />{location}</p>
-                </div>
-                <div className="sm:text-right">
-                  <p className="font-display text-xl sm:text-2xl md:text-3xl font-bold text-secondary break-words">
-                    {dbProperty ? `₦${price.toLocaleString()}` : formatPrice(price)}
-                  </p>
-                  {!isSale && <span className="text-sm text-muted-foreground">per year</span>}
-                </div>
-              </div>
-
-              <div className="mt-3 flex flex-wrap gap-2">
-                <Badge className={isSale ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"}>
-                  {isSale ? "For Sale" : "For Rent"}
-                </Badge>
-              </div>
-
+            <div className="property-description-stack">
               <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-sm sm:text-base text-muted-foreground">
-                {bedrooms > 0 && <span className="flex items-center gap-1"><Bed className="h-5 w-5" /> {bedrooms} Beds</span>}
-                {bathrooms > 0 && <span className="flex items-center gap-1"><Bath className="h-5 w-5" /> {bathrooms} Baths</span>}
+                {dbProperty.property_type !== "land" && bedrooms > 0 && <span className="flex items-center gap-1"><Bed className="h-5 w-5" /> {bedrooms} Beds</span>}
+                {dbProperty.property_type !== "land" && bathrooms > 0 && <span className="flex items-center gap-1"><Bath className="h-5 w-5" /> {bathrooms} Baths</span>}
                 {sqft > 0 && <span className="flex items-center gap-1"><Maximize className="h-5 w-5" /> {sqft} sqft</span>}
               </div>
 
@@ -461,8 +405,8 @@ const PropertyDetail = () => {
           </div>
 
           {/* Sidebar */}
-          <div className="min-w-0 space-y-4">
-            <div className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-card">
+          <div className="property-inquiry-column min-w-0 space-y-4">
+            <div className="property-inquiry-card"><p className="text-eyebrow">Your next step</p><h2>Get to know this property.</h2><p className="property-inquiry-intro">Ask a question or request a time to see it.</p>
               {!isOwner && (
                 <div className="flex gap-3">
                   {user ? (
@@ -513,13 +457,13 @@ const PropertyDetail = () => {
                       ? "No longer available"
                       : dealStatus === "declined"
                       ? "Request Again"
-                      : isRental ? "Rent Now" : "Buy Now"}
+                      : isRental ? "Enquire about renting" : "Enquire about buying"}
                   </Button>
                 )
               )}
               {!isOwner && user && dealStatus !== "accepted" && (
                 <p className="mt-2 text-center text-[11px] text-muted-foreground">
-                  Payment unlocks only after the agent accepts your request.
+                  Enquiries do not require payment. Financial operations remain locked.
                 </p>
               )}
               {!isOwner && !user && (
@@ -548,14 +492,15 @@ const PropertyDetail = () => {
               <Button
                 variant="outline"
                 onClick={handleSave}
+                aria-pressed={saved}
                 className="mt-3 w-full gap-2"
               >
-                <Bookmark className="h-4 w-4" /> Save Property
+                <Bookmark className={`h-4 w-4 ${saved ? "fill-current" : ""}`} /> {saved ? "Saved to this device" : "Save Property"}
               </Button>
             </div>
 
             {agent && (
-              <Link to={`/agent/${agent.id}`} className="block rounded-xl border border-border bg-card p-5 shadow-card transition-shadow hover:shadow-elevated">
+              <Link to={`/agent/${agent.id}`} className="property-detail-agent block rounded-xl border border-border bg-card p-5 shadow-card transition-shadow hover:shadow-elevated">
                 <div className="flex items-center gap-3">
                   <img
                     src={agent.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(agent.full_name)}&background=random`}
@@ -588,33 +533,36 @@ const PropertyDetail = () => {
             )}
 
             <div className="rounded-xl border border-border bg-card p-5 shadow-card">
-              <h3 className="font-display font-semibold text-foreground">Escrow Protection</h3>
+              <h3 className="font-display font-semibold text-foreground">A considered next step</h3>
               <p className="mt-2 text-sm text-muted-foreground">
-                Your payment is held securely in escrow until all conditions are met. 99.2% success rate.
+                Inspect the property, independently review ownership documents and seek legal advice. Platform review is not a guarantee.
               </p>
-              <div className="mt-3 flex items-center gap-2 text-sm text-success">
-                <ShieldCheck className="h-4 w-4" /> Protected Transaction
-              </div>
+              <Link to="/trust/safety-center" className="mt-3 flex min-h-11 items-center gap-2 text-sm text-success">
+                <ShieldCheck className="h-4 w-4" /> Read our safety guidance
+              </Link>
             </div>
           </div>
         </div>
-      </div>
+      </main>
+      <Footer />
+      {!isOwner && <div className="property-mobile-actions"><Button asChild variant="outline"><Link to={user ? `/chat/new?agent=${propertyAgentId}&property=${propertyId}` : "/login"}><MessageCircle />{user ? "Message" : "Log in"}</Link></Button>{user ? <Button disabled={alreadyReserved || submitting} onClick={() => setShowReserveModal(true)}><CalendarCheck />{alreadyReserved ? "Requested" : "Request inspection"}</Button> : <Button asChild><Link to="/login">Log in to enquire</Link></Button>}</div>}
 
       {/* Reservation Modal */}
       <Dialog open={showReserveModal} onOpenChange={setShowReserveModal}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="inspection-dialog">
           <DialogHeader>
-            <DialogTitle className="font-display text-xl">Book Inspection</DialogTitle>
-            <p className="text-sm text-muted-foreground mt-1">{title}</p>
+            <DialogTitle className="font-display text-xl">Request an inspection</DialogTitle>
+            <DialogDescription>Choose a preferred time. The agent must confirm availability.</DialogDescription>
+            <div className="inspection-property-context"><img src={allImages[0]} alt="" /><div><h2>{title}</h2><p>{location}</p></div></div>
           </DialogHeader>
-          <div className="space-y-4 mt-2">
+          <form className="space-y-4 mt-2" onSubmit={event => { event.preventDefault(); void handleReserve(); }}>
             <div>
               <Label htmlFor="r-name">Full Name *</Label>
-              <Input id="r-name" value={form.buyer_name} onChange={(e) => setForm({ ...form, buyer_name: e.target.value })} placeholder="Your full name" />
+              <Input required autoComplete="name" id="r-name" value={form.buyer_name} onChange={(e) => setForm({ ...form, buyer_name: e.target.value })} placeholder="Your full name" />
             </div>
             <div>
               <Label htmlFor="r-date">Preferred Date *</Label>
-              <Input id="r-date" type="date" value={form.viewing_date} onChange={(e) => setForm({ ...form, viewing_date: e.target.value })} />
+              <Input required min={`${new Date().getFullYear()}-${String(new Date().getMonth()+1).padStart(2,"0")}-${String(new Date().getDate()).padStart(2,"0")}`} id="r-date" type="date" value={form.viewing_date} onChange={(e) => setForm({ ...form, viewing_date: e.target.value })} />
             </div>
             <div>
               <Label htmlFor="r-time">Preferred Time</Label>
@@ -624,14 +572,14 @@ const PropertyDetail = () => {
               <Label htmlFor="r-msg">Message to Agent</Label>
               <Textarea id="r-msg" value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} placeholder="Any special requests or questions..." rows={3} />
             </div>
-            <p className="text-xs text-muted-foreground">The agent will confirm, propose a new time, or decline. A chat with the agent is opened for you.</p>
+            <p className="inspection-note">Your request is not a confirmed booking. The agent can confirm, propose another time or decline. Account messaging remains available.</p>
             <div className="flex gap-3 pt-2">
-              <Button variant="outline" className="flex-1" onClick={() => setShowReserveModal(false)}>Cancel</Button>
-              <Button className="flex-1 bg-secondary text-secondary-foreground hover:bg-secondary/90" onClick={handleReserve} disabled={submitting}>
+              <Button type="button" variant="outline" className="flex-1" onClick={() => setShowReserveModal(false)}>Cancel</Button>
+              <Button className="flex-1 bg-secondary text-secondary-foreground hover:bg-secondary/90" type="submit" disabled={submitting}>
                 {submitting ? "Sending…" : "Request Inspection"}
               </Button>
             </div>
-          </div>
+          </form>
         </DialogContent>
       </Dialog>
 
@@ -660,7 +608,7 @@ const PropertyDetail = () => {
               <Label htmlFor="d-msg">Message to agent (optional)</Label>
               <Textarea id="d-msg" rows={3} value={dealMessage} onChange={(e) => setDealMessage(e.target.value)} placeholder="Any questions or conditions…" />
             </div>
-            <p className="text-xs text-muted-foreground">Nothing is paid now. The agent must confirm the property is available before payment unlocks. Never pay an agent directly.</p>
+            <p className="text-xs text-muted-foreground">Nothing is paid now. The agent must confirm the property is available. Financial operations remain locked. Never pay an agent directly.</p>
             <div className="flex gap-3">
               <Button variant="outline" className="flex-1" onClick={() => setShowDealSummary(false)}>Cancel</Button>
               <Button className="flex-1" onClick={handleRequestDeal} disabled={requestingDeal}>
@@ -671,48 +619,7 @@ const PropertyDetail = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Image Lightbox */}
-      {lightboxIdx !== null && (
-        <div
-          className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4"
-          onClick={() => setLightboxIdx(null)}
-        >
-          <button
-            onClick={(e) => { e.stopPropagation(); setLightboxIdx(null); }}
-            className="absolute top-4 right-4 rounded-full bg-white/10 hover:bg-white/20 p-2 text-white"
-            aria-label="Close"
-          >
-            <X className="h-6 w-6" />
-          </button>
-          {allImages.length > 1 && (
-            <>
-              <button
-                onClick={(e) => { e.stopPropagation(); setLightboxIdx((lightboxIdx - 1 + allImages.length) % allImages.length); }}
-                className="absolute left-4 rounded-full bg-white/10 hover:bg-white/20 p-2 text-white"
-                aria-label="Previous"
-              >
-                <ChevronLeft className="h-7 w-7" />
-              </button>
-              <button
-                onClick={(e) => { e.stopPropagation(); setLightboxIdx((lightboxIdx + 1) % allImages.length); }}
-                className="absolute right-4 rounded-full bg-white/10 hover:bg-white/20 p-2 text-white"
-                aria-label="Next"
-              >
-                <ChevronRight className="h-7 w-7" />
-              </button>
-            </>
-          )}
-          <img
-            src={allImages[lightboxIdx]}
-            alt={`${title} ${lightboxIdx + 1}`}
-            onClick={(e) => e.stopPropagation()}
-            className="max-h-[90vh] max-w-[95vw] object-contain rounded-lg"
-          />
-          <span className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/80 text-sm bg-black/50 px-3 py-1 rounded-full">
-            {lightboxIdx + 1} / {allImages.length}
-          </span>
-        </div>
-      )}
+
     </div>
   );
 };

@@ -28,6 +28,9 @@ const Chat = () => {
   const [input, setInput] = useState("");
   const [otherUser, setOtherUser] = useState<{ name: string; avatar: string | null } | null>(null);
   const [currentThreadId, setCurrentThreadId] = useState<string | null>(threadId || null);
+  const [messagesError, setMessagesError] = useState(false);
+  const [messagesLoading, setMessagesLoading] = useState(false);
+  const [messagesRetry, setMessagesRetry] = useState(0);
   const [threadStatus, setThreadStatus] = useState<string>("restricted");
   const [property, setProperty] = useState<ChatProperty | null>(null);
   const [isBuyer, setIsBuyer] = useState(true);
@@ -135,13 +138,19 @@ const Chat = () => {
   /* ---------------- messages + realtime ---------------- */
   useEffect(() => {
     if (!currentThreadId) return;
+    let active = true;
     const loadMessages = async () => {
-      const { data } = await supabase
+      setMessagesLoading(true); setMessagesError(false); setMessages([]);
+      try {
+      const { data, error } = await supabase
         .from("messages")
         .select("*")
         .eq("thread_id", currentThreadId)
         .order("created_at", { ascending: true });
-      if (data) setMessages(data as BubbleMessage[]);
+      if (error) throw error;
+      if (active) setMessages((data || []) as BubbleMessage[]);
+      } catch { if (active) setMessagesError(true); }
+      finally { if (active) setMessagesLoading(false); }
     };
     loadMessages();
 
@@ -190,10 +199,11 @@ const Chat = () => {
 
     typingChannel.current = channel;
     return () => {
+      active = false;
       supabase.removeChannel(channel);
       typingChannel.current = null;
     };
-  }, [currentThreadId, profile]);
+  }, [currentThreadId, profile, messagesRetry]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -359,11 +369,11 @@ const Chat = () => {
 
   return (
     <AuthenticatedLayout>
-      <div className="flex min-h-[calc(100vh-3.5rem)] flex-1 flex-col bg-muted/20">
+      <div className="buyer-chat-thread flex min-h-[calc(100vh-3.5rem)] flex-1 flex-col bg-muted/20">
         {/* Header */}
         <div className="sticky top-0 z-20 border-b border-border bg-card/95 backdrop-blur">
           <div className="container mx-auto flex max-w-3xl items-center gap-3 px-4 py-3">
-            <Link to="/messages" aria-label="Back to messages" className="text-muted-foreground hover:text-foreground">
+            <Link to="/messages" aria-label="Back to messages" className="inline-flex min-h-11 min-w-11 items-center justify-center text-muted-foreground hover:text-foreground">
               <ArrowLeft className="h-5 w-5" />
             </Link>
             <div className="relative">
@@ -373,12 +383,12 @@ const Chat = () => {
                   {otherUser?.name?.split(" ").map((n) => n[0]).join("").slice(0, 2) || "?"}
                 </AvatarFallback>
               </Avatar>
-              <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-card bg-[hsl(var(--success))]" />
+
             </div>
             <div className="min-w-0 flex-1">
               <h2 className="truncate font-display font-semibold text-foreground">{otherUser?.name || "Chat"}</h2>
               <p className="flex items-center gap-2 text-xs">
-                <span className="text-[hsl(var(--success))]">{otherTyping ? "typing…" : "Online"}</span>
+                <span className="text-[hsl(var(--success))]">{otherTyping ? "typing…" : "Property conversation"}</span>
                 {isRestricted ? (
                   <span className="flex items-center gap-1 font-medium text-[hsl(var(--warning))]">
                     <ShieldAlert className="h-3 w-3" /> Restricted
@@ -437,7 +447,7 @@ const Chat = () => {
             />
             {isBuyer && !canPay && (
               <p className="mt-1.5 flex items-center gap-1 text-[11px] text-muted-foreground">
-                <ShieldCheck className="h-3 w-3" /> Payment unlocks once the agent approves your request.
+                <ShieldCheck className="h-3 w-3" /> Financial operations remain locked. Approval does not enable payment.
               </p>
             )}
           </div>
@@ -464,7 +474,9 @@ const Chat = () => {
               </div>
             )}
 
-            {messages.length === 0 && !isRestricted && (
+            {messagesError && <div role="alert" className="buyer-empty"><p>Unable to load messages.</p><Button variant="outline" onClick={() => setMessagesRetry(value => value + 1)}>Retry messages</Button></div>}
+            {messagesLoading && <p role="status">Loading messages…</p>}
+            {!messagesError && !messagesLoading && messages.length === 0 && !isRestricted && (
               <p className="py-10 text-center text-sm text-muted-foreground">No messages yet. Say hello! 👋</p>
             )}
 
@@ -558,7 +570,7 @@ const Chat = () => {
               </div>
             ) : (
               <Input
-                placeholder="Type a message…"
+                aria-label="Message" placeholder="Type a message…"
                 value={input}
                 onChange={(e) => {
                   setInput(e.target.value);

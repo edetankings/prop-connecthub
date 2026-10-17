@@ -1,0 +1,159 @@
+/* Shared discovery and detail presentation; data/permissions remain backend-owned. */
+.marketplace-page { min-width:0; background:hsl(var(--background)); }
+.marketplace-container,.property-detail-container { width:min(calc(100% - 64px),1360px); margin-inline:auto; min-width:0; padding-block:36px 72px; }
+.marketplace-intro { position:relative; border-bottom:1px solid hsl(var(--border)); padding-bottom:28px; }
+.marketplace-intro > div { display:flex; align-items:flex-end; justify-content:space-between; gap:36px; margin-top:14px; }
+.marketplace-intro h1 { font:550 clamp(2rem,3.1vw,3.1rem)/1.14 Manrope,sans-serif; letter-spacing:-.045em; max-width:640px; text-wrap:balance; }
+.marketplace-intro > div > p { color:hsl(var(--muted-foreground)); font-size:14px; line-height:1.8; max-width:370px; }
+.marketplace-intro > a { display:inline-flex; align-items:center; gap:10px; min-height:44px; margin-top:16px; font-size:12px; color:hsl(var(--primary)); }
+.marketplace-intro svg { width:16px; }
+.marketplace-category-nav { display:flex; flex-wrap:wrap; gap:8px; padding-block:24px; }
+.marketplace-category-nav button { min-height:44px; padding:10px 22px; border:1px solid hsl(var(--border)); border-radius:999px; background:hsl(var(--card)); font-size:13px; }
+.marketplace-category-nav button[aria-pressed=true] { background:#0B4938; color:white; border-color:#0B4938; }
+.marketplace-layout { display:grid; grid-template-columns:260px minmax(0,1fr); align-items:start; gap:32px; }
+.marketplace-filters { position:sticky; top:96px; border:1px solid hsl(var(--border)); background:hsl(var(--card)); border-radius:16px; padding:24px; }
+.marketplace-filters h2 { font-size:20px; font-weight:600; letter-spacing:-.025em; }
+.marketplace-filters > p { font-size:12px; color:hsl(var(--muted-foreground)); margin-top:8px; margin-bottom:26px; }
+.marketplace-filter-fields { display:grid; gap:22px; }
+.marketplace-filter-fields label { display:grid; gap:9px; font-size:12px; font-weight:500; min-width:0; }
+.marketplace-page select,.marketplace-page input { width:100%; min-width:0; max-width:100%; height:48px; padding:10px 12px; border:1px solid hsl(var(--input)); border-radius:8px; background:hsl(var(--card)); color:hsl(var(--foreground)); font:400 16px/1.4 Inter,sans-serif; }
+.marketplace-room-filters { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+.marketplace-filter-fields button { width:100%; }
+.marketplace-results { min-width:0; }
+.marketplace-search { display:flex; align-items:center; gap:12px; border:1px solid hsl(var(--border)); border-radius:14px; background:hsl(var(--card)); padding:8px 10px 8px 16px; }
+.marketplace-search > svg { width:20px; flex-shrink:0; color:hsl(var(--muted-foreground)); }
+.marketplace-search input { border:0; background:transparent; padding-left:0; flex:1; min-width:0; }
+.marketplace-search button { flex-shrink:0; }
+.marketplace-toolbar { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:16px; margin-block:24px; }
+.marketplace-toolbar > div { display:flex; align-items:center; flex-wrap:wrap; gap:12px; }
+.marketplace-toolbar p { font-size:13px; color:hsl(var(--muted-foreground)); overflow-wrap:anywhere; }
+.marketplace-toolbar select { width:185px; font-size:13px; }
+.marketplace-view-switch { display:flex; gap:4px; border:1px solid hsl(var(--border)); background:hsl(var(--card)); border-radius:10px; padding:2px; }
+.marketplace-view-switch button[aria-pressed=true] { background:#DDEFE6; color:#0B4938; }
+.marketplace-mobile-filter { display:none; }
+.marketplace-active-filters { display:flex; flex-wrap:wrap; gap:8px; margin-block:-4px 24px; }
+.marketplace-active-filters button { display:inline-flex; align-items:center; gap:10px; min-height:36px; padding:8px 12px; border:1px solid hsl(var(--border)); border-radius:999px; color:hsl(var(--foreground)); font-size:12px; overflow-wrap:anywhere; }
+.marketplace-active-filters svg { width:14px; flex-shrink:0; }
+.marketplace-property-results { display:grid; gap:24px; min-width:0; }
+.marketplace-property-results-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+.marketplace-property-results-list { grid-template-columns:minmax(0,1fr); }
+.marketplace-card { position:relative; min-width:0; border:1px solid hsl(var(--border)); border-radius:16px; overflow:hidden; background:hsl(var(--card)); transition:border-color .2s; }
+.marketplace-card:hover { border-color:#13856270; }
+.marketplace-card-image { position:relative; aspect-ratio:4/3; overflow:hidden; background:hsl(var(--muted)); }
+.marketplace-card-image > a { display:block; width:100%; height:100%; }
+.marketplace-card-image img { display:block; width:100%; height:100%; object-fit:cover; transition:transform .4s; }
+.marketplace-card:hover .marketplace-card-image img { transform:scale(1.025); }
+.marketplace-card-labels { position:absolute; left:14px; right:14px; bottom:14px; display:flex; gap:6px; flex-wrap:wrap; pointer-events:none; }
+.marketplace-card-labels > span { display:inline-flex; align-items:center; gap:4px; border-radius:6px; background:#0B4938e8; color:white; padding:6px 9px; font-size:11px; }
+.marketplace-card-labels svg { width:12px; height:12px; }
+.marketplace-save { position:absolute; right:12px; top:12px; display:grid; place-items:center; width:44px; height:44px; border-radius:50%; background:white; color:#0B4938; border:1px solid #dce4da; }
+.marketplace-save svg { width:18px; height:18px; }
+.marketplace-card-copy { padding:22px; min-width:0; }
+.marketplace-card-kind { display:flex; flex-wrap:wrap; gap:10px; justify-content:space-between; font-size:11px; text-transform:capitalize; color:hsl(var(--muted-foreground)); margin-bottom:12px; }
+.marketplace-card-kind > span { color:hsl(var(--primary)); }
+.marketplace-card-copy h2 { font-size:19px; line-height:1.4; font-weight:600; letter-spacing:-.03em; overflow-wrap:anywhere; }
+.marketplace-location { display:flex; align-items:flex-start; gap:6px; font-size:13px; color:hsl(var(--muted-foreground)); margin-top:10px; line-height:1.65; overflow-wrap:anywhere; }
+.marketplace-location svg { width:14px; height:14px; flex-shrink:0; margin-top:3px; }
+.marketplace-card-price { font:650 clamp(1.25rem,2vw,1.6rem)/1.3 Manrope,sans-serif; letter-spacing:-.03em; margin-top:20px; color:hsl(var(--primary)); font-variant-numeric:tabular-nums; overflow-wrap:anywhere; }
+.marketplace-rental-note { font-size:11px; color:hsl(var(--muted-foreground)); margin-top:7px; }
+.marketplace-card-facts { display:flex; flex-wrap:wrap; gap:14px; margin-top:22px; font-size:12px; color:hsl(var(--muted-foreground)); }
+.marketplace-card-facts > span { display:inline-flex; align-items:center; gap:5px; }
+.marketplace-card-facts svg { width:15px; height:15px; color:hsl(var(--primary)); }
+.marketplace-card-description { font-size:13px; line-height:1.8; margin-top:16px; color:hsl(var(--muted-foreground)); display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+.marketplace-card-actions { display:flex; align-items:center; justify-content:space-between; gap:10px; padding-top:18px; margin-top:22px; border-top:1px solid hsl(var(--border)); }
+.marketplace-card-actions > a { display:flex; align-items:center; justify-content:space-between; gap:16px; min-height:44px; font-size:12px; flex:1; }
+.marketplace-card-actions svg { width:16px; height:16px; }
+.marketplace-card-list { display:grid; grid-template-columns:minmax(220px,.8fr) minmax(0,1fr); }
+.marketplace-card-list .marketplace-card-image { height:100%; min-height:300px; aspect-ratio:auto; }
+.marketplace-empty { padding:60px 28px; border:1px solid hsl(var(--border)); border-radius:16px; text-align:center; background:hsl(var(--card)); }
+.marketplace-empty > svg { width:36px; height:36px; margin:0 auto 20px; color:hsl(var(--primary)); stroke-width:1.2; }
+.marketplace-empty h2 { font-size:22px; font-weight:550; letter-spacing:-.03em; }
+.marketplace-empty p { margin:16px auto 24px; max-width:390px; color:hsl(var(--muted-foreground)); font-size:14px; line-height:1.8; }
+.marketplace-pagination { display:flex; justify-content:space-between; align-items:center; gap:20px; margin-top:32px; font-size:12px; color:hsl(var(--muted-foreground)); }
+.marketplace-filter-sheet { width:100%; max-height:85dvh; overflow-y:auto; border-radius:20px 20px 0 0; padding:26px 24px max(24px,env(safe-area-inset-bottom)); }
+.marketplace-filter-sheet .marketplace-filter-fields { margin-block:26px; }
+.marketplace-filter-sheet select { min-width:0; width:100%; height:48px; border:1px solid hsl(var(--input)); border-radius:8px; background:hsl(var(--card)); color:hsl(var(--foreground)); padding:10px 12px; font-size:16px; }
+.marketplace-filter-sheet > button:not(.absolute) { width:100%; }
+.property-detail-page { min-width:0; }
+.property-detail-header { display:flex; align-items:flex-start; justify-content:space-between; gap:32px; padding-block:16px 32px; }
+.property-detail-header > div { min-width:0; }
+.property-detail-header h1 { font:550 clamp(1.8rem,3.6vw,3rem)/1.15 Manrope,sans-serif; letter-spacing:-.04em; margin-top:14px; overflow-wrap:anywhere; }
+.property-header-badges { display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-top:18px; font-size:12px; }
+.property-header-price { text-align:right; max-width:330px; }
+.property-header-price > p { font:650 clamp(1.5rem,3vw,2.5rem)/1.3 Manrope,sans-serif; color:hsl(var(--primary)); font-variant-numeric:tabular-nums; overflow-wrap:anywhere; }
+.property-header-price > span { display:block; font-size:12px; line-height:1.6; color:hsl(var(--muted-foreground)); margin-top:10px; }
+.property-detail-layout { display:grid; grid-template-columns:minmax(0,1.7fr) minmax(290px,1fr); align-items:start; gap:40px; }
+.property-gallery { min-width:0; }
+.property-gallery-track { display:flex; overflow-x:auto; scroll-snap-type:x mandatory; border-radius:16px; background:hsl(var(--muted)); }
+.property-gallery-track > button { flex:0 0 100%; min-width:0; aspect-ratio:4/3; scroll-snap-align:start; overflow:hidden; }
+.property-gallery-track img { width:100%; height:100%; display:block; object-fit:cover; }
+.property-gallery-tools { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:14px; padding-block:16px; }
+.property-gallery-tools > p { font-size:12px; color:hsl(var(--muted-foreground)); }
+.property-gallery-tools > div { display:flex; flex-wrap:wrap; gap:8px; }
+.property-lightbox { width:min(calc(100% - 32px),1150px); max-width:1150px; max-height:94dvh; padding:48px 20px 20px; }
+.property-lightbox > img { display:block; width:100%; height:70dvh; object-fit:contain; }
+.property-lightbox-controls { display:flex; align-items:center; justify-content:center; gap:24px; font-size:12px; }
+.property-description-stack { padding-top:14px; }
+.property-description-stack > div { padding-block:26px; margin-top:0; border-top:1px solid hsl(var(--border)); }
+.property-description-stack h2 { font:550 22px/1.4 Manrope,sans-serif; letter-spacing:-.025em; }
+.property-description-stack p { font-size:15px; line-height:1.9; white-space:pre-line; overflow-wrap:anywhere; }
+.property-inquiry-column { position:sticky; top:96px; }
+.property-inquiry-card { background:hsl(var(--card)); padding:26px; border:1px solid hsl(var(--border)); border-radius:16px; }
+.property-inquiry-card h2 { font:550 24px/1.25 Manrope,sans-serif; letter-spacing:-.03em; margin-top:14px; }
+.property-inquiry-intro { color:hsl(var(--muted-foreground)); font-size:13px; line-height:1.7; margin-block:16px 24px; }
+.property-inquiry-column button { white-space:normal; min-height:44px; }
+.property-mobile-actions { display:none; }
+.inspection-dialog { width:min(calc(100% - 32px),520px); max-width:520px; max-height:90dvh; overflow-y:auto; padding:28px; }
+.inspection-property-context { display:flex; gap:14px; align-items:center; padding-block:20px; margin-top:14px; border-block:1px solid hsl(var(--border)); }
+.inspection-property-context img { width:80px; height:70px; object-fit:cover; border-radius:8px; flex-shrink:0; }
+.inspection-property-context h2 { font-size:14px; line-height:1.5; font-weight:600; overflow-wrap:anywhere; }
+.inspection-property-context p { font-size:12px; color:hsl(var(--muted-foreground)); margin-top:6px; }
+.inspection-note { font-size:12px; line-height:1.8; color:hsl(var(--muted-foreground)); }
+.inspection-dialog label { display:block; margin-bottom:9px; font-size:12px; }
+.inspection-dialog input,.inspection-dialog textarea { min-width:0; max-width:100%; font-size:16px; }
+@media (min-width:1440px) { .marketplace-property-results-grid { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+@media (max-width:1023px) {
+ .marketplace-container,.property-detail-container { width:calc(100% - 40px); }
+ .marketplace-layout { grid-template-columns:minmax(0,1fr); }
+ .marketplace-filters { display:none; }
+ .marketplace-mobile-filter { display:inline-flex; }
+ .marketplace-intro > div { flex-direction:column; align-items:flex-start; gap:18px; }
+ .property-detail-layout { grid-template-columns:minmax(0,1fr); gap:28px; }
+ .property-inquiry-column { position:static; }
+}
+@media (max-width:639px) {
+ .marketplace-container,.property-detail-container { width:calc(100% - 32px); padding-block:24px 48px; }
+ .marketplace-intro h1 { font-size:clamp(1.9rem,8vw,2.5rem); }
+ .marketplace-category-nav { gap:6px; }
+ .marketplace-category-nav button { padding-inline:14px; font-size:12px; }
+ .marketplace-search { gap:8px; padding-left:12px; }
+ .marketplace-search > svg { display:none; }
+ .marketplace-search input { font-size:16px; }
+ .marketplace-search button { padding-inline:14px; }
+ .marketplace-toolbar { align-items:flex-start; }
+ .marketplace-toolbar > div { width:100%; justify-content:space-between; }
+ .marketplace-toolbar select { flex:1; min-width:0; max-width:230px; font-size:14px; }
+ .marketplace-property-results-grid { grid-template-columns:minmax(0,1fr); }
+ .marketplace-card-list { display:block; }
+ .marketplace-card-list .marketplace-card-image { aspect-ratio:4/3; height:auto; min-height:0; }
+ .marketplace-card-copy { padding:20px; }
+ .marketplace-pagination { flex-direction:column; }
+ .property-detail-page { padding-bottom:calc(76px + env(safe-area-inset-bottom)); }
+ .property-detail-header { flex-direction:column; gap:24px; }
+ .property-header-price { text-align:left; max-width:100%; }
+ .property-gallery-tools > div { width:100%; }
+ .property-gallery-tools > div > button:last-child { flex:1; }
+ .property-gallery-track { border-radius:12px; }
+ .property-inquiry-card { padding:22px; }
+ .property-mobile-actions { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.3fr); gap:10px; position:fixed; inset:auto 0 0; z-index:40; border-top:1px solid hsl(var(--border)); background:hsl(var(--card)); padding:12px 16px max(12px,env(safe-area-inset-bottom)); }
+ .property-mobile-actions > * { min-width:0; white-space:normal; min-height:48px; font-size:12px; padding-inline:10px; }
+ .inspection-dialog { padding:24px 20px; }
+ .inspection-property-context > div { min-width:0; }
+ .property-lightbox { padding-inline:12px; }
+ .property-lightbox > img { height:60dvh; }
+}
+@media (prefers-reduced-motion:reduce) { .marketplace-card:hover .marketplace-card-image img { transform:none; } }
+
+.property-detail-agent .flex-1 { min-width:0; overflow-wrap:anywhere; }
+.property-detail-agent img { flex-shrink:0; }
+.property-detail-agent h3 { overflow-wrap:anywhere; }

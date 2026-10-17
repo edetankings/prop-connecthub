@@ -7,6 +7,7 @@ import ThemeToggle from "@/components/ThemeToggle";
 import { useAuth } from "@/hooks/useAuth";
 import VerificationBanner from "@/components/VerificationBanner";
 import logo from "@/assets/logo.jpg";
+import BuyerWorkspaceShell from "@/components/buyer/BuyerWorkspaceShell";
 
 interface AuthenticatedLayoutProps {
   children: React.ReactNode;
@@ -14,7 +15,9 @@ interface AuthenticatedLayoutProps {
 
 const AuthenticatedLayout = ({ children }: AuthenticatedLayoutProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { profile } = useAuth();
+  const { profile, isAdmin } = useAuth();
+
+  if (profile?.profile_type === "buyer" && !isAdmin) return <BuyerWorkspaceShell>{children}</BuyerWorkspaceShell>;
 
   return (
     <div className="min-h-screen bg-background">

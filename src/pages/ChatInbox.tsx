@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { MessageCircle, Search, SlidersHorizontal, SquarePen, Home, Mic, BadgeCheck, Sparkles } from "lucide-react";
+import { MessageCircle, Search, SlidersHorizontal, SquarePen, Home, Mic, BadgeCheck } from "lucide-react";
 import AuthenticatedLayout from "@/components/AuthenticatedLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -10,7 +10,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { attachmentPreview, parseAttachment } from "@/lib/chatAttachments";
 import { cn } from "@/lib/utils";
-import propAi from "@/assets/prop-ai.png";
 
 interface ThreadWithDetails {
   id: string;
@@ -32,13 +31,12 @@ interface ThreadWithDetails {
   property_status: string | null;
 }
 
-type Tab = "all" | "buyers" | "agents" | "system";
+type Tab = "all" | "buyers" | "agents";
 
 const TABS: { id: Tab; label: string }[] = [
   { id: "all", label: "All" },
   { id: "buyers", label: "Buyers" },
   { id: "agents", label: "Agents" },
-  { id: "system", label: "System" },
 ];
 
 
@@ -50,6 +48,9 @@ const ChatInbox = () => {
   const [query, setQuery] = useState("");
   const [tab, setTab] = useState<Tab>("all");
   const [unreadOnly, setUnreadOnly] = useState(false);
+  const [queryError, setQueryError] = useState(false);
+  const revision = useRef(0);
+  const invalidate = useCallback(() => { revision.current++; }, []);
 
   useEffect(() => {
     if (!profile) return;
@@ -62,14 +63,17 @@ const ChatInbox = () => {
       .subscribe();
 
     return () => {
+      invalidate();
       supabase.removeChannel(channel);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [profile]);
+  }, [profile, invalidate]);
 
   const fetchThreads = async () => {
     if (!profile) return;
-
+    const request = ++revision.current;
+    setLoading(true); setQueryError(false); setThreads([]);
+    try {
     const { data: threadData, error } = await supabase
       .from("chat_threads")
       .select("*")
@@ -77,15 +81,14 @@ const ChatInbox = () => {
       .order("last_message_at", { ascending: false, nullsFirst: false });
 
     if (error || !threadData) {
-      setLoading(false);
-      return;
+      throw error || new Error("Conversations unavailable");
     }
 
     const enriched: ThreadWithDetails[] = await Promise.all(
       threadData.map(async (thread) => {
         const otherId = thread.buyer_id === profile.id ? thread.agent_id : thread.buyer_id;
 
-        const [{ data: otherProfile }, { data: lastMsg }, { count }, { data: property }] = await Promise.all([
+        const [{ data: otherProfile, error: participantError }, { data: lastMsg, error: messageError }, { count, error: countError }, { data: property, error: propertyError }] = await Promise.all([
           (supabase as any).rpc("get_chat_participants", { _thread_id: thread.id }).then(async ({ data, error }: any) => {
             const participant = data?.find((p: any) => p.id === otherId);
             const { data: directory } = await supabase.from("public_profiles").select("kyc_verified").eq("id", otherId).maybeSingle();
@@ -110,9 +113,10 @@ const ChatInbox = () => {
                 .select("property_code, title, image_url, status")
                 .eq("id", thread.property_id)
                 .maybeSingle()
-            : Promise.resolve({ data: null }),
+            : Promise.resolve({ data: null, error: null }),
         ]);
 
+        if (participantError || messageError || countError || propertyError) throw new Error("Conversation details unavailable");
         return {
           ...thread,
           other_name: otherProfile?.full_name || "Unknown",
@@ -131,8 +135,9 @@ const ChatInbox = () => {
       })
     );
 
-    setThreads(enriched);
-    setLoading(false);
+    if (request === revision.current) setThreads(enriched);
+    } catch { if (request === revision.current) setQueryError(true); }
+    finally { if (request === revision.current) setLoading(false); }
   };
 
   const filtered = useMemo(() => {
@@ -140,7 +145,6 @@ const ChatInbox = () => {
     return threads.filter((t) => {
       if (tab === "buyers" && t.other_type !== "buyer") return false;
       if (tab === "agents" && !(t.other_type === "agent" || t.other_type === "builder")) return false;
-      if (tab === "system" && t.other_type !== null) return false;
       if (unreadOnly && t.unread_count === 0) return false;
       if (!q) return true;
       return (
@@ -166,7 +170,7 @@ const ChatInbox = () => {
 
   return (
     <AuthenticatedLayout>
-      <div className="container mx-auto max-w-3xl flex-1 px-4 py-5">
+      <div className="buyer-inbox container mx-auto max-w-3xl flex-1 px-4 py-5">
         {/* Title row */}
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -195,14 +199,14 @@ const ChatInbox = () => {
             <Input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search messages, names, property or transaction ID…"
+              aria-label="Search conversations" placeholder="Search names, messages or property codes…"
               className="h-11 rounded-2xl border-transparent bg-muted pl-9 text-sm focus-visible:border-border"
             />
           </div>
           <Button
             variant={unreadOnly ? "default" : "outline"}
             size="icon"
-            aria-label="Filter unread"
+            aria-label="Filter unread" aria-pressed={unreadOnly}
             onClick={() => setUnreadOnly((v) => !v)}
             className="h-11 w-11 rounded-2xl"
           >
@@ -215,7 +219,7 @@ const ChatInbox = () => {
           {TABS.map((t) => (
             <button
               key={t.id}
-              onClick={() => setTab(t.id)}
+              aria-pressed={tab === t.id} onClick={() => setTab(t.id)}
               className={cn(
                 "shrink-0 rounded-full px-4 py-2 text-sm font-medium transition-all",
                 tab === t.id
@@ -228,32 +232,7 @@ const ChatInbox = () => {
           ))}
         </div>
 
-        {/* Permanent AI assistant conversation */}
-        <Link
-          to="/ai-assistant"
-          className="mb-3 flex items-center gap-3 rounded-2xl border border-primary/25 bg-gradient-to-r from-primary/10 via-card to-secondary/10 px-4 py-3.5 shadow-card transition-all hover:border-primary/50 hover:shadow-lg"
-        >
-          <img
-            src={propAi}
-            alt="Prop-Connect AI"
-            width={512}
-            height={512}
-            className="h-12 w-12 shrink-0 rounded-full border border-border bg-card object-contain p-1"
-          />
-          <div className="min-w-0 flex-1">
-            <h3 className="flex items-center gap-1.5 font-semibold text-foreground">
-              <span className="truncate">Prop-Connect AI</span>
-              <BadgeCheck className="h-4 w-4 shrink-0 text-primary" />
-              <Badge variant="secondary" className="shrink-0 text-[10px]">Official</Badge>
-            </h3>
-            <p className="mt-0.5 flex items-center gap-1 truncate text-sm text-muted-foreground">
-              <Sparkles className="h-3.5 w-3.5 shrink-0 text-secondary" />
-              <span className="truncate">Ask me about payments, verification, listings or anything property.</span>
-            </p>
-          </div>
-        </Link>
-
-        {loading ? (
+        {queryError ? <div role="alert" className="buyer-empty"><h2>Unable to load conversations.</h2><p>Please try again.</p><Button variant="outline" onClick={() => void fetchThreads()}>Retry conversations</Button></div> : loading ? (
           <div className="space-y-3">
             {[1, 2, 3, 4].map((i) => (
               <div key={i} className="flex animate-pulse items-center gap-3 rounded-2xl bg-card p-4">
@@ -286,7 +265,7 @@ const ChatInbox = () => {
                       {thread.other_name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
                     </AvatarFallback>
                   </Avatar>
-                  <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-card bg-[hsl(var(--success))]" />
+
                 </div>
 
                 <div className="min-w-0 flex-1">

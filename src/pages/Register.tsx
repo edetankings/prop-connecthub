@@ -1,12 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Eye, EyeOff, CheckCircle, XCircle } from "lucide-react";
-import logo from "@/assets/logo.jpg";
+import AuthLayout from "@/components/auth/AuthLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import ConfirmationWaiting from "@/components/auth/ConfirmationWaiting";
 import { useAuth } from "@/hooks/useAuth";
 
 const passwordRules = [
@@ -65,68 +65,41 @@ const Register = () => {
     }
   };
 
-  if (success) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-muted px-4">
-        <div className="w-full max-w-md rounded-xl border border-border bg-card p-8 shadow-elevated text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[hsl(var(--success)/0.1)]">
-            <img src={logo} alt="PROP-connect" className="h-12 w-12 rounded-lg object-contain" />
-          </div>
-          <h1 className="font-display text-xl font-bold text-foreground">Check Your Email</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            We've sent a verification link to <strong>{email}</strong>. Click the link in your email to verify your account, then come back to log in.
-          </p>
-          <Link to="/login">
-            <Button className="mt-6 w-full">Go to Login</Button>
-          </Link>
-        </div>
-      </div>
-    );
-  }
+  if (success) return <AuthLayout><ConfirmationWaiting email={email} /></AuthLayout>;
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted px-4 py-8">
-      <div className="w-full max-w-md rounded-xl border border-border bg-card p-8 shadow-elevated">
-        <Link to="/" className="mb-6 flex justify-center">
-          <img src={logo} alt="PROP-connect" className="h-16 w-16 rounded-lg object-contain" />
-        </Link>
+    <AuthLayout>
+      <div>
         <h1 className="text-center font-display text-xl font-bold text-foreground">Create Account</h1>
-        <p className="mt-1 text-center text-sm text-muted-foreground">Join Nigeria's most trusted property marketplace</p>
+        <p className="mt-1 text-center text-sm text-muted-foreground">Find your place in Nigeria’s property marketplace.</p>
 
-        {error && <div className="mt-4 rounded-md bg-destructive/10 p-3 text-sm text-destructive">{error}</div>}
+        {error && <div id="auth-error" role="alert" className="mt-4 rounded-md bg-destructive/10 p-3 text-sm text-destructive">{error}</div>}
 
-        <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
+        <fieldset className="auth-role-choices"><legend>01 / Choose your account</legend>{[["buyer","Buyer / Renter"],["agent","Agent"],["builder","Builder / Developer"]].map(([value,label]) => <label className="auth-role-choice" key={value}><input type="radio" name="account-type" disabled={loading} value={value} checked={profileType===value} onChange={() => setProfileType(value)} /><span>{label}</span></label>)}</fieldset>
+        <p className="auth-role-guidance">{profileType === "buyer" ? "Discover properties, save favorites on this device and request an inspection. The agent confirms availability." : profileType === "agent" ? "Create your professional profile and access the listing workspace. Identity verification is reviewed separately; registration does not verify you." : "Use the builder workspace for property listings and enquiries. Identity verification is reviewed separately; registration does not approve developments."}</p>
+        <h2 className="auth-section-label">02 / Your details & account security</h2>
+        <form className="mt-6 space-y-4" aria-busy={loading} aria-describedby={error ? "auth-error" : undefined} onSubmit={handleSubmit}>
           <div>
             <Label htmlFor="name">Full Name</Label>
-            <Input id="name" placeholder="John Doe" className="mt-1" value={name} onChange={(e) => setName(e.target.value)} required />
+            <Input aria-invalid={!!error} aria-describedby={error ? "auth-error" : undefined} id="name" autoComplete="name" placeholder="John Doe" className="mt-1" value={name} onChange={(e) => setName(e.target.value)} required />
           </div>
           <div>
             <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" placeholder="you@example.com" className="mt-1" value={email} onChange={(e) => setEmail(e.target.value)} required />
+            <Input aria-invalid={!!error} aria-describedby={error ? "auth-error" : undefined} id="email" type="email" autoComplete="email" autoCapitalize="none" spellCheck={false} placeholder="you@example.com" className="mt-1" value={email} onChange={(e) => setEmail(e.target.value)} required />
           </div>
           <div>
             <Label htmlFor="phone">Phone Number</Label>
-            <Input id="phone" type="tel" placeholder="+234 800 000 0000" className="mt-1" value={phone} onChange={(e) => setPhone(e.target.value)} required />
+            <Input aria-invalid={!!error} aria-describedby={error ? "auth-error" : undefined} id="phone" autoComplete="tel" type="tel" placeholder="+234 800 000 0000" className="mt-1" value={phone} onChange={(e) => setPhone(e.target.value)} required />
           </div>
-          <div>
-            <Label>Account Type</Label>
-            <Select value={profileType} onValueChange={setProfileType}>
-              <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="buyer">Buyer</SelectItem>
-                <SelectItem value="agent">Agent</SelectItem>
-                <SelectItem value="builder">Builder/Developer</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+
 
           {/* Password */}
           <div>
             <Label htmlFor="password">Password</Label>
             <div className="relative mt-1">
-              <Input
+              <Input aria-invalid={!!error} aria-describedby={error ? "auth-error" : undefined}
                 id="password"
-                type={showPw ? "text" : "password"}
+                autoComplete="new-password" type={showPw ? "text" : "password"}
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -159,9 +132,9 @@ const Register = () => {
           <div>
             <Label htmlFor="confirmPassword">Confirm Password</Label>
             <div className="relative mt-1">
-              <Input
+              <Input aria-invalid={!!error} aria-describedby={error ? "auth-error" : undefined}
                 id="confirmPassword"
-                type={showConfirm ? "text" : "password"}
+                autoComplete="new-password" type={showConfirm ? "text" : "password"}
                 placeholder="••••••••"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
@@ -205,7 +178,7 @@ const Register = () => {
           Already have an account? <Link to="/login" className="font-medium text-secondary hover:underline">Log In</Link>
         </p>
       </div>
-    </div>
+    </AuthLayout>
   );
 };
 

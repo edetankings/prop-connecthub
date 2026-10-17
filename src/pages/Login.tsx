@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
-import logo from "@/assets/logo.jpg";
+import AuthLayout from "@/components/auth/AuthLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/hooks/useAuth";
+import ConfirmationWaiting from "@/components/auth/ConfirmationWaiting";
 
 const MAX_ATTEMPTS = 5;
 const LOCKOUT_SECONDS = 60;
@@ -75,7 +76,7 @@ const Login = () => {
         const lockTime = Date.now() + LOCKOUT_SECONDS * 1000;
         setLockedUntil(lockTime);
         setCountdown(LOCKOUT_SECONDS);
-        setError(`Too many failed attempts. Account locked for ${LOCKOUT_SECONDS} seconds.`);
+        setError(`Too many failed attempts. Sign-in paused in this browser for ${LOCKOUT_SECONDS} seconds.`);
       } else {
         const msg = err.message?.toLowerCase() || "";
         if (msg.includes("email not confirmed")) {
@@ -92,20 +93,18 @@ const Login = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted px-4">
-      <div className="w-full max-w-md rounded-xl border border-border bg-card p-8 shadow-elevated">
-        <Link to="/" className="mb-6 flex justify-center">
-          <img src={logo} alt="PROP-connect" className="h-16 w-16 rounded-lg object-contain" />
-        </Link>
+    <AuthLayout>
+      <div>
         <h1 className="text-center font-display text-xl font-bold text-foreground">Welcome Back</h1>
         <p className="mt-1 text-center text-sm text-muted-foreground">Log in to your account</p>
 
-        {error && <div className="mt-4 rounded-md bg-destructive/10 p-3 text-sm text-destructive">{error}</div>}
+        {error && <div id="auth-error" role="alert" className="mt-4 rounded-md bg-destructive/10 p-3 text-sm text-destructive">{error}</div>}
 
-        <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
+        {error.includes("verify your email") && <ConfirmationWaiting email={email} compact />}
+        <form className="mt-6 space-y-4" aria-busy={loading} aria-describedby={error ? "auth-error" : undefined} onSubmit={handleSubmit}>
           <div>
             <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" placeholder="you@example.com" className="mt-1" value={email} onChange={(e) => setEmail(e.target.value)} required />
+            <Input aria-invalid={!!error} aria-describedby={error ? "auth-error" : undefined} id="email" type="email" autoComplete="email" autoCapitalize="none" spellCheck={false} placeholder="you@example.com" className="mt-1" value={email} onChange={(e) => setEmail(e.target.value)} required />
           </div>
           <div>
             <div className="flex items-center justify-between">
@@ -115,7 +114,7 @@ const Login = () => {
               </Link>
             </div>
             <div className="relative mt-1">
-              <Input id="password" type={showPw ? "text" : "password"} placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
+              <Input aria-invalid={!!error} aria-describedby={error ? "auth-error" : undefined} id="password" autoComplete="current-password" type={showPw ? "text" : "password"} placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
               <button type="button" onClick={() => setShowPw(!showPw)} aria-label={showPw ? "Hide password" : "Show password"} aria-pressed={showPw} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
                 {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
@@ -143,7 +142,7 @@ const Login = () => {
           Don't have an account? <Link to="/register" className="font-medium text-secondary hover:underline">Sign Up</Link>
         </p>
       </div>
-    </div>
+    </AuthLayout>
   );
 };
 

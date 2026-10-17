@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, CheckCircle } from "lucide-react";
-import logo from "@/assets/logo.jpg";
+import AuthLayout from "@/components/auth/AuthLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -96,16 +96,16 @@ const ResetPassword = () => {
 
   if (isValidSession === null) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-muted">
+      <AuthLayout><div role="status">
         <p className="text-muted-foreground">Verifying reset link...</p>
-      </div>
+      </div></AuthLayout>
     );
   }
 
   if (isValidSession === false) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-muted px-4">
-        <div className="w-full max-w-md rounded-xl border border-border bg-card p-8 text-center shadow-elevated">
+      <AuthLayout>
+        <div className="auth-confirmation">
           <h1 className="font-display text-xl font-bold text-foreground">Invalid or Expired Link</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             This password reset link is invalid or has expired. Please request a new one.
@@ -114,17 +114,13 @@ const ResetPassword = () => {
             <Button className="mt-6 w-full">Request New Link</Button>
           </Link>
         </div>
-      </div>
+      </AuthLayout>
     );
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted px-4">
-      <div className="w-full max-w-md rounded-xl border border-border bg-card p-8 shadow-elevated">
-        <Link to="/" className="mb-6 flex justify-center">
-          <img src={logo} alt="PROP-connect" className="h-16 w-16 rounded-lg object-contain" />
-        </Link>
-
+    <AuthLayout>
+      <div>
         {success ? (
           <div className="text-center">
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
@@ -143,16 +139,16 @@ const ResetPassword = () => {
             </p>
 
             {error && (
-              <div className="mt-4 rounded-md bg-destructive/10 p-3 text-sm text-destructive">{error}</div>
+              <div id="auth-error" role="alert" className="mt-4 rounded-md bg-destructive/10 p-3 text-sm text-destructive">{error}</div>
             )}
 
-            <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
+            <form className="mt-6 space-y-4" aria-busy={loading} aria-describedby={error ? "auth-error" : undefined} onSubmit={handleSubmit}>
               <div>
                 <Label htmlFor="password">New Password</Label>
                 <div className="relative mt-1">
-                  <Input
+                  <Input aria-invalid={!!error} aria-describedby={error ? "auth-error" : undefined}
                     id="password"
-                    type={showPw ? "text" : "password"}
+                    autoComplete="new-password" type={showPw ? "text" : "password"}
                     placeholder="••••••••"
                     value={password}
                     disabled={loading}
@@ -162,7 +158,7 @@ const ResetPassword = () => {
                   />
                   <button
                     type="button"
-                    onClick={() => setShowPw(!showPw)}
+                    aria-label={showPw ? "Hide new password" : "Show new password"} aria-pressed={showPw} onClick={() => setShowPw(!showPw)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
                   >
                     {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -173,9 +169,9 @@ const ResetPassword = () => {
               <div>
                 <Label htmlFor="confirm-password">Confirm New Password</Label>
                 <div className="relative mt-1">
-                  <Input
+                  <Input aria-invalid={!!error} aria-describedby={error ? "auth-error" : undefined}
                     id="confirm-password"
-                    type={showConfirmPw ? "text" : "password"}
+                    autoComplete="new-password" type={showConfirmPw ? "text" : "password"}
                     placeholder="••••••••"
                     value={confirmPassword}
                     disabled={loading}
@@ -185,7 +181,7 @@ const ResetPassword = () => {
                   />
                   <button
                     type="button"
-                    onClick={() => setShowConfirmPw(!showConfirmPw)}
+                    aria-label={showConfirmPw ? "Hide password confirmation" : "Show password confirmation"} aria-pressed={showConfirmPw} onClick={() => setShowConfirmPw(!showConfirmPw)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
                   >
                     {showConfirmPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -199,7 +195,7 @@ const ResetPassword = () => {
           </>
         )}
       </div>
-    </div>
+    </AuthLayout>
   );
 };
 
