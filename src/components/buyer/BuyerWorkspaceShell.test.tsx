@@ -6,12 +6,20 @@ vi.mock("@/hooks/useAuth", () => ({ useAuth: () => ({ profile: { full_name: "Syn
 vi.mock("@/components/NotificationBell", () => ({ default: () => <button>Mocked notifications</button> }));
 vi.mock("@/components/ThemeToggle", () => ({ default: () => <button>Mocked theme</button> }));
 import BuyerWorkspaceShell from "./BuyerWorkspaceShell";
+import WorkspaceShell from "@/components/WorkspaceShell";
 beforeEach(() => { vi.clearAllMocks(); mocks.signOut.mockResolvedValue(undefined); });
 afterEach(cleanup);
 function open(path = "/dashboard/buyer?view=saved") {
   render(<MemoryRouter initialEntries={[path]} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}><Routes><Route path="/login" element={<h1>Synthetic login destination</h1>} /><Route path="*" element={<BuyerWorkspaceShell><h1>Synthetic workspace</h1></BuyerWorkspaceShell>} /></Routes></MemoryRouter>);
 }
 describe("buyer navigation behavior without live authentication", () => {
+  it("provides builder navigation without unsupported analytics or development routes", () => {
+    render(<MemoryRouter initialEntries={["/dashboard/builder?view=listings"]} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}><WorkspaceShell role="builder"><h1>Synthetic builder</h1></WorkspaceShell></MemoryRouter>);
+    expect(screen.getByRole("link", { name: "My listings" })).toHaveAttribute("aria-current", "page");
+    expect(screen.getByRole("link", { name: "Inspections" })).toHaveAttribute("href", "/dashboard/builder?view=inspections");
+    expect(screen.queryByRole("link", { name: "Analytics" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Withdraw" })).not.toBeInTheDocument();
+  });
   it("marks saved and conversation routes correctly and closes its accessible drawer", async () => {
     open();
     expect(screen.getByRole("link", { name: "Saved properties" })).toHaveAttribute("aria-current", "page");

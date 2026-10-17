@@ -4,6 +4,7 @@
 @import './styles/marketplace.css';
 @import './styles/auth.css';
 @import './styles/buyer-workspace.css';
+@import './styles/professional-workspace.css';
 
 @tailwind base;
 @tailwind components;

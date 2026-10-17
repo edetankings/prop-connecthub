@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { CalendarCheck, Loader2 } from "lucide-react";
 
@@ -26,7 +26,7 @@ const statusStyle: Record<string, string> = {
   no_show: "bg-muted text-muted-foreground",
 };
 
-const Inspections = ({ mode }: { mode: Mode }) => {
+const Inspections = ({ mode, embedded = false }: { mode: Mode; embedded?: boolean }) => {
   const { profile } = useAuth();
   const [rows, setRows] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -57,11 +57,15 @@ const Inspections = ({ mode }: { mode: Mode }) => {
   }, [profileId, mode]);
   useEffect(() => { void load(); return invalidate; }, [load, invalidate]);
 
-  const agentAct = async (row: any, action: string, extra: any = {}) => {
-    const { error } = await (supabase as any).rpc("agent_respond_inspection", { _id: row.id, _action: action, _note: extra.note || null, _date: extra.date || null, _time: extra.time || null });
-    if (error) return toast.error(error.message);
-    toast.success("Inspection updated");
-    setDlg(null); load();
+  const agentAct = async (row: { id: string }, action: string, extra: { note?: string; date?: string; time?: string } = {}) => {
+    if (actionLock.current) return;
+    actionLock.current = true; setActionPending(true);
+    try {
+      const { error } = await supabase.rpc("agent_respond_inspection", { _id: row.id, _action: action, _note: extra.note || null, _date: extra.date || null, _time: extra.time || null });
+      if (error) throw error;
+      toast.success("Inspection updated"); setDlg(null); await load();
+    } catch { toast.error("Unable to update inspection. Please try again."); }
+    finally { actionLock.current = false; setActionPending(false); }
   };
   const buyerAct = async (row: { id: string }, action: string) => {
     if (actionLock.current) return;
@@ -77,7 +81,8 @@ const Inspections = ({ mode }: { mode: Mode }) => {
   const shown = rows.filter((r) => filter === "all" || r.inspection_status === filter);
   const title = mode === "admin" ? "All inspections" : mode === "agent" ? "Inspection requests" : "My inspections";
 
-  const Layout = mode === "buyer" ? AuthenticatedLayout : Fragment;
+  const Layout = !embedded && mode !== "admin" ? AuthenticatedLayout : Fragment;
+  const Heading = embedded ? "h2" : "h1";
   return (
     <Layout><div className="inspection-page min-h-screen bg-background">
       <Helmet><title>{title} · Prop-Connect</title></Helmet>
@@ -85,7 +90,7 @@ const Inspections = ({ mode }: { mode: Mode }) => {
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary"><CalendarCheck className="h-5 w-5" /></div>
           <div>
-            <h1 className="font-display text-2xl font-semibold sm:text-3xl">{title}</h1>
+            <Heading className="font-display text-2xl font-semibold sm:text-3xl">{title}</Heading>
             <p className="text-sm text-muted-foreground">
               {mode === "admin" ? "Overview only — agents handle inspections directly." : mode === "agent" ? "Confirm, propose a new time, or decline." : "Review requested times, agent responses and inspection history."}
             </p>
@@ -119,13 +124,13 @@ const Inspections = ({ mode }: { mode: Mode }) => {
                   </div>
                   <div className="flex flex-wrap gap-2 sm:justify-end">
                     {mode === "agent" && r.inspection_status === "requested" && (<>
-                      <Button size="sm" onClick={() => agentAct(r, "confirm")}>Confirm</Button>
-                      <Button size="sm" variant="outline" onClick={() => { setForm({ date: "", time: "", note: "" }); setDlg({ row: r, action: "propose" }); }}>Propose new time</Button>
-                      <Button size="sm" variant="outline" className="text-destructive" onClick={() => { setForm({ date: "", time: "", note: "" }); setDlg({ row: r, action: "decline" }); }}>Decline</Button>
+                      <Button size="sm" disabled={actionPending} onClick={() => agentAct(r, "confirm")}>Confirm</Button>
+                      <Button size="sm" disabled={actionPending} variant="outline" onClick={() => { setForm({ date: "", time: "", note: "" }); setDlg({ row: r, action: "propose" }); }}>Propose new time</Button>
+                      <Button size="sm" disabled={actionPending} variant="outline" className="text-destructive" onClick={() => { setForm({ date: "", time: "", note: "" }); setDlg({ row: r, action: "decline" }); }}>Decline</Button>
                     </>)}
                     {mode === "agent" && r.inspection_status === "confirmed" && (<>
-                      <Button size="sm" variant="outline" onClick={() => agentAct(r, "completed")}>Mark completed</Button>
-                      <Button size="sm" variant="outline" onClick={() => agentAct(r, "no_show")}>No-show</Button>
+                      <Button size="sm" disabled={actionPending} variant="outline" onClick={() => agentAct(r, "completed")}>Mark completed</Button>
+                      <Button size="sm" disabled={actionPending} variant="outline" onClick={() => agentAct(r, "no_show")}>No-show</Button>
                     </>)}
                     {mode === "buyer" && r.inspection_status === "reschedule_proposed" && (
                       <Button size="sm" disabled={actionPending} onClick={() => buyerAct(r, "accept")}>Accept new time</Button>
@@ -142,18 +147,18 @@ const Inspections = ({ mode }: { mode: Mode }) => {
       </div>
 
       <Dialog open={!!dlg} onOpenChange={(o) => !o && setDlg(null)}>
-        <DialogContent>
-          <DialogHeader><DialogTitle>{dlg?.action === "propose" ? "Propose a new time" : "Decline inspection"}</DialogTitle></DialogHeader>
+        <DialogContent className="inspection-response-dialog">
+          <DialogHeader><DialogTitle>{dlg?.action === "propose" ? "Propose a new time" : "Decline inspection"}</DialogTitle><DialogDescription>Respond to the recorded request. A proposed time requires buyer acceptance; it is not automatic confirmation.</DialogDescription></DialogHeader>
           {dlg?.action === "propose" && (
             <div className="grid grid-cols-2 gap-3">
-              <div><Label>Date</Label><Input type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} /></div>
-              <div><Label>Time</Label><Input type="time" value={form.time} onChange={(e) => setForm({ ...form, time: e.target.value })} /></div>
+              <div><Label htmlFor="inspection-date">Date</Label><Input id="inspection-date" type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} /></div>
+              <div><Label htmlFor="inspection-time">Time</Label><Input id="inspection-time" type="time" value={form.time} onChange={(e) => setForm({ ...form, time: e.target.value })} /></div>
             </div>
           )}
-          <div><Label>Note {dlg?.action === "decline" ? "(reason)" : "(optional)"}</Label><Textarea rows={3} value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} /></div>
+          <div><Label htmlFor="inspection-note">Note {dlg?.action === "decline" ? "(reason)" : "(optional)"}</Label><Textarea id="inspection-note" rows={3} value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} /></div>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setDlg(null)}>Cancel</Button>
-            <Button onClick={() => {
+            <Button disabled={actionPending} onClick={() => {
               if (!dlg) return;
               if (dlg.action === "propose" && !form.date) return toast.error("Pick a date");
               agentAct(dlg.row, dlg.action, form);

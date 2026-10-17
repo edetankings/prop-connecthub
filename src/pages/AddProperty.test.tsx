@@ -23,9 +23,9 @@ import AddProperty from "./AddProperty";
 beforeEach(() => {
   vi.clearAllMocks();
   vi.stubGlobal("URL", Object.assign(URL, { createObjectURL: vi.fn(() => "blob:local-preview"), revokeObjectURL: vi.fn() }));
-  const confirmed = () => ({ select: () => ({ single: async () => ({ data: { id: "saved-property" }, error: null }) }) });
+  const confirmed = () => ({ select: () => ({ single: async () => ({ data: { id: "saved-property", status: "draft" }, error: null }) }) });
   mocks.insert.mockImplementation(confirmed);
-  mocks.update.mockImplementation(() => ({ eq: confirmed }));
+  mocks.update.mockImplementation(() => { const scope = { eq: () => scope, select: () => confirmed().select() }; return scope; });
   mocks.document.mockResolvedValue({ error: null });
 });
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); });

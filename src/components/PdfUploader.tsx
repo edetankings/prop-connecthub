@@ -56,7 +56,7 @@ const PdfUploader = ({ files, onChange, maxFiles = 3, maxSizeMb = 20 }: PdfUploa
           type="file"
           accept="application/pdf"
           multiple
-          className="hidden"
+          aria-label="Property documents" className="sr-only"
           onChange={(e) => {
             handleFiles(e.target.files);
             e.target.value = "";
@@ -73,11 +73,10 @@ const PdfUploader = ({ files, onChange, maxFiles = 3, maxSizeMb = 20 }: PdfUploa
                 <p className="text-sm font-medium text-foreground truncate">{f.file.name}</p>
                 <p className="text-xs text-muted-foreground">{(f.file.size / 1024 / 1024).toFixed(2)} MB</p>
               </div>
-              <button
+              <button aria-label={`Remove document ${f.file.name}`}
                 type="button"
                 onClick={() => removeFile(f.id)}
                 className="rounded-full p-1 hover:bg-destructive/10 text-destructive"
-                aria-label="Remove file"
               >
                 <X className="h-4 w-4" />
               </button>

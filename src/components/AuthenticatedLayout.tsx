@@ -7,6 +7,7 @@ import ThemeToggle from "@/components/ThemeToggle";
 import { useAuth } from "@/hooks/useAuth";
 import VerificationBanner from "@/components/VerificationBanner";
 import logo from "@/assets/logo.jpg";
+import WorkspaceShell from "@/components/WorkspaceShell";
 import BuyerWorkspaceShell from "@/components/buyer/BuyerWorkspaceShell";
 
 interface AuthenticatedLayoutProps {
@@ -18,6 +19,8 @@ const AuthenticatedLayout = ({ children }: AuthenticatedLayoutProps) => {
   const { profile, isAdmin } = useAuth();
 
   if (profile?.profile_type === "buyer" && !isAdmin) return <BuyerWorkspaceShell>{children}</BuyerWorkspaceShell>;
+
+  if (!isAdmin && (profile?.profile_type === "agent" || profile?.profile_type === "builder")) return <WorkspaceShell role={profile.profile_type}>{children}</WorkspaceShell>;
 
   return (
     <div className="min-h-screen bg-background">
