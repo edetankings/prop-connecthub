@@ -466,3 +466,82 @@
 @media(max-width:767px) and (prefers-reduced-motion:no-preference) {
  .home-category-motion:focus-within { opacity:1!important; transform:none!important; }
 }
+
+/* One shared journey card with right-aligned animated step icons. */
+.home-journey .home-journey-steps { display:flex; flex-direction:column; gap:0; margin-block:40px 32px; padding:8px clamp(18px,4vw,48px); border:1px solid #d5e3d9; border-radius:28px; background:linear-gradient(125deg,#fff,#f4f8f3); box-shadow:0 18px 60px #0b493809; list-style:none; }
+.home-journey .home-journey-steps li { display:grid; grid-template-columns:44px minmax(0,1fr) 64px; gap:24px; align-items:center; padding:28px 0; }
+.home-journey .home-journey-steps li + li { border-top:1px solid #dce7de; }
+.home-journey .home-journey-steps li::after { display:none; }
+.home-journey .home-journey-steps .home-step-index { align-self:center; font-size:14px; }
+.home-journey .home-journey-steps li > .home-journey-step-copy { grid-column:2; }
+.home-journey .home-journey-steps h3 { margin:0; font-size:clamp(20px,2.3vw,28px); font-weight:700; color:#173e2f; }
+.home-journey .home-journey-steps p { max-width:600px; margin-top:8px; font-size:14px; color:#52665b; }
+.home-journey .home-journey-node { grid-column:3; grid-row:1; margin:0; width:64px; height:64px; border-radius:20px; background:#e3f0e4; border-color:#d0e3d2; transition:background .45s ease,box-shadow .45s ease; }
+.home-journey .home-journey-node svg { width:26px; height:26px; stroke-width:2; transition:transform .6s cubic-bezier(.2,.8,.2,1); }
+.home-journey-steps li:hover .home-journey-node { background:#cce8d2; box-shadow:0 6px 22px #0b493812; }
+.home-journey-steps li:hover .home-journey-node svg { transform:translateY(-4px) rotate(8deg) scale(1.08); }
+@media(max-width:600px) {
+ .home-journey .home-journey-steps { border-radius:22px; margin-block:28px; }
+ .home-journey .home-journey-steps li { grid-template-columns:26px minmax(0,1fr) 48px; gap:12px; padding:24px 0; }
+ .home-journey .home-journey-node { width:48px; height:48px; border-radius:15px; }
+ .home-journey .home-journey-node svg { width:22px; height:22px; }
+ .home-journey .home-journey-steps p { font-size:13px; }
+}
+@media(prefers-reduced-motion:reduce) {
+ .home-journey .home-journey-node,.home-journey .home-journey-node svg { transition:none; }
+ .home-journey-steps li:hover .home-journey-node svg { transform:none; }
+}
+
+/* Trust collection: six large illustrated icon panels, copy below. */
+.home-trust .home-trust-layout { display:flex; flex-direction:column; gap:40px; }
+.home-trust-layout > div:first-child { max-width:760px; }
+.home-trust .home-trust-list { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:24px; align-self:stretch; }
+.home-trust .home-trust-item { position:relative; display:flex; flex-direction:column; align-items:stretch; gap:24px; padding:18px 18px 28px; border:1px solid #d1dfd3; border-radius:26px; background:#fff; min-width:0; }
+.home-trust-icon-panel { display:grid; place-items:center; position:relative; isolation:isolate; min-height:190px; border-radius:18px; background:linear-gradient(140deg,#edf6ee,#d6ecdc); overflow:hidden; }
+.home-trust-icon-panel::before,.home-trust-icon-panel::after { content:""; position:absolute; z-index:-1; width:150px; height:150px; border:1px solid #ffffffbd; border-radius:36px; transform:rotate(35deg); }
+.home-trust-icon-panel::after { width:200px; height:200px; transform:rotate(-18deg); border-color:#0b49381a; }
+.home-trust-icon-orbit { position:absolute; width:108px; height:108px; border-radius:32px; background:#0b4938; box-shadow:0 14px 26px #0b493827,inset 0 1px 0 #ffffff45; transform:rotate(-7deg); transition:transform .65s cubic-bezier(.2,.8,.2,1); }
+.home-trust-icon-panel > svg { position:relative; color:white; width:52px; height:52px; stroke-width:1.8; transition:transform .65s cubic-bezier(.2,.8,.2,1); }
+.home-trust-item:nth-child(even) .home-trust-icon-panel { background:linear-gradient(135deg,#164f3d,#0a3427); }
+.home-trust-item:nth-child(even) .home-trust-icon-orbit { background:#fff; }
+.home-trust-item:nth-child(even) .home-trust-icon-panel > svg { color:#0b4938; }
+.home-trust-item:hover .home-trust-icon-orbit,.home-trust-item:focus-visible .home-trust-icon-orbit { transform:rotate(5deg) scale(1.04); }
+.home-trust-item:hover .home-trust-icon-panel > svg,.home-trust-item:focus-visible .home-trust-icon-panel > svg { transform:translateY(-4px); }
+.home-trust .home-trust-item > div { padding-inline:8px; }
+.home-trust .home-trust-item h3 { font-size:21px; font-weight:700; margin-block:10px; }
+.home-trust .home-trust-item p { max-width:none; font-size:14px; }
+.home-trust .home-trust-arrow { position:absolute; right:26px; bottom:27px; margin:0; color:#0b4938; }
+.home-trust .home-trust-item:has(.home-trust-arrow) > div { padding-right:28px; }
+.home-trust-item:focus-visible { outline:3px solid #138562; outline-offset:4px; }
+@media(max-width:1023px) { .home-trust .home-trust-list { grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; } }
+@media(max-width:600px) { .home-trust .home-trust-list { grid-template-columns:minmax(0,1fr); } .home-trust-icon-panel { min-height:200px; } }
+@media(prefers-reduced-motion:reduce) { .home-trust-icon-orbit,.home-trust-icon-panel > svg { transition:none; } .home-trust-item:hover .home-trust-icon-orbit,.home-trust-item:focus-visible .home-trust-icon-orbit { transform:rotate(-7deg); } .home-trust-item:hover .home-trust-icon-panel > svg,.home-trust-item:focus-visible .home-trust-icon-panel > svg { transform:none; } }
+
+/* Gentle independent motion for the six trust illustrations. */
+@keyframes trust-icon-float {
+  0%,100% { translate:0 3px; }
+  50% { translate:0 -5px; }
+}
+@keyframes trust-panel-drift {
+  0%,100% { translate:-3px 2px; }
+  50% { translate:4px -3px; }
+}
+@media(prefers-reduced-motion:no-preference) {
+ .home-trust-item { --trust-motion-delay:0s; }
+ .home-trust-item:nth-child(2) { --trust-motion-delay:-.7s; }
+ .home-trust-item:nth-child(3) { --trust-motion-delay:-1.4s; }
+ .home-trust-item:nth-child(4) { --trust-motion-delay:-2.1s; }
+ .home-trust-item:nth-child(5) { --trust-motion-delay:-2.8s; }
+ .home-trust-item:nth-child(6) { --trust-motion-delay:-3.5s; }
+ .home-trust-icon-panel > svg,.home-trust-icon-orbit { animation:trust-icon-float 4.8s ease-in-out infinite; animation-delay:var(--trust-motion-delay); }
+ .home-trust-icon-panel::before,.home-trust-icon-panel::after { animation:trust-panel-drift 7s ease-in-out infinite; animation-delay:var(--trust-motion-delay); }
+}
+
+/* Lift the entire trust card on pointer and keyboard interaction. */
+.home-trust .home-trust-item { transition:translate .4s cubic-bezier(.2,.8,.2,1),box-shadow .4s ease,border-color .4s ease; }
+.home-trust .home-trust-item:hover,.home-trust .home-trust-item:focus-visible { translate:0 -6px; box-shadow:0 18px 34px #0b49381c; border-color:#95bd9f; }
+.home-trust .home-trust-item:active { translate:0 -12px; box-shadow:0 24px 40px #0b493829; }
+@media(prefers-reduced-motion:reduce) {
+ .home-trust .home-trust-item { transition:none; }
+ .home-trust .home-trust-item:hover,.home-trust .home-trust-item:focus-visible,.home-trust .home-trust-item:active { translate:none; }
+}

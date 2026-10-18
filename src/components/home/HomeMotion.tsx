@@ -18,8 +18,6 @@ export default function HomeMotion({ children }: { children: ReactNode }) {
           gsap.from(element, { y: 14, opacity: .7, duration: .65, ease: "power2.out", clearProps: "all",
             scrollTrigger: { trigger: element, start: "top 94%", once: true } });
         });
-        gsap.from("[data-journey-step]", { opacity: .7, y: 14, duration: .6, stagger: .13, clearProps: "opacity,transform",
-          scrollTrigger: { trigger: "[data-home-section=journey]", start: "top 80%", once: true } });
         gsap.utils.toArray<HTMLElement>("[data-image-mask]").forEach(element => {
           gsap.from(element, { clipPath: "inset(6% 0 6% 0 round 28px)", duration: .9, ease: "power2.out", clearProps: "clipPath",
             scrollTrigger: { trigger: element, start: "top 90%", once: true } });
@@ -29,8 +27,8 @@ export default function HomeMotion({ children }: { children: ReactNode }) {
     });
     media.add("(max-width: 767px) and (prefers-reduced-motion: no-preference)", () => {
       const context = gsap.context(() => {
-        gsap.utils.toArray<HTMLElement>("[data-category-reveal]").forEach(element => {
-          const card = element.querySelector<HTMLElement>(".home-category-motion");
+        gsap.utils.toArray<HTMLElement>("[data-category-reveal], [data-journey-step]").forEach(element => {
+          const card = element.matches("[data-journey-step]") ? element : element.querySelector<HTMLElement>(".home-category-motion");
           if (!card) return;
           const reveal = gsap.timeline({ scrollTrigger: { trigger: element, start: "top bottom", end: "bottom top", scrub: .8 } });
           reveal.fromTo(card, { y: 36, opacity: 0 }, { y: 0, opacity: 1, duration: .3, ease: "sine.out" });
@@ -42,7 +40,7 @@ export default function HomeMotion({ children }: { children: ReactNode }) {
     });
     media.add("(min-width: 768px) and (prefers-reduced-motion: no-preference)", () => {
       const context = gsap.context(() => {
-        gsap.utils.toArray<HTMLElement>("[data-category-reveal]").forEach((element, index) => {
+        gsap.utils.toArray<HTMLElement>("[data-category-reveal], [data-journey-step]").forEach((element, index) => {
           gsap.from(element, { x: index % 2 === 0 ? -18 : 18, y: 24, opacity: 0, duration: .65, delay: (index % 2) * .12, ease: "power3.out", clearProps: "transform,opacity",
             scrollTrigger: { trigger: element, start: "top 92%", once: true } });
         });

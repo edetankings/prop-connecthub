@@ -1,6 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap');
 
 @import './styles/homepage.css';
+@import './styles/inspection-showcase.css';
 @import './styles/marketplace.css';
 @import './styles/auth.css';
 @import './styles/buyer-workspace.css';
