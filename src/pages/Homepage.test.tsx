@@ -29,10 +29,12 @@ afterEach(cleanup);
 describe("complete homepage content and data boundaries (mocked backend)", () => {
   it("renders all 12 sections with honest empty states and working destination URLs", async () => {
     open();
-    await screen.findByText("A little room for possibility.");
+    await screen.findByText("A new perspective is taking shape.");
     expect([...document.querySelectorAll("[data-home-section]")].map(node => node.getAttribute("data-home-section"))).toEqual([
-      "navigation", "hero", "categories", "final-cta", "featured", "journey", "trust", "developments", "experience", "partnership", "resources", "footer",
+      "navigation", "hero", "categories", "final-cta", "about", "trust", "developments", "experience", "partnership", "resources", "faq", "footer",
     ]);
+    expect(document.querySelectorAll("#about")).toHaveLength(1);
+    expect(screen.getByRole("link", { name: "About" })).toHaveAttribute("href", "/#about");
     expect(screen.queryByText("Different cities. New possibilities.")).not.toBeInTheDocument();
     const categories = document.querySelector('[data-home-section="categories"]')! as HTMLElement;
     expect(within(categories).getByRole("link", { name: /New Developments/ })).toHaveAttribute("href", "/properties?type=estate");
@@ -43,7 +45,7 @@ describe("complete homepage content and data boundaries (mocked backend)", () =>
   });
   it("explains each hero category in place without changing the other sections or fetching again", async () => {
     open();
-    await screen.findByText("A little room for possibility.");
+    await screen.findByText("A new perspective is taking shape.");
     const hero = document.querySelector('[data-home-section="hero"]') as HTMLElement;
     const rest = [...document.querySelectorAll('[data-home-section]:not([data-home-section="hero"]):not([data-home-section="navigation"])')];
     const before = rest.map(section => section.innerHTML);
@@ -51,6 +53,12 @@ describe("complete homepage content and data boundaries (mocked backend)", () =>
     for (const [category, explanation] of [["Homes", /Explore houses to buy or rent/], ["Apartments", /Discover apartments that suit/], ["Land", /Explore land listings and compare/]] as const) {
       fireEvent.click(within(hero).getByRole("button", { name: category }));
       expect(within(hero).getByText(explanation)).toBeInTheDocument();
+      const background = hero.querySelector(".hero-category-background.is-active")!;
+      expect(hero.querySelectorAll(".hero-category-background.is-active")).toHaveLength(1);
+      expect(background).toHaveAttribute("aria-hidden", "false");
+      if (category === "Apartments") expect(background).toHaveAttribute("src", "/images/categories/apartments.jpg");
+      if (category === "Land") expect(background).toHaveAttribute("src", "/images/categories/land.jpg");
+      if (category === "Homes") expect(background.getAttribute("src")).toContain("architecture-forest-v2.jpg");
       expect(within(hero).getByRole("button", { name: category })).toHaveAttribute("aria-pressed", "true");
       expect(within(within(hero).getByRole("group", { name: "Explore property categories" })).getAllByRole("button", { pressed: true })).toHaveLength(1);
     }
@@ -74,9 +82,9 @@ describe("complete homepage content and data boundaries (mocked backend)", () =>
   it("shows request failure separately from no listings and supports retry", async () => {
     mocks.properties.mockResolvedValueOnce({ data: null, error: { message: "Unavailable" } }).mockResolvedValue({ data: [], error: null });
     open();
-    await screen.findByText("We couldn't load the listings.");
-    expect(screen.queryByText("A little room for possibility.")).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Try again" }));
-    await screen.findByText("A little room for possibility.");
+    await screen.findByText("Estate listings are temporarily unavailable.");
+    expect(screen.queryByText("A new perspective is taking shape.")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Retry estate listings" }));
+    await screen.findByText("A new perspective is taking shape.");
   });
 });

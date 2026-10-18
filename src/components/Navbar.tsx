@@ -33,7 +33,7 @@ const Navbar = ({ overlay = false }: { overlay?: boolean }) => {
 
   useEffect(() => {
     if (location.pathname !== "/" || !["#about", "#how-it-works"].includes(location.hash)) return;
-    document.getElementById(location.hash.slice(1))?.scrollIntoView?.({ behavior: "instant", block: "start" });
+    document.getElementById(location.hash.slice(1))?.scrollIntoView?.({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth", block: "start" });
   }, [location.pathname, location.hash]);
 
   return (
@@ -57,6 +57,7 @@ const Navbar = ({ overlay = false }: { overlay?: boolean }) => {
               <Link
                 key={item.path}
                 to={item.path}
+                onClick={() => { if (location.pathname === "/" && item.path === "/#about") document.getElementById("about")?.scrollIntoView?.({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth", block: "start" }); }}
                 aria-current={isActive(item.path) ? "page" : undefined}
                 className={cn(
                   "site-nav-link",
@@ -111,7 +112,7 @@ const Navbar = ({ overlay = false }: { overlay?: boolean }) => {
                   <Link
                     key={item.path}
                     to={item.path}
-                    onClick={() => setOpen(false)}
+                    onClick={() => { setOpen(false); if (location.pathname === "/" && item.path === "/#about") document.getElementById("about")?.scrollIntoView?.({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth", block: "start" }); }}
                     className="border-b border-border py-3.5 text-base font-medium text-foreground transition-colors hover:text-primary"
                   >
                     {item.label}

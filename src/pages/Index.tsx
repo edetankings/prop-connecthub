@@ -1,16 +1,16 @@
 import { siteUrl } from "@/lib/seo";
 import { Link } from "react-router-dom";
-import MarketplaceFlow, { PropertyCategories } from "@/components/home/MarketplaceFlow";
+import { PropertyCategories } from "@/components/home/MarketplaceFlow";
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import HomeMotion from "@/components/home/HomeMotion";
 import PropertySearch from "@/components/home/PropertySearch";
 import InspectionShowcase from "@/components/home/InspectionShowcase";
-import { PageContainer, ListingSkeleton } from "@/components/ui/page-container";
+import { PageContainer } from "@/components/ui/page-container";
 import { Button } from "@/components/ui/button";
 import {
   Shield, ArrowUpRight, LockKeyhole, BadgeCheck, Building2,
-  Search, Heart, MessageCircle, CalendarCheck, ClipboardList, FileCheck2, Eye, ArrowRight,
+  FileCheck2, Eye, ArrowRight,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -18,7 +18,9 @@ import PropertyCarousel from "@/components/PropertyCarousel";
 import type { DBProperty } from "@/components/DBPropertyCard";
 import { supabase } from "@/integrations/supabase/client";
 import heroImg from "@/assets/architecture-forest-v2.jpg";
-import cine3 from "@/assets/cinematic-3.jpg";
+import HomeFaq from "@/components/home/HomeFaq";
+import WhyPropConnect from "@/components/home/WhyPropConnect";
+import ExperienceCarousel from "@/components/home/ExperienceCarousel";
 
 function SectionHeading({ eyebrow, title, description }: { eyebrow: string; title: string; description?: string }) {
   return <div data-section-reveal className="home-section-intro"><p className="text-eyebrow">{eyebrow}</p><h2 className="home-section-heading">{title}</h2>{description && <p>{description}</p>}</div>;
@@ -83,7 +85,7 @@ const Index = () => {
         <div className="premium-hero-overlay" />
         <PageContainer className="hero-content">
           <div className="hero-editorial">
-            <div data-hero-reveal className="hero-category-links" role="group" aria-label="Explore property categories">{(Object.keys(heroCategories) as (keyof typeof heroCategories)[]).map(category => <button key={category} type="button" aria-pressed={heroCategory === category} aria-controls="hero-category-explanation" onClick={() => setHeroCategory(category)}>{category}</button>)}</div>
+            <div data-hero-reveal className="hero-category-links" role="group" aria-label="Explore property categories">{(Object.keys(heroCategories) as (keyof typeof heroCategories)[]).map(category => <button key={category} type="button" aria-pressed={(heroCategory || "Homes") === category} aria-controls="hero-category-explanation" onClick={() => setHeroCategory(category)}>{category}</button>)}</div>
             <div id="hero-category-explanation" aria-live="polite" aria-atomic="true">
               <div key={heroCategory || "intro"} className={heroCategory ? "hero-category-transition" : undefined}>
               <h1 id="hero-title" data-hero-reveal className="hero-headline">{heroDetail ? <>{heroDetail.title}<br /><strong>{heroDetail.emphasis}</strong></> : <>Find your place.<br /><strong>Move with confidence.</strong></>}</h1>
@@ -91,21 +93,18 @@ const Index = () => {
               </div>
             </div>
           </div>
-          <div className="hero-visual"><img src={heroImg} alt="Architectural concept: a contemporary home within tropical woodland" data-architecture-reveal {...{ fetchpriority: "high" }} width={1672} height={941} /></div>
+          <div className="hero-visual" data-architecture-reveal>{[{category:"Homes",src:heroImg,alt:"Architectural concept: a contemporary home within tropical woodland"},{category:"Apartments",src:"/images/categories/apartments.jpg",alt:"Apartment building with balconies"},{category:"Land",src:"/images/categories/land.jpg",alt:"Open countryside and land"}].map(image => <img key={image.category} className={`hero-category-background${(heroCategory || "Homes") === image.category ? " is-active" : ""}`} src={image.src} alt={image.alt} aria-hidden={(heroCategory || "Homes") !== image.category} {...{ fetchpriority: image.category === "Homes" ? "high" : "low" }} decoding="async" width={1672} height={941} />)}</div>
           <div data-hero-reveal className="hero-search-wrap"><PropertySearch /></div>
         </PageContainer>
       </section>
       <PropertyCategories />
       <InspectionShowcase listings={properties} />
-
-      <section id="discover" data-home-section="featured" className="page-container home-section featured-discovery" aria-labelledby="featured-title">
-        <div className="home-section-top"><div data-section-reveal className="home-section-intro"><p className="text-eyebrow">Selected for your next chapter</p><h2 id="featured-title" className="home-section-heading">A place to call your own.</h2><p>Discover the latest reviewed listings. Find the home, space or fresh start that fits your life.</p></div><Button asChild variant="outline"><Link to="/properties">View all properties <ArrowUpRight /></Link></Button></div>
-        {propertiesLoading ? <ListingSkeleton /> : propertiesError ? <div role="alert" className="home-empty"><Building2 /><h3>We couldn't load the listings.</h3><p>Your next place is worth another look.</p><Button onClick={() => setPropertyRetry(n => n + 1)}>Try again</Button></div> : properties.length ? <PropertyCarousel properties={properties} responsiveGrid /> : <div className="home-empty"><Building2 /><h3>A little room for possibility.</h3><p>No reviewed listings to show yet. Come back soon or explore the property search.</p><Button asChild variant="outline"><Link to="/properties">Explore properties <ArrowUpRight /></Link></Button></div>}
-      </section>
+      <WhyPropConnect />
 
 
 
-      <MarketplaceFlow />
+
+
 
       <section data-home-section="trust" className="home-trust home-section">
         <PageContainer className="home-trust-layout"><div data-section-reveal><p className="text-eyebrow">Confidence comes from clarity</p><h2 className="home-section-heading">A considered approach.<br />At every step.</h2><p className="home-body-copy">A verification badge is a useful starting point, not a guarantee. Inspect the property, check ownership documents and seek independent legal advice before committing.</p><Button asChild variant="outline"><Link to="/trust/safety-center">Visit our safety centre <ArrowUpRight /></Link></Button></div>
@@ -119,9 +118,7 @@ const Index = () => {
         <div className="mt-8">{propertiesLoading ? <p role="status">Loading estate listings...</p> : propertiesError ? <div role="alert" className="home-empty"><h3>Estate listings are temporarily unavailable.</h3><Button onClick={()=>setPropertyRetry(n=>n+1)}>Retry estate listings</Button></div> : estates.length > 0 ? <PropertyCarousel properties={estates} /> : <div className="home-development-empty"><Building2 /><div><h3>A new perspective is taking shape.</h3><p>No estate listings in the latest collection. Explore the full estate search for current availability.</p></div></div>}</div><Button asChild variant="outline" className="mt-6"><Link to="/properties?type=estate">Explore estate listings <ArrowUpRight /></Link></Button></PageContainer>
       </section>
 
-      <section id="about" data-home-section="experience" className="page-container home-section">
-        <div className="home-experience"><div className="home-experience-photo" data-image-mask><img data-soft-parallax src={cine3} alt="Architectural inspiration for your next home" loading="lazy" /><div><span>A place to begin.</span><p>A little more room<br />to be you.</p></div></div><div><SectionHeading eyebrow="For buyers. For renters. For you." title="Your search, with room to breathe." description="From a saved favourite to a confirmed inspection, keep the important details together." /><ul className="home-experience-list">{[{icon:Search,title:"Search your way",text:"Narrow your search by location, budget and property type.",to:"/properties"},{icon:Heart,title:"Keep your favourites close",text:"Save a listing on this device with the heart button. Local saves stay in this browser.",to:"/#discover"},{icon:MessageCircle,title:"Start a conversation",text:"Sign in to message a property professional.",to:"/messages"},{icon:CalendarCheck,title:"See it for yourself",text:"Request an inspection through an available listing.",to:"/properties"},{icon:ClipboardList,title:"Follow your enquiries",text:"Check messages, inspections and deal updates in your dashboard.",to:"/dashboard"}].map(item=><li data-section-reveal key={item.title}><item.icon /><div><Link to={item.to}><h3>{item.title} <ArrowUpRight /></h3></Link><p>{item.text}</p></div></li>)}</ul></div></div>
-      </section>
+      <ExperienceCarousel />
 
       <section data-home-section="partnership" className="home-partnership">
         <PageContainer className="home-partnership-layout"><div data-section-reveal><p className="text-eyebrow">Built for property professionals</p><h2 className="home-section-heading">Your expertise.<br />A wider horizon.</h2><p className="home-body-copy">Bring your properties and professional perspective to PROP-CONNECT. Manage listings, respond to enquiries and follow your work in one place.</p><Button asChild><Link to="/register">Become an agent or builder <ArrowUpRight /></Link></Button></div><div className="home-partner-benefits">{[{n:"01",title:"Introduce yourself",text:"Create your account and choose your existing agent or builder onboarding path."},{n:"02",title:"Build your profile",text:"Complete the platform's profile and verification requirements."},{n:"03",title:"Make meaningful connections",text:"Share reviewed listings and keep conversations organised in your dashboard."}].map(item=><div data-section-reveal key={item.n}><span>{item.n}</span><div><h3>{item.title}</h3><p>{item.text}</p></div></div>)}</div></PageContainer>
@@ -132,6 +129,7 @@ const Index = () => {
         <div className="home-resources">{[{n:"01",title:"Investing in Nigerian property",text:"Understand the considerations before starting your property journey.",to:"/guides/investing-in-nigeria",category:"Property guide"},{n:"02",title:"Know what to verify",text:"Learn about property review and independent document checks.",to:"/trust/property-verification",category:"Due diligence"},{n:"03",title:"A safer search starts with you",text:"Recognise warning signs and read the platform's fraud prevention guidance.",to:"/trust/fraud-prevention",category:"Safety resource"}].map(item=><Link data-section-reveal className="home-resource" key={item.n} to={item.to}><span className="home-resource-number">{item.n}</span><div><p className="text-eyebrow">{item.category}</p><h3>{item.title}</h3><p>{item.text}</p></div><ArrowUpRight /></Link>)}</div>
       </section>
 
+      <HomeFaq />
       </main>
       <Footer />
     </div></HomeMotion>

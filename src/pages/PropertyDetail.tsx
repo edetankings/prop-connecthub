@@ -1,3 +1,4 @@
+import PropertyDetailPreview from "@/components/PropertyDetailPreview";
 import { siteUrl } from "@/lib/seo";
 import { useParams, Link } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
@@ -48,7 +49,7 @@ interface DBPropertyDetail {
   property_code: string | null;
 }
 
-const PropertyDetail = () => {
+const LivePropertyDetail = () => {
   const { id } = useParams();
   const { user, profile } = useAuth();
 
@@ -624,4 +625,7 @@ const PropertyDetail = () => {
   );
 };
 
-export default PropertyDetail;
+export default function PropertyDetail() {
+ const { id } = useParams();
+ return id === "preview-garden-duplex" ? <PropertyDetailPreview /> : <LivePropertyDetail />;
+}

@@ -1,0 +1,22 @@
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { MemoryRouter, Route, Routes } from "react-router-dom";
+import { HelmetProvider } from "react-helmet-async";
+import { afterEach, expect, it, vi } from "vitest";
+import PropertyListingPreview from "./PropertyListingPreview";
+const remote = vi.hoisted(() => ({ from:vi.fn() }));
+vi.mock("@/integrations/supabase/client", () => ({ supabase:remote }));
+vi.mock("@/hooks/useAuth", () => ({ useAuth: () => ({ user:null,profile:null,isAdmin:false,signOut:vi.fn() }) }));
+import PropertyDetail from "@/pages/PropertyDetail";
+afterEach(() => { cleanup(); vi.clearAllMocks(); });
+it("navigates from View Property to the full isolated preview, with gallery and inspection controls", () => {
+ render(<HelmetProvider><MemoryRouter initialEntries={["/properties"]} future={{ v7_startTransition:true,v7_relativeSplatPath:true }}><Routes><Route path="/properties" element={<PropertyListingPreview layout="grid" />} /><Route path="/property/:id" element={<PropertyDetail />} /></Routes></MemoryRouter></HelmetProvider>);
+ const save=screen.getByRole("button",{name:"Save sample Garden Duplex"}); fireEvent.click(save); expect(save).toHaveAttribute("aria-pressed","true");
+ fireEvent.click(screen.getByRole("link",{name:"View Property"}));
+ expect(screen.getByRole("heading",{name:"Sample Garden Duplex",level:1})).toBeInTheDocument();
+ expect(screen.getByRole("region",{name:"Property photographs"})).toBeInTheDocument();
+ expect(screen.getByRole("link",{name:/View agent profile/})).toHaveAttribute("href","/agent/preview-agent");
+ fireEvent.click(screen.getByRole("button",{name:"Request inspection"})); expect(screen.getByRole("status")).toHaveTextContent("No inspection request has been created");
+ expect(remote.from).not.toHaveBeenCalled();
+ fireEvent.click(screen.getByRole("link",{name:"Back to Properties"}));
+ expect(screen.getByRole("link",{name:"View Property"})).toBeInTheDocument();
+});

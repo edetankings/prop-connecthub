@@ -27,7 +27,7 @@ const steps = [
 ];
 
 export default function MarketplaceFlow() {
-  return <section id="how-it-works" data-home-section="journey" className="home-journey home-section">
+  return <section id="how-it-works" data-home-section="journey" className="home-journey home-section home-swapping-grid">
     <div className="page-container"><div className="home-section-top"><div data-section-reveal className="home-section-intro"><p className="text-eyebrow">A clearer path forward</p><h2 className="home-section-heading">Your next move,<br />made clearer.</h2></div><p className="home-journey-description">Big decisions feel better with a clear next step. Keep your property journey connected, at your own pace.</p></div>
     <ol className="home-journey-steps">{steps.map(({title,text,icon:Icon},i)=><li data-journey-step key={title}><span className="home-step-index">0{i+1}</span><div className="home-journey-step-copy"><h3>{title}</h3><p>{text}</p></div><span className="home-journey-node"><Icon aria-hidden="true" /></span></li>)}</ol>
     <div className="home-journey-bottom"><span>Every meaningful move begins with a look.</span><Link to="/properties">Begin your search <ArrowUpRight /></Link></div></div>

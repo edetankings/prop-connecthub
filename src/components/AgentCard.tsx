@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { MapPin, MessageCircle, ArrowUpRight, UserRound } from "lucide-react";
+import { MapPin, MessageCircle, ArrowUpRight, UserRound, Heart, Building2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { DBAgent } from "@/pages/Agents";
@@ -23,10 +24,13 @@ const TrustScoreRing = ({ score }: { score: number }) => {
   );
 };
 
-const AgentCard = ({ agent, editorial = false, profession = "Agent" }: { agent: DBAgent; editorial?: boolean; profession?: string }) => {
+const AgentCard = ({ agent, editorial = false, profession = "Agent", marketplace = false }: { agent: DBAgent; editorial?: boolean; profession?: string; marketplace?: boolean }) => {
+  const [saved,setSaved] = useState(false);
   const badge = getTrustBadge(agent.trust_score);
   const { user, profile } = useAuth();
   const showChat = user && profile && profile.id !== agent.id;
+
+  if (marketplace) return <article className="agent-market-card"><div className="agent-market-portrait">{agent.avatar_url ? <img src={agent.avatar_url} alt={agent.full_name} loading="lazy" /> : <div className="agent-live-photo-placeholder"><UserRound aria-label="Profile photo not supplied" /></div>}<span className="agent-preview-label">{agent.kyc_verified?"Verified agent":"Verification pending"}</span><button type="button" aria-label={`Save ${agent.full_name}`} aria-pressed={saved} onClick={()=>setSaved(value=>!value)}><Heart fill={saved?"currentColor":"none"} /></button></div><div className="agent-market-card-copy"><h3>{agent.full_name}</h3><p><Building2 />Property professional</p>{agent.location && <p><MapPin />{agent.location}</p>}<div className="agent-card-metrics"><span><b>{agent.properties_listed}</b>Listings</span><span><b>{agent.completed_transactions}</b>Deals</span><span><b>{agent.trust_score}</b>Trust score</span></div><Link className="agent-primary" to={`/agent/${agent.id}`}>View profile <ArrowUpRight /></Link>{showChat && <Link className="agent-secondary mt-2 w-full" to={`/chat/new?agent=${agent.id}`}><MessageCircle />Contact</Link>}</div></article>;
 
   if (editorial) return <article className="home-professional-card">
     <div className="home-professional-top"><span>{profession}</span>{agent.kyc_verified && <VerifiedBadge size="sm" />}</div>
@@ -40,7 +44,7 @@ const AgentCard = ({ agent, editorial = false, profession = "Agent" }: { agent: 
   </article>;
 
   return (
-    <div className="group overflow-hidden rounded-lg border border-border bg-card p-5 shadow-card transition-all duration-300 hover:shadow-elevated hover:-translate-y-1">
+    <div className="agent-standard-card group overflow-hidden rounded-lg border border-border bg-card p-5 shadow-card transition-all duration-300 hover:shadow-elevated hover:-translate-y-1">
       <Link to={`/agent/${agent.id}`} className="block">
         <div className="flex items-start gap-4">
           <img

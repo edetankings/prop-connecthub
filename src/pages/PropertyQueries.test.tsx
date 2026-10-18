@@ -41,7 +41,7 @@ describe("real marketplace query states", () => {
     expect(screen.getByRole("button", { name: "Remove Lagos" })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "List view" }));
     expect(screen.getByRole("button", { name: "List view" })).toHaveAttribute("aria-pressed", "true");
-    expect(document.querySelectorAll(".marketplace-card-list")).toHaveLength(2);
+    expect(document.querySelectorAll(".marketplace-card-list:not([data-sample-listing])")).toHaveLength(2);
     fireEvent.click(screen.getByRole("button", { name: "Remove Lagos" }));
     expect(screen.getByRole("heading", { name: "Synthetic Abuja" })).toBeInTheDocument();
   });
