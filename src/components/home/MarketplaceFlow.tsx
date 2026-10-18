@@ -10,10 +10,11 @@ const categories = [
 ];
 
 export function PropertyCategories() {
-  return <section data-home-section="categories" className="page-container home-section home-categories">
+  return <section data-home-section="categories" className="home-section home-categories">
+    <div className="page-container">
     <div className="home-section-top"><div data-section-reveal className="home-section-intro"><p className="text-eyebrow">There is more than one way to feel at home</p><h2 className="home-section-heading">Room for the life you are building.</h2></div><span className="home-editorial-note">Find the space that fits your plans</span></div>
-    <div className="home-category-track">{categories.map((item, i) => <div className="home-category-item" data-category-reveal key={item.type}><Link to={`/properties?type=${item.type}`} className="home-category-card"><span className="home-category-accent" aria-hidden="true" /><span className="home-category-image"><img src={`/images/categories/${item.image}.jpg`} alt={item.imageAlt} loading="lazy" decoding="async" width={900} height={600} /></span><span className="home-category-icon-wrap"><item.icon className="home-category-icon" aria-hidden="true" /></span><span className="home-category-index" aria-hidden="true">0{i + 1}</span><div className="home-category-copy"><h3>{item.label}</h3><p>{item.text}</p></div><span className="home-category-arrow" aria-hidden="true"><ArrowUpRight /></span></Link></div>)}</div>
-    <p className="home-category-photo-note">Category illustrations · Browse listings for current availability.</p>
+    <div className="home-category-track">{categories.map((item, i) => <div className="home-category-item" data-category-reveal key={item.type}><div className="home-category-motion"><Link to={`/properties?type=${item.type}`} className="home-category-card"><span className="home-category-accent" aria-hidden="true" /><span className="home-category-image"><img src={`/images/categories/${item.image}.jpg`} alt={item.imageAlt} loading="lazy" decoding="async" width={900} height={600} /></span><span className="home-category-icon-wrap"><item.icon className="home-category-icon" aria-hidden="true" /></span><span className="home-category-index" aria-hidden="true">0{i + 1}</span><div className="home-category-copy"><h3>{item.label}</h3><p>{item.text}</p></div><span className="home-category-arrow" aria-hidden="true"><ArrowUpRight /></span></Link></div></div>)}</div>
+    </div>
   </section>;
 }
 
