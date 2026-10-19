@@ -22,6 +22,9 @@ vi.mock("@/integrations/supabase/client", () => ({ supabase: {
   }, storage: { from: () => ({ upload: mocks.upload, getPublicUrl: () => ({ data: { publicUrl: "https://synthetic.example/new.jpg" } }) }) },
 } }));
 import AddProperty from "./AddProperty";
+import PropertyDetailsLayout, { type DetailContent } from "@/components/PropertyDetailsLayout";
+import DBPropertyCard from "@/components/DBPropertyCard";
+vi.mock("@/components/PropertyMapPreview",()=>({default:()=>null}));
 beforeEach(() => {
   vi.clearAllMocks(); mocks.savedStatus = "draft"; mocks.saveError = false; mocks.savePending = null;
   mocks.row = { id: "synthetic-property", agent_id: "synthetic-owner", title: "Synthetic owned listing", price: 100, property_type: "house", listing_type: "sale", description: "Synthetic description", city: "Lagos", state: "Lagos", latitude: 6.5, longitude: 3.4, images: ["https://synthetic.example/one.jpg", "https://synthetic.example/two.jpg"], image_url: "https://synthetic.example/one.jpg", videos: ["https://synthetic.example/video.mp4"], amenities: [], is_verified: false, status: "draft" };
@@ -95,4 +98,27 @@ describe("owned property editing with mocked SDK and no remote writes", () => {
     expect(mocks.update.mock.calls[0][0]).not.toHaveProperty("is_verified");
     expect(mocks.success).not.toHaveBeenCalledWith("Property published!");
   });
+  it("carries an agent’s saved rental payload into the public card and redesigned details after approval", async () => {
+    mocks.row = {...mocks.row,listing_type:"rental",bedrooms:3,bathrooms:2,sqft:1450,amenities:["Balcony"],price:2500000};
+    mocks.savedStatus="under_verification";
+    open(); await screen.findByRole("heading",{name:"Edit your listing"});
+    fireEvent.click(screen.getByRole("button",{name:"Submit for review"}));
+    await waitFor(()=>expect(mocks.update).toHaveBeenCalled());
+    const payload=mocks.update.mock.calls[0][0] as DetailContent;
+    expect(payload).toMatchObject({agent_id:"synthetic-owner",listing_type:"rental",status:"under_verification",bedrooms:3,bathrooms:2,sqft:1450,latitude:6.5,longitude:3.4});
+    expect(payload).not.toHaveProperty("is_verified");
+    // Simulate the separate moderation outcome; this test performs no remote write.
+    const published:DetailContent={...payload,id:"posted-property-uuid",status:"available",is_verified:true};
+    cleanup();
+    render(<MemoryRouter future={{v7_startTransition:true,v7_relativeSplatPath:true}}><DBPropertyCard property={published}/><PropertyDetailsLayout property={published} agent={null} actions={null} mobileActions={null} saved={false} onSave={()=>{}}/></MemoryRouter>);
+    expect(screen.getByRole("link",{name:"View Synthetic owned listing"})).toHaveAttribute("href","/property/posted-property-uuid");
+    expect(screen.getByRole("heading",{level:1,name:"Synthetic owned listing"})).toBeInTheDocument();
+    expect(screen.getAllByText("₦2,500,000").length).toBeGreaterThan(0);
+    expect(screen.getByText("Balcony")).toBeInTheDocument();
+    expect(screen.getAllByText("For rent").length).toBeGreaterThan(0);
+    expect(document.querySelector('video')).toHaveAttribute("src","https://synthetic.example/video.mp4");
+    expect(screen.getByAltText("Synthetic owned listing - photograph 1")).toHaveAttribute("src","https://synthetic.example/one.jpg");
+    expect(screen.queryByText("Sample Garden Duplex")).not.toBeInTheDocument();
+  });
+
 });

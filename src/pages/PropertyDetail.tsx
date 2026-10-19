@@ -1,28 +1,25 @@
-import PropertyDetailPreview from "@/components/PropertyDetailPreview";
+import { publicAgent } from "@/lib/publicAgent";
+import PropertyDetailsLayout from "@/components/PropertyDetailsLayout";
+import type { DBProperty } from "@/components/DBPropertyCard";
 import { siteUrl } from "@/lib/seo";
 import { useParams, Link } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 import { Helmet } from "react-helmet-async";
-import { MapPin, Bed, Bath, Maximize, MessageCircle, CalendarCheck, ArrowLeft, CheckCircle, Bookmark, ShieldCheck, Play, Lock } from "lucide-react";
+import { MessageCircle, CalendarCheck, CheckCircle, Bookmark, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
+import VerifiedBadge from "@/components/VerifiedBadge";
 import Navbar from "@/components/Navbar";
-import { TrustScoreRing } from "@/components/AgentCard";
-import { formatPrice, getTrustBadge } from "@/lib/presentation";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import type { DBAgent } from "@/pages/Agents";
-import VerifiedBadge from "@/components/VerifiedBadge";
-import PropertyGallery from "@/components/PropertyGallery";
 import Footer from "@/components/Footer";
 import { useLocalFavorites } from "@/hooks/useLocalFavorites";
-import PropertyMapPreview from "@/components/PropertyMapPreview";
 
 interface DBPropertyDetail {
   id: string;
@@ -49,7 +46,7 @@ interface DBPropertyDetail {
   property_code: string | null;
 }
 
-const LivePropertyDetail = () => {
+const PropertyDetail = () => {
   const { id } = useParams();
   const { user, profile } = useAuth();
 
@@ -58,6 +55,9 @@ const LivePropertyDetail = () => {
   const [loading, setLoading] = useState(true);
   const [agent, setAgent] = useState<DBAgent | null>(null);
   const [showReserveModal, setShowReserveModal] = useState(false);
+  const [similar,setSimilar] = useState<DBProperty[]>([]);
+  const [similarLoading,setSimilarLoading] = useState(false);
+  const [similarError,setSimilarError] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const reservationPending = useRef(false);
   const { saved, toggle: toggleSaved } = useLocalFavorites(id || "");
@@ -114,13 +114,28 @@ const LivePropertyDetail = () => {
     void (async () => {
       try {
         const { data, error } = await supabase.from("public_profiles").select("*").eq("id", agentId).maybeSingle();
-        if (active && !error) setAgent(data as DBAgent | null);
+        if (active && !error) setAgent(publicAgent(data));
       } catch {
         // Keep the agent unavailable rather than showing a stale or fabricated profile.
       }
     })();
     return () => { active = false; };
   }, [agentId]);
+
+  useEffect(()=>{
+    let active=true;
+    setSimilar([]);setSimilarError(false);
+    if(!dbProperty) return;
+    setSimilarLoading(true);
+    void (async()=>{try {
+      const result=await supabase.from("properties").select("*").eq("is_verified",true).in("status",["available","for_sale","for_rent"]).eq("property_type",dbProperty.property_type).order("created_at",{ascending:false}).limit(18);
+      if(result.error) throw result.error;
+      const candidates=(result.data || []).filter(property=>property.id!==dbProperty.id);
+      candidates.sort((a,b)=>Number(b.city===dbProperty.city)-Number(a.city===dbProperty.city) || Math.abs(a.price-dbProperty.price)-Math.abs(b.price-dbProperty.price));
+      if(active)setSimilar(candidates.slice(0,3) as DBProperty[]);
+    }catch{if(active)setSimilarError(true);}finally{if(active)setSimilarLoading(false);}})();
+    return ()=>{active=false;};
+  },[dbProperty]);
 
   const [alreadyReserved, setAlreadyReserved] = useState(false);
   const [dealStatus, setDealStatus] = useState<string | null>(null);
@@ -272,17 +287,8 @@ const LivePropertyDetail = () => {
   const title = dbProperty?.title || "";
   const price = dbProperty?.price || 0;
   const location = dbProperty
-    ? [dbProperty.address, dbProperty.city, dbProperty.state].filter(Boolean).join(", ") || "Nigeria"
+    ? [dbProperty.city, dbProperty.state].filter(Boolean).join(", ") || "Nigeria"
     : "";
-  const description = dbProperty?.description || "No description available.";
-  const bedrooms = dbProperty?.bedrooms ?? 0;
-  const bathrooms = dbProperty?.bathrooms ?? 0;
-  const sqft = dbProperty?.sqft ?? 0;
-  const isSale = dbProperty
-    ? dbProperty.listing_type === "sale"
-    : false;
-  const isVerified = dbProperty?.is_verified ?? false;
-  const features = dbProperty?.amenities ?? [];
   const propertyId = dbProperty?.id || "";
   const propertyAgentId = dbProperty?.agent_id || "";
 
@@ -292,7 +298,6 @@ const LivePropertyDetail = () => {
   if (dbProperty?.images?.length) allImages.push(...dbProperty.images.filter((img) => img !== dbProperty.image_url));
   if (!allImages.length) allImages.push("/placeholder.svg");
 
-  const badge = agent ? getTrustBadge(agent.trust_score) : null;
 
   return (
     <div className="property-detail-page min-h-screen bg-background">
@@ -334,80 +339,7 @@ const LivePropertyDetail = () => {
         );
       })()}
       <Navbar />
-      <main className="property-detail-container">
-        <Link to="/properties" className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
-          <ArrowLeft className="h-4 w-4" /> Back to Properties
-        </Link>
-
-        <header className="property-detail-header"><div><p className="text-eyebrow">{(dbProperty.property_type || "Property").replace(/_/g," ")} / {isRental ? "For rent" : isSale ? "For sale" : "Listing"}</p><h1>{title}</h1><p className="marketplace-location"><MapPin />{location}</p><div className="property-header-badges">{isVerified && <Badge variant="outline">Platform reviewed</Badge>}<Badge variant="outline">{dbProperty.status.replace(/_/g," ")}</Badge>{dbProperty.property_code && <span>{dbProperty.property_code}</span>}</div></div><div className="property-header-price"><p>{formatPrice(price)}</p>{isRental && <span>Rental period and terms provided by the agent</span>}</div></header>
-        <div className="property-detail-layout">
-          {/* Main Content */}
-          <div className="min-w-0">
-            <PropertyGallery images={allImages} title={title} />
-
-            {/* Videos */}
-            {dbProperty?.videos && dbProperty.videos.length > 0 && (
-              <div className="mt-6">
-                <h2 className="font-display text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
-                  <Play className="h-5 w-5 text-secondary" /> Property Videos
-                </h2>
-                <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2">
-                  {dbProperty.videos.map((v, i) => (
-                    <div key={i} className="aspect-video w-full min-w-0 overflow-hidden rounded-xl border border-border bg-card">
-                      <video
-                        src={v}
-                        controls
-                        playsInline
-                        preload="metadata"
-                        className="block h-full w-full bg-card object-contain"
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div className="property-description-stack">
-              <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-sm sm:text-base text-muted-foreground">
-                {dbProperty.property_type !== "land" && bedrooms > 0 && <span className="flex items-center gap-1"><Bed className="h-5 w-5" /> {bedrooms} Beds</span>}
-                {dbProperty.property_type !== "land" && bathrooms > 0 && <span className="flex items-center gap-1"><Bath className="h-5 w-5" /> {bathrooms} Baths</span>}
-                {sqft > 0 && <span className="flex items-center gap-1"><Maximize className="h-5 w-5" /> {sqft} sqft</span>}
-              </div>
-
-              <div className="mt-6">
-                <h2 className="font-display text-lg font-semibold text-foreground">Description</h2>
-                <p className="mt-2 leading-relaxed text-muted-foreground">{description}</p>
-              </div>
-
-              {features.length > 0 && (
-                <div className="mt-6">
-                  <h2 className="font-display text-lg font-semibold text-foreground">Features</h2>
-                  <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {features.map((f) => (
-                      <span key={f} className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <CheckCircle className="h-4 w-4 text-success" /> {f}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {dbProperty?.latitude != null && dbProperty?.longitude != null && (
-                <div className="mt-6">
-                  <h2 className="font-display text-lg font-semibold text-foreground mb-3">Location on Map</h2>
-                  <PropertyMapPreview
-                    lat={dbProperty.latitude}
-                    lng={dbProperty.longitude}
-                    address={location}
-                  />
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Sidebar */}
-          <div className="property-inquiry-column min-w-0 space-y-4">
-            <div className="property-inquiry-card"><p className="text-eyebrow">Your next step</p><h2>Get to know this property.</h2><p className="property-inquiry-intro">Ask a question or request a time to see it.</p>
+      <PropertyDetailsLayout property={dbProperty} agent={agent} saved={saved} onSave={handleSave} similar={similar} similarLoading={similarLoading} similarError={similarError} locationVisibility="approximate" actions={<>
               {!isOwner && (
                 <div className="flex gap-3">
                   {user ? (
@@ -498,55 +430,8 @@ const LivePropertyDetail = () => {
               >
                 <Bookmark className={`h-4 w-4 ${saved ? "fill-current" : ""}`} /> {saved ? "Saved to this device" : "Save Property"}
               </Button>
-            </div>
-
-            {agent && (
-              <Link to={`/agent/${agent.id}`} className="property-detail-agent block rounded-xl border border-border bg-card p-5 shadow-card transition-shadow hover:shadow-elevated">
-                <div className="flex items-center gap-3">
-                  <img
-                    src={agent.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(agent.full_name)}&background=random`}
-                    alt={agent.full_name}
-                    className="h-12 w-12 rounded-full object-cover ring-2 ring-border"
-                  />
-                  <div className="flex-1">
-                    <div className="flex items-center gap-1">
-                      <h3 className="font-display font-semibold text-foreground">{agent.full_name}</h3>
-                      {agent.kyc_verified ? (
-                        <VerifiedBadge size="sm" />
-                      ) : (
-                        <Badge variant="outline" className="text-[10px] text-muted-foreground px-1.5">Pending</Badge>
-                      )}
-                    </div>
-                    <span className="text-sm text-muted-foreground">{agent.properties_listed} listings · {agent.completed_transactions} deals</span>
-                  </div>
-                  <TrustScoreRing score={agent.trust_score} />
-                </div>
-                {badge && (
-                  <Badge variant="outline" className={`mt-3 text-xs ${
-                    badge.color === "trust-high" ? "border-success/30 text-success" :
-                    badge.color === "trust-medium" ? "border-warning/30 text-warning" :
-                    "border-destructive/30 text-destructive"
-                  }`}>
-                    {badge.label}
-                  </Badge>
-                )}
-              </Link>
-            )}
-
-            <div className="rounded-xl border border-border bg-card p-5 shadow-card">
-              <h3 className="font-display font-semibold text-foreground">A considered next step</h3>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Inspect the property, independently review ownership documents and seek legal advice. Platform review is not a guarantee.
-              </p>
-              <Link to="/trust/safety-center" className="mt-3 flex min-h-11 items-center gap-2 text-sm text-success">
-                <ShieldCheck className="h-4 w-4" /> Read our safety guidance
-              </Link>
-            </div>
-          </div>
-        </div>
-      </main>
+      </>} mobileActions={!isOwner && <div className="property-mobile-actions"><Button asChild variant="outline"><Link to={user ? `/chat/new?agent=${propertyAgentId}&property=${propertyId}` : "/login"}><MessageCircle />{user ? "Message" : "Log in"}</Link></Button>{user ? <Button disabled={alreadyReserved || submitting} onClick={() => setShowReserveModal(true)}><CalendarCheck />{alreadyReserved ? "Requested" : "Request inspection"}</Button> : <Button asChild><Link to="/login">Log in to enquire</Link></Button>}</div>} />
       <Footer />
-      {!isOwner && <div className="property-mobile-actions"><Button asChild variant="outline"><Link to={user ? `/chat/new?agent=${propertyAgentId}&property=${propertyId}` : "/login"}><MessageCircle />{user ? "Message" : "Log in"}</Link></Button>{user ? <Button disabled={alreadyReserved || submitting} onClick={() => setShowReserveModal(true)}><CalendarCheck />{alreadyReserved ? "Requested" : "Request inspection"}</Button> : <Button asChild><Link to="/login">Log in to enquire</Link></Button>}</div>}
 
       {/* Reservation Modal */}
       <Dialog open={showReserveModal} onOpenChange={setShowReserveModal}>
@@ -625,7 +510,4 @@ const LivePropertyDetail = () => {
   );
 };
 
-export default function PropertyDetail() {
- const { id } = useParams();
- return id === "preview-garden-duplex" ? <PropertyDetailPreview /> : <LivePropertyDetail />;
-}
+export default PropertyDetail;

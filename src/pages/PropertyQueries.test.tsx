@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
@@ -29,21 +29,23 @@ describe("real marketplace query states", () => {
       { id: "d", title: "Synthetic Abuja", city: "Abuja", price: 50, property_type: "house", bathrooms: 2 },
     ], error: null });
     open();
-    await screen.findByRole("heading", { name: "Synthetic Abuja" });
-    fireEvent.change(screen.getByLabelText("Search properties"), { target: { value: "Lagos" } });
-    fireEvent.click(screen.getByRole("button", { name: "Search" }));
-    fireEvent.change(screen.getByLabelText("Bathrooms"), { target: { value: "2" } });
-    fireEvent.change(screen.getByLabelText("Sort properties"), { target: { value: "price_asc" } });
-    expect(screen.queryByRole("heading", { name: "Synthetic Abuja" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("heading", { name: "Synthetic Lagos small" })).not.toBeInTheDocument();
-    const titles = screen.getAllByRole("heading", { name: /Synthetic Lagos/ });
+    const results = within(screen.getByRole("region", { name: "Property search results" }));
+    const filters = within(screen.getByRole("complementary", { name: "Property filters" }));
+    await results.findByRole("heading", { name: "Synthetic Abuja" });
+    fireEvent.change(results.getByLabelText("Search properties"), { target: { value: "Lagos" } });
+    fireEvent.click(results.getByRole("button", { name: "Search" }));
+    fireEvent.change(filters.getByLabelText("Bathrooms"), { target: { value: "2" } });
+    fireEvent.change(results.getByLabelText("Sort properties"), { target: { value: "price_asc" } });
+    expect(results.queryByRole("heading", { name: "Synthetic Abuja" })).not.toBeInTheDocument();
+    expect(results.queryByRole("heading", { name: "Synthetic Lagos small" })).not.toBeInTheDocument();
+    const titles = results.getAllByRole("heading", { name: /Synthetic Lagos/ });
     expect(titles.map(node => node.textContent)).toEqual(["Synthetic Lagos cheap", "Synthetic Lagos expensive"]);
-    expect(screen.getByRole("button", { name: "Remove Lagos" })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "List view" }));
-    expect(screen.getByRole("button", { name: "List view" })).toHaveAttribute("aria-pressed", "true");
-    expect(document.querySelectorAll(".marketplace-card-list:not([data-sample-listing])")).toHaveLength(2);
-    fireEvent.click(screen.getByRole("button", { name: "Remove Lagos" }));
-    expect(screen.getByRole("heading", { name: "Synthetic Abuja" })).toBeInTheDocument();
+    expect(results.getByRole("button", { name: "Remove Lagos" })).toBeInTheDocument();
+    fireEvent.click(results.getByRole("button", { name: "List view" }));
+    expect(results.getByRole("button", { name: "List view" })).toHaveAttribute("aria-pressed", "true");
+    expect(document.querySelectorAll(".marketplace-card-list")).toHaveLength(2);
+    fireEvent.click(results.getByRole("button", { name: "Remove Lagos" }));
+    expect(results.getByRole("heading", { name: "Synthetic Abuja" })).toBeInTheDocument();
   });
 
   it("separates land and commercial records without invented fields", async () => {

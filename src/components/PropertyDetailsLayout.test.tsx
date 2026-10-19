@@ -1,0 +1,30 @@
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
+import { afterEach, expect, it, vi } from "vitest";
+const maps=vi.hoisted(()=>({render:vi.fn()}));
+vi.mock("@/components/PropertyMapPreview",()=>({default:(props:unknown)=>{maps.render(props);return <div>Map boundary</div>;}}));
+vi.mock("@/hooks/useAuth",()=>({useAuth:()=>({user:null})}));
+import PropertyDetailsLayout from "./PropertyDetailsLayout";
+import type { DBProperty } from "@/components/DBPropertyCard";
+const sampleListing:DBProperty={id:"test-property",title:"Synthetic test property",price:100000,property_type:"house",status:"available",listing_type:"sale",image_url:null,images:[],city:"Abuja",state:"FCT",address:null,bedrooms:3,bathrooms:2,sqft:1000,agent_id:"test-agent",description:"Test description",is_verified:true};
+afterEach(()=>{cleanup();vi.clearAllMocks();});
+it("renders supported fields only, with real navigation and both action surfaces",()=>{
+ const action=vi.fn();
+ render(<MemoryRouter future={{v7_startTransition:true,v7_relativeSplatPath:true}}><PropertyDetailsLayout property={{...sampleListing,bedrooms:null,bathrooms:null,sqft:null,description:null,latitude:null,longitude:null}} agent={null} saved={false} onSave={action} actions={<button onClick={action}>Book Inspection</button>} mobileActions={<div className="property-mobile-actions"><button onClick={action}>Request viewing</button></div>}/></MemoryRouter>);
+ expect(screen.getByRole("heading",{level:1,name:"Synthetic test property"})).toBeInTheDocument();
+ expect(screen.getByText("No description available.")).toBeInTheDocument();
+ expect(screen.queryByText("Bedrooms")).not.toBeInTheDocument();
+ expect(screen.queryByRole("link",{name:"Floor Plan"})).not.toBeInTheDocument();
+ expect(screen.queryByRole("link",{name:"Amenities"})).not.toBeInTheDocument();
+ expect(screen.queryByRole("link",{name:"Agent"})).not.toBeInTheDocument();
+ expect(screen.getByText("No similar reviewed listings to show.",{exact:false})).toBeInTheDocument();
+ fireEvent.click(screen.getByRole("button",{name:"Book Inspection"}));fireEvent.click(screen.getByRole("button",{name:"Request viewing"}));
+ expect(action).toHaveBeenCalledTimes(2);
+ expect(maps.render.mock.calls.every(call=>(call[0] as {visibility:string}).visibility==="approximate")).toBe(true);
+});
+it("withholds private street details and exposes only supported property sections",()=>{
+ render(<MemoryRouter future={{v7_startTransition:true,v7_relativeSplatPath:true}}><PropertyDetailsLayout property={{...sampleListing,address:"PRIVATE STREET",latitude:6.12345,longitude:3.12345,amenities:["Garden"]}} agent={null} saved onSave={()=>{}} actions={null} mobileActions={null} locationVisibility="hidden"/></MemoryRouter>);
+ expect(screen.queryByText("PRIVATE STREET")).not.toBeInTheDocument();
+ expect(screen.getByRole("link",{name:"Amenities"})).toHaveAttribute("href","#property-amenities");
+ expect(maps.render.mock.calls.every(call=>(call[0] as {visibility:string}).visibility==="hidden")).toBe(true);
+});

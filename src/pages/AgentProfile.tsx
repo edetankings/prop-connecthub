@@ -1,4 +1,3 @@
-import AgentDesignPreview, { previewAgentId } from "@/components/AgentDesignPreview";
 import { siteUrl } from "@/lib/seo";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -8,10 +7,11 @@ import Navbar from "@/components/Navbar";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import type { DBAgent } from "@/pages/Agents";
+import { publicAgent } from "@/lib/publicAgent";
 import AgentProfileView from "@/components/AgentProfileView";
 import Footer from "@/components/Footer";
 
-const LiveAgentProfile = () => {
+const AgentProfile = () => {
   const { id } = useParams();
   const { profile: myProfile } = useAuth();
   const [agent, setAgent] = useState<DBAgent | null>(null);
@@ -35,7 +35,7 @@ const LiveAgentProfile = () => {
         ]);
         if (agentRes.error || propsRes.error) throw agentRes.error || propsRes.error;
         if (!active) return;
-        setAgent(agentRes.data as DBAgent | null);
+        setAgent(publicAgent(agentRes.data));
         setAgentProperties(propsRes.data || []);
         setRatings(ratingsRes.data || []);
       } catch {
@@ -103,7 +103,4 @@ const LiveAgentProfile = () => {
   );
 };
 
-export default function AgentProfile() {
-  const { id } = useParams();
-  return id === previewAgentId ? <AgentDesignPreview /> : <LiveAgentProfile />;
-}
+export default AgentProfile;

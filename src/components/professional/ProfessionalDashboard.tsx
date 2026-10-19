@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { ArrowUpRight, Building2, Plus, Search, CalendarCheck, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/compone
 import AuthenticatedLayout from "@/components/AuthenticatedLayout";
 import ResourceState from "@/components/buyer/ResourceState";
 import Inspections from "@/pages/Inspections";
+import AgentOverview from "./AgentOverview";
 import { useAuth } from "@/hooks/useAuth";
 import { useBuyerResource } from "@/hooks/useBuyerResource";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,7 +14,7 @@ import { attachmentPreview } from "@/lib/chatAttachments";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Property = Tables<"properties">;
-type Inquiry = Tables<"chat_threads"> & {
+export type Inquiry = Tables<"chat_threads"> & {
   messages: { content: string; created_at: string; sender_id: string; seen: boolean }[];
   properties: { title: string } | null;
   buyer: string | null;
@@ -30,7 +31,9 @@ export default function ProfessionalDashboard({ role }: { role: "agent" | "build
   const [params] = useSearchParams();
   const view = params.get("view") || "overview";
   const base = `/dashboard/${role}`;
-  const [search, setSearch] = useState("");
+  const searchQuery=params.get("q") || "";
+  const [search, setSearch] = useState(searchQuery);
+  useEffect(()=>setSearch(searchQuery),[searchQuery]);
   const [filter, setFilter] = useState("all");
   const [deleting, setDeleting] = useState<Property | null>(null);
   const [pending, setPending] = useState(false);
@@ -66,11 +69,12 @@ export default function ProfessionalDashboard({ role }: { role: "agent" | "build
     finally { deleteLock.current = false; setPending(false); }
   };
   if (!allowed) return <AuthenticatedLayout><div className="buyer-empty"><h1>Professional workspace unavailable</h1><p>Use the workspace assigned to your account.</p><Button asChild><Link to="/dashboard">Return to your dashboard</Link></Button></div></AuthenticatedLayout>;
+  if (role === "agent" && view === "overview") return <AuthenticatedLayout><AgentOverview profile={profile} listings={listings} reservations={reservations} inquiries={inquiries}/></AuthenticatedLayout>;
   const shown = listings.data.filter(row => (!search.trim() || [row.title, row.city, row.state, row.property_code].some(value => value?.toLowerCase().includes(search.trim().toLowerCase()))) && (filter === "all" || row.status === filter));
   const showListings = view === "listings" ? shown : listings.data.slice(0, 4);
   const title = view === "listings" ? "Your property portfolio." : view === "inquiries" ? "Conversations with possibility." : view === "inspections" ? "Your inspection requests." : role === "builder" ? "Your developer workspace." : "Your next opportunity starts here.";
   return <AuthenticatedLayout><div className="professional-page buyer-page">
-    <header className="buyer-page-heading"><div><p className="buyer-eyebrow">PROP-CONNECT / {role === "builder" ? "Builder & developer" : "Agent"}</p><h1>{title}</h1><p>{view === "listings" ? "Manage your own property listings. Changes remain subject to moderation." : view === "inquiries" ? "Real property conversations, without invented CRM stages." : `Welcome back, ${profile.full_name.split(" ")[0] || "there"}. Your listings, inquiries and inspections in one place.`}</p></div><Button asChild><Link to="/add-property"><Plus />Add property</Link></Button></header>
+    <header className="buyer-page-heading"><div><p className="buyer-eyebrow">PROP-CONNECT / {role === "builder" ? "Builder & developer" : "Agent"}</p><h1>{title}</h1><p>{view === "listings" ? "Manage your own property listings. Changes remain subject to moderation." : view === "inquiries" ? "Real property conversations, without invented CRM stages." : `Welcome back, ${profile.full_name?.split(" ")[0] || "there"}. Your listings, inquiries and inspections in one place.`}</p></div><Button asChild><Link to="/add-property"><Plus />Add property</Link></Button></header>
     {view === "inspections" ? <Inspections mode="agent" embedded /> : <>
       {view === "overview" && <><div className="professional-summary-grid">{[
         { title: "Total listings", value: listings.data.length, resource: listings, icon: Building2, to: `${base}?view=listings` },

@@ -8,6 +8,8 @@
 @import './styles/professional-workspace.css';
 @import './styles/operations.css';
 @import './styles/agent-marketplace.css';
+@import './styles/property-details.css';
+@import './styles/agent-dashboard.css';
 
 @tailwind base;
 @tailwind components;
