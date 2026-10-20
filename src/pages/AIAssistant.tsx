@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate , Link } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { Send, Sparkle, Trash2, ShieldCheck, Loader2, ArrowUpRight } from "lucide-react";
+import { Send, Sparkle, Trash2, ShieldCheck, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import AuthenticatedLayout from "@/components/AuthenticatedLayout";
 import { useAuth } from "@/hooks/useAuth";
@@ -337,7 +337,7 @@ const AIAssistant = () => {
                   onClick={() => (s.to ? navigate(s.to) : ask(s.ask || s.label))}
                   className="animate-fade-in inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3.5 py-1.5 text-xs font-medium text-foreground transition-colors hover:border-primary/50 hover:bg-primary/5"
                 >
-                  {s.to ? <ArrowUpRight className="h-3.5 w-3.5 text-primary" /> : <Sparkle className="h-3.5 w-3.5 text-secondary" />}
+                  {s.to ? null : <Sparkle className="h-3.5 w-3.5 text-secondary" />}
                   {s.label}
                 </button>
               ))}

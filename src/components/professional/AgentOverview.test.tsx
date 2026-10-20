@@ -1,3 +1,4 @@
+vi.mock("./AgentSubscriptionSummary",()=>({default:()=>null}));
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import type { ComponentProps, ReactNode } from "react";
 import { MemoryRouter } from "react-router-dom";

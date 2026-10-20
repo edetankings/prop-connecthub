@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Link } from "react-router-dom";
-import { BadgeCheck, ChevronLeft, ChevronRight, Heart, MapPin, BedDouble, Bath, Maximize } from "lucide-react";
+import { BadgeCheck, Heart, MapPin, BedDouble, Bath, Maximize } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useLocalFavorites } from "@/hooks/useLocalFavorites";
@@ -141,23 +141,23 @@ const PropertyCarousel = ({ properties, responsiveGrid = false }: { properties: 
       <div className={`property-track-controls ${responsiveGrid ? "property-grid-controls" : ""}`}>
         <Button
           variant="outline"
-          size="icon"
+          size="sm"
           aria-label="Previous properties"
           onClick={() => scrollBy(-1)}
           disabled={atStart}
-          className="h-11 w-11 rounded-full"
+          className="h-11 min-w-20 w-auto rounded-full px-3"
         >
-          <ChevronLeft className="h-4 w-4" />
+          <span className="navigation-control-label">Previous</span>
         </Button>
         <Button
           variant="outline"
-          size="icon"
+          size="sm"
           aria-label="Next properties"
           onClick={() => scrollBy(1)}
           disabled={atEnd}
-          className="h-11 w-11 rounded-full"
+          className="h-11 min-w-20 w-auto rounded-full px-3"
         >
-          <ChevronRight className="h-4 w-4" />
+          <span className="navigation-control-label">Next</span>
         </Button>
       </div>
     </div>

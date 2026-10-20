@@ -230,3 +230,201 @@
  .agent-listing-tabs button,.agent-panel-heading > a,.agent-property-manage,
  .agent-quick-actions a,.agent-dashboard-welcome > a { min-height:44px; }
 }
+
+/* Override the shared Button inline-flex utility when the sidebar is visible. */
+@media (min-width:1024px) {
+ .agent-workspace .buyer-menu-button { display:none; }
+ /* Scroll the sidebar as a whole instead of nesting a small scrolling menu. */
+ .agent-workspace .buyer-desktop-sidebar > nav { flex:none; overflow:visible; }
+ .agent-workspace .buyer-desktop-sidebar > * { flex-shrink:0; }
+ .agent-workspace .buyer-nav-foot { margin-top:auto; }
+}
+
+/* Agent navigation: forest-green surfaces with a clear current destination. */
+.agent-navigation-sheet {
+ background:#0b4938;
+ color:#f4fbf6;
+ border-color:#2d6754;
+ height:100vh;
+ height:100dvh;
+ padding-top:64px;
+}
+.agent-navigation-sheet > p { color:#c8dfd3; }
+.agent-navigation-sheet nav a { color:#edf7f0; border:1px solid transparent; }
+.agent-navigation-sheet nav a[aria-current=page] { background:#ddefe6; color:#093f30; border-color:#ddefe6; font-weight:700; }
+.agent-navigation-sheet nav a:hover:not([aria-current]) { background:#21604b; }
+.agent-navigation-sheet .buyer-nav-foot { border-top:1px solid #ffffff26; margin-top:24px; padding-top:20px; }
+.agent-navigation-sheet .buyer-nav-foot a,.agent-navigation-sheet .buyer-nav-foot button { color:#f4fbf6; }
+.agent-navigation-sheet .buyer-nav-foot p { color:#c8dfd3; }
+.agent-navigation-sheet > button.absolute { color:#fff; background:#ffffff12; border-radius:50%; opacity:1; }
+.agent-navigation-sheet :focus-visible { outline:3px solid #b8e6c8; outline-offset:3px; }
+@media (min-width:1024px) {
+ .agent-workspace { grid-template-columns:240px minmax(0,1fr); }
+ .agent-workspace .buyer-desktop-sidebar { padding:26px 18px 22px; background:#0b4938; color:#f4fbf6; border-right:0; }
+ .agent-workspace .buyer-brand { font-size:15px; letter-spacing:-.035em; }
+ .agent-sidebar-profile { padding:24px 10px 20px; border-bottom:1px solid #ffffff24; }
+ .agent-sidebar-profile > img,.agent-sidebar-profile > span { width:54px; height:54px; box-shadow:0 0 0 4px #ffffff12; }
+ .agent-sidebar-profile > strong { font-size:14px; }
+ .agent-sidebar-profile p,.agent-sidebar-profile small { color:#c8dfd3; }
+ .agent-workspace .buyer-desktop-sidebar nav { gap:5px; margin-block:20px; }
+ .agent-workspace .buyer-desktop-sidebar nav a { min-height:44px; padding:12px; font-size:12px; border-radius:9px; color:#edf7f0; }
+ .agent-workspace .buyer-desktop-sidebar nav a[aria-current=page] { background:#ddefe6; color:#093f30; font-weight:700; box-shadow:0 3px 12px #0000000d; }
+ .agent-workspace .buyer-desktop-sidebar nav a:hover:not([aria-current]) { background:#21604b; }
+ .agent-workspace .buyer-nav-foot { border-top:1px solid #ffffff24; padding:20px 10px 0; }
+ .agent-workspace .buyer-nav-foot p { color:#c8dfd3; }
+ .agent-workspace .buyer-topbar { min-height:80px; padding:16px 24px; gap:24px; }
+ .agent-workspace-search { border-radius:12px; box-shadow:0 2px 8px #00000003; }
+ .agent-workspace-search input { min-height:46px; font-size:13px; }
+ .agent-workspace .buyer-account { padding-left:18px; border-left:1px solid hsl(var(--border)); }
+ .agent-workspace .buyer-desktop-sidebar :focus-visible { outline:3px solid #b8e6c8; outline-offset:3px; }
+}
+
+/* Account controls and the existing agent workspace pages. */
+.agent-account-trigger { display:flex; align-items:center; gap:10px; min-height:48px; max-width:240px; padding:6px 10px 6px 6px; border:1px solid hsl(var(--border)); border-radius:14px; background:hsl(var(--card)); text-align:left; }
+.agent-account-trigger > img,.agent-account-initial { width:36px; height:36px; flex-shrink:0; border-radius:50%; object-fit:cover; }
+.agent-account-initial { display:grid; place-items:center; background:#0b4938; color:white; font-size:14px; font-weight:700; }
+.agent-account-name { min-width:0; display:grid; gap:3px; }
+.agent-account-name strong { font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.agent-account-name small { font-size:10px; color:hsl(var(--muted-foreground)); }
+.agent-account-trigger > svg { width:15px; height:15px; flex-shrink:0; color:hsl(var(--muted-foreground)); transition:transform .2s; }
+.agent-account-trigger[data-state=open] > svg { transform:rotate(180deg); }
+.agent-account-dropdown { width:270px; max-width:calc(100vw - 24px); padding:10px; border-radius:16px; background:#0b4938; color:#f4fbf6; border-color:#2d6754; box-shadow:0 16px 48px #00000026; }
+.agent-account-dropdown [role=menuitem] { min-height:44px; gap:10px; border-radius:8px; font-size:12px; cursor:pointer; }
+.agent-account-dropdown [role=menuitem] svg { width:17px; height:17px; }
+.agent-account-dropdown [role=menuitem]:focus,.agent-account-dropdown [role=menuitem][data-highlighted] { background:#21604b; color:white; }
+.agent-account-dropdown [role=separator] { background:#ffffff26; margin-block:8px; }
+.agent-menu-name { display:block; font-size:13px; overflow-wrap:anywhere; }
+.agent-menu-caption { display:block; font-size:10px; font-weight:400; color:#c8dfd3; margin-top:5px; }
+.agent-workspace .buyer-workspace-main > .container,.agent-workspace .professional-page { max-width:1530px; width:calc(100% - 48px); margin-inline:auto; padding:24px 0 48px; }
+.agent-workspace .professional-page .buyer-page-heading,.agent-workspace .buyer-workspace-main > .container > div:first-child:has(> h1) { padding:26px; border:1px solid hsl(var(--border)); border-radius:16px; background:hsl(var(--card)); margin-bottom:24px; }
+.agent-workspace .buyer-workspace-main h1 { font-family:Manrope,sans-serif; letter-spacing:-.035em; overflow-wrap:anywhere; }
+.agent-workspace .professional-list-controls { box-shadow:0 3px 14px #00000003; padding:20px; border-radius:14px; }
+.agent-workspace .professional-property-card { box-shadow:0 3px 14px #00000004; }
+.agent-workspace .agent-payment-page { max-width:1000px; }
+.agent-workspace .agent-payment-page > div:first-child,.agent-workspace .agent-earnings-page > div:first-child { background:linear-gradient(120deg,#0b4938,#176349); color:#fff; border:0; padding:28px; border-radius:16px; margin-bottom:24px; }
+.agent-workspace .agent-payment-page > div:first-child h1,.agent-workspace .agent-earnings-page > div:first-child h1 { color:#fff; font-size:clamp(22px,2.5vw,30px); }
+.agent-workspace .agent-payment-page > div:first-child p,.agent-workspace .agent-earnings-page > div:first-child p { color:#d7eade; line-height:1.7; }
+.agent-workspace .agent-payment-page .shadow-card,.agent-workspace .agent-earnings-page .shadow-card { border-radius:16px; box-shadow:0 3px 16px #00000004; }
+.agent-workspace .agent-payment-page .justify-between { flex-wrap:wrap; gap:8px 20px; }
+.agent-workspace .agent-payment-page .justify-between > span { overflow-wrap:anywhere; }
+.agent-workspace .agent-earnings-page table { min-width:560px; }
+@media(max-width:1023px) {
+ .agent-workspace .buyer-workspace-main > .container,.agent-workspace .professional-page { width:calc(100% - 40px); }
+}
+@media(max-width:767px) {
+ .agent-account-trigger { padding:4px; border-radius:50%; min-width:44px; min-height:44px; justify-content:center; }
+ .agent-account-name,.agent-account-trigger > svg { display:none; }
+ .agent-workspace .buyer-workspace-main > .container,.agent-workspace .professional-page { width:calc(100% - 28px); padding-top:20px; }
+ .agent-workspace .professional-page .buyer-page-heading,.agent-workspace .buyer-workspace-main > .container > div:first-child:has(> h1),.agent-workspace .agent-payment-page > div:first-child,.agent-workspace .agent-earnings-page > div:first-child { padding:20px; }
+ .agent-workspace .professional-list-controls label:first-child { min-width:0; flex-basis:100%; }
+}
+@media(prefers-reduced-motion:reduce) { .agent-account-trigger > svg { transition:none; } }
+
+/* Agent overview hierarchy: priorities, performance, portfolio, account tools. */
+.agent-overview { padding-top:8px; }
+.agent-dashboard-hero { padding:8px 0 24px; border-radius:0; background:transparent; color:hsl(var(--foreground)); }
+.agent-dashboard-welcome { align-items:center; padding:0; gap:24px; }
+.agent-dashboard-welcome .agent-overview-eyebrow { margin:0 0 10px; color:#27805a; font:700 10px/1.5 Inter,sans-serif; text-transform:uppercase; letter-spacing:.16em; }
+.agent-dashboard-welcome h1 { font-size:clamp(24px,2.4vw,34px); line-height:1.25; }
+.agent-dashboard-welcome p { color:hsl(var(--muted-foreground)); font-size:13px; margin-top:10px; }
+.agent-welcome-actions { display:flex; align-items:center; flex-wrap:wrap; justify-content:flex-end; gap:10px; flex-shrink:0; }
+.agent-welcome-actions a { display:flex; align-items:center; justify-content:center; gap:8px; min-height:44px; padding:10px 16px; background:hsl(var(--card)); border:1px solid hsl(var(--border)); border-radius:10px; font-size:12px; font-weight:600; }
+.agent-welcome-actions a:last-child { background:#0b4938; border-color:#0b4938; color:white; }
+.agent-welcome-actions svg { width:16px; height:16px; }
+.agent-overview-stats { gap:14px; margin-bottom:24px; }
+.agent-overview-stats > a { position:relative; padding:20px 16px; flex-direction:column; gap:14px; border-radius:14px; box-shadow:0 2px 6px #00000002; }
+.agent-overview-stats > a > div { width:100%; }
+.agent-stat-icon { display:grid; width:36px; height:36px; border-radius:10px; }
+.agent-overview-stats p { font-size:11px; line-height:1.5; color:hsl(var(--muted-foreground)); font-weight:500; }
+.agent-overview-stats strong { font-size:30px; letter-spacing:-.04em; margin-block:8px 4px; line-height:1.2; font-variant-numeric:tabular-nums; }
+.agent-overview-stats small { font-size:10px; line-height:1.6; }
+.agent-overview-grid { grid-template-columns:repeat(12,minmax(0,1fr)); gap:20px; margin-top:0; align-items:stretch; }
+.agent-recent-enquiries,.agent-pending-panel { grid-column:span 6; }
+.agent-activity-panel { grid-column:span 8; }
+.agent-status-panel { grid-column:span 4; }
+.agent-overview-listings { grid-column:1/-1; }
+.agent-top-panel,.agent-earnings-panel,.agent-quick-actions { grid-column:span 4; }
+.agent-dashboard-panel { padding:24px; border-radius:16px; box-shadow:0 2px 6px #00000002; }
+.agent-panel-heading { align-items:center; padding-bottom:16px; margin-bottom:20px; border-bottom:1px solid hsl(var(--border)/.65); }
+.agent-panel-heading h2 { font-size:16px; letter-spacing:-.025em; }
+.agent-panel-heading > a { font-size:11px; font-weight:600; min-height:36px; }
+.agent-panel-heading select { font-size:12px; min-height:40px; padding:8px 10px; border:1px solid hsl(var(--border)); background:hsl(var(--background)); border-radius:8px; }
+.agent-dashboard-rows > a { padding-block:16px; gap:12px; }
+.agent-row-avatar { width:38px; height:38px; font-size:13px; }
+.agent-dashboard-rows h3 { font-size:13px; }
+.agent-dashboard-rows p { font-size:11px; }
+.agent-dashboard-rows small,.agent-dashboard-rows time { font-size:10px; }
+.agent-pending-badge { font-size:10px; padding:6px 9px; }
+.agent-activity-chart { height:240px; }
+.agent-chart-empty { min-height:190px; }
+.agent-chart-legend span { font-size:11px; }
+.agent-panel-caption { font-size:11px; line-height:1.7; }
+.agent-status-chart { height:190px; }
+.agent-status-legend { gap:12px; }
+.agent-status-legend li { font-size:11px; }
+.agent-listing-tabs { margin-bottom:24px; gap:8px; }
+.agent-listing-tabs button { font-size:11px; min-height:40px; padding-inline:14px; }
+.agent-overview-property-grid { grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; }
+.agent-overview-property-grid article > div { padding:16px; }
+.agent-overview-property-grid h3 { font-size:13px; }
+.agent-overview-property-grid p { font-size:11px; }
+.agent-overview-property-grid strong { font-size:16px; font-variant-numeric:tabular-nums; }
+.agent-property-mini-facts span,.agent-property-manage { font-size:11px; }
+.agent-property-manage { border-top:1px solid hsl(var(--border)); padding-top:10px; margin-top:12px; min-height:44px; }
+.agent-overview-property-photo > span { font-size:10px; padding:5px 8px; }
+.agent-top-listings h3 { font-size:13px; }
+.agent-top-listings p,.agent-top-listings span { font-size:11px; }
+.agent-finance-lock { padding-top:0; }
+.agent-finance-lock h3 { font-size:14px; }
+.agent-finance-lock p { font-size:12px; }
+.agent-finance-lock > a { font-size:12px; border-top:1px solid hsl(var(--border)/.6); padding-block:10px; min-height:44px; }
+.agent-quick-actions > div:nth-child(2) { grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+.agent-quick-actions > div:nth-child(2) a { flex-direction:row; text-align:left; justify-content:flex-start; font-size:11px; min-height:48px; padding:8px; border:1px solid hsl(var(--border)); border-radius:10px; }
+.agent-quick-actions > div:nth-child(2) span { width:30px; height:30px; flex-shrink:0; border-radius:8px; }
+.agent-quick-actions > div:nth-child(2) svg { width:16px; height:16px; }
+.agent-quick-actions aside { padding:18px; margin-top:20px; }
+@media(max-width:1199px) {
+ .agent-dashboard-welcome { flex-wrap:wrap; }
+ .agent-welcome-actions { justify-content:flex-start; }
+ .agent-overview-stats { grid-template-columns:repeat(3,minmax(0,1fr)); }
+ .agent-overview-property-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+ .agent-top-panel,.agent-earnings-panel { grid-column:span 6; }
+ .agent-quick-actions { grid-column:1/-1; }
+ .agent-quick-actions > div:nth-child(2) { grid-template-columns:repeat(3,minmax(0,1fr)); }
+}
+@media(max-width:767px) {
+ .agent-overview { padding-top:20px; }
+ .agent-dashboard-hero { display:block; padding:0 0 20px; }
+ .agent-dashboard-welcome { display:flex; flex-direction:column; align-items:stretch; gap:18px; }
+ .agent-welcome-actions { flex-shrink:1; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); }
+ .agent-welcome-actions a { font-size:11px; padding-inline:10px; }
+ .agent-overview-stats { grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-bottom:20px; }
+ .agent-overview-stats > a { padding:16px; gap:12px; }
+ .agent-overview-stats strong { font-size:28px; }
+ .agent-overview-stats > a:last-child { flex-direction:row; align-items:center; }
+ .agent-overview-grid { grid-template-columns:minmax(0,1fr); gap:16px; }
+ .agent-overview-grid > section { grid-column:auto; }
+ .agent-dashboard-panel { padding:20px; }
+ .agent-panel-heading { gap:10px; padding-bottom:14px; margin-bottom:16px; }
+ .agent-panel-heading h2 { font-size:15px; }
+ .agent-panel-heading select { font-size:16px; }
+ .agent-overview-property-grid { grid-template-columns:minmax(0,1fr); gap:12px; }
+ .agent-overview-property-grid > article { grid-template-columns:104px minmax(0,1fr); }
+ .agent-overview-property-grid article > div { padding:12px; }
+ .agent-overview-property-grid p { font-size:10px; }
+ .agent-overview-property-grid strong { font-size:15px; }
+ .agent-property-mini-facts span { font-size:10px; }
+ .agent-quick-actions > div:nth-child(2) { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media(max-width:359px) {
+ .agent-dashboard-panel { padding:16px; }
+ .agent-overview-stats > a { padding:12px; }
+ .agent-overview-property-grid > article { grid-template-columns:84px minmax(0,1fr); }
+ .agent-welcome-actions { grid-template-columns:minmax(0,1fr); }
+}
+
+/* Two supporting panels remain after removing overview quick actions. */
+.agent-overview-grid > .agent-top-panel,.agent-overview-grid > .agent-earnings-panel { grid-column:span 6; }
+@media(max-width:767px) {
+ .agent-overview-grid > .agent-top-panel,.agent-overview-grid > .agent-earnings-panel { grid-column:auto; }
+}

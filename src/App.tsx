@@ -1,3 +1,4 @@
+import AdminFeatureManagement from "@/pages/AdminFeatureManagement";
 import SeoDefaults from "@/components/SeoDefaults";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -125,6 +126,7 @@ const App = () => (
             <Route path="/admin/secure-payments" element={<AdminRoute><AdminSecurePayments /></AdminRoute>} />
             <Route path="/admin/disputes" element={<AdminRoute><AdminDisputes /></AdminRoute>} />
             <Route path="/admin/withdrawals" element={<AdminRoute><AdminWithdrawals /></AdminRoute>} />
+            <Route path="/admin/feature-management" element={<AdminRoute><AdminFeatureManagement /></AdminRoute>} />
             <Route path="/admin/audit" element={<AdminRoute><AdminAudit /></AdminRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -63,7 +63,7 @@ const Payments = () => {
 
   return (
     <AuthenticatedLayout>
-      <div className="container mx-auto px-4 py-8 max-w-3xl">
+      <div className="agent-payment-page container mx-auto px-4 py-8 max-w-3xl">
         <div className="mb-8">
           <h1 className="font-display text-3xl font-bold text-foreground">Subscription & Payments 💳</h1>
           <p className="mt-1 text-muted-foreground">Manage your agent subscription</p>

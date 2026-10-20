@@ -95,7 +95,7 @@ const Navbar = ({ overlay = false }: { overlay?: boolean }) => {
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" aria-label="Open navigation menu" aria-expanded={open}><Menu className="h-5 w-5" /></Button>
             </SheetTrigger>
-            <SheetContent side="right" className="flex w-[min(90vw,24rem)] flex-col overflow-y-auto" aria-describedby={undefined}>
+            <SheetContent side="right" className="public-navigation-sheet flex w-[min(90vw,24rem)] flex-col overflow-y-auto" aria-describedby={undefined}>
               <SheetTitle className="text-eyebrow">Menu</SheetTitle>
               <div className="mt-4 flex flex-col">
                 {(user

@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Info } from "lucide-react";
+import { Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useKYCVerification } from "@/hooks/useKYCVerification";
@@ -21,7 +21,7 @@ const IdentityVerification = () => {
       <div className="container mx-auto px-4 py-6 max-w-2xl">
         {/* Back button */}
         <Button variant="ghost" size="sm" className="mb-4 gap-1" onClick={() => navigate(-1)}>
-          <ArrowLeft className="h-4 w-4" /> Back
+           Back
         </Button>
 
         {/* Profile Header */}

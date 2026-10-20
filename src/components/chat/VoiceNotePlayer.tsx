@@ -79,7 +79,7 @@ export function VoiceNotePlayer({ path, localUrl, duration = 0, mine }: Props) {
   const played = Math.round(progress * BARS);
 
   return (
-    <div className="flex min-w-[190px] items-center gap-3">
+    <div className="flex w-full min-w-0 max-w-[260px] items-center gap-3">
       <button
         type="button"
         onClick={toggle}
@@ -99,7 +99,7 @@ export function VoiceNotePlayer({ path, localUrl, duration = 0, mine }: Props) {
         )}
       </button>
 
-      <div className="flex-1">
+      <div className="min-w-0 flex-1">
         <div className="flex h-7 cursor-pointer items-center gap-[2px]" onClick={seek}>
           {bars.map((h, i) => (
             <span

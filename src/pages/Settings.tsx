@@ -1,9 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  User, Lock, Bell, Shield, HelpCircle, MessageSquare, AlertOctagon,
-  LogOut, ChevronRight, Camera, CheckCircle, Edit3, Save, X, Trash2
-} from "lucide-react";
+import { User, Lock, Bell, Shield, HelpCircle, MessageSquare, AlertOctagon, LogOut, Camera, CheckCircle, Edit3, Save, X, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -307,7 +304,7 @@ const Settings = () => {
                   }`}
                 >
                   <span className="flex items-center gap-2"><Icon className="h-4 w-4" />{label}</span>
-                  <ChevronRight className="h-4 w-4 opacity-50" />
+
                 </button>
               ))}
               <button

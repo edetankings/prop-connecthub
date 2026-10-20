@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowUpRight, CalendarCheck, ChevronLeft, ChevronRight, ClipboardList, Heart, MessageCircle, Search } from "lucide-react";
+import { CalendarCheck, ClipboardList, Heart, MessageCircle, Search } from "lucide-react";
 import livingImage from "@/assets/cinematic-3.jpg";
 
 const slides = [
@@ -36,8 +36,8 @@ export default function ExperienceCarousel() {
     <div className="experience-glass-carousel" ref={root} role="region" aria-roledescription="carousel" aria-label="Your property journey">
       <div className="experience-images" aria-hidden="true">{slides.map((item,index) => <img key={item.title} src={item.image} alt="" className={index === active ? "is-active" : ""} loading="lazy" decoding="async" onError={event => { if (!event.currentTarget.src.endsWith("/placeholder.svg")) event.currentTarget.src = "/placeholder.svg"; }} />)}</div>
       <div className="experience-carousel-heading"><p className="text-eyebrow">For buyers. For renters. For you.</p><h2 id="experience-heading">Your search,<br />with room to breathe.</h2><p>Keep the important details together, every step of the way.</p></div>
-      <div className="experience-carousel-arrows"><button type="button" aria-label="Previous property journey step" onClick={() => move(-1)}><ChevronLeft /></button><button type="button" aria-label="Next property journey step" onClick={() => move(1)}><ChevronRight /></button></div>
-      <div className="experience-inner-glass" role="group" aria-roledescription="slide" aria-label={`${active + 1} of ${slides.length}: ${slide.title}`}><span className="experience-slide-icon"><Icon aria-hidden="true" /></span><div key={active} className="experience-slide-copy"><span className="experience-slide-number">0{active + 1} / 05</span><h3>{slide.title}</h3><p>{slide.text}</p><Link to={slide.to}>Explore this step <ArrowUpRight aria-hidden="true" /></Link></div></div>
+      <div className="experience-carousel-arrows"><button type="button" aria-label="Previous property journey step" onClick={() => move(-1)}><span className="navigation-control-label">Previous</span></button><button type="button" aria-label="Next property journey step" onClick={() => move(1)}><span className="navigation-control-label">Next</span></button></div>
+      <div className="experience-inner-glass" role="group" aria-roledescription="slide" aria-label={`${active + 1} of ${slides.length}: ${slide.title}`}><span className="experience-slide-icon"><Icon aria-hidden="true" /></span><div key={active} className="experience-slide-copy"><span className="experience-slide-number">0{active + 1} / 05</span><h3>{slide.title}</h3><p>{slide.text}</p><Link to={slide.to}>Explore this step </Link></div></div>
     </div>
   </section>;
 }

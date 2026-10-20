@@ -10,6 +10,7 @@
 @import './styles/agent-marketplace.css';
 @import './styles/property-details.css';
 @import './styles/agent-dashboard.css';
+@import './styles/responsive-refinement.css';
 
 @tailwind base;
 @tailwind components;

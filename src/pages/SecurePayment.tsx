@@ -2,18 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { motion } from "framer-motion";
-import {
-  Lock,
-  ShieldCheck,
-  AlertTriangle,
-  Copy,
-  Upload,
-  CheckCircle,
-  ArrowLeft,
-  Loader2,
-  Clock,
-  Building2,
-} from "lucide-react";
+import { Lock, ShieldCheck, AlertTriangle, Copy, Upload, CheckCircle, Loader2, Clock, Building2 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -245,7 +234,7 @@ const SecurePayment = () => {
           to={`/property/${property.id}`}
           className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
         >
-          <ArrowLeft className="h-4 w-4" /> Back to property
+           Back to property
         </Link>
 
         <motion.div
@@ -454,7 +443,7 @@ const SecurePayment = () => {
                   <p className="mt-2 text-sm text-muted-foreground">
                     Your payment is safely held in escrow. Proceed with inspection and documentation with the agent. You'll be able to release funds from your dashboard once you're satisfied.
                   </p>
-                  <Link to="/buyer-dashboard" className="mt-4 block">
+                  <Link to="/dashboard/buyer" className="mt-4 block">
                     <Button className="w-full">Go to dashboard</Button>
                   </Link>
                 </>

@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Mail } from "lucide-react";
+import { Mail } from "lucide-react";
 import AuthLayout from "@/components/auth/AuthLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -98,7 +98,7 @@ const ForgotPassword = () => {
               to="/login"
               className="mt-4 flex items-center justify-center gap-1 text-sm font-medium text-secondary hover:underline"
             >
-              <ArrowLeft className="h-4 w-4" /> Back to Login
+               Back to Login
             </Link>
           </>
         )}

@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { MapPin, ShieldCheck, ArrowRight, CalendarCheck, Lock } from "lucide-react";
+import { MapPin, ShieldCheck, CalendarCheck, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
@@ -58,7 +58,7 @@ export function ChatPropertyCard({ property, compact, isBuyer, onReserve }: Prop
         <div className="flex flex-wrap gap-2 border-t border-border/70 bg-muted/30 p-3">
           <Button asChild size="sm" variant="outline" className="rounded-full sm:hidden">
             <Link to={`/property/${property.id}`}>
-              View Property <ArrowRight className="ml-1 h-3.5 w-3.5" />
+              View Property
             </Link>
           </Button>
           {isBuyer && (

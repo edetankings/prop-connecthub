@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import logo from "@/assets/logo.jpg";
-import { Instagram, Phone, Mail, ArrowUpRight } from "lucide-react";
+import { Instagram, Phone, Mail } from "lucide-react";
 
 const TikTokIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -38,7 +38,7 @@ const companyLinks = [{to:"/#how-it-works",label:"How it works"},{to:"/register"
 export default function Footer() {
   return <footer data-home-section="footer" className="home-premium-footer" role="contentinfo">
     <div className="page-container">
-      <div className="home-footer-masthead"><Link to="/" aria-label="PROP-CONNECT home"><img src={logo} alt="" /><span>PROP-CONNECT<span>Find your place. Move with confidence.</span></span></Link><a href="mailto:propconnect0@gmail.com" className="home-footer-hello">Let's talk property. <ArrowUpRight /></a></div>
+      <div className="home-footer-masthead"><Link to="/" aria-label="PROP-CONNECT home"><img src={logo} alt="" /><span>PROP-CONNECT<span>Find your place. Move with confidence.</span></span></Link><a href="mailto:propconnect0@gmail.com" className="home-footer-hello">Let's talk property. </a></div>
       <div className="home-footer-columns">
         {[{title:"Explore",links:platformLinks},{title:"Find your place",links:categoryLinks},{title:"Our platform",links:companyLinks},{title:"Trust & support",links:trustLinks}].map(group=><nav key={group.title} aria-label={`Footer ${group.title}`}><h2>{group.title}</h2>{group.links.map(item=><Link key={item.to} to={item.to}>{item.label}</Link>)}</nav>)}
       </div>

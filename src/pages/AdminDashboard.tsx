@@ -6,12 +6,7 @@ import AuthenticatedLayout from "@/components/AuthenticatedLayout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Users, Building, ShieldCheck, AlertTriangle, TrendingUp,
-  CheckCircle, XCircle, FileText, LayoutDashboard, Gavel, ScrollText,
-  DollarSign, Wallet, PieChart, Activity, ArrowUpRight, Eye, ExternalLink,
-  CalendarCheck, Trash2, MessageSquare, Mail, MailOpen, Megaphone, Edit3, Plus, CreditCard, Network
-} from "lucide-react";
+import { Users, Building, ShieldCheck, AlertTriangle, TrendingUp, CheckCircle, XCircle, FileText, LayoutDashboard, Gavel, ScrollText, DollarSign, Wallet, PieChart, Activity, Eye, ExternalLink, CalendarCheck, Trash2, MessageSquare, Mail, MailOpen, Megaphone, Edit3, Plus, CreditCard, Network } from "lucide-react";
 import { MessageCircle } from "lucide-react";
 import OperationsOverview from "@/components/admin/OperationsOverview";
 import UserDirectory from "@/components/admin/UserDirectory";
@@ -84,7 +79,7 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     const view = searchParams.get("view");
-    if (["users", "verification", "moderation", "audit", "reservations", "active-deals", "support", "announcements", "matrix", "referrals"].includes(view || "")) setTab(view as Tab);
+    if (["users", "verification", "moderation", "audit", "reservations", "active-deals", "support", "announcements", "matrix", "referrals", "subscriptions"].includes(view || "")) setTab(view as Tab);
     else setTab("dashboard");
     setSelectedUserId(null);
   }, [searchParams]);
@@ -564,7 +559,7 @@ const AdminDashboard = () => {
                     <CardContent>
                       {selectedReferralUserId ? (
                         <div className="space-y-3">
-                          <Button variant="ghost" size="sm" onClick={() => setSelectedReferralUserId(null)}>← Back to list</Button>
+                          <Button variant="ghost" size="sm" onClick={() => setSelectedReferralUserId(null)}> Back to list</Button>
                           <ReferralTree rootProfileId={selectedReferralUserId} />
                         </div>
                       ) : (
@@ -671,7 +666,7 @@ const AdminDashboard = () => {
             {tab === "verification" && selectedUserId && (
               <div className="space-y-6">
                 <div className="flex items-center gap-3">
-                  <Button variant="ghost" size="sm" onClick={() => setSelectedUserId(null)}>← Back</Button>
+                  <Button variant="ghost" size="sm" onClick={() => setSelectedUserId(null)}> Back</Button>
                   <h2 className="font-display text-lg font-semibold text-foreground">
                     Review: {selectedUserProfile?.full_name || "User"}
                   </h2>
@@ -1654,7 +1649,7 @@ const AdminDashboard = () => {
                 <div className="flex items-center justify-between">
                   <h2 className="font-display text-lg font-semibold text-foreground">Referral Trees</h2>
                   {selectedReferralUserId && (
-                    <Button variant="ghost" size="sm" onClick={() => setSelectedReferralUserId(null)}>← All Users</Button>
+                    <Button variant="ghost" size="sm" onClick={() => setSelectedReferralUserId(null)}> All Users</Button>
                   )}
                 </div>
 

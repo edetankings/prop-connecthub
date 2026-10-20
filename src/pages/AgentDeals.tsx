@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import AuthenticatedLayout from "@/components/AuthenticatedLayout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -44,26 +45,35 @@ const AgentDeals = () => {
   const [declineFor, setDeclineFor] = useState<Deal | null>(null);
   const [reason, setReason] = useState("");
 
-  const load = async () => {
-    if (!user) return;
-    setLoading(true);
-    const { data } = await (supabase as any)
-      .from("deal_requests")
-      .select("*, properties(title, price, city, state, image_url)")
-      .eq("agent_user_id", user.id)
-      .order("created_at", { ascending: false });
-
-    const rows = (data as Deal[]) || [];
-    // Hydrate buyer names
-    await Promise.all(rows.map(async (row) => {
-      const { data: participants } = await (supabase as any).rpc("get_deal_participants", { _deal_id: row.id });
-      row.buyer = { full_name: participants?.find((p: any) => p.user_id === row.buyer_id)?.full_name || "Buyer" };
-    }));
-    setDeals(rows);
-    setLoading(false);
-  };
-
-  useEffect(() => { load(); /* eslint-disable-next-line */ }, [user?.id]);
+  const [loadError, setLoadError] = useState(false);
+  const revision = useRef(0);
+  const userId = user?.id;
+  const invalidate = useCallback(() => { revision.current++; }, []);
+  const load = useCallback(async () => {
+    const request = ++revision.current;
+    setDeals([]); setLoadError(false); setLoading(true);
+    if (!userId) { setLoading(false); return; }
+    try {
+      const { data, error } = await supabase
+        .from("deal_requests")
+        .select("*, properties(title, price, city, state, image_url)")
+        .eq("agent_user_id", userId)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      const rows = (data as Deal[]) || [];
+      await Promise.all(rows.map(async row => {
+        const { data: participants, error: participantError } = await supabase.rpc("get_deal_participants", { _deal_id: row.id });
+        if (participantError) throw participantError;
+        row.buyer = { full_name: participants?.find(person => person.user_id === row.buyer_id)?.full_name || "Buyer" };
+      }));
+      if (request === revision.current) setDeals(rows);
+    } catch {
+      if (request === revision.current) setLoadError(true);
+    } finally {
+      if (request === revision.current) setLoading(false);
+    }
+  }, [userId]);
+  useEffect(() => { void load(); return invalidate; }, [load, invalidate]);
 
   const accept = async (id: string) => {
     if (!finance.enabled) { toast.error(finance.unavailableMessage); return; }
@@ -92,7 +102,7 @@ const AgentDeals = () => {
   const history = deals.filter((d) => d.status !== "pending");
 
   return (
-    <div className="min-h-screen bg-background">
+    <AuthenticatedLayout>
       <Helmet><title>Deals · Prop-Connect</title></Helmet>
       <div className="container mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-10">
         <div className="flex items-center gap-3">
@@ -110,6 +120,8 @@ const AgentDeals = () => {
 
         {loading ? (
           <div className="flex justify-center py-20"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
+        ) : loadError ? (
+          <div role="alert" className="buyer-empty"><h2>Deal requests unavailable</h2><p>Your records could not be loaded. Please try again.</p><Button variant="outline" onClick={() => void load()}>Retry deal requests</Button></div>
         ) : (
           <>
             <Section title="Pending requests" empty="No pending requests right now.">
@@ -173,7 +185,7 @@ const AgentDeals = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </AuthenticatedLayout>
   );
 };
 

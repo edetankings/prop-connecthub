@@ -144,7 +144,7 @@ const AdminSecurePayments = () => {
                         </div>
                       </div>
                       <div className="flex flex-col items-end gap-2 shrink-0">
-                        {tx.property_id && <Link to={`/property/${tx.property_id}`} className="text-xs text-secondary hover:underline">View property →</Link>}
+                        {tx.property_id && <Link to={`/property/${tx.property_id}`} className="text-xs text-secondary hover:underline">View property </Link>}
                         {tx.proof_url && (
                           <Button size="sm" variant="outline" className="gap-1" onClick={() => viewReceipt(tx.proof_url)}>
                             <FileText className="h-3.5 w-3.5" /> View Receipt

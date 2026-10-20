@@ -2,7 +2,7 @@ import { siteUrl } from "@/lib/seo";
 import { useState, useEffect, useMemo } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link, useSearchParams } from "react-router-dom";
-import { Search, SlidersHorizontal, X, Grid2X2, List, ArrowUpRight, Building2 } from "lucide-react";
+import { Search, SlidersHorizontal, X, Grid2X2, List, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import Navbar from "@/components/Navbar";
@@ -74,7 +74,7 @@ export default function Properties() {
   <Button variant="outline" onClick={clear}><X /> Clear filters</Button>
  </div>;
  return <div className="marketplace-page"><Helmet><title>{q?`Results for ${q}`:type==="for_rent"?"Rental properties":type==="land"?"Land listings":type==="commercial"?"Commercial properties":"Discover properties"} | PROP-CONNECT</title><meta name="description" content={context.copy}/><link rel="canonical" href={siteUrl("/properties")}/><meta property="og:url" content={siteUrl("/properties")}/></Helmet><Navbar />
- <main className="marketplace-container"><header className="marketplace-intro"><p className="text-eyebrow">PROP-CONNECT / Discover</p><div><h1>{context.title}</h1><p>{context.copy}</p></div><Link to="/add-property">List a property <ArrowUpRight /></Link></header>
+ <main className="marketplace-container"><header className="marketplace-intro"><p className="text-eyebrow">PROP-CONNECT / Discover</p><div><h1>{context.title}</h1><p>{context.copy}</p></div><Link to="/add-property">List a property </Link></header>
  <nav className="marketplace-category-nav" aria-label="Property categories">{categories.slice(0,5).map(([value,text])=><button type="button" key={value} aria-pressed={type===value} onClick={()=>update("type",value)}>{text}</button>)}</nav>
  <div className="marketplace-layout"><aside className="marketplace-filters" aria-label="Property filters"><h2>A place that fits.</h2><p>Make the search your own.</p>{filters("desktop")}</aside><section className="marketplace-results" aria-label="Property search results">
  <form className="marketplace-search" onSubmit={e=>{e.preventDefault();update("q",draft.trim());}}><Search aria-hidden="true"/><label className="sr-only" htmlFor="marketplace-query">Search properties</label><input id="marketplace-query" placeholder="Search city, neighbourhood or property" value={draft} onChange={e=>setDraft(e.target.value)}/><Button type="submit">Search</Button></form>

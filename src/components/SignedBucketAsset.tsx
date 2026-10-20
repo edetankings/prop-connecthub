@@ -51,7 +51,7 @@ export function SignedBucketAsset({ bucket, value, label = "document", imgClassN
         <img
           src={url}
           alt={label}
-          className={imgClassName || "max-w-[300px] rounded-lg border border-border"}
+          className={imgClassName || "h-auto w-full max-w-[300px] rounded-lg border border-border"}
         />
       </a>
     );

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { useParams, Link, useSearchParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Send, ShieldAlert, Heart, Phone, MoreVertical, ShieldCheck, Search, X } from "lucide-react";
+import { Send, ShieldAlert, Heart, Phone, MoreVertical, ShieldCheck, Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import AuthenticatedLayout from "@/components/AuthenticatedLayout";
@@ -353,7 +353,7 @@ const Chat = () => {
         <div className="sticky top-0 z-20 border-b border-border bg-card/95 backdrop-blur">
           <div className="container mx-auto flex max-w-3xl items-center gap-3 px-4 py-3">
             <Link to="/messages" aria-label="Back to messages" className="inline-flex min-h-11 min-w-11 items-center justify-center text-muted-foreground hover:text-foreground">
-              <ArrowLeft className="h-5 w-5" />
+              <span className="text-xs font-medium">Back</span>
             </Link>
             <div className="relative">
               <Avatar className="h-10 w-10">

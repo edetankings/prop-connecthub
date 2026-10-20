@@ -1,7 +1,7 @@
 import { siteUrl } from "@/lib/seo";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { ArrowLeft, ArrowRight, ShieldCheck } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -58,7 +58,7 @@ const InfoPage = ({
           to="/"
           className="inline-flex items-center gap-1.5 text-xs uppercase tracking-[0.2em] text-primary-foreground/70 transition-colors hover:text-primary-foreground"
         >
-          <ArrowLeft className="h-3.5 w-3.5" /> Back to home
+           Back to home
         </Link>
         <p className="mt-6 flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-secondary">
           <ShieldCheck className="h-3.5 w-3.5" /> {eyebrow}
@@ -97,7 +97,7 @@ const InfoPage = ({
         <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
           <Link to={ctaTo}>
             <Button className="w-full gap-2 sm:w-auto">
-              {ctaLabel} <ArrowRight className="h-4 w-4" />
+              {ctaLabel}
             </Button>
           </Link>
           <Link to={secondaryTo}>

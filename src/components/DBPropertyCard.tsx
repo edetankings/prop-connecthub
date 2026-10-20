@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { MapPin, Bed, Bath, Maximize, MessageCircle, ArrowUpRight, Heart, BadgeCheck } from "lucide-react";
+import { MapPin, Bed, Bath, Maximize, MessageCircle, Heart, BadgeCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useLocalFavorites } from "@/hooks/useLocalFavorites";
@@ -51,7 +51,7 @@ const DBPropertyCard = ({ property, layout = "grid" }: { property: DBProperty; l
         {!isLand && (property.sqft ?? 0) > 0 && <span><Maximize />{property.sqft?.toLocaleString("en-NG")} sqft</span>}
       </div>
       {(layout === "list" || isLand) && property.description && <p className="marketplace-card-description">{property.description}</p>}
-      <div className="marketplace-card-actions"><Link to={`/property/${property.id}`}>View Property <ArrowUpRight /></Link>{user && <Button asChild variant="ghost" size="sm"><Link to={`/chat/new?agent=${property.agent_id}&property=${property.id}`}><MessageCircle />Message</Link></Button>}</div>
+      <div className="marketplace-card-actions"><Link to={`/property/${property.id}`}>View Property </Link>{user && <Button asChild variant="ghost" size="sm"><Link to={`/chat/new?agent=${property.agent_id}&property=${property.id}`}><MessageCircle />Message</Link></Button>}</div>
     </div>
   </article>;
 };

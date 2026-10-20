@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, Expand } from "lucide-react";
+import { Expand } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 
@@ -31,7 +31,7 @@ export default function PropertyGallery({ images, title }: { images: string[]; t
     </div>
     {photos.length > 1 && <div className="property-gallery-thumbnails" aria-label="Photograph previews">{photos.slice(1,4).map((image,index)=><button type="button" key={image} aria-label={`Show photograph ${index+2}`} aria-pressed={active===index+1} onClick={()=>{if(index===2 && photos.length>4) open(index+1);else move(index+1);}}><img src={image} alt="" loading="lazy" onError={fallback}/>{index===2 && photos.length>4 && <span>+{photos.length-4} more</span>}</button>)}</div>}</div>
     <div className="property-gallery-tools"><p aria-live="polite">{active + 1} / {photos.length} photographs</p><div>
-      {photos.length > 1 && <><Button variant="outline" size="icon" aria-label="Previous photograph" onClick={() => move(active - 1)}><ChevronLeft /></Button><Button variant="outline" size="icon" aria-label="Next photograph" onClick={() => move(active + 1)}><ChevronRight /></Button></>}
+      {photos.length > 1 && <><Button variant="outline" size="sm" aria-label="Previous photograph" onClick={() => move(active - 1)}><span className="navigation-control-label">Previous</span></Button><Button variant="outline" size="sm" aria-label="Next photograph" onClick={() => move(active + 1)}><span className="navigation-control-label">Next</span></Button></>}
       <Button variant="outline" onClick={() => open(active)}><Expand /> View gallery</Button>
     </div></div>
     <Dialog open={lightbox !== null} onOpenChange={open => { if (!open) setLightbox(null); }}>
@@ -42,7 +42,7 @@ export default function PropertyGallery({ images, title }: { images: string[]; t
         <DialogTitle className="sr-only">{title} photographs</DialogTitle>
         <DialogDescription className="sr-only">Use the previous and next buttons or arrow keys. Press Escape to close.</DialogDescription>
         <img src={photos[lightbox ?? 0]} alt={`${title} - expanded photograph ${(lightbox ?? 0) + 1}`} onError={fallback} />
-        <div className="property-lightbox-controls"><Button variant="outline" size="icon" disabled={photos.length < 2} aria-label="Previous expanded photograph" onClick={() => setLightbox(index => ((index ?? 0) - 1 + photos.length) % photos.length)}><ChevronLeft /></Button><span>{(lightbox ?? 0) + 1} / {photos.length}</span><Button variant="outline" size="icon" disabled={photos.length < 2} aria-label="Next expanded photograph" onClick={() => setLightbox(index => ((index ?? 0) + 1) % photos.length)}><ChevronRight /></Button></div>
+        <div className="property-lightbox-controls"><Button variant="outline" size="sm" disabled={photos.length < 2} aria-label="Previous expanded photograph" onClick={() => setLightbox(index => ((index ?? 0) - 1 + photos.length) % photos.length)}><span className="navigation-control-label">Previous</span></Button><span>{(lightbox ?? 0) + 1} / {photos.length}</span><Button variant="outline" size="sm" disabled={photos.length < 2} aria-label="Next expanded photograph" onClick={() => setLightbox(index => ((index ?? 0) + 1) % photos.length)}><span className="navigation-control-label">Next</span></Button></div>
       </DialogContent>
     </Dialog>
   </section>;

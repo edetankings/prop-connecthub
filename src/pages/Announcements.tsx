@@ -119,7 +119,7 @@ const Announcements = () => {
                           </p>
                           <Link to={`/property/${p.id}`}>
                             <Button size="sm" variant="link" className="h-auto p-0 mt-2 text-secondary">
-                              View full details →
+                              View full details
                             </Button>
                           </Link>
                         </div>
