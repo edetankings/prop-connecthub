@@ -4,7 +4,7 @@ import ts from 'typescript';
 import { execFileSync } from 'node:child_process';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 const project = 'prtrpywkwmnpowrthppg';
-const output = 'database/phase-5';
+const output = 'database/backend-checks';
 const env = loadEnv('development', process.cwd(), 'VITE_');
 const target = new URL(env.VITE_SUPABASE_URL);
 if (target.href !== `https://${project}.supabase.co/` || !env.VITE_SUPABASE_PUBLISHABLE_KEY?.startsWith('sb_publishable_') ||
@@ -53,8 +53,8 @@ if (process.argv.includes('--catalog')) {
     check('Six buckets retain intended public/private access', audit.buckets?.length === 6 && audit.buckets.every(b => expected.has(b.id) && expected.get(b.id) === b.public) && audit.storage_rls === true, 'Bucket/catalog state; no upload, download or signing performed.');
     check('Realtime publication membership is correct', JSON.stringify(audit.realtime) === JSON.stringify(['chat_threads', 'messages', 'notifications']), 'Delivery and actor isolation require application sessions and approved fixtures.');
     check('Direct financial table mutations remain ungranted', audit.financial_table_grants?.length === 6 && audit.financial_table_grants.every(g => !g.insert && !g.update && !g.delete), 'Authenticated table-wide privileges only; not an attempted mutation.');
-    const prior = JSON.parse(readFileSync('database/phase-4d/catalog-results.json', 'utf8')).functions;
-    check('Function bodies match the Phase 4D inspected snapshot', prior.length === 69 && Object.keys(audit.function_hashes).length === 69 && prior.every(f => audit.function_hashes[f.signature] === f.body_md5), 'Hash comparison of all 69 stored bodies; no new semantic or actor execution claim.');
+    const prior = JSON.parse(readFileSync('database/access-audit/catalog-results.json', 'utf8')).functions;
+    check('Function bodies match the previously inspected snapshot', prior.length === 69 && Object.keys(audit.function_hashes).length === 69 && prior.every(f => audit.function_hashes[f.signature] === f.body_md5), 'Hash comparison of all 69 stored bodies; no new semantic or actor execution claim.');
   } catch {
     report.checks.push({ name: 'Live catalog/safeguard inspection', status: 'BLOCKED', evidence: 'CLI/query or evidence processing did not complete; raw CLI output withheld. No application-session fallback attempted.' });
   }

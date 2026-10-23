@@ -1,5 +1,5 @@
-// The only fallback hostname. Keep it until an independent domain is configured.
-export const DEFAULT_SITE_URL = "https://prop-connecthub.lovable.app";
+// Approved public application origin.
+export const DEFAULT_SITE_URL = "https://propconnect-vine.vercel.app";
 
 export function normalizeSiteUrl(value = DEFAULT_SITE_URL) {
   const url = new URL(value.trim());

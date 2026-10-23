@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Eye, EyeOff, CheckCircle, XCircle } from "lucide-react";
+import GoogleSignIn from "@/components/auth/GoogleSignIn";
 import AuthLayout from "@/components/auth/AuthLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -174,6 +175,7 @@ const Register = () => {
             {loading ? "Creating Account..." : "Create Account"}
           </Button>
         </form>
+        {profileType === "buyer" && <><GoogleSignIn consent={acceptTerms} disabled={loading} /><p className="mt-2 text-center text-xs text-muted-foreground">New Google accounts start as buyers. Professional registration uses the form above.</p></>}
         <p className="mt-4 text-center text-sm text-muted-foreground">
           Already have an account? <Link to="/login" className="font-medium text-secondary hover:underline">Log In</Link>
         </p>

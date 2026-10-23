@@ -1,6 +1,0 @@
-{
-  "test": "Reject unverified destination before catalog/API request branches",
-  "status": "PASS",
-  "credentialsPrinted": false,
-  "configuredTargetContacted": false
-}

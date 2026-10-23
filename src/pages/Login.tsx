@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
+import GoogleSignIn from "@/components/auth/GoogleSignIn";
 import AuthLayout from "@/components/auth/AuthLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -138,6 +139,7 @@ const Login = () => {
             {isLocked ? `Locked (${countdown}s)` : loading ? "Logging in..." : "Log In"}
           </Button>
         </form>
+        <GoogleSignIn consent={acceptTerms} disabled={loading || isLocked} />
         <p className="mt-4 text-center text-sm text-muted-foreground">
           Don't have an account? <Link to="/register" className="font-medium text-secondary hover:underline">Sign Up</Link>
         </p>

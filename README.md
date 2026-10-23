@@ -10,7 +10,7 @@ uses the independent Supabase configuration; production deployment settings have
 not been switched. The owner reports successful registration, email confirmation, profile creation
 and manual testing of exercised functionality. Case-specific automated
 authenticated feature/security acceptance remains pending.
-See [Phase 4 integration](database/PHASE-4-INTEGRATION.md) before changing targets.
+Verify the intended Supabase project and Auth redirect URLs before changing targets.
 
 ```mermaid
 flowchart TB
@@ -121,12 +121,11 @@ The client uses standard Supabase session handling. Browser sessions belong to
 the configured project; testing accounts from the old backend are not migrated.
 Keep the old backend intact until cutover has been separately approved and tested.
 The installed independent baseline is authoritative. Current TypeScript types
-were generated read-only from the confirmed independent project during Phase 4C.
-The compared public contract matches the baseline; see the
-[Phase 4C report](database/PHASE-4C-RESULTS.md). Type generation does not validate
+were generated read-only from the confirmed independent project.
+The compared public contract matches the baseline. Type generation does not validate
 RLS, private schemas or runtime workflows.
 
-**Repository hygiene:** `.env` was already tracked before Phase 4. Ignore rules
+**Repository hygiene:** `.env` was already tracked before the backend integration work. Ignore rules
 protect new environment files but do not untrack an existing file. Its contents
 were not changed. Exclude it from future commits and arrange a separate index-only
 cleanup before publishing changes; do not delete the owner's local configuration.
@@ -225,7 +224,7 @@ removed from the prepared source. Edge Function changes are not deployed.
 
 | File | Remaining dependency or configuration |
 | --- | --- |
-| `config/site-url.mjs`, generated SEO assets and initial HTML | Existing production website fallback, preserved until domain cutover |
+| `config/site-url.mjs`, generated SEO assets and initial HTML | Approved production origin: `https://propconnect-vine.vercel.app` |
 | `.env.local` | Ignored local independent Supabase configuration; no credentials belong in source control |
 | `supabase/config.toml` | Neutral local stack identifier only; remote operations require explicit verified `--project-ref prtrpywkwmnpowrthppg` and separate authorization |
 | `drizzle.config.ts` | Historical tooling, disabled without `PROP_CONNECT_LEGACY_DATABASE_URL`; never use its empty legacy schema against the independent database |
@@ -237,7 +236,43 @@ New Edge deployments require exact `ALLOWED_ORIGINS`. AI requires owner-approved
 OTP remains disabled unless `OTP_ENABLED=true` and the existing Twilio server
 configuration is supplied after review. No external service has been activated.
 
-The current website fallback remains on its existing host until an independent
-domain is approved. It is a hosting/SEO reference, not the Supabase API target.
-See the [repository cleanup report](database/repository-cleanup/REPORT.md) for
-removed files, dependency changes, preserved migration history and validation.
+The public website is https://propconnect-vine.vercel.app. It is separate from
+the Supabase API target.
+Historical migration files and the independent installation baseline remain preserved.
+
+
+## Authentication and production URLs
+
+The independent Supabase project is `prtrpywkwmnpowrthppg`. Its Auth Site URL is
+`https://propconnect-vine.vercel.app`; production redirects include `/dashboard`
+and `/reset-password`. Confirmation, recovery and OAuth requests use the current
+browser origin. Localhost redirects remain available for local development.
+Request new emails after changing redirect configuration; old emails may still
+contain their original redirect target.
+
+Google sign-in is available on login and buyer registration after accepting the
+terms. New Google users receive the database's default buyer role; agent and
+builder registration continues through the email registration form.
+Google OAuth still requires owner configuration:
+
+1. Create a Web application OAuth client in Google Cloud and configure its consent screen.
+2. Add `https://propconnect-vine.vercel.app` as an authorized JavaScript origin.
+3. Add `https://prtrpywkwmnpowrthppg.supabase.co/auth/v1/callback` as an authorized redirect URI.
+4. In Supabase Authentication > Sign In / Providers > Google, enter the client ID
+   and secret privately, enable Google and save. Never put the Google secret in
+   browser environment variables or Git.
+5. Test Google sign-in and sign-out on the deployed site with existing and new
+   buyer accounts. End-to-end Google login has not yet been verified.
+
+## Maintenance tools
+
+- `scripts/check-anonymous-access.mjs`: read-only anonymous API access audit.
+- `scripts/check-backend-readiness.mjs`: local configuration and optional read-only catalog checks.
+- `database/access-audit/`: catalog/storage inspection SQL and reference snapshot.
+- `database/backend-checks/`: read-only backend safeguard SQL.
+
+Generated audit reports are not installation migrations. Check the explicit
+project guard before running any maintenance command.
+`.env.local` stays ignored and local. Only `.env.example` belongs in Git; public
+frontend publishable keys are not server credentials. Never add service-role keys,
+Google client secrets, email-provider secrets or database passwords to the client.

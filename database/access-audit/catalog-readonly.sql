@@ -1,4 +1,4 @@
--- Phase 4D: metadata and aggregate integrity checks only; never run migrations.
+-- Access audit: metadata and aggregate integrity checks only; never run migrations.
 -- Execute only with the explicitly verified independent project reference.
 BEGIN READ ONLY;
 SET LOCAL statement_timeout='30s';

@@ -4,9 +4,9 @@ import { readFileSync, writeFileSync, readdirSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 const project = 'prtrpywkwmnpowrthppg';
 const origin = `https://${project}.supabase.co`;
-// Optional report destination lets subsequent phases reuse these probes without
-// overwriting the earlier phase's evidence. It does not change the API target.
-const outputPath = process.argv[2] || 'database/phase-4d/anonymous-results.json';
+// Optional report destination lets subsequent audits reuse these probes without
+// overwriting the earlier audit's evidence. It does not change the API target.
+const outputPath = process.argv[2] || 'database/access-audit/anonymous-results.json';
 const env = loadEnv('development', process.cwd(), 'VITE_');
 if (new URL(env.VITE_SUPABASE_URL).origin !== origin || !env.VITE_SUPABASE_PUBLISHABLE_KEY?.startsWith('sb_publishable_')) {
   throw new Error('Independent destination/public-key validation failed; no requests made.');
