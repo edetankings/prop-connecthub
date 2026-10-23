@@ -1,7 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
-import { Menu, LogOut, LayoutDashboard, ShieldCheck, Settings, MessageCircle } from "lucide-react";
+import { Menu, LayoutDashboard, ShieldCheck, Settings, MessageCircle } from "lucide-react";
 import logo from "@/assets/logo.jpg";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
@@ -80,7 +80,7 @@ const Navbar = ({ overlay = false }: { overlay?: boolean }) => {
               <Link to="/dashboard"><Button variant="ghost" size="sm" className="gap-1"><LayoutDashboard className="h-4 w-4" /> Dashboard</Button></Link>
               <Link to="/settings" aria-label="Settings"><Button variant="ghost" size="icon"><Settings className="h-4 w-4" /></Button></Link>
               <span className="hidden max-w-[120px] truncate text-sm text-muted-foreground 2xl:block">{profile?.full_name || user.email}</span>
-              <Button variant="ghost" size="icon" onClick={signOut} aria-label="Sign out"><LogOut className="h-4 w-4" /></Button>
+              <Button variant="ghost" size="sm" onClick={signOut} aria-label="Sign out">Sign out</Button>
             </>
           ) : (
             <>
@@ -121,7 +121,7 @@ const Navbar = ({ overlay = false }: { overlay?: boolean }) => {
               </div>
               <div className="mt-auto flex flex-col gap-2 pt-6">
                 {user ? (
-                  <Button variant="outline" onClick={() => { setOpen(false); signOut(); }} className="gap-2"><LogOut className="h-4 w-4" /> Sign out</Button>
+                  <Button variant="outline" onClick={() => { setOpen(false); signOut(); }} className="gap-2"> Sign out</Button>
                 ) : (
                   <>
                     <Link to="/register" onClick={() => setOpen(false)}><Button className="w-full rounded-full">Get Started</Button></Link>

@@ -6,7 +6,7 @@ import AuthenticatedLayout from "@/components/AuthenticatedLayout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Building, ShieldCheck, AlertTriangle, TrendingUp, CheckCircle, XCircle, FileText, LayoutDashboard, Gavel, ScrollText, DollarSign, Wallet, PieChart, Activity, Eye, ExternalLink, CalendarCheck, Trash2, MessageSquare, Mail, MailOpen, Megaphone, Edit3, Plus, CreditCard, Network } from "lucide-react";
+import { Users, Building, ShieldCheck, AlertTriangle, TrendingUp, CheckCircle, XCircle, FileText, LayoutDashboard, Gavel, ScrollText, DollarSign, Wallet, PieChart, Activity, Eye, CalendarCheck, Trash2, MessageSquare, Mail, MailOpen, Megaphone, Edit3, Plus, CreditCard, Network } from "lucide-react";
 import { MessageCircle } from "lucide-react";
 import OperationsOverview from "@/components/admin/OperationsOverview";
 import UserDirectory from "@/components/admin/UserDirectory";
@@ -970,7 +970,7 @@ const AdminDashboard = () => {
                                   target="_blank" rel="noopener noreferrer"
                                   className="text-primary underline inline-flex items-center gap-1 sm:col-span-2"
                                 >
-                                  <ExternalLink className="h-3 w-3" /> GPS: {p.latitude.toFixed(5)}, {p.longitude.toFixed(5)}
+                                   GPS: {p.latitude.toFixed(5)}, {p.longitude.toFixed(5)}
                                 </a>
                               )}
                             </div>
@@ -1023,7 +1023,7 @@ const AdminDashboard = () => {
                                   <FileText className="h-4 w-4 text-secondary shrink-0" />
                                   <span className="flex-1 truncate text-foreground">{d.file_name}</span>
                                   <span className="text-muted-foreground">{((d.file_size || 0) / 1024 / 1024).toFixed(2)} MB</span>
-                                  <ExternalLink className="h-3 w-3 text-muted-foreground" />
+
                                 </a>
                               ))}
                             </div>
@@ -1342,7 +1342,7 @@ const AdminDashboard = () => {
             {tab === "earnings" && (
               <div className="space-y-6">
                 <h2 className="font-display text-xl font-bold text-foreground">Earnings Overview</h2>
-                
+
                 {/* Summary Cards */}
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
                   <GlassCard icon={DollarSign} label="Total Distributed" value={`₦${allEarnings.reduce((s: number, e: any) => s + (e.amount || 0), 0).toLocaleString()}`} />

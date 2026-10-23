@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { RefreshCw, Search, ExternalLink } from "lucide-react";
+import { RefreshCw, Search } from "lucide-react";
 
 const STATUSES = [
   "all",
@@ -159,7 +159,7 @@ const AdminPropertyMonitoring = () => {
                       <div className="flex shrink-0 flex-col items-end gap-2">
                         <Link to={`/property/${p.id}`}>
                           <Button size="sm" variant="outline" className="gap-1">
-                            <ExternalLink className="h-3.5 w-3.5" /> Open
+                             Open
                           </Button>
                         </Link>
                       </div>

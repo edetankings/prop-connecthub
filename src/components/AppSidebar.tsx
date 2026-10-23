@@ -4,10 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import {
-  Home, Search, Heart, MessageCircle, Receipt, User, Settings, HelpCircle, LogOut,
-  LayoutDashboard, Building, Plus, Wallet, ShieldCheck, Star, X,
-  Users, FileCheck, CheckCircle, TrendingUp, FileText, BarChart3, Cog, AlertTriangle, ScrollText, CreditCard, DollarSign, Network, Handshake, Bot, CalendarCheck } from "lucide-react";
+import { Home, Search, Heart, MessageCircle, Receipt, User, Settings, HelpCircle, LayoutDashboard, Building, Plus, Wallet, ShieldCheck, Star, X, Users, FileCheck, CheckCircle, TrendingUp, FileText, BarChart3, Cog, AlertTriangle, ScrollText, CreditCard, DollarSign, Network, Handshake, Bot, CalendarCheck } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -248,7 +245,7 @@ const AppSidebar = ({ open, onClose }: AppSidebarProps) => {
             onClick={handleLogout}
             className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors active:scale-[0.97]"
           >
-            <LogOut className="h-[18px] w-[18px]" />
+
             Logout
           </button>
         </div>

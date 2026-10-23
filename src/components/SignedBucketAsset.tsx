@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ExternalLink, FileText, Loader2 } from "lucide-react";
+import { FileText, Loader2 } from "lucide-react";
 import { resolveSignedUrl } from "@/lib/storageUrl";
 
 interface Props {
@@ -64,7 +64,7 @@ export function SignedBucketAsset({ bucket, value, label = "document", imgClassN
       className="text-sm text-primary underline inline-flex items-center gap-1"
     >
       <FileText className="h-4 w-4" /> View {label}
-      <ExternalLink className="h-3 w-3" />
+
     </a>
   );
 }

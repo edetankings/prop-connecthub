@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { motion } from "framer-motion";
-import { Lock, ShieldCheck, AlertTriangle, Copy, Upload, CheckCircle, Loader2, Clock, Building2 } from "lucide-react";
+import { Lock, ShieldCheck, AlertTriangle, Copy, CheckCircle, Loader2, Clock, Building2 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -396,7 +396,7 @@ const SecurePayment = () => {
               ) : showProofUpload ? (
 
                 <>
-                  <Upload className="h-8 w-8 text-secondary" />
+
                   <h3 className="mt-3 font-display text-lg font-semibold">
                     {isUnderReview ? "Proof received — under review" : "I have made payment"}
                   </h3>
@@ -404,7 +404,7 @@ const SecurePayment = () => {
                     Upload your transfer screenshot or receipt (JPG, PNG, or PDF, up to 10 MB).
                   </p>
                   <label className="mt-4 flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border bg-background p-6 text-center text-xs text-muted-foreground hover:border-secondary">
-                    <Upload className="h-5 w-5" />
+
                     {file ? file.name : "Click to choose a file"}
                     <input
                       type="file"

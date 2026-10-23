@@ -42,11 +42,11 @@ describe("administrator operations using mocked services only", () => {
     state.auth.isAdmin = false; open(<OperationsOverview />); expect(state.from).not.toHaveBeenCalled(); expect(screen.queryByLabelText("Authorized platform summary")).not.toBeInTheDocument();
   });
   it("shows genuine zero counts without invented revenue or settlement controls", async () => {
-    open(<OperationsOverview />); await screen.findAllByText("View records →");
+    open(<OperationsOverview />); await screen.findAllByText("View records");
     expect(screen.getAllByText("0")).toHaveLength(9); expect(screen.queryByText("Revenue Overview")).not.toBeInTheDocument(); expect(state.rpc).not.toHaveBeenCalled();
   });
   it("shows a summary failure instead of false zeros and permits retry", async () => {
-    state.fail = true; open(<OperationsOverview />); await screen.findByRole("alert"); expect(screen.queryByText("0")).not.toBeInTheDocument(); state.fail = false; fireEvent.click(screen.getByRole("button", { name: "Retry summary" })); await screen.findAllByText("View records →");
+    state.fail = true; open(<OperationsOverview />); await screen.findByRole("alert"); expect(screen.queryByText("0")).not.toBeInTheDocument(); state.fail = false; fireEvent.click(screen.getByRole("button", { name: "Retry summary" })); await screen.findAllByText("View records");
   });
   it("filters profiles, displays separately assigned roles and opens a read-only detail dialog", async () => {
     const props = { profiles: [profile], roles: [{ user_id: profile.user_id, role: "admin" }], onReview: vi.fn(), onVisibility: vi.fn(), onChat: vi.fn() };
@@ -58,9 +58,15 @@ describe("administrator operations using mocked services only", () => {
   });
   it("requires explicit confirmation before existing property moderation and exposes returned denial", async () => {
     state.rejectUpdate = true; open(<AdminDashboard />, "/admin?view=moderation");
-    const approve = await screen.findByRole("button", { name: "Approve" }); fireEvent.click(approve);
-    expect(state.update).not.toHaveBeenCalled(); fireEvent.click(screen.getByRole("button", { name: "Confirm decision" }));
-    await screen.findByRole("alert"); expect(state.update).toHaveBeenCalledWith("properties", { status: "available", is_verified: true }); expect(screen.getByRole("dialog")).toBeInTheDocument(); expect(state.rpc).not.toHaveBeenCalled();
+    await screen.findByText("Synthetic review property");
+    const approve = screen.getByRole("button", { name: "Approve", hidden: true });
+    expect(approve).toBeVisible(); fireEvent.click(approve);
+    const dialog = screen.getByRole("dialog", { hidden: true });
+    expect(dialog).toBeVisible(); expect(state.update).not.toHaveBeenCalled();
+    const confirm = within(dialog).getByRole("button", { name: "Confirm decision", hidden: true });
+    expect(confirm).toBeVisible(); fireEvent.click(confirm);
+    expect(await within(dialog).findByRole("alert", { hidden: true })).toBeVisible();
+    expect(state.update).toHaveBeenCalledWith("properties", { status: "available", is_verified: true }); expect(dialog).toBeInTheDocument(); expect(state.rpc).not.toHaveBeenCalled();
   });
   it("offers an admin navigation drawer with no payment or role-assignment actions", async () => {
     open(<WorkspaceShell role="admin"><h1>Synthetic admin workspace</h1></WorkspaceShell>);

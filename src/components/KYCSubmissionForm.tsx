@@ -14,20 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Upload,
-  FileText,
-  Camera,
-  CreditCard,
-  Building2,
-  Phone,
-  CheckCircle,
-  Clock,
-  XCircle,
-  AlertTriangle,
-  Loader2,
-  ShieldCheck,
-} from "lucide-react";
+import { FileText, Camera, CreditCard, Building2, Phone, CheckCircle, Clock, XCircle, AlertTriangle, Loader2, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 
 interface FileUploadProps {
@@ -58,7 +45,7 @@ const FileUploadField = ({
       {required && <span className="text-destructive">*</span>}
     </Label>
     <label className="border-2 border-dashed border-border rounded-xl p-4 text-center hover:border-primary/50 transition-colors cursor-pointer block bg-muted/20">
-      <Upload className="h-6 w-6 mx-auto text-muted-foreground mb-2" />
+
       <p className="text-sm text-muted-foreground mb-1">
         {file ? file.name : existingUrl ? "File already uploaded" : description}
       </p>

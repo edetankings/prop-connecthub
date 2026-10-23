@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Upload, X, ImageIcon, MapPin, Sparkles, Save, Send, AlertTriangle, CreditCard, FileText, ShieldCheck, Video } from "lucide-react";
+import { X, ImageIcon, MapPin, Sparkles, Save, Send, AlertTriangle, CreditCard, FileText, ShieldCheck, Video } from "lucide-react";
 import LocationPicker from "@/components/LocationPicker";
 import PdfUploader, { type PdfFile } from "@/components/PdfUploader";
 import VideoUploader, { type VideoFile } from "@/components/VideoUploader";
@@ -347,7 +347,7 @@ const PropertyEditor = ({ editId }: { editId: string | null }) => {
         {/* Upload Section */}
         <section id="listing-photography" className="mb-8">
           <h2 className="font-display text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
-            <Upload className="h-5 w-5 text-secondary" /> Upload Photos & Videos
+             Upload Photos & Videos
           </h2>
           <div
             className={`rounded-xl border-2 border-dashed p-8 text-center transition-colors ${dragOver ? "border-secondary bg-secondary/5" : "border-border bg-muted/30"}`}

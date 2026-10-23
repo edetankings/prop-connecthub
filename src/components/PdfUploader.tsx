@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { FileText, X, Upload } from "lucide-react";
+import { FileText, X } from "lucide-react";
 import { toast } from "sonner";
 
 export interface PdfFile {
@@ -46,7 +46,7 @@ const PdfUploader = ({ files, onChange, maxFiles = 3, maxSizeMb = 20 }: PdfUploa
     <div className="space-y-3">
       <label className="block">
         <div className="rounded-xl border-2 border-dashed border-border bg-muted/30 p-6 text-center cursor-pointer hover:border-secondary/50 transition-colors">
-          <Upload className="mx-auto h-8 w-8 text-muted-foreground mb-2" />
+
           <p className="text-sm font-medium text-foreground">Click to upload PDF documents</p>
           <p className="text-xs text-muted-foreground mt-1">
             Land docs, ownership proof, agreement, survey plan · Max {maxFiles} files · {maxSizeMb}MB each

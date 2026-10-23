@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Check, CheckCheck, FileText, MapPin, UserRound, ShieldAlert, Download } from "lucide-react";
+import { Check, CheckCheck, FileText, MapPin, UserRound, ShieldAlert } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { VoiceNotePlayer } from "./VoiceNotePlayer";
 import { resolveSignedUrl } from "@/lib/storageUrl";
@@ -67,7 +67,7 @@ const SignedMedia = ({ path, name, mime }: { path?: string; name?: string; mime?
       <span className="min-w-0">
         <span className="block truncate text-sm font-medium">{name || "Document"}</span>
       </span>
-      <Download className="ml-1 h-4 w-4 opacity-60" />
+
     </a>
   );
 };

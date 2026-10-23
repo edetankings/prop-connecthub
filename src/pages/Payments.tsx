@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { CreditCard, Upload, Clock, CheckCircle, XCircle, Building, AlertTriangle } from "lucide-react";
+import { CreditCard, Clock, CheckCircle, XCircle, Building, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { useFinancialAvailability } from "@/hooks/useFinancialAvailability";
 
@@ -151,7 +151,7 @@ const Payments = () => {
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <Button disabled={!finance.enabled} size="lg" className="w-full gap-2 bg-secondary text-secondary-foreground hover:bg-secondary/90">
-                <Upload className="h-5 w-5" /> {isActive ? "Renew Subscription" : "I Have Made Payment"} 👉
+                 {isActive ? "Renew Subscription" : "I Have Made Payment"} 👉
               </Button>
             </DialogTrigger>
             <DialogContent>

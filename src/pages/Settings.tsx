@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { User, Lock, Bell, Shield, HelpCircle, MessageSquare, AlertOctagon, LogOut, Camera, CheckCircle, Edit3, Save, X, Trash2 } from "lucide-react";
+import { User, Lock, Bell, Shield, HelpCircle, MessageSquare, AlertOctagon, Camera, CheckCircle, Edit3, Save, X, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -311,7 +311,7 @@ const Settings = () => {
                 onClick={handleSignOut}
                 className="flex w-full items-center gap-2 px-4 py-3 text-sm text-destructive hover:bg-destructive/5 transition-colors"
               >
-                <LogOut className="h-4 w-4" /> Sign Out
+                 Sign Out
               </button>
             </div>
           </div>
@@ -449,7 +449,7 @@ const Settings = () => {
                       <p className="font-medium text-foreground text-sm mb-1">Current Session</p>
                       <p className="text-xs text-muted-foreground">Signed in as <strong>{user?.email}</strong></p>
                       <Button size="sm" variant="destructive" className="mt-3" onClick={handleSignOut}>
-                        <LogOut className="h-4 w-4 mr-2" /> Sign Out of All Sessions
+                         Sign Out of All Sessions
                       </Button>
                     </div>
                   </div>

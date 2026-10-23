@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { Video, X, Upload } from "lucide-react";
+import { Video, X } from "lucide-react";
 import { toast } from "sonner";
 
 export interface VideoFile {
@@ -45,7 +45,7 @@ const VideoUploader = ({ files, onChange, maxFiles = 3, maxSizeMb = 100 }: Props
     <div className="space-y-3">
       <label className="block">
         <div className="rounded-xl border-2 border-dashed border-border bg-muted/30 p-6 text-center cursor-pointer hover:border-secondary/50 transition-colors">
-          <Upload className="mx-auto h-8 w-8 text-muted-foreground mb-2" />
+
           <p className="text-sm font-medium text-foreground">Click to upload property videos</p>
           <p className="text-xs text-muted-foreground mt-1">MP4, WebM · Max {maxFiles} videos · {maxSizeMb}MB each</p>
         </div>
