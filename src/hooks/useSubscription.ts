@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useSubscriptionSettings } from "@/hooks/useSubscriptionSettings";
 
 export interface Subscription {
   id: string;
@@ -26,6 +27,7 @@ export const useSubscription = () => {
   const [loading, setLoading] = useState(true);
 
   const isAgent = profile?.profile_type === "agent" || profile?.profile_type === "builder";
+  const settings = useSubscriptionSettings(!!user?.id && isAgent);
 
   const fetchData = useCallback(async () => {
     if (!user?.id || !isAgent) {
@@ -57,5 +59,5 @@ export const useSubscription = () => {
     ? Math.max(0, Math.ceil((new Date(subscription.end_date).getTime() - Date.now()) / 86400000))
     : 0;
 
-  return { subscription, pendingRequest, loading, isActive, daysRemaining, isAgent, refetch: fetchData };
+  return { subscription, pendingRequest, loading: loading || settings.loading, isActive, canList: !settings.error && !settings.loading && (settings.enabled === false || (settings.enabled === true && isActive)), subscriptionsEnabled: settings.enabled, settingsError: settings.error, refreshSettings: settings.refresh, daysRemaining, isAgent, refetch: fetchData };
 };

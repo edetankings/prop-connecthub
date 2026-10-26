@@ -28,7 +28,7 @@ const CATEGORIES = [
 
 const PropertyEditor = ({ editId }: { editId: string | null }) => {
   const { profile, loading: authLoading, isAdmin } = useAuth();
-  const { isActive, loading: subLoading, isAgent } = useSubscription();
+  const { canList, loading: subLoading, isAgent, settingsError, refreshSettings } = useSubscription();
   const [existingImages, setExistingImages] = useState<string[]>([]);
   const [existingVideos, setExistingVideos] = useState<string[]>([]);
   const [existingDocuments, setExistingDocuments] = useState(0);
@@ -289,8 +289,10 @@ const PropertyEditor = ({ editId }: { editId: string | null }) => {
 
   if (!isAdmin && profile?.profile_type !== "agent" && profile?.profile_type !== "builder") return <AuthenticatedLayout><div className="buyer-empty"><h1>Professional account required</h1><p>Property listing tools are available only to the supported professional account types.</p><Button asChild><Link to="/dashboard">Return to your dashboard</Link></Button></div></AuthenticatedLayout>;
 
-  // Subscription gate for agents (admins bypass)
-  if (isAgent && !isAdmin && !isActive) {
+  if (isAgent && !isAdmin && settingsError) return <AuthenticatedLayout><div className="buyer-empty" role="alert"><h1>Subscription settings unavailable</h1><p>We could not check listing access. Please retry.</p><Button onClick={refreshSettings}>Retry access check</Button></div></AuthenticatedLayout>;
+
+  // The backend enforces the same global subscription requirement.
+  if (isAgent && !isAdmin && !canList) {
     return (
       <AuthenticatedLayout>
         <div className="container mx-auto max-w-xl px-4 py-16 text-center">

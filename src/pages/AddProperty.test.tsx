@@ -12,7 +12,7 @@ vi.mock("@/integrations/supabase/client", () => ({ supabase: {
 } }));
 vi.mock("sonner", () => ({ toast: { success: mocks.success, error: mocks.error } }));
 vi.mock("@/hooks/useAuth", () => ({ useAuth: () => ({ profile: { id: "profile-owner", user_id: "auth-owner", kyc_verified: true }, loading: false, isAdmin: true }) }));
-vi.mock("@/hooks/useSubscription", () => ({ useSubscription: () => ({ isActive: true, loading: false, isAgent: false }) }));
+vi.mock("@/hooks/useSubscription", () => ({ useSubscription: () => ({ isActive: true, canList: true, loading: false, isAgent: false }) }));
 vi.mock("@/components/AuthenticatedLayout", () => ({ default: ({ children }: { children: React.ReactNode }) => children }));
 vi.mock("@/components/LocationPicker", () => ({ default: () => null }));
 vi.mock("@/components/VideoUploader", () => ({ default: ({ onChange }: { onChange: (files: VideoFile[]) => void }) =>

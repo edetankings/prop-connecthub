@@ -16,7 +16,7 @@ import { useFinancialAvailability } from "@/hooks/useFinancialAvailability";
 const Payments = () => {
   const { user } = useAuth();
   const finance = useFinancialAvailability();
-  const { subscription, pendingRequest, loading, isActive, daysRemaining, refetch } = useSubscription();
+  const { subscription, pendingRequest, loading, isActive, subscriptionsEnabled, settingsError, refreshSettings, daysRemaining, refetch } = useSubscription();
   const [open, setOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [file, setFile] = useState<File | null>(null);
@@ -32,6 +32,7 @@ const Payments = () => {
   const cfg = statusConfig[currentStatus] || statusConfig.expired;
 
   const handleSubmit = async () => {
+    if (subscriptionsEnabled !== true) { toast.error("Subscription payments are currently unavailable."); return; }
     if (!finance.enabled) { toast.error(finance.unavailableMessage); return; }
     if (!file || !user || uploading) return;
     setUploading(true);
@@ -67,6 +68,8 @@ const Payments = () => {
         <div className="mb-8">
           <h1 className="font-display text-3xl font-bold text-foreground">Subscription & Payments 💳</h1>
           <p className="mt-1 text-muted-foreground">Manage your agent subscription</p>
+          {subscriptionsEnabled === false && <p role="status" className="mt-3">Subscriptions are OFF. Verified agents and builders can submit listings without a subscription. Existing subscription records are preserved.</p>}
+          {settingsError && <div role="alert"><p>Subscription settings could not be loaded.</p><Button variant="outline" onClick={refreshSettings}>Retry subscription setting</Button></div>}
         </div>
 
         {/* Subscription Status Card */}
@@ -108,7 +111,8 @@ const Payments = () => {
           </CardContent>
         </Card>
 
-        {/* Bank Details */}
+        {/* Bank details are shown only while subscriptions are enabled. */}
+        {subscriptionsEnabled === true && <>
         <Card className="mb-6 border-border shadow-card">
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-lg">
@@ -199,6 +203,7 @@ const Payments = () => {
             </CardContent>
           </Card>
         )}
+        </>}
       </div>
     </AuthenticatedLayout>
   );

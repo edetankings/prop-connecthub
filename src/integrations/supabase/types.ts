@@ -675,6 +675,7 @@ export type Database = {
           referral_rules_approved: boolean
           singleton: boolean
           subscription_amount: number | null
+          subscriptions_enabled: boolean
           updated_at: string
           updated_by: string | null
           verification_bonus_policy: string | null
@@ -690,6 +691,7 @@ export type Database = {
           referral_rules_approved?: boolean
           singleton?: boolean
           subscription_amount?: number | null
+          subscriptions_enabled?: boolean
           updated_at?: string
           updated_by?: string | null
           verification_bonus_policy?: string | null
@@ -705,6 +707,7 @@ export type Database = {
           referral_rules_approved?: boolean
           singleton?: boolean
           subscription_amount?: number | null
+          subscriptions_enabled?: boolean
           updated_at?: string
           updated_by?: string | null
           verification_bonus_policy?: string | null
@@ -1510,6 +1513,14 @@ export type Database = {
       }
     }
     Functions: {
+      get_subscriptions_enabled: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      set_subscriptions_enabled: {
+        Args: { _enabled: boolean }
+        Returns: boolean
+      }
       accept_deal: { Args: { _request_id: string }; Returns: string }
       activate_chat: { Args: { _thread_id: string }; Returns: undefined }
       activate_subscription: {

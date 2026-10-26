@@ -7,7 +7,7 @@ const mocks = vi.hoisted(() => ({
   profile: { id: "synthetic-owner", user_id: "synthetic-auth", profile_type: "agent", kyc_verified: true },
 }));
 vi.mock("@/hooks/useAuth", () => ({ useAuth: () => ({ profile: mocks.profile, isAdmin: false, loading: false }) }));
-vi.mock("@/hooks/useSubscription", () => ({ useSubscription: () => ({ isAgent: true, isActive: true, loading: false }) }));
+vi.mock("@/hooks/useSubscription", () => ({ useSubscription: () => ({ isAgent: true, isActive: true, canList: true, loading: false }) }));
 vi.mock("@/components/AuthenticatedLayout", () => ({ default: ({ children }: { children: React.ReactNode }) => <>{children}</> }));
 vi.mock("@/components/LocationPicker", () => ({ default: () => null }));
 vi.mock("sonner", () => ({ toast: { success: mocks.success, error: mocks.error } }));
