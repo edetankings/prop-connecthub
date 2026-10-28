@@ -27,10 +27,13 @@ type Tab = "dashboard" | "matrix" | "users" | "moderation" | "disputes" | "audit
 const AdminDashboard = () => {
   const finance = useFinancialAvailability();
   const { user, isAdmin } = useAuth();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const [adminProfileId, setAdminProfileId] = useState<string | null>(null);
-  const [tab, setTab] = useState<Tab>("dashboard");
+  const requestedTab = searchParams.get("view");
+  const availableTabs: Tab[] = ["users", "verification", "moderation", "audit", "reservations", "active-deals", "support", "announcements", "matrix", "referrals", "subscriptions", "earnings", "withdrawals", "disputes"];
+  const tab: Tab = availableTabs.includes(requestedTab as Tab) ? requestedTab as Tab : "dashboard";
+  const setTab = (next: Tab) => setSearchParams(next === "dashboard" ? {} : { view: next });
   const [loadError, setLoadError] = useState(false);
   const [roles, setRoles] = useState<{ user_id: string; role: string }[]>([]);
   const [propertyFilter, setPropertyFilter] = useState("pending");
@@ -78,17 +81,14 @@ const AdminDashboard = () => {
   const [propertyDocs, setPropertyDocs] = useState<any[]>([]);
 
   useEffect(() => {
-    const view = searchParams.get("view");
-    if (["users", "verification", "moderation", "audit", "reservations", "active-deals", "support", "announcements", "matrix", "referrals", "subscriptions"].includes(view || "")) setTab(view as Tab);
-    else setTab("dashboard");
-    setSelectedUserId(null);
+    setSelectedUserId(searchParams.get("user"));
   }, [searchParams]);
 
   useEffect(() => {
-    if (!user?.id || !isAdmin) return;
+    if (!user?.id || !isAdmin || tab !== "users") return;
     supabase.from("profiles").select("id").eq("user_id", user.id).maybeSingle()
       .then(({ data }) => setAdminProfileId(data?.id ?? null));
-  }, [user?.id, isAdmin]);
+  }, [user?.id, isAdmin, tab]);
 
   const handleAdminChat = async (targetProfileId: string) => {
     if (!adminProfileId) {
@@ -129,117 +129,44 @@ const AdminDashboard = () => {
     navigate(`/chat/${created.id}`);
   };
 
+  const loadRevision = useRef(0);
   const loadData = useCallback(async () => {
-    if (!isAdmin) return;
+    const revision = ++loadRevision.current;
+    if (!isAdmin || tab === "dashboard") { setLoading(false); return; }
     setLoading(true); setLoadError(false);
+    const read = async <T,>(views: Tab[], request: () => PromiseLike<{ data: T | null; error: unknown }>, write: (data: T) => void, fallback: T) => {
+      if (!views.includes(tab)) return;
+      const result = await request();
+      if (result.error) throw result.error;
+      if (revision === loadRevision.current) write(result.data ?? fallback);
+    };
     try {
-    const [p, pr, v, d, a, t, ks] = await Promise.all([
-      supabase.from("profiles").select("*").order("created_at", { ascending: false }),
-      supabase.from("properties").select("*, profiles(full_name)").order("created_at", { ascending: false }),
-      supabase.from("verification_documents").select("*").order("created_at", { ascending: false }),
-      supabase.from("disputes").select("*").order("created_at", { ascending: false }),
-      supabase.from("audit_logs").select("*").order("created_at", { ascending: false }).limit(50),
-      supabase.from("transactions").select("*").order("created_at", { ascending: false }),
-      (supabase as any).from("verification_steps").select("*").order("created_at", { ascending: true }),
-    ]);
-    if ([p, pr, v, d, a, t, ks].some(result => result.error)) throw new Error("Operations unavailable");
-    const roleResult = await supabase.from("user_roles").select("user_id, role");
-    if (roleResult.error) throw roleResult.error;
-    setRoles(roleResult.data || []);
-    setProfiles(p.data || []);
-    setProperties(pr.data || []);
-    setVerifications(v.data || []);
-    setDisputes(d.data || []);
-    setAuditLogs(a.data || []);
-    setTransactions(t.data || []);
-    setKycSteps(ks.data || []);
+      await Promise.all([
+        read(["users", "moderation", "verification", "matrix", "referrals", "subscriptions", "withdrawals", "earnings"], () => supabase.from("profiles").select("*").order("created_at", { ascending: false }), setProfiles, []),
+        read(["users"], () => supabase.from("user_roles").select("user_id,role"), setRoles, []),
+        read(["moderation"], () => supabase.from("properties").select("*, profiles(full_name)").order("created_at", { ascending: false }), setProperties, []),
+        read(["verification", "moderation"], () => supabase.from("verification_documents").select("*").order("created_at", { ascending: false }), setVerifications, []),
+        read(["disputes"], () => supabase.from("disputes").select("*").order("created_at", { ascending: false }), setDisputes, []),
+        read(["audit", "moderation"], () => supabase.from("audit_logs").select("*").order("created_at", { ascending: false }).limit(50), setAuditLogs, []),
+        read(["matrix", "earnings"], () => supabase.from("transactions").select("*").order("created_at", { ascending: false }), setTransactions, []),
+        read(["verification"], () => supabase.from("verification_steps").select("*").order("created_at", { ascending: true }), setKycSteps, []),
+        read(["moderation", "reservations"], () => supabase.from("reservations").select("*, properties(title, city, state)").order("created_at", { ascending: false }), setAllReservations, []),
+        read(["support"], () => supabase.from("support_tickets").select("*").order("created_at", { ascending: false }), setSupportTickets, []),
+        read(["announcements"], () => supabase.from("announcements").select("*, profiles!announcements_author_id_fkey(full_name)").order("created_at", { ascending: false }), setDbAnnouncements, []),
+        read(["earnings", "matrix", "referrals"], () => supabase.from("earnings").select("*").order("created_at", { ascending: false }), setAllEarnings, []),
+        read(["moderation"], () => supabase.from("property_documents").select("*").order("uploaded_at", { ascending: false }), setPropertyDocs, []),
+        read(["subscriptions"], () => supabase.from("subscription_requests").select("*").order("created_at", { ascending: false }), setSubRequests, []),
+        read(["subscriptions", "matrix", "earnings"], () => supabase.from("subscriptions").select("*").order("updated_at", { ascending: false }), setAllSubscriptions, []),
+        read(["withdrawals", "earnings"], () => supabase.from("withdrawals").select("*").order("created_at", { ascending: false }), setWithdrawals, []),
+        read(["verification"], () => supabase.from("kyc_verifications").select("*").order("submitted_at", { ascending: false }), setKycSubmissions, []),
+        read(["earnings", "matrix"], () => supabase.from("company_wallet").select("balance,total_earned").maybeSingle(), setCompanyWallet, null),
+        read(["earnings", "matrix"], () => supabase.from("escrow_holds").select("*").order("created_at", { ascending: false }), setEscrowHolds, []),
+      ]);
+    } catch { if (revision === loadRevision.current) setLoadError(true); }
+    finally { if (revision === loadRevision.current) setLoading(false); }
+  }, [isAdmin, tab]);
 
-    // Fetch all reservations for admin
-    const { data: resData, error: resDataError } = await (supabase as any)
-      .from("reservations")
-      .select("*, properties(title, city, state)")
-      .order("created_at", { ascending: false });
-    if (resDataError) throw resDataError;
-    setAllReservations(resData || []);
-
-    const { data: ticketsData, error: ticketsDataError } = await (supabase as any)
-      .from("support_tickets")
-      .select("*")
-      .order("created_at", { ascending: false });
-    if (ticketsDataError) throw ticketsDataError;
-    setSupportTickets(ticketsData || []);
-
-    const { data: annData, error: annDataError } = await (supabase as any)
-      .from("announcements")
-      .select("*, profiles!announcements_author_id_fkey(full_name)")
-      .order("created_at", { ascending: false });
-    if (annDataError) throw annDataError;
-    setDbAnnouncements(annData || []);
-
-    const { data: earningsData, error: earningsDataError } = await (supabase as any)
-      .from("earnings")
-      .select("*")
-      .order("created_at", { ascending: false });
-    if (earningsDataError) throw earningsDataError;
-    setAllEarnings(earningsData || []);
-
-    const { data: docsData, error: docsDataError } = await (supabase as any)
-      .from("property_documents")
-      .select("*")
-      .order("uploaded_at", { ascending: false });
-    if (docsDataError) throw docsDataError;
-    setPropertyDocs(docsData || []);
-
-    const { data: subReqData, error: subReqDataError } = await (supabase as any)
-      .from("subscription_requests")
-      .select("*")
-      .order("created_at", { ascending: false });
-    if (subReqDataError) throw subReqDataError;
-    setSubRequests(subReqData || []);
-
-    const { data: subsData, error: subsDataError } = await (supabase as any)
-      .from("subscriptions")
-      .select("*")
-      .order("updated_at", { ascending: false });
-    if (subsDataError) throw subsDataError;
-    setAllSubscriptions(subsData || []);
-
-    const { data: wdData, error: wdDataError } = await (supabase as any)
-      .from("withdrawals")
-      .select("*")
-      .order("created_at", { ascending: false });
-    if (wdDataError) throw wdDataError;
-    setWithdrawals(wdData || []);
-
-    // KYC submissions (full documents)
-    const { data: kycData, error: kycDataError } = await (supabase as any)
-      .from("kyc_verifications")
-      .select("*")
-      .order("submitted_at", { ascending: false });
-    if (kycDataError) throw kycDataError;
-    setKycSubmissions(kycData || []);
-
-    // Company wallet
-    const { data: cwData, error: cwDataError } = await (supabase as any)
-      .from("company_wallet")
-      .select("balance, total_earned")
-      .maybeSingle();
-    if (cwDataError) throw cwDataError;
-    setCompanyWallet(cwData || null);
-
-    // Escrow holds
-    const { data: escData, error: escDataError } = await (supabase as any)
-      .from("escrow_holds")
-      .select("*")
-      .order("created_at", { ascending: false });
-    if (escDataError) throw escDataError;
-    setEscrowHolds(escData || []);
-
-    } catch { setLoadError(true); }
-    finally { setLoading(false); }
-  }, [isAdmin]);
-
-  useEffect(() => { void loadData(); }, [loadData]);
+  useEffect(() => { void loadData(); return () => { loadRevision.current++; }; }, [loadData]);
 
   const handleVerifyKyc = (profileId: string) => {
     const target = profiles.find(profile => profile.id === profileId);
@@ -333,7 +260,7 @@ const AdminDashboard = () => {
   };
 
   const handleRejectSubscription = async (requestId: string, reqUserId: string) => {
-    const reason = prompt("Rejection reason (optional):");
+    const reason = prompt("Rejection reason:");
     if (reason === null) return;
     const { error } = await (supabase as any).rpc("reject_subscription_request", { _request_id: requestId, _reason: reason });
     if (error) { toast.error(error.message); return; }
@@ -389,40 +316,16 @@ const AdminDashboard = () => {
   const selectedUserSteps = selectedUserId ? kycSteps.filter((s: any) => s.user_id === selectedUserId) : [];
 
   if (!isAdmin) return null;
+  if (tab === "dashboard") return <AuthenticatedLayout><OperationsOverview /></AuthenticatedLayout>;
 
   return (
     <AuthenticatedLayout>
       <div className="operations-page">
-        <div className="flex items-center gap-3 mb-6">
-          <img src={logo} alt="PROP-connect" className="h-12 w-12 rounded-xl object-contain" />
-          <div>
-            <h1 className="font-display text-2xl font-bold text-foreground">Operations console</h1>
-            <p className="text-sm text-muted-foreground">Review people, properties and platform activity.</p>
-            {!finance.enabled && <p role="status" className="text-sm text-muted-foreground">{finance.unavailableMessage}</p>}
-          </div>
-        </div>
-
-        {/* Tabs */}
-        <nav aria-label="Operation sections" className="operations-tabs">
-          {tabs.filter(t => !["earnings", "subscriptions", "withdrawals"].includes(t.id)).map((t) => (
-            <Button
-              key={t.id}
-              aria-current={tab === t.id ? "page" : undefined}
-              variant={tab === t.id ? "default" : "ghost"}
-              size="sm"
-              onClick={() => { setTab(t.id); setSelectedUserId(null); }}
-              className={`gap-2 shrink-0 ${tab === t.id ? "" : "text-muted-foreground"}`}
-            >
-              <t.icon className="h-4 w-4" />
-              {t.label}
-              {t.count && t.count > 0 ? (
-                <span className="h-5 min-w-[20px] px-1 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold flex items-center justify-center">
-                  {t.count}
-                </span>
-              ) : null}
-            </Button>
-          ))}
-        </nav>
+        <header className="admin-section-heading">
+          <p>Administration / {tabs.find(item => item.id === tab)?.label || "Operations"}</p>
+          <h1>{({ users: "User directory", verification: "KYC reviews", moderation: "Property moderation", support: "Support inbox", subscriptions: "Subscription records", announcements: "Announcements", referrals: "Referral trees", matrix: "Matrix overview", earnings: "Earnings records", withdrawals: "Withdrawal records", disputes: "Dispute reviews", audit: "Audit log", reservations: "Inspections", "active-deals": "Deal records" } as Partial<Record<Tab, string>>)[tab] || "Operations"}</h1>
+          <p>Review authorized records and manage your marketplace.</p>
+        </header>
 
         {loadError ? <div role="alert" className="buyer-empty"><h2>Operations unavailable</h2><p>Some authorized records could not be retrieved. Incomplete results are not shown.</p><Button variant="outline" onClick={() => void loadData()}>Retry operations</Button></div> : loading ? (
           <div className="flex justify-center py-16">
@@ -430,7 +333,6 @@ const AdminDashboard = () => {
           </div>
         ) : (
           <>
-            {tab === "dashboard" && <OperationsOverview />}
 
             {/* MATRIX OVERVIEW TAB */}
             {tab === "matrix" && (() => {
@@ -647,7 +549,7 @@ const AdminDashboard = () => {
                                 {latestStep ? new Date(latestStep.updated_at).toLocaleDateString() : "—"}
                               </td>
                               <td data-label="Actions" className="px-4 py-3">
-                                <Button size="sm" variant="outline" className="gap-1" onClick={() => setSelectedUserId(userId)}>
+                                <Button size="sm" variant="outline" className="gap-1" onClick={() => navigate(`/admin?view=verification&user=${encodeURIComponent(userId)}`)}>
                                   <Eye className="h-3.5 w-3.5" /> Review
                                 </Button>
                               </td>
@@ -666,7 +568,7 @@ const AdminDashboard = () => {
             {tab === "verification" && selectedUserId && (
               <div className="space-y-6">
                 <div className="flex items-center gap-3">
-                  <Button variant="ghost" size="sm" onClick={() => setSelectedUserId(null)}> Back</Button>
+                  <Button variant="ghost" size="sm" onClick={() => navigate("/admin?view=verification")}> Back</Button>
                   <h2 className="font-display text-lg font-semibold text-foreground">
                     Review: {selectedUserProfile?.full_name || "User"}
                   </h2>
@@ -841,7 +743,7 @@ const AdminDashboard = () => {
               </div>
             )}
 
-            {tab === "users" && <UserDirectory profiles={profiles} roles={roles} onReview={userId => { setTab("verification"); setSelectedUserId(userId); }} onVisibility={handleToggleVisibility} onChat={profileId => void handleAdminChat(profileId)} />}
+            {tab === "users" && <UserDirectory profiles={profiles} roles={roles} onReview={userId => navigate(`/admin?view=verification&user=${encodeURIComponent(userId)}`)} onVisibility={handleToggleVisibility} onChat={profileId => void handleAdminChat(profileId)} />}
 
             {/* MODERATION / PROPERTY MONITORING TAB */}
             {tab === "moderation" && (() => {
@@ -855,6 +757,7 @@ const AdminDashboard = () => {
               const setStatusFilter = setPropertyFilter;
 
               const filtered = properties.filter((p) => {
+                if (searchParams.get("property") && p.id !== searchParams.get("property")) return false;
                 if (statusFilter === "all") return true;
                 if (statusFilter === "pending") return p.status === "under_verification";
                 if (statusFilter === "approved") return ["available", "for_sale", "for_rent"].includes(p.status);
@@ -870,6 +773,7 @@ const AdminDashboard = () => {
                 <div className="space-y-6">
                   <div>
                     <h2 className="font-display text-xl font-semibold text-foreground">Property Monitoring</h2>
+                    {searchParams.get("property") && <Button variant="outline" onClick={() => navigate("/admin?view=moderation")}>Show all properties</Button>}
                     <p className="text-sm text-muted-foreground">Monitor every property listed on the platform.</p>
                   </div>
 
@@ -1532,7 +1436,7 @@ const AdminDashboard = () => {
                                   />
                                   {req.status === "pending" && (
                                     <div className="flex gap-2">
-                                      <Button size="sm" onClick={() => handleApproveSubscription(req.id, req.user_id)} className="gap-1 bg-emerald-600 hover:bg-emerald-700 text-white">
+                                      <Button size="sm" disabled={!finance.enabled} onClick={() => handleApproveSubscription(req.id, req.user_id)} className="gap-1 bg-emerald-600 hover:bg-emerald-700 text-white">
                                         <CheckCircle className="h-3 w-3" /> Approve
                                       </Button>
                                       <Button size="sm" variant="destructive" onClick={() => handleRejectSubscription(req.id, req.user_id)} className="gap-1">

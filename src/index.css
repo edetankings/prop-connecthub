@@ -11,6 +11,7 @@
 @import './styles/property-details.css';
 @import './styles/agent-dashboard.css';
 @import './styles/responsive-refinement.css';
+@import './styles/admin-portal.css';
 
 @tailwind base;
 @tailwind components;

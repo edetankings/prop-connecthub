@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Switch } from "@/components/ui/switch";
 import { SUBSCRIPTION_SETTINGS_CHANGED, useSubscriptionSettings } from "@/hooks/useSubscriptionSettings";
 
-export default function SubscriptionControl() {
+export default function SubscriptionControl({ compact = false }: { compact?: boolean }) {
   const settings = useSubscriptionSettings();
   const [saving, setSaving] = useState(false);
   const [notice, setNotice] = useState("");
@@ -37,10 +37,10 @@ export default function SubscriptionControl() {
     }
   };
 
-  return <div>
+  return <div className="admin-subscription-control">
     <div className="feature-default-control">
-      <div><label htmlFor="subscriptions-default">Subscriptions ON / OFF</label>
-        <p id="subscriptions-default-help">ON requires an active subscription to submit listings. OFF lets verified agents and builders submit listings without subscribing. Existing subscriptions are preserved.</p>
+      <div><label htmlFor="subscriptions-default">{compact ? "Subscription requirement" : "Subscriptions ON / OFF"}</label>
+        <p id="subscriptions-default-help">{compact ? (settings.enabled === false ? "Verified agents and builders can list without subscribing." : "Verified agents and builders need an active subscription to list.") : "ON requires an active subscription to submit listings. OFF lets verified agents and builders submit listings without subscribing. Existing subscriptions are preserved."}</p>
       </div>
       <Switch id="subscriptions-default" checked={settings.enabled === true} disabled={settings.loading || saving || settings.enabled === null} onCheckedChange={change} aria-describedby="subscriptions-default-help" />
     </div>

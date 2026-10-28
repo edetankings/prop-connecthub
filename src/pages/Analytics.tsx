@@ -3,7 +3,7 @@ import { Users, Home, MessageSquare, CalendarCheck, TrendingUp, BarChart3, Shiel
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts";
-import Navbar from "@/components/Navbar";
+import AuthenticatedLayout from "@/components/AuthenticatedLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format, subDays, startOfDay, startOfWeek } from "date-fns";
@@ -150,8 +150,8 @@ const Analytics = () => {
   const propertyChartConfig = { count: { label: "Properties", color: "hsl(var(--secondary))" } };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
+    <AuthenticatedLayout><div className="admin-analytics-page">
+
       <div className="container mx-auto px-4 py-8">
         <h1 className="font-display text-3xl font-bold text-foreground">Platform Analytics</h1>
         <p className="mt-1 text-muted-foreground">Real-time platform performance metrics</p>
@@ -269,7 +269,7 @@ const Analytics = () => {
           </Card>
         </div>
       </div>
-    </div>
+    </div></AuthenticatedLayout>
   );
 };
 
