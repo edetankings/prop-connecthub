@@ -46,12 +46,12 @@ const QUICK_PROMPTS: Record<string, string[]> = {
 };
 
 const AIAssistant = () => {
-  const { profile, session, user } = useAuth() as any;
+  const { profile, session, user, isAdmin } = useAuth();
   const navigate = useNavigate();
   const userId: string | undefined = user?.id ?? session?.user?.id;
   const storageKey = storageKeyFor(userId);
   const role: "buyer" | "agent" | "admin" =
-    profile?.profile_type === "agent" ? "agent" : profile?.profile_type === "admin" ? "admin" : "buyer";
+    isAdmin ? "admin" : profile?.profile_type === "agent" || profile?.profile_type === "builder" ? "agent" : "buyer";
 
 
   const [messages, setMessages] = useState<AIMessage[]>([]);
@@ -114,19 +114,12 @@ const AIAssistant = () => {
       const assistantId = crypto.randomUUID();
       let acc = "";
 
-      // Always use a FRESH token: a stale/expired JWT is rejected by the API gateway
-      // before our function runs, which the browser surfaces as "Failed to fetch".
-      const { data: sessionData } = await supabase.auth.getSession();
-      const accessToken = sessionData.session?.access_token;
-
-      if (!accessToken) {
-        setMessages(messages);
-        toast.error("Your session expired. Please sign in again to chat with Prop Connect AI.");
-        setStreaming(false);
-        return;
-      }
-
       try {
+        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+        const accessToken = sessionData.session?.access_token;
+        if (sessionError || !accessToken) {
+          throw new Error("Your session expired. Please sign in again to chat with Prop Connect AI.");
+        }
         let res: Response;
         try {
           res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/prop-ai`, {
@@ -192,9 +185,9 @@ const AIAssistant = () => {
             )
           );
         }
-      } catch (e: any) {
+      } catch (e: unknown) {
         setMessages((prev) => prev.filter((m) => m.id !== assistantId));
-        toast.error(e.message || "Something went wrong");
+        toast.error(e instanceof Error ? e.message : "Something went wrong. Please retry.");
       } finally {
         setStreaming(false);
       }

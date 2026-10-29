@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Home, Heart, CalendarCheck, MessageCircle, UserRound, Search, Menu, ReceiptText, Building2, ShieldCheck, Users, ScrollText, Plus, CreditCard, Wallet } from "lucide-react";
+import { Home, Heart, CalendarCheck, MessageCircle, UserRound, Search, Menu, ReceiptText, Building2, ShieldCheck, Users, ScrollText, Plus, CreditCard, Wallet, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet";
 import NotificationBell from "@/components/NotificationBell";
@@ -15,6 +15,7 @@ const items = [
   { label: "Saved properties", to: "/dashboard/buyer?view=saved", icon: Heart },
   { label: "Inspections", to: "/dashboard/buyer/inspections", icon: CalendarCheck },
   { label: "Messages", to: "/messages", icon: MessageCircle },
+  { label: "Prop Connect AI", to: "/ai-assistant", icon: Sparkles },
   { label: "Transaction records", to: "/dashboard/buyer?view=transactions", icon: ReceiptText },
   { label: "Profile & settings", to: "/settings", icon: UserRound },
 ];
@@ -43,6 +44,7 @@ function StandardWorkspaceShell({ children, role = "buyer" }: { children: ReactN
     { label: "Inquiries", to: `${base}?view=inquiries`, icon: MessageCircle },
     { label: "Inspections", to: role === "agent" ? "/dashboard/agent/inspections" : `${base}?view=inspections`, icon: CalendarCheck },
     { label: "Messages", to: "/messages", icon: MessageCircle },
+    { label: "Prop Connect AI", to: "/ai-assistant", icon: Sparkles },
     { label: "Profile & settings", to: "/settings", icon: UserRound },
     { label: "Identity verification", to: "/verification", icon: UserRound },
   ] : items;

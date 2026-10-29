@@ -220,7 +220,9 @@ When the new production domain is available:
 
 Lovable development tagging is absent from the active npm manifests and Vite
 plugins. Runtime preview-session brokering and the hardcoded AI gateway have been
-removed from the prepared source. Edge Function changes are not deployed.
+removed from the prepared source. The authenticated `prop-ai` function has been
+deployed; its provider calls remain disabled until the private AI configuration is supplied.
+See [Prop Connect AI activation](setup/prop-connect-ai.md).
 
 | File | Remaining dependency or configuration |
 | --- | --- |
