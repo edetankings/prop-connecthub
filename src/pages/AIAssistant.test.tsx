@@ -39,3 +39,20 @@ it("uses the authenticated endpoint and renders a streamed reply", async () => {
   expect(await screen.findByText("Browse verified listings.")).toBeInTheDocument();
   expect(state.fetch).toHaveBeenCalledWith(expect.stringContaining("/functions/v1/prop-ai"), expect.objectContaining({ method: "POST", headers: expect.objectContaining({ Authorization: "Bearer fresh-test-token" }) }));
 });
+
+it("keeps backend setup failures visible and restores the question", async () => {
+  state.fetch.mockResolvedValue(new Response(JSON.stringify({ error: "The assistant is not configured yet. Please use property search or contact support." }), { status: 503 }));
+  open();
+  fireEvent.change(screen.getByPlaceholderText("Ask Prop Connect AI…"), { target: { value: "Help me find land" } });
+  fireEvent.click(screen.getByRole("button", { name: "Send message" }));
+  expect(await screen.findByRole("alert")).toHaveTextContent("The assistant is not configured yet");
+  expect(screen.getByPlaceholderText("Ask Prop Connect AI…")).toHaveValue("Help me find land");
+  expect(screen.getByRole("button", { name: "Send message" })).toBeEnabled();
+});
+it("keeps connection failures visible instead of leaving an unanswered chat", async () => {
+  state.fetch.mockRejectedValue(new TypeError("Failed to fetch"));
+  open();
+  fireEvent.change(screen.getByPlaceholderText("Ask Prop Connect AI…"), { target: { value: "Explain verification" } });
+  fireEvent.click(screen.getByRole("button", { name: "Send message" }));
+  expect(await screen.findByRole("alert")).toHaveTextContent("Couldn't reach Prop Connect AI");
+});

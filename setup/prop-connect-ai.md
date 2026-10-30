@@ -1,12 +1,15 @@
 # Prop Connect AI activation
 
-## Current state — 29 October 2026
+## Current state — 30 October 2026
 
 The authenticated `prop-ai` Edge Function is deployed to the independent Supabase
 project `prtrpywkwmnpowrthppg`. The approved production browser origin is
 `https://propconnect-vine.vercel.app`; local development origins are supported by
-the shared CORS helper. Provider calls remain disabled pending provider selection
-and a private provider API key. No AI provider key is stored in browser code.
+the shared CORS helper. Provider calls are enabled using Gemini 3.1 Flash-Lite
+through Google’s OpenAI-compatible streaming endpoint. The provider key is stored
+only in Supabase server secrets; no AI provider key is stored in browser code.
+A direct streaming provider smoke test returned HTTP 200 and a text reply.
+An authenticated browser conversation still needs end-to-end confirmation.
 
 The app exposes Prop Connect AI in the buyer, agent, builder, and administrator
 navigation. Admin prompts follow assigned administrator privileges; builders use
@@ -25,7 +28,11 @@ In the verified project's Supabase dashboard, open Edge Functions → Secrets:
 | `ALLOWED_ORIGINS` | Comma-separated approved HTTPS frontend origins |
 
 The provider must support streamed, OpenAI-compatible chat-completion responses.
-Provider/model selection has not yet been supplied. Keep the API key private; do
+The selected model is `gemini-3.1-flash-lite` and the endpoint is
+`https://generativelanguage.googleapis.com/v1beta/openai/chat/completions`.
+Google offers a rate-limited free tier for this model. Billing settings were not
+changed during activation; provider billing tier is controlled in Google’s project.
+Keep the API key private; do
 not paste it into chat, add it to a `VITE_` variable, or commit it to Git.
 
 The Supabase URL and public anon key are supplied automatically to the function

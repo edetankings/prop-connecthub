@@ -57,6 +57,7 @@ const AIAssistant = () => {
   const [messages, setMessages] = useState<AIMessage[]>([]);
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
+  const [requestError, setRequestError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const hydratedFor = useRef<string | null>(null);
@@ -108,6 +109,7 @@ const AIAssistant = () => {
       const userMsg: AIMessage = { id: crypto.randomUUID(), role: "user", content: clean };
       const history = [...messages, userMsg];
       setMessages(history);
+      setRequestError(null);
       setInput("");
       setStreaming(true);
 
@@ -187,7 +189,10 @@ const AIAssistant = () => {
         }
       } catch (e: unknown) {
         setMessages((prev) => prev.filter((m) => m.id !== assistantId));
-        toast.error(e instanceof Error ? e.message : "Something went wrong. Please retry.");
+        const message = e instanceof Error ? e.message : "Something went wrong. Please retry.";
+        setRequestError(message);
+        setInput(clean);
+        toast.error(message);
       } finally {
         setStreaming(false);
       }
@@ -196,6 +201,7 @@ const AIAssistant = () => {
   );
 
   const clearChat = () => {
+    setRequestError(null);
     setMessages([]);
     try {
       if (storageKey) window.localStorage.removeItem(storageKey);
@@ -297,6 +303,13 @@ const AIAssistant = () => {
                   </div>
                 </div>
               )
+            )}
+            {requestError && (
+              <div role="alert" className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-foreground">
+                <p className="font-semibold">Prop Connect AI couldn’t reply</p>
+                <p className="mt-1">{requestError}</p>
+                <p className="mt-2 text-muted-foreground">Your question is back in the message box so you can try again.</p>
+              </div>
             )}
             <div ref={bottomRef} />
           </div>
