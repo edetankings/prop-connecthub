@@ -1,4 +1,5 @@
-import { BarChart3, Building2, CalendarCheck, CreditCard, FileCheck2, Home, LifeBuoy, Megaphone, MessageCircle, Network, ReceiptText, ScrollText, Settings2, ShieldAlert, Sparkles, Users, Wallet, type LucideIcon } from "lucide-react";
+import PropConnectAIIcon from "@/components/PropConnectAIIcon";
+import { BarChart3, Building2, CalendarCheck, CreditCard, FileCheck2, Home, LifeBuoy, Megaphone, MessageCircle, Network, ReceiptText, ScrollText, Settings2, ShieldAlert, Users, Wallet, type LucideIcon } from "lucide-react";
 
 export type AdminDestination = { label: string; to: string; icon: LucideIcon; aliases?: string[] };
 export const adminNavigation: { label: string; items: AdminDestination[] }[] = [
@@ -14,7 +15,7 @@ export const adminNavigation: { label: string; items: AdminDestination[] }[] = [
     { label: "Support inbox", to: "/admin?view=support", icon: LifeBuoy },
     { label: "Announcements", to: "/admin?view=announcements", icon: Megaphone },
     { label: "My messages", to: "/messages", icon: MessageCircle },
-    { label: "Prop Connect AI", to: "/ai-assistant", icon: Sparkles },
+    { label: "Prop Connect AI", to: "/ai-assistant", icon: PropConnectAIIcon },
   ] },
   { label: "Business", items: [
     { label: "Subscriptions", to: "/admin?view=subscriptions", icon: CreditCard },
