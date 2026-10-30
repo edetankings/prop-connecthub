@@ -18,12 +18,6 @@ interface AIMessage {
   content: string;
 }
 
-const LEGACY_STORAGE_KEY = "prop-connect-ai-conversation";
-/** Conversations are namespaced per authenticated user so no history leaks between accounts. */
-const storageKeyFor = (userId?: string | null) =>
-  userId ? `prop-connect-ai-conversation:${userId}` : null;
-
-
 const QUICK_PROMPTS: Record<string, string[]> = {
   buyer: [
     "How does the escrow payment work?",
@@ -45,11 +39,10 @@ const QUICK_PROMPTS: Record<string, string[]> = {
   ],
 };
 
-const AIAssistant = () => {
+const AccountAIAssistant = () => {
   const { profile, session, user, isAdmin } = useAuth();
   const navigate = useNavigate();
   const userId: string | undefined = user?.id ?? session?.user?.id;
-  const storageKey = storageKeyFor(userId);
   const role: "buyer" | "agent" | "admin" =
     isAdmin ? "admin" : profile?.profile_type === "agent" || profile?.profile_type === "builder" ? "agent" : "buyer";
 
@@ -60,38 +53,19 @@ const AIAssistant = () => {
   const [requestError, setRequestError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
-  const hydratedFor = useRef<string | null>(null);
-
-  // Load (or reset) the conversation whenever the signed-in user changes.
-  useEffect(() => {
-    // Drop the legacy shared key so old cross-account history can never surface.
-    try {
-      window.localStorage.removeItem(LEGACY_STORAGE_KEY);
-    } catch {
-      /* ignore */
-    }
-    if (!storageKey) {
-      hydratedFor.current = null;
-      setMessages([]);
-      return;
-    }
-    try {
-      const raw = window.localStorage.getItem(storageKey);
-      setMessages(raw ? (JSON.parse(raw) as AIMessage[]) : []);
-    } catch {
-      setMessages([]);
-    }
-    hydratedFor.current = storageKey;
-  }, [storageKey]);
+  const activeRequest = useRef<AbortController | null>(null);
 
   useEffect(() => {
-    if (!storageKey || hydratedFor.current !== storageKey) return;
+    // Remove old browser-persisted chats, including those left by other accounts.
     try {
-      window.localStorage.setItem(storageKey, JSON.stringify(messages.slice(-50)));
-    } catch {
-      /* storage full — ignore */
-    }
-  }, [messages, storageKey]);
+      for (const key of Object.keys(window.localStorage)) {
+        if (key === "prop-connect-ai-conversation" || key.startsWith("prop-connect-ai-conversation:")) {
+          window.localStorage.removeItem(key);
+        }
+      }
+    } catch { /* storage may be disabled */ }
+    return () => { activeRequest.current?.abort(); };
+  }, []);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -104,7 +78,9 @@ const AIAssistant = () => {
   const ask = useCallback(
     async (text: string) => {
       const clean = text.trim();
-      if (!clean || streaming) return;
+      if (!clean || streaming || !userId) return;
+      const controller = new AbortController();
+      activeRequest.current = controller;
 
       const userMsg: AIMessage = { id: crypto.randomUUID(), role: "user", content: clean };
       const history = [...messages, userMsg];
@@ -122,10 +98,15 @@ const AIAssistant = () => {
         if (sessionError || !accessToken) {
           throw new Error("Your session expired. Please sign in again to chat with Prop Connect AI.");
         }
+        if (controller.signal.aborted) return;
+        if (sessionData.session?.user?.id !== userId) {
+          throw new Error("Your account changed. Refresh before sending a new message.");
+        }
         let res: Response;
         try {
           res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/prop-ai`, {
             method: "POST",
+            signal: controller.signal,
             headers: {
               "Content-Type": "application/json",
               Authorization: `Bearer ${accessToken}`,
@@ -139,6 +120,8 @@ const AIAssistant = () => {
           // Network-level failure (offline, blocked request, gateway rejection without CORS)
           throw new Error("Couldn't reach Prop Connect AI. Check your connection and try again.");
         }
+
+        if (controller.signal.aborted) return;
 
         if (res.status === 401) {
           throw new Error("Your session expired. Please sign in again to continue.");
@@ -158,6 +141,7 @@ const AIAssistant = () => {
 
         while (true) {
           const { done, value } = await reader.read();
+          if (controller.signal.aborted) { await reader.cancel(); return; }
           if (done) break;
           buffer += decoder.decode(value, { stream: true });
           const lines = buffer.split("\n");
@@ -188,26 +172,23 @@ const AIAssistant = () => {
           );
         }
       } catch (e: unknown) {
+        if (controller.signal.aborted) return;
         setMessages((prev) => prev.filter((m) => m.id !== assistantId));
         const message = e instanceof Error ? e.message : "Something went wrong. Please retry.";
         setRequestError(message);
         setInput(clean);
         toast.error(message);
       } finally {
-        setStreaming(false);
+        if (!controller.signal.aborted) setStreaming(false);
       }
     },
-    [messages, profile?.full_name, role, session?.access_token, streaming]
+    [messages, userId, streaming]
   );
 
   const clearChat = () => {
     setRequestError(null);
     setMessages([]);
-    try {
-      if (storageKey) window.localStorage.removeItem(storageKey);
-    } catch {
-      /* ignore */
-    }
+
   };
 
   const prompts = QUICK_PROMPTS[role];
@@ -236,7 +217,7 @@ const AIAssistant = () => {
             <div className="min-w-0 flex-1">
               <h1 className="truncate font-display text-lg font-bold text-foreground">Prop Connect AI</h1>
               <p className="flex items-center gap-1 text-[11px] text-muted-foreground">
-                <ShieldCheck className="h-3 w-3 text-secondary" /> Your private real estate assistant
+                <ShieldCheck className="h-3 w-3 text-secondary" /> Your account’s real estate assistant
               </p>
             </div>
             {messages.length > 0 && (
@@ -381,13 +362,20 @@ const AIAssistant = () => {
               </Button>
             </div>
             <p className="mt-2 text-center text-[10px] text-muted-foreground">
-              Prop Connect AI can make mistakes. Always verify property documents through the platform.
+              Chats clear when you leave or refresh this page. Messages are processed by our AI provider; avoid sharing sensitive personal details. Always verify property documents through the platform.
             </p>
           </div>
         </div>
       </div>
     </AuthenticatedLayout>
   );
+};
+
+// A new account gets a new component instance: no transcript, draft, error or
+// in-flight reply can survive an account switch, even for one render.
+const AIAssistant = () => {
+  const { user, session } = useAuth();
+  return <AccountAIAssistant key={user?.id ?? session?.user?.id ?? "signed-out"} />;
 };
 
 export default AIAssistant;

@@ -50,3 +50,15 @@ runtime. They are separate from the external AI provider key.
 Navigation, administrator/builder prompt selection, session failures, and streamed
 responses are covered by focused frontend tests with mocked services. These tests
 do not prove live provider billing, quota, or response behavior.
+
+## Account privacy
+
+Chat messages and drafts are held only in the current page’s memory. They clear
+on refresh, leaving the page, sign-out or account changes. Legacy browser-stored
+AI conversations are removed when the chat opens. Account changes abort active
+requests, and each request checks that its session owner matches the chat owner.
+The backend derives identity and role from verified authentication, loads only
+the caller’s profile, and searches approved listings with the caller’s RLS context.
+It does not load other users’ conversations, KYC documents, wallets or messages.
+Conversation text is sent to the configured external AI provider. Account
+isolation does not mean provider-side retention or training is disabled.
