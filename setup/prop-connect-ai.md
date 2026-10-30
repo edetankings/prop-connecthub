@@ -3,8 +3,9 @@
 ## Current state — 30 October 2026
 
 The authenticated `prop-ai` Edge Function is deployed to the independent Supabase
-project `prtrpywkwmnpowrthppg`. The approved production browser origin is
-`https://propconnect-vine.vercel.app`; local development origins are supported by
+project `prtrpywkwmnpowrthppg`. The confirmed production browser origin is
+`https://propconnect-wine.vercel.app`. It is allow-listed alongside the historical
+`https://propconnect-vine.vercel.app` origin; local development origins are supported by
 the shared CORS helper. Provider calls are enabled using Gemini 3.1 Flash-Lite
 through Google’s OpenAI-compatible streaming endpoint. The provider key is stored
 only in Supabase server secrets; no AI provider key is stored in browser code.

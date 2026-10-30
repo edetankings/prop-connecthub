@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Prop Connect</title>
+  <rect width="64" height="64" rx="16" fill="#0d4b3b"/>
+  <path d="M32 8 53 16v17c0 12-9 19-21 24C20 52 11 45 11 33V16Z" fill="none" stroke="#d8b76a" stroke-width="3" stroke-linejoin="round"/>
+  <path d="m19 31 13-12 13 12M23 29v16h18V29" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M29 45V34h6v11" fill="#fff"/>
+</svg>
