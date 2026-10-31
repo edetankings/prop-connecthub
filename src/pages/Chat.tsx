@@ -18,7 +18,7 @@ import { encodeAttachment, fileKind, uploadChatFile } from "@/lib/chatAttachment
 
 const PAGE_SIZE = 30;
 
-const Chat = () => {
+const ChatSession = () => {
   const { threadId } = useParams();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -27,7 +27,7 @@ const Chat = () => {
   const [messages, setMessages] = useState<BubbleMessage[]>([]);
   const [input, setInput] = useState("");
   const [otherUser, setOtherUser] = useState<{ name: string; avatar: string | null } | null>(null);
-  const [currentThreadId, setCurrentThreadId] = useState<string | null>(threadId || null);
+  const [currentThreadId, setCurrentThreadId] = useState<string | null>(threadId && threadId !== "new" ? threadId : null);
   const [messagesError, setMessagesError] = useState(false);
   const [messagesLoading, setMessagesLoading] = useState(false);
   const [messagesRetry, setMessagesRetry] = useState(0);
@@ -41,6 +41,7 @@ const Chat = () => {
   const [showSearch, setShowSearch] = useState(false);
   const [msgQuery, setMsgQuery] = useState("");
   const [limit, setLimit] = useState(PAGE_SIZE);
+  const [hasEarlier, setHasEarlier] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const typingChannel = useRef<any>(null);
 
@@ -57,7 +58,7 @@ const Chat = () => {
         return;
       }
       if (agentProfileId) {
-        const { data: existing } = await supabase
+        const { data: existing, error: existingError } = await supabase
           .from("chat_threads")
           .select("id, status")
           .or(
@@ -65,17 +66,19 @@ const Chat = () => {
           )
           .maybeSingle();
 
+        if (existingError) throw existingError;
         if (existing) {
           setCurrentThreadId(existing.id);
           setThreadStatus((existing as any).status || "restricted");
           await loadThreadDetails(existing.id);
           navigate(`/chat/${existing.id}`, { replace: true });
         } else {
-          const { data: newThread } = await supabase
+          const { data: newThread, error: createError } = await supabase
             .from("chat_threads")
             .insert({ buyer_id: profile.id, agent_id: agentProfileId, property_id: propertyId || null } as any)
             .select("id, status")
             .single();
+          if (createError) throw createError;
           if (newThread) {
             setCurrentThreadId(newThread.id);
             setThreadStatus((newThread as any).status || "restricted");
@@ -87,12 +90,17 @@ const Chat = () => {
       }
       setLoading(false);
     };
-    init();
+    init().catch((error) => {
+      setCurrentThreadId(null);
+      setLoading(false);
+      toast.error(error?.message || "Unable to open conversation. Please try again.");
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [profile, threadId, agentProfileId]);
+  }, [profile?.id, threadId, agentProfileId, propertyId]);
 
   const loadThreadDetails = async (tId: string) => {
-    const { data: thread } = await supabase.from("chat_threads").select("*").eq("id", tId).single();
+    const { data: thread, error } = await supabase.from("chat_threads").select("*").eq("id", tId).single();
+    if (error || !thread) throw error || new Error("Conversation unavailable");
     if (thread && profile) {
       setThreadStatus((thread as any).status || "restricted");
       const mineIsBuyer = thread.buyer_id === profile.id;
@@ -140,15 +148,25 @@ const Chat = () => {
     if (!currentThreadId) return;
     let active = true;
     const loadMessages = async () => {
-      setMessagesLoading(true); setMessagesError(false); setMessages([]);
+      setMessagesLoading(true); setMessagesError(false);
       try {
       const { data, error } = await supabase
         .from("messages")
         .select("*")
         .eq("thread_id", currentThreadId)
-        .order("created_at", { ascending: true });
+        .order("created_at", { ascending: false })
+        .order("id", { ascending: false })
+        .limit(limit);
       if (error) throw error;
-      if (active) setMessages((data || []) as BubbleMessage[]);
+      if (active) {
+        setHasEarlier((data || []).length === limit);
+        const loaded = [...(data || [])].reverse() as BubbleMessage[];
+        setMessages(previous => {
+          const combined = new Map(loaded.map(message => [message.id, message]));
+          for (const message of previous) if (!combined.has(message.id)) combined.set(message.id, message);
+          return [...combined.values()].sort((a, b) => a.created_at.localeCompare(b.created_at));
+        });
+      }
       } catch { if (active) setMessagesError(true); }
       finally { if (active) setMessagesLoading(false); }
     };
@@ -170,6 +188,7 @@ const Chat = () => {
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "messages", filter: `thread_id=eq.${currentThreadId}` },
         (payload) => {
+          if (!active) return;
           const newMsg = payload.new as BubbleMessage;
           setMessages((prev) =>
             prev.find((m) => m.id === newMsg.id)
@@ -185,10 +204,14 @@ const Chat = () => {
         "postgres_changes",
         { event: "UPDATE", schema: "public", table: "messages", filter: `thread_id=eq.${currentThreadId}` },
         (payload) => {
+          if (!active) return;
           const updated = payload.new as BubbleMessage;
           setMessages((prev) => prev.map((m) => (m.id === updated.id ? updated : m)));
         }
       )
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "chat_threads", filter: `id=eq.${currentThreadId}` }, (payload) => {
+        if (active) setThreadStatus(payload.new.status || "restricted");
+      })
       .on("broadcast", { event: "typing" }, ({ payload }) => {
         if (payload?.from && payload.from !== profile?.id) {
           setOtherTyping(true);
@@ -203,7 +226,7 @@ const Chat = () => {
       supabase.removeChannel(channel);
       typingChannel.current = null;
     };
-  }, [currentThreadId, profile, messagesRetry]);
+  }, [currentThreadId, profile?.id, messagesRetry, limit]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -230,16 +253,22 @@ const Chat = () => {
           },
         ]);
       }
-      const { error } = await supabase.from("messages").insert({ thread_id: currentThreadId, sender_id: profile.id, content } as any);
-      if (error) {
-        setMessages((prev) => prev.filter((m) => !(m.pending && m.content === content)));
-        toast.error(error.message);
-        return;
+      try {
+        const { data, error } = await supabase.from("messages")
+          .insert({ thread_id: currentThreadId, sender_id: profile.id, content } as any)
+          .select("*").single();
+        if (error || !data) throw error || new Error("Message was not saved");
+        const saved = data as BubbleMessage;
+        setMessages(previous => [...previous.filter(message => message.id !== saved.id && !(message.pending && message.content === content)), saved]
+          .sort((a, b) => a.created_at.localeCompare(b.created_at)));
+        // Inbox recency must not turn a confirmed message into a failed send.
+        await supabase.from("chat_threads").update({ last_message_at: saved.created_at } as any).eq("id", currentThreadId);
+        return true;
+      } catch (error: unknown) {
+        setMessages(previous => previous.filter(message => !(message.pending && message.content === content)));
+        toast.error(error instanceof Error ? error.message : "Could not send message. Please retry.");
+        return false;
       }
-      await supabase
-        .from("chat_threads")
-        .update({ last_message_at: new Date().toISOString() } as any)
-        .eq("id", currentThreadId);
     },
     [currentThreadId, profile]
   );
@@ -251,16 +280,21 @@ const Chat = () => {
         toast.error("Contact sharing is not allowed on this platform.");
         return;
       }
-      await persist(text);
+      if (threadStatus !== "active" && !AI_QUICK_OPTIONS.includes(text)) {
+        toast.error("Use a quick question until this chat is activated.");
+        return false;
+      }
+      return await persist(text);
     },
-    [currentThreadId, profile, persist]
+    [currentThreadId, profile, persist, threadStatus]
   );
 
   const send = useCallback(async () => {
     if (!input.trim()) return;
     const text = input.trim();
     setInput("");
-    await sendMessage(text);
+    const sent = await sendMessage(text);
+    if (!sent) setInput(text);
   }, [input, sendMessage]);
 
   const handleFiles = async (files: FileList | null) => {
@@ -318,7 +352,7 @@ const Chat = () => {
     toast.success("Chat activated");
   };
 
-  const isRestricted = threadStatus === "restricted";
+  const isRestricted = threadStatus !== "active";
 
   const visible = useMemo(() => {
     const q = msgQuery.trim().toLowerCase();
@@ -434,7 +468,7 @@ const Chat = () => {
         {/* Messages */}
         <div className="flex-1 overflow-y-auto px-4 py-4">
           <div className="container mx-auto max-w-3xl space-y-2.5">
-            {messages.length > visible.length && (
+            {(hasEarlier || messages.length > visible.length) && (
               <div className="flex justify-center">
                 <Button variant="ghost" size="sm" onClick={() => setLimit((l) => l + PAGE_SIZE)}>
                   Load earlier messages
@@ -575,6 +609,13 @@ const Chat = () => {
       </div>
     </AuthenticatedLayout>
   );
+};
+
+const Chat = () => {
+  const { user, profile } = useAuth();
+  const { threadId } = useParams();
+  const [params] = useSearchParams();
+  return <ChatSession key={`${user?.id ?? "signed-out"}:${profile?.id ?? "no-profile"}:${threadId}:${params.toString()}`} />;
 };
 
 export default Chat;

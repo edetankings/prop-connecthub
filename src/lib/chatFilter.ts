@@ -1,9 +1,9 @@
 // Contact sharing filter - blocks phone numbers, emails, links, social handles
-const PHONE_REGEX = /(\+?\d[\d\s\-()]{6,}\d)/g;
-const EMAIL_REGEX = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
-const URL_REGEX = /(https?:\/\/[^\s]+|www\.[^\s]+)/gi;
-const SOCIAL_REGEX = /\b(whatsapp|telegram|instagram|facebook|twitter|snapchat|tiktok|signal|wechat)\b/gi;
-const CONTACT_WORDS_REGEX = /\b(call\s*me|text\s*me|my\s*number|my\s*phone|reach\s*me\s*on|contact\s*me\s*at|dm\s*me|ping\s*me)\b/gi;
+const PHONE_REGEX = /(\+?\d[\d\s\-()]{6,}\d)/;
+const EMAIL_REGEX = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
+const URL_REGEX = /(https?:\/\/[^\s]+|www\.[^\s]+)/i;
+const SOCIAL_REGEX = /\b(whatsapp|telegram|instagram|facebook|twitter|snapchat|tiktok|signal|wechat)\b/i;
+const CONTACT_WORDS_REGEX = /\b(call\s*me|text\s*me|my\s*number|my\s*phone|reach\s*me\s*on|contact\s*me\s*at|dm\s*me|ping\s*me)\b/i;
 
 export const containsContactInfo = (text: string): boolean => {
   return (
