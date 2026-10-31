@@ -2,7 +2,6 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router-dom";
 import type { PdfFile } from "@/components/PdfUploader";
-import type { VideoFile } from "@/components/VideoUploader";
 const mocks = vi.hoisted(() => ({ upload: vi.fn(), insert: vi.fn(), update: vi.fn(), document: vi.fn(), success: vi.fn(), error: vi.fn() }));
 vi.mock("@/integrations/supabase/client", () => ({ supabase: {
   storage: { from: () => ({ upload: mocks.upload, getPublicUrl: (path: string) => ({ data: { publicUrl: `https://media.example/${path}` } }) }) },
@@ -15,8 +14,6 @@ vi.mock("@/hooks/useAuth", () => ({ useAuth: () => ({ profile: { id: "profile-ow
 vi.mock("@/hooks/useSubscription", () => ({ useSubscription: () => ({ isActive: true, canList: true, loading: false, isAgent: false }) }));
 vi.mock("@/components/AuthenticatedLayout", () => ({ default: ({ children }: { children: React.ReactNode }) => children }));
 vi.mock("@/components/LocationPicker", () => ({ default: () => null }));
-vi.mock("@/components/VideoUploader", () => ({ default: ({ onChange }: { onChange: (files: VideoFile[]) => void }) =>
-  <input aria-label="Video fixture" type="file" onChange={(e) => onChange(Array.from(e.target.files || []).map((file) => ({ file, id: "video", preview: "blob:video" })))} /> }));
 vi.mock("@/components/PdfUploader", () => ({ default: ({ onChange }: { onChange: (files: PdfFile[]) => void }) =>
   <input aria-label="Document fixture" type="file" onChange={(e) => onChange(Array.from(e.target.files || []).map((file) => ({ file, id: "fixture" })))} /> }));
 import AddProperty from "./AddProperty";
@@ -60,10 +57,10 @@ describe("property upload failures and retry (mocked services; no remote writes)
     expect(mocks.document.mock.calls[0][0].file_url).toMatch(/^auth-owner\/saved-property\//);
     expect(mocks.document.mock.calls[0][0].file_url).not.toContain("https:");
   });
-  it("does not save after a video transport failure and clears the loading state", async () => {
+  it("does not save after an image transport failure and clears the loading state", async () => {
     mocks.upload.mockRejectedValueOnce(new Error("Offline"));
     open();
-    fireEvent.change(screen.getByLabelText("Video fixture"), { target: { files: [new File(["video"], "test.mp4", { type: "video/mp4" })] } });
+    fireEvent.change(screen.getByLabelText("Property photographs"), { target: { files: [new File(["image"], "test.png", { type: "image/png" })] } });
     fireEvent.click(screen.getByRole("button", { name: "Save as Draft" }));
     await waitFor(() => expect(mocks.error).toHaveBeenCalledWith("Offline"));
     expect(mocks.insert).not.toHaveBeenCalled(); expect(mocks.success).not.toHaveBeenCalled();

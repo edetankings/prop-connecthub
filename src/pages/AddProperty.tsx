@@ -11,10 +11,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
-import { X, ImageIcon, MapPin, Sparkles, Save, Send, AlertTriangle, CreditCard, FileText, ShieldCheck, Video } from "lucide-react";
+import { X, ImageIcon, MapPin, Sparkles, Save, Send, AlertTriangle, CreditCard, FileText, ShieldCheck } from "lucide-react";
 import LocationPicker from "@/components/LocationPicker";
 import PdfUploader, { type PdfFile } from "@/components/PdfUploader";
-import VideoUploader, { type VideoFile } from "@/components/VideoUploader";
 
 const AMENITIES = ["Free WiFi", "Swimming Pool", "Gym", "Parking", "Security", "Garden"];
 const CATEGORIES = [
@@ -38,7 +37,6 @@ const PropertyEditor = ({ editId }: { editId: string | null }) => {
   const [editRetry, setEditRetry] = useState(0);
   const [originalVerified, setOriginalVerified] = useState(false);
   const [uploadMessage, setUploadMessage] = useState("");
-  const [videos, setVideos] = useState<VideoFile[]>([]);
   const navigate = useNavigate();
   const submitLock = useRef(false);
   const savedPropertyId = useRef<string | null>(null);
@@ -186,22 +184,6 @@ const PropertyEditor = ({ editId }: { editId: string | null }) => {
     return selected && urls.includes(selected) ? [selected, ...urls.filter(url => url !== selected)] : urls;
   };
 
-  const uploadVideos = async (): Promise<string[]> => {
-    const urls: string[] = [...existingVideos];
-    for (const v of videos) {
-      const cached = uploadedFiles.current.get(v.file);
-      if (cached) { urls.push(cached); continue; }
-      const ext = v.file.name.split(".").pop();
-      const path = `${profile!.user_id}/videos/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-      const { error } = await supabase.storage.from("property-images").upload(path, v.file, { contentType: v.file.type });
-      if (error) throw new Error(`Video upload failed: ${error.message}`);
-      const { data } = supabase.storage.from("property-images").getPublicUrl(path);
-      uploadedFiles.current.set(v.file, data.publicUrl);
-      urls.push(data.publicUrl);
-    }
-    return urls;
-  };
-
   const handleSubmit = async (status: "draft" | "for_sale") => {
     if (submitLock.current) return;
     if (status === "for_sale" && !validate()) return;
@@ -218,8 +200,6 @@ const PropertyEditor = ({ editId }: { editId: string | null }) => {
     try {
       if (editId && (editLoading || editError || savedPropertyId.current !== editId)) throw new Error("Reload this listing before editing.");
       const imageUrls = await uploadImages();
-      setUploadMessage("Preparing property videos…");
-      const videoUrls = await uploadVideos();
       // Admins auto-approve their listings; agents go through review
       const finalStatus =
         status === "draft" ? "draft" as const :
@@ -243,7 +223,7 @@ const PropertyEditor = ({ editId }: { editId: string | null }) => {
           amenities: form.amenities,
           images: imageUrls,
           image_url: imageUrls[0] || null,
-          videos: videoUrls,
+          videos: existingVideos,
           agent_id: profile.id,
           status: finalStatus,
           ...(!editId ? { is_verified: isAdmin ? true : false } : {}),
@@ -349,7 +329,7 @@ const PropertyEditor = ({ editId }: { editId: string | null }) => {
         {/* Upload Section */}
         <section id="listing-photography" className="mb-8">
           <h2 className="font-display text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
-             Upload Photos & Videos
+             Upload Photos
           </h2>
           <div
             className={`rounded-xl border-2 border-dashed p-8 text-center transition-colors ${dragOver ? "border-secondary bg-secondary/5" : "border-border bg-muted/30"}`}
@@ -384,15 +364,6 @@ const PropertyEditor = ({ editId }: { editId: string | null }) => {
               ))}
             </div>
           )}
-        </section>
-
-        {/* Video Upload */}
-        <section className="mb-8">
-          <h2 className="font-display text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
-            <Video className="h-5 w-5 text-secondary" /> Property Tour Videos <span className="text-xs text-muted-foreground font-normal">(optional)</span>
-          </h2>
-          {existingVideos.length > 0 && <p>{existingVideos.length} saved videos will be retained.</p>}
-          <VideoUploader files={videos} onChange={setVideos} maxFiles={3} maxSizeMb={100} />
         </section>
 
         {/* Property Details */}
