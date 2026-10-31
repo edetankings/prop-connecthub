@@ -1,5 +1,3 @@
-import { supabase } from "@/integrations/supabase/client";
-
 export const CHAT_BUCKET = "chat-attachments";
 
 export type AttachmentKind =
@@ -65,6 +63,8 @@ export const attachmentPreview = (content: string): string => {
 };
 
 export const uploadChatFile = async (userId: string, file: Blob, filename: string) => {
+  // Pure attachment previews must not initialize authentication or require backend configuration.
+  const { supabase } = await import("@/integrations/supabase/client");
   const safe = filename.replace(/[^\w.\-]+/g, "_");
   const path = `${userId}/${Date.now()}-${safe}`;
   const { error } = await supabase.storage.from(CHAT_BUCKET).upload(path, file, {

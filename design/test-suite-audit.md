@@ -3,7 +3,7 @@
 ## Results
 
 - Baseline: 48 test files; 218 passed and 1 failed.
-- Final: 48 test files; all 231 tests passed, including 12 additional regression cases.
+- Initial local verification: 48 test files; all 231 tests passed, including 12 additional regression cases.
 - Application and tooling TypeScript checks passed.
 - Production build passed with the existing bundle-size and Browserslist warnings.
 - Committed package-lock.json passed npm ci dry-run validation in a temporary directory. The unrelated working-copy lockfile edits were not included.
@@ -35,3 +35,16 @@ These checks create synthetic records inside transactions and roll them back. Th
 ## Remaining acceptance checks
 
 Automated mocked-service tests do not prove live browser delivery or real device behavior. Confirm two-account chat delivery/read receipts, actual file and microphone permissions, signed-media rendering, real Gemini responses and account switching, and mobile layout in authenticated browsers. Payment and withdrawal behavior cannot be accepted while the platform intentionally disables those operations. Histories beyond the database row limit still need archival pagination improvements, as noted in chat-system-audit.md.
+
+## Follow-up: first GitHub run
+
+Commit 80c29a6 reached GitHub successfully. The first workflow failed during tests
+because AgentOverview imported the pure chat preview helpers, which eagerly
+initialized Supabase and depended on ignored local configuration. Dependency
+installation and both TypeScript steps had passed.
+
+The attachment module now initializes Supabase only when an upload is requested.
+A new regression test makes backend imports throw while formatting previews.
+The full suite is rerun with VITE_SUPABASE_URL and
+VITE_SUPABASE_PUBLISHABLE_KEY explicitly empty, matching the credential-free
+workflow. All 232 tests across 49 files passed with those variables empty.
