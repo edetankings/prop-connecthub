@@ -1,0 +1,36 @@
+name: Project checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: checks-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Application types
+        run: npx --no-install tsc --noEmit -p tsconfig.app.json
+      - name: Tooling types
+        run: npx --no-install tsc --noEmit -p tsconfig.node.json
+      - name: Tests
+        run: npm test
+      - name: Production build
+        run: npm run build

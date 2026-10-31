@@ -43,7 +43,8 @@ describe("administrator operations using mocked services only", () => {
     state.auth.isAdmin = false; open(<OperationsOverview />); expect(state.from).not.toHaveBeenCalled(); expect(screen.queryByLabelText("Authorized platform summary")).not.toBeInTheDocument();
   });
   it("shows genuine zero counts without invented revenue or settlement controls", async () => {
-    open(<OperationsOverview />); await screen.findAllByText("View records");
+    open(<OperationsOverview />);
+    await waitFor(() => expect(within(screen.getByLabelText("Priority platform metrics")).getAllByText("0")).toHaveLength(4));
     expect(within(screen.getByLabelText("Priority platform metrics")).getAllByText("0")).toHaveLength(4); expect(screen.queryByText("Revenue Overview")).not.toBeInTheDocument(); expect(state.rpc).not.toHaveBeenCalled();
   });
   it("shows a summary failure instead of false zeros and permits retry", async () => {

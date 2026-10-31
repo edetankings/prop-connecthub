@@ -64,3 +64,25 @@ it("exposes no global controls, table or records to a non-administrator",()=>{
  state.admin=false;open();expect(screen.getByRole("alert")).toHaveTextContent("Administrator access is required");expect(screen.queryByRole("switch")).not.toBeInTheDocument();expect(screen.queryByRole("table")).not.toBeInTheDocument();
  expect(state.rpc).not.toHaveBeenCalled();
 });
+
+it("does not claim success when the server acknowledges the wrong value", async () => {
+ open(); const toggle=screen.getByRole("switch",{name:"Subscriptions ON / OFF"});
+ await waitFor(()=>expect(toggle).toBeEnabled());
+ state.rpc.mockImplementationOnce(async()=>({data:true,error:null}));
+ fireEvent.click(toggle);
+ expect(await screen.findByText(/server did not confirm the change/i)).toBeInTheDocument();
+ expect(toggle).toHaveAttribute("aria-checked","true");
+ expect(toggle).toBeEnabled();
+});
+it("prevents repeated saves while an administrator change is pending", async () => {
+ open(); const toggle=screen.getByRole("switch",{name:"Subscriptions ON / OFF"});
+ await waitFor(()=>expect(toggle).toBeEnabled());
+ let finish!:(value:{data:boolean;error:null})=>void;
+ state.rpc.mockImplementationOnce(()=>new Promise(resolve=>{finish=resolve;}));
+ fireEvent.click(toggle); fireEvent.click(toggle);
+ expect(toggle).toBeDisabled();
+ expect(state.rpc.mock.calls.filter(([name])=>name==="set_subscriptions_enabled")).toHaveLength(1);
+ await act(async()=>finish({data:false,error:null}));
+ expect(toggle).toHaveAttribute("aria-checked","false");
+ expect(toggle).toBeEnabled();
+});

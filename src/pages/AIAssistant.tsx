@@ -142,9 +142,8 @@ const AccountAIAssistant = () => {
         while (true) {
           const { done, value } = await reader.read();
           if (controller.signal.aborted) { await reader.cancel(); return; }
-          if (done) break;
-          buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split("\n");
+          buffer += done ? decoder.decode() : decoder.decode(value, { stream: true });
+          const lines = (buffer + (done ? "\n" : "")).split("\n");
           buffer = lines.pop() || "";
           for (const line of lines) {
             const trimmed = line.trim();
@@ -162,6 +161,7 @@ const AccountAIAssistant = () => {
               /* partial chunk */
             }
           }
+          if (done) break;
         }
 
         if (!acc) {
@@ -186,6 +186,9 @@ const AccountAIAssistant = () => {
   );
 
   const clearChat = () => {
+    activeRequest.current?.abort();
+    setStreaming(false);
+    setInput("");
     setRequestError(null);
     setMessages([]);
 

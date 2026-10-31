@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 const state = vi.hoisted(() => ({ userId: "test-ai-user", admin: false, type: "buyer", session: vi.fn(), fetch: vi.fn(), error: vi.fn() }));
@@ -95,4 +95,51 @@ it("aborts pending requests on account switch without showing late replies", asy
   finish(new Response('data: {"choices":[{"delta":{"content":"Late private reply"}}]}\n\n'));
   await waitFor(() => expect(screen.getByPlaceholderText("Ask Prop Connect AI…")).toBeEnabled());
   expect(screen.queryByText("Late private reply")).not.toBeInTheDocument();
+});
+
+it.each([
+  [401, "Your session expired. Please sign in again to continue."],
+  [429, "Too many requests. Please wait a moment and try again."],
+  [502, "The assistant is unavailable right now."],
+])("shows an actionable HTTP %s failure and lets the user retry", async (status, message) => {
+  state.fetch.mockResolvedValue(new Response(JSON.stringify({ error: message }), { status }));
+  open();
+  fireEvent.change(screen.getByPlaceholderText("Ask Prop Connect AI…"), { target: { value: "Explain verification" } });
+  fireEvent.click(screen.getByRole("button", { name: "Send message" }));
+  expect(await screen.findByRole("alert")).toHaveTextContent(message);
+  expect(screen.getByPlaceholderText("Ask Prop Connect AI…")).toHaveValue("Explain verification");
+  expect(screen.getByRole("button", { name: "Send message" })).toBeEnabled();
+  state.fetch.mockResolvedValue(new Response('data: {"choices":[{"delta":{"content":"Verify your identity in Settings."}}]}\n\n'));
+  fireEvent.click(screen.getByRole("button", { name: "Send message" }));
+  expect(await screen.findByText("Verify your identity in Settings.")).toBeInTheDocument();
+  expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+});
+it("handles a response split across network chunks and a final line without a newline", async () => {
+  const bytes = new TextEncoder().encode('data: {"choices":[{"delta":{"content":"Budget ₦50M in Lagos."}}]}');
+  const split = bytes.indexOf(0xe2) + 1;
+  const stream = new ReadableStream<Uint8Array>({ start(controller) {
+    controller.enqueue(bytes.slice(0, 12)); controller.enqueue(bytes.slice(12, split));
+    controller.enqueue(bytes.slice(split)); controller.close();
+  } });
+  state.fetch.mockResolvedValue(new Response(stream));
+  open();
+  fireEvent.change(screen.getByPlaceholderText("Ask Prop Connect AI…"), { target: { value: "My budget" } });
+  fireEvent.click(screen.getByRole("button", { name: "Send message" }));
+  expect(await screen.findByText("Budget ₦50M in Lagos.")).toBeInTheDocument();
+});
+it("cancels a pending answer when starting a new chat and permits a fresh question", async () => {
+  let finish!: (response: Response) => void;
+  state.fetch.mockImplementationOnce(() => new Promise<Response>(resolve => { finish = resolve; }));
+  open();
+  fireEvent.change(screen.getByPlaceholderText("Ask Prop Connect AI…"), { target: { value: "Old question" } });
+  fireEvent.click(screen.getByRole("button", { name: "Send message" }));
+  await waitFor(() => expect(state.fetch).toHaveBeenCalledTimes(1));
+  const signal = state.fetch.mock.calls[0][1].signal as AbortSignal;
+  fireEvent.click(screen.getByRole("button", { name: "New chat" }));
+  expect(signal.aborted).toBe(true);
+  fireEvent.change(screen.getByPlaceholderText("Ask Prop Connect AI…"), { target: { value: "New question" } });
+  expect(screen.getByRole("button", { name: "Send message" })).toBeEnabled();
+  await act(async () => { finish(new Response('data: {"choices":[{"delta":{"content":"Stale answer"}}]}\n\n')); });
+  expect(screen.queryByText("Stale answer")).not.toBeInTheDocument();
+  expect(screen.queryByText("Old question")).not.toBeInTheDocument();
 });

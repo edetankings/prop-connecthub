@@ -109,6 +109,15 @@ npx --no-install tsc --noEmit -p tsconfig.app.json
 npx --no-install tsc --noEmit -p tsconfig.node.json
 ```
 
+GitHub runs application and tooling TypeScript checks, the full automated test
+suite, and the production build on pushes to `main` and pull requests. These
+checks use mocked application services and need no production credentials.
+They do not run live payment, email or provider calls.
+
+ESLint is still a separate failing check because of existing typing and style
+issues; the test/build workflow does not claim lint is clean. See
+`design/test-suite-audit.md` for the latest verification scope and limitations.
+
 ## Backend configuration
 
 The frontend requires `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`.

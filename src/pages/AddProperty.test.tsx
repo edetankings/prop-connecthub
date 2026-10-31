@@ -81,3 +81,11 @@ describe("property upload failures and retry (mocked services; no remote writes)
     expect(mocks.insert).toHaveBeenCalledTimes(1);
   });
 });
+
+it("offers photos and documents, with no video posting control", () => {
+  const { container } = open();
+  expect(screen.getByLabelText("Property photographs")).toHaveAttribute("accept", "image/*");
+  expect(screen.getByLabelText("Document fixture")).toBeInTheDocument();
+  expect(screen.queryByText(/Property Tour Videos/i)).not.toBeInTheDocument();
+  expect(container.querySelector('input[accept*="video"]')).toBeNull();
+});
